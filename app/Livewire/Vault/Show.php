@@ -17,6 +17,7 @@ use App\Services\VaultFiles\Note;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -33,9 +34,14 @@ final class Show extends Component
     /** @var Collection<int, VaultNode> */
     public Collection $templates;
 
+    #[Locked]
     #[Url(as: 'file')]
     public ?int $selectedFile = null;
 
+    #[Locked]
+    public ?string $selectedFileExtension = null;
+
+    #[Locked]
     public ?string $selectedFileUrl = null;
 
     public bool $isEditMode = true;
@@ -115,7 +121,7 @@ final class Show extends Component
 
     public function closeFile(): void
     {
-        $this->reset(['selectedFile', 'selectedFileUrl']);
+        $this->reset(['selectedFile', 'selectedFileExtension', 'selectedFileUrl']);
         $this->nodeForm->reset('node');
     }
 
@@ -254,6 +260,7 @@ final class Show extends Component
     private function setNode(VaultNode $node): void
     {
         $this->selectedFile = $node->id;
+        $this->selectedFileExtension = $node->extension;
         $this->selectedFileUrl = new GetUrlFromVaultNode()->handle($node);
         $this->nodeForm->setNode($node);
     }

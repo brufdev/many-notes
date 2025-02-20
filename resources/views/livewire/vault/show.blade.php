@@ -116,40 +116,38 @@
                                                 <x-icons.bars3 class="w-5 h-5" />
                                             </x-menu.button>
                                             <x-menu.items>
-                                                @if (in_array($nodeForm->extension, App\Services\VaultFiles\Note::extensions()))
-                                                    <x-modal x-show="isEditMode">
-                                                        <x-modal.open>
-                                                            <x-menu.close>
-                                                                <x-menu.item>
-                                                                    <x-icons.documentDuplicate class="w-4 h-4" />
-                                                                    {{ __('Insert template') }}
-                                                                </x-menu.item>
-                                                            </x-menu.close>
-                                                        </x-modal.open>
-                                                        <x-modal.panel title="{{ __('Choose a template') }}">
-                                                            @if ($templates && count($templates))
-                                                                <ul class="flex flex-col gap-2" wire:loading.class="opacity-50">
-                                                                    @foreach ($templates as $template)
-                                                                        <li wire:key="{{ $template->id }}">
-                                                                            <button type="button"
-                                                                                class="flex w-full gap-2 py-1 hover:text-light-base-950 dark:hover:text-base-50"
-                                                                                wire:click="insertTemplate({{ $template->id }}); modalOpen = false"
+                                                <x-modal x-show="selectedFileExtension == 'md' && isEditMode">
+                                                    <x-modal.open>
+                                                        <x-menu.close>
+                                                            <x-menu.item>
+                                                                <x-icons.documentDuplicate class="w-4 h-4" />
+                                                                {{ __('Insert template') }}
+                                                            </x-menu.item>
+                                                        </x-menu.close>
+                                                    </x-modal.open>
+                                                    <x-modal.panel title="{{ __('Choose a template') }}">
+                                                        @if ($templates && count($templates))
+                                                            <ul class="flex flex-col gap-2" wire:loading.class="opacity-50">
+                                                                @foreach ($templates as $template)
+                                                                    <li wire:key="{{ $template->id }}">
+                                                                        <button type="button"
+                                                                            class="flex w-full gap-2 py-1 hover:text-light-base-950 dark:hover:text-base-50"
+                                                                            wire:click="insertTemplate({{ $template->id }}); modalOpen = false"
+                                                                        >
+                                                                            <span class="overflow-hidden whitespace-nowrap text-ellipsis"
+                                                                                title="{{ $template->name }}"
                                                                             >
-                                                                                <span class="overflow-hidden whitespace-nowrap text-ellipsis"
-                                                                                    title="{{ $template->name }}"
-                                                                                >
-                                                                                    {{ $template->name }}
-                                                                                </span>
-                                                                            </button>
-                                                                        </li>
-                                                                    @endforeach
-                                                                </ul>
-                                                            @else
-                                                                <p>{{ __('No templates found') }}</p>
-                                                            @endif
-                                                        </x-modal.panel>
-                                                    </x-modal>
-                                                @endif
+                                                                                {{ $template->name }}
+                                                                            </span>
+                                                                        </button>
+                                                                    </li>
+                                                                @endforeach
+                                                            </ul>
+                                                        @else
+                                                            <p>{{ __('No templates found') }}</p>
+                                                        @endif
+                                                    </x-modal.panel>
+                                                </x-modal>
 
                                                 <x-menu.close>
                                                     <x-menu.item wire:click="closeFile">
@@ -270,6 +268,7 @@
             isRightPanelOpen: false,
             isEditMode: $wire.entangle('isEditMode'),
             selectedFile: $wire.entangle('selectedFile'),
+            selectedFileExtension: $wire.entangle('selectedFileExtension'),
             html: '',
             renderListitem: null,
 
