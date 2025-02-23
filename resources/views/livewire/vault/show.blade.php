@@ -46,7 +46,15 @@
                 :class="{ 'translate-x-0': isLeftPanelOpen, '-translate-x-full hidden': !isLeftPanelOpen }"
             >
                 <div class="sticky top-0 z-[5] flex justify-between p-4 bg-light-base-50 dark:bg-base-900">
-                    <h3>{{ $vault->name }}</h3>
+                    <h3>
+                        <a data-id="" draggable="true"
+                            @dragenter.prevent=""
+                            @dragover.prevent=""
+                            @drop="$dispatch('treeview-move-node', { event: event })"
+                        >
+                            {{ $vault->name }}
+                        </a>
+                    </h3>
 
                     <div class="flex items-center">
                         <x-menu>

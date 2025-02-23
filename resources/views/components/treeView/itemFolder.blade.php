@@ -1,18 +1,21 @@
-@props(['node']) 
+@aware(['node']) 
 
 <div class="relative w-full">
     <x-menu>
-        <button x-ref="button" @click="accordionOpen = !accordionOpen" @contextmenu.prevent="menuOpen = !menuOpen"
-            @keydown.escape="menuOpen = false" @auxclick.outside="menuOpen = false" class="flex items-center w-full">
-            <span class="flex items-center w-full">
-                <x-icons.chevronRight x-show="!accordionOpen" class="w-4 h-4" />
-                <x-icons.chevronDown x-show="accordionOpen" class="w-4 h-4" x-cloak />
+        <a href="" class="flex items-center w-full" title="{{ $node->name }}"
+            data-id="{{ $node->id }}" x-ref="button"
+            @click.prevent="accordionOpen = !accordionOpen"
+            @contextmenu.prevent="menuOpen = !menuOpen"
+            @keydown.escape="menuOpen = false"
+            @auxclick.outside="menuOpen = false"
+        >
+            <x-icons.chevronRight x-show="!accordionOpen" class="w-4 h-4" />
+            <x-icons.chevronDown x-show="accordionOpen" class="w-4 h-4" x-cloak />
 
-                <span title="{{ $node->name }}" class="ml-1 overflow-hidden whitespace-nowrap text-ellipsis">
-                    {{ $node->name }}
-                </span>
+            <span class="ml-1 overflow-hidden whitespace-nowrap text-ellipsis">
+                {{ $node->name }}
             </span>
-        </button>
+        </a>
 
         <x-menu.items>
             <x-menu.close>

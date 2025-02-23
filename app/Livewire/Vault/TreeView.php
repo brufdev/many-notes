@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Vault;
 
+use App\Actions\UpdateVaultNode;
 use App\Models\Vault;
 use App\Models\VaultNode;
 use Illuminate\Contracts\View\Factory;
@@ -16,6 +17,36 @@ use Staudenmeir\LaravelAdjacencyList\Eloquent\Builder;
 final class TreeView extends Component
 {
     public Vault $vault;
+
+    public function moveNode(VaultNode $source, ?VaultNode $target): void
+    {
+        $this->authorize('view', $source->vault);
+
+        /** @var Vault $sourceVault */
+        $sourceVault = $source->vault;
+
+        /** @var VaultNode $target */
+        if ($target->exists && !$sourceVault->is($target->vault)) {
+            abort(403);
+        }
+
+        $parentId = null;
+
+        if ($target->exists) {
+            // Ignore if $target is a child of $source
+            if ($target->ancestors->pluck('id')->contains($source->id)) {
+                return;
+            }
+
+            $parentId = $target->is_file ? $target->parent_id : $target->id;
+        }
+
+        if ($source->parent_id === $parentId) {
+            return;
+        }
+
+        new UpdateVaultNode()->handle($source, ['parent_id' => $parentId]);
+    }
 
     public function placeholder(): string
     {
