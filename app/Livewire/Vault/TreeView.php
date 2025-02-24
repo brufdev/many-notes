@@ -34,6 +34,7 @@ final class TreeView extends Component
 
         if ($target->exists) {
             // Ignore if $target is the same as $source or if it is a child of $source
+            // @phpstan-ignore-next-line larastan.noUnnecessaryCollectionCall
             if ($target->ancestorsAndSelf()->pluck('id')->contains($source->id)) {
                 return;
             }
