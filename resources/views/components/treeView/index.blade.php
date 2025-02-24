@@ -9,21 +9,34 @@
 @script
     <script>
         Alpine.data('treeView', () => ({
-            moveNode(event) {
-                const sourceId = event.dataTransfer.getData('text/plain');
-                const targetId = event.target.closest('a').dataset.id;
+            moveNodeId: null,
 
-                if (!+sourceId || (targetId.length && !+targetId) || sourceId == targetId) {
+            moveNode(nodeId) {
+                this.moveNodeId = nodeId;
+            },
+
+            dropNode(nodeId) {
+                if (!this.dropNodeAllowed(nodeId)) {
                     return;
                 }
 
-                const args = [sourceId];
+                const args = [this.moveNodeId];
 
-                if (targetId.length) {
-                    args.push(targetId);
+                if (nodeId > 0) {
+                    args.push(nodeId);
                 }
 
                 $wire.moveNode(...args);
+                this.moveNodeId = null;
+            },
+
+            dropNodeAllowed(nodeId) {
+                return typeof this.moveNodeId === 'number' && this.moveNodeId > 0 &&
+                    typeof nodeId === 'number' && nodeId >= 0;
+            },
+
+            showDropZone(nodes) {
+                return !nodes.includes(this.moveNodeId.toString());
             }
         }));
     </script>

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Actions\CreateVault;
 use App\Actions\CreateVaultNode;
-use App\Actions\GetPathFromUser;
 use App\Actions\GetPathFromVaultNode;
 use App\Actions\GetUrlFromVaultNode;
 use App\Actions\ProcessVaultNodeLinks;
@@ -403,23 +402,6 @@ it('process the tags when updating a node', function (): void {
     expect($node->tags->count())->toBe(2);
     expect($node->tags->get(0)->name)->toBe('tag1');
     expect($node->tags->get(1)->name)->toBe('tag2');
-});
-
-it('updates the vault', function (): void {
-    $user = User::factory()->create()->first();
-    $vault = new CreateVault()->handle($user, [
-        'name' => fake()->words(3, true),
-    ]);
-    $newName = fake()->words(3, true);
-
-    Livewire::actingAs($user)
-        ->test(Show::class, ['vault' => $vault])
-        ->set('vaultForm.name', $newName)
-        ->call('editVault');
-    expect($user->vaults()->first()->name)->toBe($newName);
-
-    $path = new GetPathFromUser()->handle($user) . $newName;
-    expect(Storage::disk('local')->path($path))->toBeDirectory();
 });
 
 it('deletes a node', function (): void {

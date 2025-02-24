@@ -45,62 +45,6 @@
             <div class="absolute top-0 left-0 z-30 flex flex-col h-full overflow-hidden overflow-y-auto transition-all w-60 bg-light-base-50 dark:bg-base-900"
                 :class="{ 'translate-x-0': isLeftPanelOpen, '-translate-x-full hidden': !isLeftPanelOpen }"
             >
-                <div class="sticky top-0 z-[5] flex justify-between p-4 bg-light-base-50 dark:bg-base-900">
-                    <h3>
-                        <a data-id="" draggable="true"
-                            @dragenter.prevent=""
-                            @dragover.prevent=""
-                            @drop="$dispatch('treeview-move-node', { event: event })"
-                        >
-                            {{ $vault->name }}
-                        </a>
-                    </h3>
-
-                    <div class="flex items-center">
-                        <x-menu>
-                            <x-menu.button>
-                                <x-icons.bars3 class="w-5 h-5" />
-                            </x-menu.button>
-
-                            <x-menu.items>
-                                <x-menu.close>
-                                    <x-menu.item @click="$wire.dispatchTo('modals.add-node', 'open-modal')">
-                                        <x-icons.documentPlus class="w-4 h-4" />
-                                        {{ __('New note') }}
-                                    </x-menu.item>
-                                    <x-menu.item @click="$wire.dispatchTo('modals.add-node', 'open-modal', { isFile: false })">
-                                        <x-icons.folderPlus class="w-4 h-4" />
-                                        {{ __('New folder') }}
-                                    </x-menu.item>
-                                    <x-menu.item @click="$wire.dispatchTo('modals.import-file', 'open-modal')">
-                                        <x-icons.arrowUpTray class="w-4 h-4" />
-                                        {{ __('Import file') }}
-                                    </x-menu.item>
-                                    <x-modal>
-                                        <x-modal.open>
-                                            <x-menu.item>
-                                                <x-icons.pencilSquare class="w-4 h-4" />
-                                                {{ __('Edit vault') }}
-                                            </x-menu.item>
-                                        </x-modal.open>
-
-                                        <x-modal.panel title="{{ __('Edit vault') }}">
-                                            <x-form wire:submit="editVault" class="flex flex-col gap-6">
-                                                <x-form.input name="vaultForm.name" label="{{ __('Name') }}"
-                                                    type="text" required autofocus />
-
-                                                <div class="flex justify-end">
-                                                    <x-form.submit label="{{ __('Edit') }}" target="edit" />
-                                                </div>
-                                            </x-form>
-                                        </x-modal.panel>
-                                    </x-modal>
-                                </x-menu.close>
-                            </x-menu.items>
-                        </x-menu>
-                    </div>
-                </div>
-
                 <livewire:vault.tree-view lazy="on-load" :$vault />
             </div>
 

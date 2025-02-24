@@ -1,9 +1,8 @@
 @aware(['node']) 
 
-<div class="relative w-full">
-    <x-menu>
-        <a href="" class="flex items-center w-full" title="{{ $node->name }}"
-            data-id="{{ $node->id }}" x-ref="button"
+<div class="relative flex items-center w-full">
+    <x-menu class="flex flex-grow">
+        <a href="" class="flex items-center w-full" title="{{ $node->name }}" x-ref="button"
             @click.prevent="accordionOpen = !accordionOpen"
             @contextmenu.prevent="menuOpen = !menuOpen"
             @keydown.escape="menuOpen = false"
@@ -43,6 +42,11 @@
                     {{ __('Rename') }}
                 </x-menu.item>
 
+                <x-menu.item @click="moveNode({{ $node->id }})">
+                    <x-icons.arrowUpOnSquare class="w-4 h-4" />
+                    {{ __('Move') }}
+                </x-menu.item>
+
                 <x-menu.item wire:click="$parent.setTemplateFolder({{ $node->id }})" title="{{ __('Set as template folder') }}">
                     <x-icons.documentDuplicate class="w-4 h-4" />
                     {{ __('Template folder') }}
@@ -56,4 +60,11 @@
             </x-menu.close>
         </x-menu.items>
     </x-menu>
+
+    <a href="" class="flex items-center hover:text-primary-300 dark:hover:text-primary-600"
+        x-show="moveNodeId && showDropZone(['{{ str_replace(".", "','", $node->path) }}'])"
+        @click.prevent="dropNode({{ $node->id }})"
+    >
+        <x-icons.arrowDownOnSquare class="w-5 h-5" />
+    </a>
 </div>

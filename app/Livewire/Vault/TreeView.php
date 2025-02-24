@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Vault;
 
 use App\Actions\UpdateVaultNode;
+use App\Livewire\Forms\VaultForm;
 use App\Models\Vault;
 use App\Models\VaultNode;
 use Illuminate\Contracts\View\Factory;
@@ -17,6 +18,24 @@ use Staudenmeir\LaravelAdjacencyList\Eloquent\Builder;
 final class TreeView extends Component
 {
     public Vault $vault;
+
+    public VaultForm $vaultForm;
+
+    public function mount(Vault $vault): void
+    {
+        $this->authorize('view', $vault);
+        $this->vault = $vault;
+        $this->vaultForm->setVault($this->vault);
+    }
+
+    public function editVault(): void
+    {
+        $this->authorize('update', $this->vault);
+        $this->vaultForm->update();
+        $this->vault->refresh();
+        $this->dispatch('close-modal');
+        $this->dispatch('toast', message: __('Vault edited'), type: 'success');
+    }
 
     public function moveNode(VaultNode $source, ?VaultNode $target): void
     {

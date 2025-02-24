@@ -1,3 +1,3 @@
-<div x-data="{ menuOpen: false }" class="relative">
+<div x-data="{ menuOpen: false }" {{ $attributes->merge(['class' => 'relative']) }}>
     {{ $slot }}
 </div>

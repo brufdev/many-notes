@@ -2,8 +2,7 @@
 
 <div class="relative w-full">
     <x-menu>
-        <a href="" class="flex items-center w-full gap-2" title="{{ $node->name }}"
-            data-id="{{ $node->id }}" x-ref="button"
+        <a href="" class="flex items-center w-full gap-2" title="{{ $node->name }}" x-ref="button"
             @click.prevent="openFile({{ $node->id }})"
             @contextmenu.prevent="menuOpen = !menuOpen"
             @keydown.escape="menuOpen = false"
@@ -23,6 +22,11 @@
                 <x-menu.item @click="$wire.dispatchTo('modals.edit-node', 'open-modal', { node: {{ $node->id }} })">
                     <x-icons.pencilSquare class="w-4 h-4" />
                     {{ __('Rename') }}
+                </x-menu.item>
+
+                <x-menu.item @click="moveNode({{ $node->id }})">
+                    <x-icons.arrowUpOnSquare class="w-4 h-4" />
+                    {{ __('Move') }}
                 </x-menu.item>
 
                 <x-menu.item

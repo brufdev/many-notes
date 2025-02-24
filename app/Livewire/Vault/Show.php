@@ -9,7 +9,6 @@ use App\Actions\GetUrlFromVaultNode;
 use App\Actions\GetVaultNodeFromPath;
 use App\Actions\ResolveTwoPaths;
 use App\Actions\UpdateVault;
-use App\Livewire\Forms\VaultForm;
 use App\Livewire\Forms\VaultNodeForm;
 use App\Models\Vault;
 use App\Models\VaultNode;
@@ -26,8 +25,6 @@ use Throwable;
 final class Show extends Component
 {
     public Vault $vault;
-
-    public VaultForm $vaultForm;
 
     public VaultNodeForm $nodeForm;
 
@@ -53,7 +50,6 @@ final class Show extends Component
             'opened_at' => now(),
         ]);
         $this->vault = $vault;
-        $this->vaultForm->setVault($this->vault);
         $this->nodeForm->setVault($this->vault);
         $this->getTemplates();
 
@@ -123,15 +119,6 @@ final class Show extends Component
     {
         $this->reset(['selectedFile', 'selectedFileExtension', 'selectedFileUrl']);
         $this->nodeForm->reset('node');
-    }
-
-    public function editVault(): void
-    {
-        $this->authorize('update', $this->vault);
-        $this->vaultForm->update();
-        $this->vault->refresh();
-        $this->dispatch('close-modal');
-        $this->dispatch('toast', message: __('Vault edited'), type: 'success');
     }
 
     public function updated(string $name): void
