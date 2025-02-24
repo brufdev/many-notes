@@ -33,8 +33,8 @@ final class TreeView extends Component
         $parentId = null;
 
         if ($target->exists) {
-            // Ignore if $target is a child of $source
-            if ($target->ancestors->pluck('id')->contains($source->id)) {
+            // Ignore if $target is the same as $source or if it is a child of $source
+            if ($target->ancestorsAndSelf()->pluck('id')->contains($source->id)) {
                 return;
             }
 
