@@ -39,12 +39,9 @@ final class AddNode extends Component
 
     public function add(): void
     {
-        $node = $this->form->create();
+        $this->form->create();
         $this->closeModal();
         $this->dispatch('node-updated');
-        if ($node->parent_id === $this->form->vault->templates_node_id) {
-            $this->dispatch('templates-refresh');
-        }
         $message = $this->form->is_file ? __('File created') : __('Folder created');
         $this->dispatch('toast', message: $message, type: 'success');
     }

@@ -63,52 +63,9 @@
                                         <x-icons.spinner class="w-4 h-4 animate-spin" />
                                     </span>
                                     <div class="flex gap-2">
-                                        <x-menu>
-                                            <x-menu.button>
-                                                <x-icons.bars3 class="w-5 h-5" />
-                                            </x-menu.button>
-                                            <x-menu.items>
-                                                <x-modal x-show="selectedFileExtension == 'md' && isEditMode">
-                                                    <x-modal.open>
-                                                        <x-menu.close>
-                                                            <x-menu.item>
-                                                                <x-icons.documentDuplicate class="w-4 h-4" />
-                                                                {{ __('Insert template') }}
-                                                            </x-menu.item>
-                                                        </x-menu.close>
-                                                    </x-modal.open>
-                                                    <x-modal.panel title="{{ __('Choose a template') }}">
-                                                        @if ($templates && count($templates))
-                                                            <ul class="flex flex-col gap-2" wire:loading.class="opacity-50">
-                                                                @foreach ($templates as $template)
-                                                                    <li wire:key="{{ $template->id }}">
-                                                                        <button type="button"
-                                                                            class="flex w-full gap-2 py-1 hover:text-light-base-950 dark:hover:text-base-50"
-                                                                            wire:click="insertTemplate({{ $template->id }}); modalOpen = false"
-                                                                        >
-                                                                            <span class="overflow-hidden whitespace-nowrap text-ellipsis"
-                                                                                title="{{ $template->name }}"
-                                                                            >
-                                                                                {{ $template->name }}
-                                                                            </span>
-                                                                        </button>
-                                                                    </li>
-                                                                @endforeach
-                                                            </ul>
-                                                        @else
-                                                            <p>{{ __('No templates found') }}</p>
-                                                        @endif
-                                                    </x-modal.panel>
-                                                </x-modal>
-
-                                                <x-menu.close>
-                                                    <x-menu.item wire:click="closeFile">
-                                                        <x-icons.xMark class="w-4 h-4" />
-                                                        {{ __('Close file') }}
-                                                    </x-menu.item>
-                                                </x-menu.close>
-                                            </x-menu.items>
-                                        </x-menu>
+                                        <button title="{{ __('Close file') }}" wire:click="closeFile">
+                                            <x-icons.xMark class="w-5 h-5" />
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -211,6 +168,7 @@
     <livewire:modals.edit-node :$vault />
     <livewire:modals.search-node :$vault />
     <livewire:modals.markdown-editor-search :$vault />
+    <livewire:modals.markdown-editor-template :$vault />
 </div>
 
 @script

@@ -12,10 +12,8 @@ use App\Actions\UpdateVault;
 use App\Livewire\Forms\VaultNodeForm;
 use App\Models\Vault;
 use App\Models\VaultNode;
-use App\Services\VaultFiles\Note;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
@@ -27,9 +25,6 @@ final class Show extends Component
     public Vault $vault;
 
     public VaultNodeForm $nodeForm;
-
-    /** @var Collection<int, VaultNode> */
-    public Collection $templates;
 
     #[Locked]
     #[Url(as: 'file')]
@@ -49,9 +44,7 @@ final class Show extends Component
         new UpdateVault()->handle($vault, [
             'opened_at' => now(),
         ]);
-        $this->vault = $vault;
         $this->nodeForm->setVault($this->vault);
-        $this->getTemplates();
 
         if ((int) $this->selectedFile > 0) {
             $selectedFile = $this->vault->nodes()
@@ -134,10 +127,6 @@ final class Show extends Component
 
         if ($node->wasChanged(['parent_id', 'name'])) {
             $this->dispatch('node-updated');
-
-            if ($node->parent_id === $this->vault->templates_node_id) {
-                $this->getTemplates();
-            }
         }
     }
 
@@ -154,54 +143,7 @@ final class Show extends Component
         new UpdateVault()->handle($this->vault, [
             'templates_node_id' => $node->id,
         ]);
-        $this->getTemplates();
         $this->dispatch('toast', message: __('Template folder updated'), type: 'success');
-    }
-
-    public function insertTemplate(VaultNode $node): void
-    {
-        $this->authorize('update', $this->vault);
-        $sameVault = $node->vault && $this->vault->id === $node->vault->id;
-        $isNote = $node->is_file && in_array($node->extension, Note::extensions());
-        $isTemplate = $node->parent_id === $this->vault->templates_node_id;
-        $fileSelected = (int) $this->selectedFile > 0;
-
-        if (!$sameVault || !$isNote || !$isTemplate || !$fileSelected || !$this->isEditMode) {
-            $this->dispatch('toast', message: __('Something went wrong'), type: 'error');
-
-            return;
-        }
-
-        $now = now();
-        /** @var VaultNode $selectedNode */
-        $selectedNode = $this->nodeForm->node;
-        $content = str_replace(
-            ['{{date}}', '{{time}}'],
-            [$now->format('Y-m-d'), $now->format('H:i')],
-            (string) $node->content,
-        );
-        $content = str_contains($content, '{{content}}')
-            ? str_replace('{{content}}', (string) $selectedNode->content, $content)
-            : $content . PHP_EOL . $selectedNode->content;
-        $selectedNode->update(['content' => $content]);
-        $this->nodeForm->setNode($selectedNode);
-        $this->dispatch('toast', message: __('Template inserted'), type: 'success');
-    }
-
-    #[On('templates-refresh')]
-    public function getTemplates(): void
-    {
-        if (!$this->vault->templatesNode) {
-            return;
-        }
-
-        $this->templates = $this->vault
-            ->templatesNode
-            ->childs()
-            ->where('is_file', true)
-            ->where('extension', 'LIKE', 'md')
-            ->orderBy('name')
-            ->get();
     }
 
     public function deleteNode(VaultNode $node): void
@@ -218,18 +160,9 @@ final class Show extends Component
                     fn (VaultNode $node): bool => $node->id === $this->selectedFile,
                 )
             );
+
             if ($openFileDeleted) {
                 $this->closeFile();
-            }
-
-            $templateDeleted = !is_null(
-                array_find(
-                    $deletedNodes,
-                    fn (VaultNode $node): bool => $node->parent_id === $this->vault->templates_node_id,
-                )
-            );
-            if ($templateDeleted) {
-                $this->getTemplates();
             }
 
             $message = $node->is_file ? __('File deleted') : __('Folder deleted');

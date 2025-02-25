@@ -43,12 +43,17 @@
                 </x-markdownEditor.button>
                 <x-markdownEditor.items x-show="isToolbarOpen" x-anchor.bottom="$refs.button">
                     <x-markdownEditor.subButton
-                        @click="$wire.dispatchTo('modals.markdown-editor-search', 'open-modal')">Link</x-markdownEditor.subButton>
+                        @click="$wire.dispatchTo('modals.markdown-editor-search', 'open-modal')"
+                    >Link</x-markdownEditor.subButton>
                     <x-markdownEditor.subButton @click="link()">External link</x-markdownEditor.subButton>
                     <x-markdownEditor.subButton
-                        @click="$wire.dispatchTo('modals.markdown-editor-search', 'open-modal', { type: 'image' })">Image</x-markdownEditor.subButton>
+                        @click="$wire.dispatchTo('modals.markdown-editor-search', 'open-modal', { type: 'image' })"
+                    >Image</x-markdownEditor.subButton>
                     <x-markdownEditor.subButton @click="image()">External image</x-markdownEditor.subButton>
                     <x-markdownEditor.subButton @click="table">Table</x-markdownEditor.subButton>
+                    <x-markdownEditor.subButton
+                        @click="$wire.dispatchTo('modals.markdown-editor-template', 'open-modal', { selectedFile: $wire.selectedFile })"
+                    >Template</x-markdownEditor.subButton>
                 </x-markdownEditor.items>
             </x-markdownEditor.itemDropdown>
         </ul>
