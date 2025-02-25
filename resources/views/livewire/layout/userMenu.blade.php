@@ -95,8 +95,8 @@
                                 <div class="relative overflow-hidden transition-all duration-700" x-show="isSelected(index)" x-collapse>
                                     <div class="flex flex-col gap-3 pt-3">
                                         <p>{{ __('The tree view panel has a context menu with different options to help you build and organize your vault.') }}</p>
-                                        <p>{{ __('You can create multiple levels of folders, import files, select a template folder, and rename or delete files and folders.') }}</p>
-                                        <p>{{ __('To open the context menu, right-click on a file or folder if you\'re on a desktop or laptop, or long press it if you\'re on a mobile device.') }}</p>
+                                        <p>{{ __('You can create multiple levels of folders, import files, select a template folder, and rename, move, or delete files and folders.') }}</p>
+                                        <p>{{ __('To open the context menu, right-click on a file or folder if you\'re on a desktop, or long press it if you\'re on a mobile device.') }}</p>
                                     </div>
                                 </div>
                             </li>
@@ -112,7 +112,7 @@
                                     <div class="flex flex-col gap-3 pt-3">
                                         <p>{{ __('To use templates, first choose a folder in the tree view where you want to keep your template notes. Right-click on that folder and select "Template Folder" to mark it for your templates.') }}</p>
                                         <p>{!! __('Notes created in this special folder will automatically be seen as templates. You can add placeholders like @{{date}}, @{{time}} and @{{content}} in these notes, and they will be replaced with the correct information when you use the template.') !!}</p>
-                                        <p>{{ __('To use a template in your notes, just click on "Insert template" in the menu and pick one from the list. This will help you maintain consistent formatting in your notes.') }}</p>
+                                        <p>{{ __('To use a template in your notes, simply choose the Template option from the Insert menu in the Markdown editor and select one from the list. This will help you maintain consistent formatting in your notes.') }}</p>
                                     </div>
                                 </div>
                             </li>
