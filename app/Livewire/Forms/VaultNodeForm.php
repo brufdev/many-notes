@@ -99,9 +99,7 @@ final class VaultNodeForm extends Form
 
         new UpdateVaultNode()->handle($this->node, [
             'parent_id' => $this->parent_id,
-            'is_file' => (bool) $this->node->is_file,
             'name' => $this->name,
-            'extension' => $this->node->extension,
             'content' => $this->content,
         ]);
 

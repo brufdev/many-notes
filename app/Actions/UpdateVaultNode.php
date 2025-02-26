@@ -12,9 +12,7 @@ final readonly class UpdateVaultNode
     /**
      * @param array{
      *   parent_id?: int|null,
-     *   is_file?: bool,
      *   name?: string,
-     *   extension?: string|null,
      *   content?: string|null
      * } $attributes
      */
@@ -31,13 +29,7 @@ final readonly class UpdateVaultNode
         }
 
         // Rename node on disk
-        if ($node->wasChanged('name')) {
-            $path = new GetPathFromVaultNode()->handle($node);
-            Storage::disk('local')->move($originalPath, $path);
-        }
-
-        // Move node on disk
-        if ($node->wasChanged('parent_id')) {
+        if ($node->wasChanged(['name', 'parent_id'])) {
             $path = new GetPathFromVaultNode()->handle($node);
             Storage::disk('local')->move($originalPath, $path);
         }
