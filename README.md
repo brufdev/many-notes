@@ -36,67 +36,47 @@ Vaults are simply storage containers for your files, and Many Notes lets you cho
 - **Light/dark theme**: Automatically selected based on your OS setting
 - **Mobile friendly**: Provides a similar experience to the desktop
 
-## Installation (Docker)
+## Installation
+
+There are three methods to install Many Notes:
+
+- Docker with volumes, if you prefer a simpler installation (read below)
+- Docker with bind mounts, if you prefer easy access to the shared paths from the host [(read here)](docs/installation/docker-bind-mounts.md)
+- Non-Docker installation, if you prefer a more manual approach [(read here)](docs/installation/non-docker.md)
+
+### Docker with volumes
 
 **Read the [upgrading guide](UPGRADING.md) if you are upgrading from a previous version.**
 
-First, create a new directory called `many-notes` with the following structure:
-
-```
-many-notes/
-├── database/
-├── storage-logs/
-├── storage-private/
-├── storage-public/
-├── storage-sessions/
-├── compose.yaml
-└── Dockerfile
-```
-
-Next, add this to the `Dockerfile` file:
-
-```Dockerfile
-FROM brufdev/many-notes:latest
-USER root
-ARG UID
-ARG GID
-RUN docker-php-serversideup-set-id www-data $UID:$GID && \
-    docker-php-serversideup-set-file-permissions --owner $UID:$GID --service nginx
-USER www-data
-```
-
-Finally, add this to the `compose.yaml` file:
+Create a `compose.yaml` file with:
 
 ```yaml
 services:
   php:
-    build:
-      context: .
-      args:
-        UID: USER_ID # change id
-        GID: GROUP_ID # change id
+    image: brufdev/many-notes:latest
     restart: unless-stopped
     volumes:
-      - ./database:/var/www/html/database/sqlite
-      - ./storage-logs:/var/www/html/storage/logs
-      - ./storage-private:/var/www/html/storage/app/private
-      - ./storage-public:/var/www/html/storage/app/public
-      - ./storage-sessions:/var/www/html/storage/framework/sessions
+      - database:/var/www/html/database/sqlite
+      - storage-logs:/var/www/html/storage/logs
+      - storage-private:/var/www/html/storage/app/private
+      - storage-public:/var/www/html/storage/app/public
+      - storage-sessions:/var/www/html/storage/framework/sessions
     ports:
       - 80:8080
+
+volumes:
+  database:
+  storage-logs:
+  storage-private:
+  storage-public:
+  storage-sessions:
 ```
 
-Many Notes must have the necessary permissions to access the shared paths. Since this image runs with an unprivileged user, the host user IDs must be added during the build phase. Make sure to update the IDs to match the host user IDs. Feel free to change anything else if you know what you're doing, and read the customization section below before continue. Then run:
+Feel free to change anything else if you know what you're doing, and read the customization section below before continue. Then run:
 
 ```shell
 docker compose up -d
 ```
-
-## Installation (non-Docker)
-
-**Read the [upgrading guide](UPGRADING.md) if you are upgrading from a previous version.**
-
-The Docker method is recommended because it is faster and simpler to set up. However, if you prefer a non-Docker installation, please refer to this [guide](docs/installation/non-docker.md) for step-by-step instructions.
 
 ## Customization
 
