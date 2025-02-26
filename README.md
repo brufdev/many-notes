@@ -44,7 +44,7 @@ First, create a new directory called `many-notes` with the following structure:
 
 ```
 many-notes/
-├── database/database.sqlite
+├── database/
 ├── storage-logs/
 ├── storage-private/
 ├── storage-public/
@@ -77,7 +77,7 @@ services:
         GID: GROUP_ID # change id
     restart: unless-stopped
     volumes:
-      - ./database/database.sqlite:/var/www/html/database/database.sqlite
+      - ./database:/var/www/html/database/sqlite
       - ./storage-logs:/var/www/html/storage/logs
       - ./storage-private:/var/www/html/storage/app/private
       - ./storage-public:/var/www/html/storage/app/public

@@ -26,16 +26,16 @@ Install npm dependencies
 npm install
 ```
 
-Create caches to optimize the application
-
-```shell
-php artisan optimize
-```
-
 Run the npm build
 
 ```shell
 npm run build
+```
+
+Create the SQLite database
+
+```shell
+touch database/sqlite/database.sqlite
 ```
 
 Create .env file
@@ -48,6 +48,12 @@ Generate application key
 
 ```shell
 php artisan key:generate
+```
+
+Create caches to optimize the application
+
+```shell
+php artisan optimize
 ```
 
 Create the symbolic link for Many Notes public storage

@@ -1,5 +1,9 @@
 # Upgrade guide
 
+## Upgrading from any version below 0.7
+
+Version 0.7 changes the location of the SQLite database file to support both Docker volumes and bind mounts. The database file is now located in the `database/sqlite` directory.
+
 ## Upgrading from any version below 0.4
 
 Version 0.4 introduces **breaking changes** in how the vaults are saved. Stop the containers and back up your data before proceeding.
