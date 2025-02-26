@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Models\VaultNode;
+use App\Services\VaultFiles\Audio;
+use App\Services\VaultFiles\Note;
+use App\Services\VaultFiles\Pdf;
+use App\Services\VaultFiles\Video;
 
 final readonly class ProcessVaultNodeLinks
 {
@@ -16,16 +20,23 @@ final readonly class ProcessVaultNodeLinks
             return;
         }
 
+        $extensions = implode('|', [
+            ...Audio::extensions(),
+            ...array_diff(Note::extensions(), ['txt']),
+            ...Pdf::extensions(),
+            ...Video::extensions(),
+        ]);
         $pattern = <<<REGEX
             /
-            (?<!\!)         # Negative lookbehind: Ensure the link is not preceded by "!"
-            \[.+?\]         # Match a markdown-style link text [any text]
-            \(              # Match opening parenthesis "("
-                (.*?\.md)   # Capture group 1: Match a Markdown file ending with '.md'
-                (?:\s".+")? # Optional: Match a title in quotes after the filename
-            \)              # Match closing parenthesis ")"
+            (?<!\!)                       # Negative lookbehind: Ensure the link is not preceded by "!"
+            \[.+?\]                       # Match a markdown-style link text [any text]
+            \(                            # Match opening parenthesis "("
+                (.*?\.(?:{$extensions}))  # Capture group 1: Match a file name with a valid extension
+                (?:\s".+")?               # Optional: Match a title in quotes after the filename
+            \)                            # Match closing parenthesis ")"
             /xi
-            REGEX;
+        REGEX;
+
         /** @var string $content */
         $content = $node->content;
         preg_match_all($pattern, $content, $matches, PREG_OFFSET_CAPTURE);
