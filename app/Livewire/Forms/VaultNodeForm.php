@@ -41,7 +41,7 @@ final class VaultNodeForm extends Form
             'name' => [
                 'required',
                 'min:3',
-                'regex:/^[\w]+[\s\w.-]+$/u',
+                'regex:/^[\w]+[\s\w\&.-]+$/u',
                 Rule::unique(VaultNode::class)
                     ->where('vault_id', $this->vault->id)
                     ->where('parent_id', $this->parent_id)
