@@ -26,15 +26,17 @@ final readonly class GetVaultNodeFromPath
                 ->first();
         }
 
-        /** @var VaultNode $node */
         $node = VaultNode::query()
             ->where('vault_id', $vaultId)
             ->where('parent_id', $parentId)
             ->where('is_file', false)
             ->where('name', 'LIKE', $pieces[0])
             ->first();
-        $path = Str::after($path, '/');
 
-        return $this->handle($vaultId, $path, $node->id);
+        if (is_null($node)) {
+            return $node;
+        }
+
+        return $this->handle($vaultId, Str::after($path, '/'), $node->id);
     }
 }
