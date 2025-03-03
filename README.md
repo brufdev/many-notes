@@ -38,11 +38,12 @@ Vaults are simply storage containers for your files, and Many Notes lets you cho
 
 ## Installation
 
-There are three methods to install Many Notes:
+Choose your preferred method to install Many Notes:
 
-- Docker with volumes, if you prefer a simpler installation (read below)
-- Docker with bind mounts, if you prefer easy access to the shared paths from the host [(read here)](docs/installation/docker-bind-mounts.md)
-- Non-Docker installation, if you prefer a more manual approach [(read here)](docs/installation/non-docker.md)
+- Docker with volumes, for a simpler installation (read below)
+- Docker with bind mounts, for easy access to shared paths from the host ([read here](docs/installation/docker-bind-mounts.md))
+- Docker with a different database, if you prefer not to use SQLite ([read here](docs/installation/docker-different-database.md))
+- Bare metal installation, if you prefer not to use Docker ([read here](docs/installation/non-docker.md))
 
 ### Docker with volumes
 
