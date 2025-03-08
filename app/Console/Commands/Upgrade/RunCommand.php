@@ -31,6 +31,7 @@ final class RunCommand extends Command
         $this->init();
         $this->processLinks();
         $this->syncDatabaseNotes();
+        $this->createStartupVault();
     }
 
     private function init(): void
@@ -73,6 +74,22 @@ final class RunCommand extends Command
 
         DB::table('upgrades')->update([
             'executed' => 2,
+        ]);
+    }
+
+    private function createStartupVault(): void
+    {
+        /** @var object{executed: int} $upgrades */
+        $upgrades = DB::table('upgrades')->first();
+
+        if ($upgrades->executed !== 2) {
+            return;
+        }
+
+        $this->call('upgrade:create-startup-vault');
+
+        DB::table('upgrades')->update([
+            'executed' => 3,
         ]);
     }
 }
