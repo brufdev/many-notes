@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Forms;
 
+use App\Actions\CreateUser;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
@@ -41,7 +42,7 @@ final class RegisterForm extends Form
         /** @var array<string, string> $validated */
         $validated = $this->validate();
         $validated['password'] = Hash::make($validated['password']);
-        event(new Registered($user = User::create($validated)));
+        event(new Registered($user = new CreateUser()->handle($validated)));
         Auth::login($user);
     }
 }

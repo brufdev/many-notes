@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Auth;
 
+use App\Actions\CreateUser;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Auth;
@@ -32,13 +33,14 @@ final class OAuthLoginCallback extends Component
             return;
         }
 
-        $user = User::firstOrCreate(
-            ['email' => $providerUser->getEmail()],
-            [
-                'name' => $providerUser->getName(),
+        $user = User::query()->where('email', $providerUser->getEmail())->first();
+        if (!$user) {
+            $user = new CreateUser()->handle([
+                'name' => $providerUser->getName() ?? '',
+                'email' => $providerUser->getEmail() ?? '',
                 'password' => Hash::make(Str::random(32)),
-            ],
-        );
+            ]);
+        }
         Auth::login($user);
         $this->redirectIntended(route('vaults.last', absolute: false), true);
     }
