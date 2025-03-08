@@ -67,6 +67,7 @@ final class TreeView extends Component
 
         new UpdateVaultNode()->handle($source, ['parent_id' => $parentId]);
         $this->dispatch('file-refresh', node: $source);
+        $this->dispatch('toast', message: __('Node moved'), type: 'success');
     }
 
     public function placeholder(): string

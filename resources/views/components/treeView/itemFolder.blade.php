@@ -1,6 +1,10 @@
 @aware(['node']) 
 
-<div class="relative flex items-center w-full">
+<div class="relative flex items-center w-full"
+    x-data="{ hovered: false }"
+    @mouseenter="hovered = true"
+    @mouseleave="hovered = false"
+>
     <x-menu class="flex flex-grow">
         <a href="" class="flex items-center w-full" title="{{ $node->name }}" x-ref="button"
             @click.prevent="accordionOpen = !accordionOpen"
@@ -61,8 +65,10 @@
         </x-menu.items>
     </x-menu>
 
-    <a href="" class="flex items-center hover:text-primary-300 dark:hover:text-primary-600"
-        x-show="moveNodeId && showDropZone(['{{ str_replace(".", "','", $node->path) }}'])"
+    <a href="" class="flex items-center text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
+        x-show="moving() && hovered && showDropZone(['{{ str_replace(".", "','", $node->path) }}'])"
+        x-transition:enter.duration.300ms
+        x-transition:leave.duration.150ms
         @click.prevent="dropNode({{ $node->id }})"
     >
         <x-icons.arrowDownOnSquare class="w-5 h-5" />

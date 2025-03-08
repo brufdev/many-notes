@@ -11,6 +11,10 @@
         Alpine.data('treeView', () => ({
             moveNodeId: null,
 
+            moving() {
+                return this.moveNodeId !== null;
+            },
+
             moveNode(nodeId) {
                 this.moveNodeId = nodeId;
             },
