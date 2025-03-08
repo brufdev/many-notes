@@ -7,6 +7,7 @@ use App\Actions\CreateVaultNode;
 use App\Actions\GetPathFromVaultNode;
 use App\Actions\UpdateVaultNode;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 it('moves a file', function (): void {
     $user = User::factory()->create()->first();
