@@ -33,12 +33,12 @@ final readonly class ProcessImportedFile
         if ($node->extension === 'md') {
             new ProcessVaultNodeLinks()->handle($node);
             new ProcessVaultNodeTags()->handle($node);
+        } else {
+            $relativePath = new GetPathFromVaultNode()->handle($node);
+            $pathInfo = pathinfo($relativePath);
+            $savePath = $pathInfo['dirname'] ?? '';
+            $saveName = $pathInfo['basename'];
+            Storage::putFileAs($savePath, new File($filePath), $saveName);
         }
-
-        $relativePath = new GetPathFromVaultNode()->handle($node);
-        $pathInfo = pathinfo($relativePath);
-        $savePath = $pathInfo['dirname'] ?? '';
-        $saveName = $pathInfo['basename'];
-        Storage::putFileAs($savePath, new File($filePath), $saveName);
     }
 }
