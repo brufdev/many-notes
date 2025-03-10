@@ -14,12 +14,10 @@ many-notes/
 ├── storage-logs/
 ├── storage-private/
 ├── storage-public/
-├── storage-sessions/
-├── compose.yaml
-└── Dockerfile
+└── storage-sessions/
 ```
 
-Next, add this to the `Dockerfile` file:
+Next, create a `Dockerfile` file with:
 
 ```Dockerfile
 FROM brufdev/many-notes:latest
@@ -31,7 +29,7 @@ RUN docker-php-serversideup-set-id www-data $UID:$GID && \
 USER www-data
 ```
 
-Finally, add this to the `compose.yaml` file:
+Finally, create a `compose.yaml` file with:
 
 ```yaml
 services:
