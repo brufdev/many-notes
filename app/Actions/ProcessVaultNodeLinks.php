@@ -5,10 +5,7 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Models\VaultNode;
-use App\Services\VaultFiles\Audio;
-use App\Services\VaultFiles\Note;
-use App\Services\VaultFiles\Pdf;
-use App\Services\VaultFiles\Video;
+use App\Services\VaultFile;
 
 final readonly class ProcessVaultNodeLinks
 {
@@ -16,16 +13,11 @@ final readonly class ProcessVaultNodeLinks
     {
         $node->links()->detach();
 
-        if ((string) $node->content === '') {
+        if ($node->content === null || $node->content === '') {
             return;
         }
 
-        $extensions = implode('|', [
-            ...Audio::extensions(),
-            ...array_diff(Note::extensions(), ['txt']),
-            ...Pdf::extensions(),
-            ...Video::extensions(),
-        ]);
+        $extensions = implode('|', VaultFile::extensions());
         $pattern = <<<REGEX
             /
             (?<!\!)                       # Negative lookbehind: Ensure the link is not preceded by "!"
@@ -36,10 +28,7 @@ final readonly class ProcessVaultNodeLinks
             \)                            # Match closing parenthesis ")"
             /xi
         REGEX;
-
-        /** @var string $content */
-        $content = $node->content;
-        preg_match_all($pattern, $content, $matches, PREG_OFFSET_CAPTURE);
+        preg_match_all($pattern, $node->content, $matches, PREG_OFFSET_CAPTURE);
 
         if ($matches[1] === []) {
             return;
