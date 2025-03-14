@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Models\VaultNode;
+use App\Services\VaultFiles\Note;
 use Illuminate\Support\Facades\Storage;
 
 final readonly class UpdateVaultNode
@@ -23,8 +24,8 @@ final readonly class UpdateVaultNode
         // Save node to database
         $node->update($attributes);
 
-        // Save node to disk
-        if ($node->is_file) {
+        // Save content to disk
+        if ($node->is_file && in_array($node->extension, Note::extensions())) {
             Storage::disk('local')->put($originalPath, $attributes['content'] ?? '');
         }
 
