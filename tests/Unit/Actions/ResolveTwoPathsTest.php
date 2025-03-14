@@ -27,3 +27,11 @@ it('resolves one absolute path and one relative path not going throught the root
     expect(new ResolveTwoPaths()->handle($currentPath, $path))
         ->toBe('/Personal/Letters/Letter.md');
 });
+
+it('resolves paths with utf-8 characters', function (): void {
+    $currentPath = '/';
+    $path = '/β.md';
+
+    expect(new ResolveTwoPaths()->handle($currentPath, $path))
+        ->toBe('/β.md');
+});
