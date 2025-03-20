@@ -25,7 +25,7 @@
             </div>
         @endif
 
-        <x-form wire:submit="send" class="flex flex-col gap-5">
+        <x-form wire:submit="send" class="flex flex-col gap-4">
             <x-form.input name="form.email" label="{{ __('Email') }}" type="email" required autofocus />
             <x-form.input name="form.password" label="{{ __('Password') }}" type="password" required />
             <x-form.checkbox name="form.remember" label="{{ __('Remember me') }}" />

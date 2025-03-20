@@ -10,7 +10,7 @@
             </x-form.text>
         </div>
 
-        <x-form wire:submit="send" class="flex flex-col gap-6">
+        <x-form wire:submit="send" class="flex flex-col gap-4">
             <x-form.input name="form.email" label="{{ __('Email') }}" type="email" required autofocus />
 
             <x-form.submit label="{{ __('Send') }}" target="send" />

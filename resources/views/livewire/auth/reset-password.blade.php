@@ -1,6 +1,6 @@
 <div class="flex flex-col h-dvh">
     <x-layouts.guestMain>
-        <x-form wire:submit="send" class="flex flex-col gap-6">
+        <x-form wire:submit="send" class="flex flex-col gap-4">
             <x-form.input name="form.email" label="{{ __('Email') }}" type="email" required />
 
             <x-form.input name="form.password" label="{{ __('New password') }}" type="password" required autofocus />
