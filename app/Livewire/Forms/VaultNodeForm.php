@@ -68,7 +68,7 @@ final class VaultNodeForm extends Form
 
     public function create(): VaultNode
     {
-        $this->name = mb_trim($this->name);
+        $this->name = mb_ltrim($this->name);
         $this->validate();
         $node = new CreateVaultNode()->handle($this->vault, [
             'parent_id' => $this->parent_id,
@@ -94,7 +94,7 @@ final class VaultNodeForm extends Form
             return;
         }
 
-        $this->name = mb_trim($this->name);
+        $this->name = mb_ltrim($this->name);
         $this->validate();
 
         new UpdateVaultNode()->handle($this->node, [
