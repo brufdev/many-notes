@@ -102,7 +102,6 @@
                             <x-icons.magnifyingGlass class="w-4 h-4" />
                             <span class="hidden text-sm font-medium md:block">{{ __('Open file') }}</span>
                         </x-form.button>
-
                         <x-form.button primary @click="$wire.dispatchTo('modals.add-node', 'open-modal')">
                             <x-icons.plus class="w-4 h-4" />
                             <span class="hidden text-sm font-medium md:block">{{ __('New note') }}</span>
@@ -169,6 +168,10 @@
     <livewire:modals.search-node :$vault />
     <livewire:modals.markdown-editor-search :$vault />
     <livewire:modals.markdown-editor-template :$vault />
+
+    @if ($vault->created_by === auth()->user()->id)
+        <livewire:modals.collaboration :$vault />
+    @endif
 </div>
 
 @script

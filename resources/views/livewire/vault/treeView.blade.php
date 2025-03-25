@@ -53,6 +53,12 @@
                                         </x-form>
                                     </x-modal.panel>
                                 </x-modal>
+                                @if ($vault->created_by === auth()->user()->id)
+                                    <x-menu.item @click="$wire.dispatchTo('modals.collaboration', 'open-modal')">
+                                        <x-icons.userGroup class="w-4 h-4" />
+                                        {{ __('Collaboration') }}
+                                    </x-menu.item>
+                                @endif
                             </x-menu.close>
                         </x-menu.items>
                     </x-menu>
