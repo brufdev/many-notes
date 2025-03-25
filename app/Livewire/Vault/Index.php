@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\Vault;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Livewire\Component;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Throwable;
@@ -62,9 +63,17 @@ final class Index extends Component
     {
         /** @var User $currentUser */
         $currentUser = auth()->user();
+        $vaults = Vault::query()
+            ->where('created_by', $currentUser->id)
+            ->orWhereHas('collaborators', function (Builder $query) use ($currentUser): void {
+                $query->where('user_id', $currentUser->id)
+                    ->where('accepted', true);
+            })
+            ->orderBy('updated_at', 'DESC')
+            ->get();
 
         return view('livewire.vault.index', [
-            'vaults' => $currentUser->vaults()->orderBy('opened_at', 'DESC')->get(),
+            'vaults' => $vaults,
         ]);
     }
 }
