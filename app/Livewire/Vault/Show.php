@@ -148,7 +148,7 @@ final class Show extends Component
 
     public function deleteNode(VaultNode $node): void
     {
-        $this->authorize('delete', $node->vault);
+        $this->authorize('delete', $node);
 
         try {
             $deletedNodes = new DeleteVaultNode()->handle($node);
