@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -53,5 +54,15 @@ final class Vault extends Model
     public function templatesNode(): HasOne
     {
         return $this->hasOne(VaultNode::class, 'id', 'templates_node_id');
+    }
+
+    /**
+     * Get the collaborators that belongs to the vault.
+     *
+     * @return BelongsToMany<User, $this>
+     */
+    public function collaborators(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class)->withPivot('accepted');
     }
 }
