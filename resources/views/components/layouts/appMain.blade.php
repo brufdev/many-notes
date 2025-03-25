@@ -3,5 +3,6 @@
         {{ $slot }}
 
         <x-toast />
+        <livewire:modals.notification-invite />
     </div>
 </main>

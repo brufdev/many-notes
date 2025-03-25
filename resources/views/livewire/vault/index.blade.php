@@ -3,6 +3,7 @@
         <div class="flex items-center gap-4"></div>
 
         <div class="flex items-center gap-4">
+            <livewire:layout.notification-menu />
             <livewire:layout.user-menu />
         </div>
     </x-layouts.appHeader>
