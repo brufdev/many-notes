@@ -22,6 +22,7 @@ arch('avoid mutation')
         'App\Jobs',
         'App\Livewire',
         'App\Models',
+        'App\Notifications',
         'App\Providers',
         'App\Services',
     ]);
@@ -36,6 +37,7 @@ arch('avoid inheritance')
         'App\Jobs',
         'App\Livewire',
         'App\Models',
+        'App\Notifications',
         'App\Providers',
         'App\Services',
     ]);
@@ -70,6 +72,7 @@ arch('models')
         'App\Jobs',
         'App\Livewire',
         'App\Models',
+        'App\Notifications',
         'App\Observers',
         'App\Policies',
         'App\Providers',
