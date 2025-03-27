@@ -22,14 +22,13 @@ final class Collaboration extends Component
 
     public CollaborationInviteForm $form;
 
-    // public bool $showInviteForm;
+    public string $selectedTab = 'users';
 
     public function mount(Vault $vault): void
     {
         $this->authorize('update', $vault);
         $this->vault = $vault;
         $this->form->setVault($vault);
-        // $this->showInviteForm = false;
     }
 
     #[On('open-modal')]
@@ -42,9 +41,8 @@ final class Collaboration extends Component
     {
         try {
             $this->form->create();
-            // $this->showInviteForm = false;
+            $this->reset('selectedTab');
             $this->dispatch('toast', message: __('Invite sent'), type: 'success');
-            // refresh the component
         } catch (Exception $e) {
             $this->form->addError('email', $e->getMessage());
         }

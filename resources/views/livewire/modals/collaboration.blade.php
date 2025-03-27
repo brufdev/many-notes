@@ -1,21 +1,21 @@
 <x-modal wire:model="show">
     <x-modal.panel title="{{ __('Collaboration') }}" top>
-        <div class="w-full" x-data="{ selectedTab: 'users' }">
+        <div class="w-full" x-data="{ selectedTab: $wire.entangle('selectedTab') }">
             <div class="flex gap-2 overflow-x-auto" role="tablist" aria-label="tab options"
                 x-on:keydown.right.prevent="$focus.wrap().next()" x-on:keydown.left.prevent="$focus.wrap().previous()"
             >
-                <button class="p-2 text-smxxx h-min" type="button" role="tab" aria-controls="tabpanelList"
+                <button class="h-min" type="button" role="tab" aria-controls="tabpanelList"
                     x-on:click="selectedTab = 'users'" x-bind:aria-selected="selectedTab === 'users'"
                     x-bind:tabindex="selectedTab === 'users' ? '0' : '-1'"
-                    x-bind:class="selectedTab === 'users' ? 'font-boldxxx text-primary border-b-2 border-primary dark:border-primary-dark dark:text-primary-dark' : 'text-on-surface font-medium dark:text-on-surface-dark dark:hover:border-b-outline-dark-strong dark:hover:text-on-surface-dark-strong hover:border-b-2 hover:border-b-outline-strong hover:text-on-surface-strong'"
+                    x-bind:class="selectedTab === 'users' ? 'border-b-2' : 'hover:border-b-2'"
                 >{{ __('Users') }}</button>
-                <button class="p-2 text-smxxx h-min" type="button" role="tab" aria-controls="tabpanelLikes"
-                    x-on:click="selectedTab = 'likes'" x-bind:aria-selected="selectedTab === 'likes'"
-                    x-bind:tabindex="selectedTab === 'likes' ? '0' : '-1'"
-                    x-bind:class="selectedTab === 'likes' ? 'font-boldxxx text-primary border-b-2 border-primary dark:border-primary-dark dark:text-primary-dark' : 'text-on-surface font-medium dark:text-on-surface-dark dark:hover:border-b-outline-dark-strong dark:hover:text-on-surface-dark-strong hover:border-b-2 hover:border-b-outline-strong hover:text-on-surface-strong'"
+                <button class="h-min" type="button" role="tab" aria-controls="tabpanelInviteUser"
+                    x-on:click="selectedTab = 'inviteUser'" x-bind:aria-selected="selectedTab === 'inviteUser'"
+                    x-bind:tabindex="selectedTab === 'inviteUser' ? '0' : '-1'"
+                    x-bind:class="selectedTab === 'inviteUser' ? 'border-b-2' : 'hover:border-b-2'"
                 >{{ __('Invite user') }}</button>
             </div>
-            <div class="px-2 py-4 text-on-surface dark:text-on-surface-dark">
+            <div class="py-4">
                 <div x-cloak x-show="selectedTab === 'users'" id="tabpanelList" role="tabpanel" aria-label="list">
                     <table class="w-full table-auto">
                         <tbody>
@@ -61,7 +61,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div x-cloak x-show="selectedTab === 'likes'" id="tabpanelLikes" role="tabpanel" aria-label="likes">
+                <div x-cloak x-show="selectedTab === 'inviteUser'" id="tabpanelInviteUser" role="tabpanel" aria-label="inviteUser">
                     <x-form wire:submit.prevent="invite" class="flex flex-col gap-6">
                         <x-form.input name="form.email" label="{{ __('Email') }}" type="email" required />
 
