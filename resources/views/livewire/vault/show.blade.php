@@ -183,7 +183,6 @@
             selectedFile: $wire.entangle('selectedFile'),
             selectedFileExtension: $wire.entangle('selectedFileExtension'),
             html: '',
-            renderListitem: null,
 
             init() {
                 this.$watch('isEditMode', value => {
@@ -202,9 +201,6 @@
                 });
 
                 this.isLeftPanelOpen = !this.isSmallDevice();
-                let markedRender = new marked.Renderer;
-                markedRender.parser = new marked.Parser;
-                this.renderListitem = markedRender.listitem.bind(markedRender);
             },
 
             isSmallDevice() {
@@ -244,18 +240,16 @@
             },
 
             markdownToHtml() {
-                let el = document.getElementById('noteEdit');
-                let markdown = '';
-                let renderListitem = this.renderListitem;
-                let node = this.selectedFile;
+                const el = document.getElementById('noteEdit');
 
                 if (!el) {
-                    this.html = markdown;
+                    this.html = '';
 
                     return;
                 }
 
-                renderer = {
+                const node = this.selectedFile;
+                const renderer = {
                     image(token) {
                         let html = '';
 
@@ -281,24 +275,18 @@
                         return '<a href="" wire:click.prevent="openFilePath(\'' + token.href +
                             '\')" title="' + (token.title ?? '') + '">' + token.text + '</a>';
                     },
-                    listitem(token) {
-                        let html = renderListitem(token);
-
-                        if (token.task) {
-                            html = html.replace('<li>', '<li class="task-list-item">')
-                                .replace('<input ', '<input class="task-list-item-checkbox" ');
-                        }
-
-                        return html;
-                    },
                 };
                 marked.use({
                     renderer
                 });
 
-                this.html = DOMPurify.sanitize(marked.parse(el.value), {
+                const sanitizedHtml = DOMPurify.sanitize(marked.parse(el.value), {
                     ADD_ATTR: ['wire:click.prevent'],
                 });
+
+                this.html = sanitizedHtml
+                    // improve check lists design
+                    .replaceAll('<li><input', '<li class="task-list-item"><input class="task-list-item-checkbox"');
             },
         }))
     </script>
