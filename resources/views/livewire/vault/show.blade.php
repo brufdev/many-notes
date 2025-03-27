@@ -6,17 +6,16 @@
             >
                 <x-icons.bars3BottomLeft class="w-5 h-5" />
             </button>
-        </div>
-
-        <div class="flex items-center gap-4">
             <button type="button" class="hover:text-light-base-950 dark:hover:text-base-50"
                 @click="$wire.dispatchTo('modals.search-node', 'open-modal')"
             >
                 <x-icons.magnifyingGlass class="w-5 h-5" />
             </button>
-            <div class="flex items-center gap-4">
-                <livewire:layout.user-menu />
-            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <livewire:layout.notification-menu />
+            <livewire:layout.user-menu />
             <button type="button" class="hover:text-light-base-950 dark:hover:text-base-50"
                 @click="$dispatch('right-panel-toggle')"
             >
