@@ -12,7 +12,7 @@ use Illuminate\Contracts\View\View;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
-final class NotificationInvite extends Component
+final class CollaborationInvite extends Component
 {
     use Modal;
 
@@ -37,7 +37,7 @@ final class NotificationInvite extends Component
             }
         }
         // $this->vault->user->notify(new CollaborationInvited($vault));
-        $this->dispatch('refresh-notifications'); // TODO: add this event
+        $this->dispatch('notifications-refresh');
         $this->closeModal();
         $this->dispatch('toast', message: __('Invite accepted'), type: 'success');
     }
@@ -54,13 +54,25 @@ final class NotificationInvite extends Component
             }
         }
         // $this->vault->user->notify(new CollaborationInvited($vault));
-        $this->dispatch('refresh-notifications'); // TODO: add this event
+        $this->dispatch('notifications-refresh');
         $this->closeModal();
         $this->dispatch('toast', message: __('Invite declined'), type: 'success');
     }
 
     public function render(): Factory|View
     {
-        return view('livewire.modals.notificationInvite');
+        $name = $username = '';
+
+        if (isset($this->vault)) {
+            $name = $this->vault->name;
+            /** @var User $user */
+            $user = $this->vault->user;
+            $username = $user->name;
+        }
+
+        return view('livewire.modals.collaborationInvite', [
+            'name' => $name,
+            'username' => $username,
+        ]);
     }
 }

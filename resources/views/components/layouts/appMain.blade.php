@@ -3,6 +3,6 @@
         {{ $slot }}
 
         <x-toast />
-        <livewire:modals.notification-invite />
+        <livewire:modals.collaboration-invite />
     </div>
 </main>

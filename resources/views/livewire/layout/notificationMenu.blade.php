@@ -1,17 +1,20 @@
 <div>
-    <x-menu>
+    <x-menu wide>
         <x-menu.button>
             <x-icons.bell class="w-5 h-5" />
+            <span class="animate-ping absolute top-1 right-0.5 block h-1 w-1 rounded-full ring-2 ring-error-400 bg-error-600"></span>
         </x-menu.button>
 
         <x-menu.items>
-            @forelse ($notifications as $notification)
-                <x-notification.collaboration vaultId="{{ $notification->data['vault_id'] }}" />
-            @empty
-                <div class="px-3 text-sm">
-                    {{ __('No notifications') }}
-                </div>
-            @endforelse
+            <x-menu.close>
+                @forelse ($notifications as $notification)
+                    <x-dynamic-component component="notification.{{ lcfirst($notification['type']) }}" :$notification />
+                @empty
+                    <div class="px-3 text-sm">
+                        {{ __('No notifications') }}
+                    </div>
+                @endforelse
+            </x-menu.close>
         </x-menu.items>
     </x-menu>
 </div>
