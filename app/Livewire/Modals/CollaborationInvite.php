@@ -6,6 +6,7 @@ namespace App\Livewire\Modals;
 
 use App\Models\User;
 use App\Models\Vault;
+use App\Notifications\CollaborationAccepted;
 use App\Notifications\CollaborationInvited;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -36,7 +37,9 @@ final class CollaborationInvite extends Component
                 $notification->delete();
             }
         }
-        // $this->vault->user->notify(new CollaborationInvited($vault));
+        /** @var User $user */
+        $user = $this->vault->user;
+        $user->notify(new CollaborationAccepted($currentUser));
         $this->dispatch('notifications-refresh');
         $this->closeModal();
         $this->dispatch('toast', message: __('Invite accepted'), type: 'success');
