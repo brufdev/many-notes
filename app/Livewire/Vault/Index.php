@@ -12,10 +12,12 @@ use App\Models\Vault;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Throwable;
 
+#[On('vaults-refresh')]
 final class Index extends Component
 {
     public VaultForm $form;

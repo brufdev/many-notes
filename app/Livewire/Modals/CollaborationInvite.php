@@ -42,6 +42,7 @@ final class CollaborationInvite extends Component
         $user = $this->vault->user;
         $user->notify(new CollaborationAccepted($currentUser));
         $this->dispatch('notifications-refresh');
+        $this->dispatch('vaults-refresh');
         $this->closeModal();
         $this->dispatch('toast', message: __('Invite accepted'), type: 'success');
     }

@@ -51,7 +51,7 @@
                                     <td class="text-right">
                                         <button title="{{ __('Delete') }}"
                                             wire:click="delete({{ $collaborator->id }})"
-                                            wire:confirm="Are you sure you want to delete this invite?"
+                                            wire:confirm="Are you sure you want to delete this collaborator?"
                                         >
                                             <x-icons.trash class="w-4 h-4" />
                                         </button>
