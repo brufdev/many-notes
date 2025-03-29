@@ -41,6 +41,7 @@ final class NotificationMenu extends Component
             $message = match ($type) {
                 'CollaborationInvited' => $this->collaborationInvited($notification),
                 'CollaborationAccepted' => $this->collaborationAccepted($notification),
+                'CollaborationDeclined' => $this->collaborationDeclined($notification),
                 default => '',
             };
             $notifications[] = [
@@ -71,6 +72,14 @@ final class NotificationMenu extends Component
         /** @var User $user */
         $user = User::find($item->data['user_id']);
 
-        return __(sprintf('%s has accepted the invite to join a vault', $user->name));
+        return __(sprintf('%s has accepted the invitation to join a vault', $user->name));
+    }
+
+    private function collaborationDeclined(DatabaseNotification $item): string
+    {
+        /** @var User $user */
+        $user = User::find($item->data['user_id']);
+
+        return __(sprintf('%s has declined the invitation to join a vault', $user->name));
     }
 }
