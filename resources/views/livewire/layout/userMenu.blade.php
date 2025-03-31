@@ -1,5 +1,5 @@
 <div>
-    <x-menu>
+    <x-menu anchorElement="$refs.header" anchorOffset="-15">
         <x-menu.button>
             <x-icons.user class="w-5 h-5" />
         </x-menu.button>
