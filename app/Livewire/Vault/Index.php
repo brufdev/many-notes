@@ -24,6 +24,11 @@ final class Index extends Component
 
     public bool $showCreateModal = false;
 
+    public function mount(): void
+    {
+        $this->setLastVisitedUrl();
+    }
+
     public function create(): void
     {
         $this->form->create();
@@ -76,6 +81,15 @@ final class Index extends Component
 
         return view('livewire.vault.index', [
             'vaults' => $vaults,
+        ]);
+    }
+
+    private function setLastVisitedUrl(): void
+    {
+        /** @var User $currentUser */
+        $currentUser = auth()->user();
+        $currentUser->update([
+            'last_visited_url' => route('vaults.index', absolute: false),
         ]);
     }
 }

@@ -27,7 +27,7 @@ it('successfully authenticates user', function (): void {
     $availableProviders->shouldReceive('handle')->andReturn([OAuthProviders::GitHub]);
 
     Livewire::test(OAuthLoginCallback::class, ['provider' => 'github'])
-        ->assertRedirect(route('vaults.last'));
+        ->assertRedirect(route('vaults.index'));
 });
 
 it('fails to authenticate user', function (): void {

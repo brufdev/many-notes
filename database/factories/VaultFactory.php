@@ -22,7 +22,6 @@ final class VaultFactory extends Factory
         return [
             'name' => fake()->words(3, true),
             'created_by' => User::factory(),
-            'opened_at' => now(),
         ];
     }
 }

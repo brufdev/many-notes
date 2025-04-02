@@ -12,7 +12,6 @@ use App\Livewire\Auth\Register;
 use App\Livewire\Auth\ResetPassword;
 use App\Livewire\Dashboard\Index as DashboardIndex;
 use App\Livewire\Vault\Index as VaultIndex;
-use App\Livewire\Vault\Last as VaultLast;
 use App\Livewire\Vault\Show as VaultShow;
 use Illuminate\Support\Facades\Route;
 
@@ -21,7 +20,6 @@ Route::middleware('auth')->group(function (): void {
 
     Route::prefix('vaults')->group(function (): void {
         Route::get('/', VaultIndex::class)->name('vaults.index');
-        Route::get('/last', VaultLast::class)->name('vaults.last');
         Route::get('/{vault}', VaultShow::class)->name('vaults.show');
     });
 

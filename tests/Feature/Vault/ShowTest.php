@@ -40,7 +40,7 @@ it('does not open a non-existing file', function (): void {
     Livewire::actingAs($user)
         ->withQueryParams(['file' => 500])
         ->test(Show::class, ['vault' => $vault])
-        ->assertSet('selectedFile', null);
+        ->assertStatus(404);
 });
 
 it('does not open a folder', function (): void {
@@ -55,25 +55,8 @@ it('does not open a folder', function (): void {
 
     Livewire::actingAs($user)
         ->test(Show::class, ['vault' => $vault])
-        ->call('openFile', $node)
-        ->assertSet('selectedFile', null);
-});
-
-it('resets edit mode when opening a file that is not a note', function (): void {
-    $user = User::factory()->create()->first();
-    $vault = new CreateVault()->handle($user, [
-        'name' => fake()->words(3, true),
-    ]);
-    $node = new CreateVaultNode()->handle($vault, [
-        'is_file' => true,
-        'name' => fake()->words(3, true),
-        'extension' => 'jpg',
-    ]);
-
-    Livewire::actingAs($user)
-        ->test(Show::class, ['vault' => $vault])
-        ->call('openFile', $node)
-        ->assertSet('isEditMode', true);
+        ->call('openFileId', $node->id)
+        ->assertStatus(404);
 });
 
 it('opens a file from the path', function (): void {
@@ -131,7 +114,7 @@ it('does not open a file from a non-existent path', function (): void {
     Livewire::actingAs($user)
         ->test(Show::class, ['vault' => $vault])
         ->call('openFilePath', fake()->words(4, true))
-        ->assertSet('selectedFile', null);
+        ->assertStatus(404);
 });
 
 it('refreshes an open file', function (): void {

@@ -14,7 +14,6 @@ test('to array', function (): void {
             'id',
             'name',
             'created_by',
-            'opened_at',
             'created_at',
             'updated_at',
             'templates_node_id',

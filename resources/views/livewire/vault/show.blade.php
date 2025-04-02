@@ -178,7 +178,7 @@
         Alpine.data('vault', () => ({
             isLeftPanelOpen: false,
             isRightPanelOpen: false,
-            isEditMode: $wire.entangle('isEditMode'),
+            isEditMode: Alpine.$persist(true),
             selectedFile: $wire.entangle('selectedFile'),
             selectedFileExtension: $wire.entangle('selectedFileExtension'),
             html: '',
@@ -200,6 +200,10 @@
                 });
 
                 this.isLeftPanelOpen = !this.isSmallDevice();
+
+                if (!this.isEditMode) {
+                    Alpine.nextTick(() => { this.markdownToHtml() });
+                }
             },
 
             isSmallDevice() {
@@ -215,8 +219,8 @@
                 this.isEditMode = !this.isEditMode;
             },
 
-            openFile(node) {
-                $wire.openFile(node);
+            openFile(nodeId) {
+                $wire.openFileId(nodeId);
 
                 if (this.isSmallDevice()) {
                     this.closePanels();

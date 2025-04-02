@@ -16,6 +16,7 @@ test('to array', function (): void {
             'email_verified_at',
             'created_at',
             'updated_at',
+            'last_visited_url',
         ]);
 });
 

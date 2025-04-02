@@ -34,6 +34,7 @@ final class OAuthLoginCallback extends Component
         }
 
         $user = User::query()->where('email', $providerUser->getEmail())->first();
+
         if (!$user) {
             $user = new CreateUser()->handle([
                 'name' => $providerUser->getName() ?? '',
@@ -41,7 +42,11 @@ final class OAuthLoginCallback extends Component
                 'password' => Hash::make(Str::random(32)),
             ]);
         }
+
         Auth::login($user);
-        $this->redirectIntended(route('vaults.last', absolute: false), true);
+        $redirectUrl = mb_strlen((string) $user->last_visited_url) > 0
+            ? $user->last_visited_url
+            : route('vaults.index', absolute: false);
+        $this->redirectIntended($redirectUrl, true);
     }
 }

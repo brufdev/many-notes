@@ -10,6 +10,7 @@ use App\Actions\GetVaultNodeFromPath;
 use App\Actions\ResolveTwoPaths;
 use App\Actions\UpdateVault;
 use App\Livewire\Forms\VaultNodeForm;
+use App\Models\User;
 use App\Models\Vault;
 use App\Models\VaultNode;
 use Illuminate\Contracts\View\Factory;
@@ -26,8 +27,7 @@ final class Show extends Component
 
     public VaultNodeForm $nodeForm;
 
-    #[Locked]
-    #[Url(as: 'file')]
+    #[Url(as: 'file', history: true)]
     public ?int $selectedFile = null;
 
     #[Locked]
@@ -36,47 +36,37 @@ final class Show extends Component
     #[Locked]
     public ?string $selectedFileUrl = null;
 
-    public bool $isEditMode = true;
-
     public function mount(Vault $vault): void
     {
         $this->authorize('view', $vault);
-        new UpdateVault()->handle($vault, [
-            'opened_at' => now(),
-        ]);
         $this->nodeForm->setVault($this->vault);
-
-        if ((int) $this->selectedFile > 0) {
-            $selectedFile = $this->vault->nodes()
-                ->where('id', $this->selectedFile)
-                ->where('is_file', true)
-                ->first();
-
-            if (!$selectedFile) {
-                $this->selectedFile = null;
-
-                return;
-            }
-
-            $this->openFile($selectedFile);
-        }
+        $this->openFileId($this->selectedFile);
     }
 
-    public function openFile(VaultNode $node): void
+    public function updatedSelectedFile(): void
     {
-        $this->authorize('view', $node->vault);
+        $this->openFileId($this->selectedFile);
+    }
 
-        if (!$node->vault || !$node->vault->is($this->vault) || !$node->is_file) {
+    public function openFileId(?int $fileId = null): void
+    {
+        if ($fileId === null) {
             $this->selectedFile = null;
+            $this->setLastVisitedUrl();
 
             return;
         }
 
-        $this->setNode($node);
+        $node = $this->vault->nodes()
+            ->where('id', $fileId)
+            ->where('is_file', true)
+            ->first();
 
-        if ($node->extension === 'md') {
-            $this->dispatch('file-render-markup');
+        if ($node === null) {
+            abort(404);
         }
+
+        $this->openFile($node);
     }
 
     public function openFilePath(string $path): void
@@ -99,8 +89,6 @@ final class Show extends Component
     #[On('file-refresh')]
     public function refreshFile(VaultNode $node): void
     {
-        $this->authorize('view', $node->vault);
-
         if ($node->id !== $this->selectedFile) {
             return;
         }
@@ -183,5 +171,26 @@ final class Show extends Component
         $this->selectedFileExtension = $node->extension;
         $this->selectedFileUrl = new GetUrlFromVaultNode()->handle($node);
         $this->nodeForm->setNode($node);
+    }
+
+    private function openFile(VaultNode $node): void
+    {
+        $this->setNode($node);
+        $this->setLastVisitedUrl();
+
+        if ($node->extension === 'md') {
+            $this->dispatch('file-render-markup');
+        }
+    }
+
+    private function setLastVisitedUrl(): void
+    {
+        /** @var User $currentUser */
+        $currentUser = auth()->user();
+        $currentUrl = route('vaults.show', ['vault' => $this->vault->id], false)
+            . ($this->selectedFile !== null ? '?file=' . $this->selectedFile : '');
+        $currentUser->update([
+            'last_visited_url' => $currentUrl,
+        ]);
     }
 }

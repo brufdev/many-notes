@@ -18,7 +18,7 @@ it('successfully authenticates user', function (): void {
         ->set('form.email', $user->email)
         ->set('form.password', 'password')
         ->call('send')
-        ->assertRedirect(route('vaults.last'));
+        ->assertRedirect(route('vaults.index'));
 });
 
 it('gets rate limited', function (): void {
