@@ -15,7 +15,10 @@ final readonly class VaultPolicy
     public function view(User $user, Vault $vault): bool
     {
         return $user->id === $vault->created_by ||
-            $vault->collaborators()->where('user_id', $user->id)->exists();
+            $vault->collaborators()
+                ->where('user_id', $user->id)
+                ->where('accepted', true)
+                ->exists();
     }
 
     /**
@@ -24,7 +27,10 @@ final readonly class VaultPolicy
     public function update(User $user, Vault $vault): bool
     {
         return $user->id === $vault->created_by ||
-            $vault->collaborators()->where('user_id', $user->id)->exists();
+            $vault->collaborators()
+                ->where('user_id', $user->id)
+                ->where('accepted', true)
+                ->exists();
     }
 
     /**

@@ -19,6 +19,9 @@ final readonly class VaultNodePolicy
         $vault = $node->vault;
 
         return $user->id === $vault->created_by ||
-            $vault->collaborators()->where('user_id', $user->id)->exists();
+            $vault->collaborators()
+                ->where('user_id', $user->id)
+                ->where('accepted', true)
+                ->exists();
     }
 }
