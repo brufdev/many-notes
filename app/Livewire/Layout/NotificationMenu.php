@@ -64,7 +64,7 @@ final class NotificationMenu extends Component
         /** @var User $user */
         $user = $vault->user;
 
-        return __(sprintf('%s has invited you to join a vault', $user->name));
+        return __(sprintf('%s invited you to collaborate', $user->name));
     }
 
     private function collaborationAccepted(DatabaseNotification $item): string
@@ -72,7 +72,7 @@ final class NotificationMenu extends Component
         /** @var User $user */
         $user = User::find($item->data['user_id']);
 
-        return __(sprintf('%s has accepted the invitation to join a vault', $user->name));
+        return __(sprintf('%s accepted collaborating', $user->name));
     }
 
     private function collaborationDeclined(DatabaseNotification $item): string
@@ -80,6 +80,6 @@ final class NotificationMenu extends Component
         /** @var User $user */
         $user = User::find($item->data['user_id']);
 
-        return __(sprintf('%s has declined the invitation to join a vault', $user->name));
+        return __(sprintf('%s declined collaborating', $user->name));
     }
 }
