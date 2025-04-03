@@ -6,6 +6,7 @@ use App\Actions\CreateVault;
 use App\Actions\CreateVaultNode;
 use App\Livewire\Modals\AddNode;
 use App\Models\User;
+use Livewire\Livewire;
 
 it('opens the modal', function (): void {
     $user = User::factory()->create()->first();

@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Actions\AcceptCollaborationInvite;
+use App\Actions\CreateCollaborationInvite;
 use App\Actions\CreateVault;
 use App\Actions\CreateVaultNode;
+use App\Actions\DeclineCollaborationInvite;
 use App\Actions\GetPathFromUser;
 use App\Actions\GetPathFromVault;
 use App\Livewire\Vault\Index;
@@ -87,11 +90,20 @@ it('fails exporting a vault with files missing on disk', function (): void {
         ->assertReturned(null);
 });
 
-it('deletes a vault', function (): void {
+it('deletes a vault with invites, collaborators and related notifications', function (): void {
+    $createCollaborationInvite = new CreateCollaborationInvite();
+    $acceptCollaborationInvite = new AcceptCollaborationInvite();
+    $declineCollaborationInvite = new DeclineCollaborationInvite();
+
     $user = User::factory()->create()->first();
+    $firstCollaborator = User::factory()->create()->first();
+    $secondCollaborator = User::factory()->create()->first();
+    $thirdCollaborator = User::factory()->create()->first();
+
     $vault = new CreateVault()->handle($user, [
         'name' => fake()->words(3, true),
     ]);
+
     $folderNode = new CreateVaultNode()->handle($vault, [
         'is_file' => false,
         'name' => fake()->words(3, true),
@@ -103,6 +115,15 @@ it('deletes a vault', function (): void {
         'extension' => 'md',
         'content' => fake()->paragraph(),
     ]);
+
+    $createCollaborationInvite->handle($vault, $firstCollaborator);
+    $acceptCollaborationInvite->handle($vault, $firstCollaborator);
+
+    $createCollaborationInvite->handle($vault, $secondCollaborator);
+    $declineCollaborationInvite->handle($vault, $secondCollaborator);
+
+    $createCollaborationInvite->handle($vault, $thirdCollaborator);
+
     expect($user->vaults()->count())->toBe(1);
 
     Livewire::actingAs($user)

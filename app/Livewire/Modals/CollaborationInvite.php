@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace App\Livewire\Modals;
 
+use App\Actions\AcceptCollaborationInvite;
+use App\Actions\DeclineCollaborationInvite;
 use App\Models\User;
 use App\Models\Vault;
-use App\Notifications\CollaborationAccepted;
-use App\Notifications\CollaborationDeclined;
-use App\Notifications\CollaborationInvited;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\On;
@@ -31,18 +30,11 @@ final class CollaborationInvite extends Component
     {
         /** @var User $currentUser */
         $currentUser = auth()->user();
-        $this->vault->collaborators()->updateExistingPivot($currentUser->id, ['accepted' => 1]);
-        $notifications = $currentUser->notifications()->where('type', CollaborationInvited::class)->get();
 
-        foreach ($notifications as $notification) {
-            if ($notification->data['vault_id'] === $this->vault->id) {
-                $notification->delete();
-            }
+        if (!new AcceptCollaborationInvite()->handle($this->vault, $currentUser)) {
+            return;
         }
 
-        /** @var User $user */
-        $user = $this->vault->user;
-        $user->notify(new CollaborationAccepted($this->vault, $currentUser));
         $this->dispatch('notifications-refresh');
         $this->dispatch('vaults-refresh');
         $this->closeModal();
@@ -53,18 +45,11 @@ final class CollaborationInvite extends Component
     {
         /** @var User $currentUser */
         $currentUser = auth()->user();
-        $this->vault->collaborators()->detach($currentUser->id);
-        $notifications = $currentUser->notifications()->where('type', CollaborationInvited::class)->get();
 
-        foreach ($notifications as $notification) {
-            if ($notification->data['vault_id'] === $this->vault->id) {
-                $notification->delete();
-            }
+        if (!new DeclineCollaborationInvite()->handle($this->vault, $currentUser)) {
+            return;
         }
 
-        /** @var User $user */
-        $user = $this->vault->user;
-        $user->notify(new CollaborationDeclined($this->vault, $currentUser));
         $this->dispatch('notifications-refresh');
         $this->closeModal();
         $this->dispatch('toast', message: __('Invite declined'), type: 'success');
