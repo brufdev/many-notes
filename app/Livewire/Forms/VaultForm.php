@@ -32,7 +32,7 @@ final class VaultForm extends Form
             'name' => [
                 'required',
                 'min:3',
-                'regex:/^[\w]+[\s\w.-]+$/u',
+                'regex:/^[\w]+[\s\w._\-\&\%\#\[\]\(\)]+$/u',
                 Rule::unique(Vault::class)
                     ->where('created_by', $currentUser->id)
                     ->ignore($this->vault),
