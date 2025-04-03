@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Notifications;
 
 use App\Models\User;
+use App\Models\Vault;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -16,6 +17,7 @@ final class CollaborationAccepted extends Notification
      * Create a new notification instance.
      */
     public function __construct(
+        private Vault $vault,
         private User $user,
     ) {
         //
@@ -39,6 +41,7 @@ final class CollaborationAccepted extends Notification
     public function toArray(object $notifiable): array
     {
         return [
+            'vault_id' => $this->vault->id,
             'user_id' => $this->user->id,
         ];
     }

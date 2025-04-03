@@ -33,14 +33,16 @@ final class CollaborationInvite extends Component
         $currentUser = auth()->user();
         $this->vault->collaborators()->updateExistingPivot($currentUser->id, ['accepted' => 1]);
         $notifications = $currentUser->notifications()->where('type', CollaborationInvited::class)->get();
+
         foreach ($notifications as $notification) {
             if ($notification->data['vault_id'] === $this->vault->id) {
                 $notification->delete();
             }
         }
+
         /** @var User $user */
         $user = $this->vault->user;
-        $user->notify(new CollaborationAccepted($currentUser));
+        $user->notify(new CollaborationAccepted($this->vault, $currentUser));
         $this->dispatch('notifications-refresh');
         $this->dispatch('vaults-refresh');
         $this->closeModal();
@@ -53,14 +55,16 @@ final class CollaborationInvite extends Component
         $currentUser = auth()->user();
         $this->vault->collaborators()->detach($currentUser->id);
         $notifications = $currentUser->notifications()->where('type', CollaborationInvited::class)->get();
+
         foreach ($notifications as $notification) {
             if ($notification->data['vault_id'] === $this->vault->id) {
                 $notification->delete();
             }
         }
+
         /** @var User $user */
         $user = $this->vault->user;
-        $user->notify(new CollaborationDeclined($currentUser));
+        $user->notify(new CollaborationDeclined($this->vault, $currentUser));
         $this->dispatch('notifications-refresh');
         $this->closeModal();
         $this->dispatch('toast', message: __('Invite declined'), type: 'success');
