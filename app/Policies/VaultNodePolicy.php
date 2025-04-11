@@ -20,8 +20,8 @@ final readonly class VaultNodePolicy
 
         return $user->id === $vault->created_by ||
             $vault->collaborators()
-                ->where('user_id', $user->id)
-                ->where('accepted', true)
+                ->wherePivot('user_id', $user->id)
+                ->wherePivot('accepted', true)
                 ->exists();
     }
 }
