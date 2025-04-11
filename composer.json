@@ -9,6 +9,7 @@
     "require": {
         "php": "^8.4",
         "laravel/framework": "^11.9",
+        "laravel/reverb": "^1.0",
         "laravel/socialite": "^5.16",
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.5",
