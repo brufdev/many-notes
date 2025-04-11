@@ -1,0 +1,2 @@
+#!/command/execlineb -P
+echo "Reverb process exited with status $1"
