@@ -21,6 +21,7 @@
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.14",
+        "calebdw/larastan-livewire": "^2.1",
         "fakerphp/faker": "^1.23",
         "larastan/larastan": "^3.0",
         "laravel/pint": "^1.20",

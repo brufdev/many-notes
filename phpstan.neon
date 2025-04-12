@@ -1,5 +1,6 @@
 includes:
     - vendor/larastan/larastan/extension.neon
+    - vendor/calebdw/larastan-livewire/extension.neon
     - vendor/nesbot/carbon/extension.neon
 
 parameters:
