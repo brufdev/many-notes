@@ -18,6 +18,7 @@ arch('avoid mutation')
     ->toBeReadonly()
     ->ignoring([
         'App\Console\Commands',
+        'App\Events',
         'App\Exceptions',
         'App\Jobs',
         'App\Livewire',
@@ -68,6 +69,7 @@ arch('models')
     ->toOnlyBeUsedIn([
         'App\Actions',
         'App\Console\Commands',
+        'App\Events',
         'App\Http',
         'App\Jobs',
         'App\Livewire',
