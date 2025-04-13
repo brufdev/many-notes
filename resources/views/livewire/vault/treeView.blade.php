@@ -1,4 +1,11 @@
-<div class="flex flex-grow px-4">
+<div class="flex flex-grow px-4"
+    x-init="
+        Echo.private('Vault.{{ $vault->id }}')
+            .listen('VaultFileSystemUpdated', (e) => {
+                $wire.$refresh();
+            });
+    "
+>
     <x-treeView>
         <div class="sticky top-0 z-[5] flex flex-col gap-2 py-4 bg-light-base-50 dark:bg-base-900">
             <div class="flex justify-center py-1 rounded-sm bg-primary-400 dark:bg-primary-500 text-light-base-50"

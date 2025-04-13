@@ -1,4 +1,11 @@
-<div class="flex flex-col h-dvh">
+<div class="flex flex-col h-dvh"
+    x-init="
+        Echo.private('User.{{ auth()->user()->id }}')
+            .listen('UserCollaborationDeleted', (e) => {
+                $wire.$refresh();
+            });
+    "
+>
     <x-layouts.appHeader>
         <div class="flex items-center gap-4"></div>
 

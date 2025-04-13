@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Livewire\Modals;
 
 use App\Actions\DeleteCollaborationInvite;
+use App\Events\UserCollaborationDeleted;
+use App\Events\UserNotified;
 use App\Livewire\Forms\CollaborationInviteForm;
 use App\Models\User;
 use App\Models\Vault;
@@ -50,8 +52,20 @@ final class Collaboration extends Component
 
     public function delete(User $user): void
     {
-        new DeleteCollaborationInvite()->handle($this->vault, $user);
-        $this->dispatch('toast', message: __('Invite deleted'), type: 'success');
+        try {
+            $collaboration = $this->vault
+                ->collaborators()
+                ->where('user_id', $user->id)
+                ->firstOrFail();
+            new DeleteCollaborationInvite()->handle($this->vault, $user);
+            /** @phpstan-ignore-next-line */
+            $collaboration->pivot->accepted
+                ? broadcast(new UserCollaborationDeleted($user, $this->vault))
+                : broadcast(new UserNotified($user));
+            $this->dispatch('toast', message: __('Invite deleted'), type: 'success');
+        } catch (Exception) {
+            $this->dispatch('toast', message: __('Something went wrong'), type: 'error');
+        }
     }
 
     public function render(): Factory|View

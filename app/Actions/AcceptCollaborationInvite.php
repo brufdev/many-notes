@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
+use App\Events\UserNotified;
 use App\Models\User;
 use App\Models\Vault;
 use App\Notifications\CollaborationAccepted;
@@ -34,6 +35,7 @@ final readonly class AcceptCollaborationInvite
         /** @var User $vaultOwner */
         $vaultOwner = $vault->user;
         $vaultOwner->notify(new CollaborationAccepted($vault, $user));
+        broadcast(new UserNotified($vaultOwner));
 
         return true;
     }

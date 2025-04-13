@@ -1,4 +1,11 @@
-<div>
+<div
+    x-init="
+        Echo.private('User.{{ auth()->user()->id }}')
+            .listen('UserNotified', (e) => {
+                $wire.$refresh();
+            });
+    "
+>
     <x-menu anchorElement="$refs.header" anchorOffset="-15" wide>
         <x-menu.button>
             <x-icons.bell class="w-5 h-5" />
