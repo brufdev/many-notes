@@ -34,10 +34,15 @@ final class EditNode extends Component
 
     public function edit(): void
     {
-        $this->form->update();
+        $node = $this->form->update();
+
+        if (!$node instanceof VaultNode) {
+            return;
+        }
+
         $this->closeModal();
         $this->dispatch('node-updated');
-        $this->dispatch('file-refresh', node: $this->form->node);
+        $this->dispatch('file-refresh', node: $node);
         $message = $this->form->is_file ? __('File edited') : __('Folder edited');
         $this->dispatch('toast', message: $message, type: 'success');
     }

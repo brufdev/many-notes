@@ -28,7 +28,7 @@ it('opens a file', function (): void {
     Livewire::actingAs($user)
         ->withQueryParams(['file' => $node->id])
         ->test(Show::class, ['vault' => $vault])
-        ->assertSet('nodeForm.node.name', $node->name);
+        ->assertSet('nodeForm.name', $node->name);
 });
 
 it('does not open a non-existing file', function (): void {
@@ -40,7 +40,7 @@ it('does not open a non-existing file', function (): void {
     Livewire::actingAs($user)
         ->withQueryParams(['file' => 500])
         ->test(Show::class, ['vault' => $vault])
-        ->assertStatus(404);
+        ->assertDispatched('toast', type: 'error');
 });
 
 it('does not open a folder', function (): void {
@@ -56,7 +56,7 @@ it('does not open a folder', function (): void {
     Livewire::actingAs($user)
         ->test(Show::class, ['vault' => $vault])
         ->call('openFileId', $node->id)
-        ->assertStatus(404);
+        ->assertDispatched('toast', type: 'error');
 });
 
 it('opens a file from the path', function (): void {
@@ -73,7 +73,7 @@ it('opens a file from the path', function (): void {
     Livewire::actingAs($user)
         ->test(Show::class, ['vault' => $vault])
         ->call('openFilePath', $node->name)
-        ->assertSet('selectedFile', $node->id);
+        ->assertSet('selectedFileId', $node->id);
 });
 
 it('opens a file from the path with an open file', function (): void {
@@ -102,7 +102,7 @@ it('opens a file from the path with an open file', function (): void {
         ->withQueryParams(['file' => $firstNode->id])
         ->test(Show::class, ['vault' => $vault])
         ->call('openFilePath', $secondNode->name)
-        ->assertSet('selectedFile', $secondNode->id);
+        ->assertSet('selectedFileId', $secondNode->id);
 });
 
 it('does not open a file from a non-existent path', function (): void {
@@ -114,7 +114,7 @@ it('does not open a file from a non-existent path', function (): void {
     Livewire::actingAs($user)
         ->test(Show::class, ['vault' => $vault])
         ->call('openFilePath', fake()->words(4, true))
-        ->assertStatus(404);
+        ->assertDispatched('toast', type: 'error');
 });
 
 it('refreshes an open file', function (): void {
@@ -136,7 +136,7 @@ it('refreshes an open file', function (): void {
         ->test(Show::class, ['vault' => $vault])
         ->assertSet('selectedFileUrl', $url)
         ->set('nodeForm.name', $newName)
-        ->call('refreshFile', $node->refresh())
+        ->call('refreshFile', $node->refresh()->id)
         ->assertSet('selectedFileUrl', str_replace($name, $newName, $url));
 });
 
@@ -159,8 +159,8 @@ it('does not refresh a file that is not open', function (): void {
     Livewire::actingAs($user)
         ->withQueryParams(['file' => $firstNode->id])
         ->test(Show::class, ['vault' => $vault])
-        ->call('refreshFile', $secondNode)
-        ->assertSet('selectedFile', $firstNode->id);
+        ->call('refreshFile', $secondNode->id)
+        ->assertSet('selectedFileId', $firstNode->id);
 });
 
 it('closes an open file', function (): void {
@@ -177,9 +177,9 @@ it('closes an open file', function (): void {
     Livewire::actingAs($user)
         ->withQueryParams(['file' => $node->id])
         ->test(Show::class, ['vault' => $vault])
-        ->assertSet('selectedFile', $node->id)
+        ->assertSet('selectedFileId', $node->id)
         ->call('closeFile')
-        ->assertSet('selectedFile', null);
+        ->assertSet('selectedFileId', null);
 });
 
 it('sets the template folder', function (): void {
@@ -335,9 +335,9 @@ it('closes an open file when it is deleted', function (): void {
     Livewire::actingAs($user)
         ->withQueryParams(['file' => $node->id])
         ->test(Show::class, ['vault' => $vault])
-        ->assertSet('selectedFile', $node->id)
+        ->assertSet('selectedFileId', $node->id)
         ->call('deleteNode', $node)
-        ->assertSet('selectedFile', null);
+        ->assertSet('selectedFileId', null);
 });
 
 it('deletes the links and backlinks when deleting a node', function (): void {

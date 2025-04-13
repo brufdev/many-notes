@@ -1,8 +1,11 @@
-<div class="flex flex-col h-dvh">
+<div class="flex flex-col h-dvh"
+    x-data="vault"
+    @file-render-markup.window="$nextTick(() => { markdownToHtml() })"
+>
     <x-layouts.appHeader>
         <div class="flex items-center gap-4">
             <button type="button" class="hover:text-light-base-950 dark:hover:text-base-50"
-                @click="$dispatch('left-panel-toggle')"
+                @click="toggleLeftPanel"
             >
                 <x-icons.bars3BottomLeft class="w-5 h-5" />
             </button>
@@ -11,13 +14,14 @@
             >
                 <x-icons.magnifyingGlass class="w-5 h-5" />
             </button>
+            <button wire:click="openFileId(5464)">open</button>
         </div>
 
         <div class="flex items-center gap-4">
             <livewire:layout.notification-menu />
             <livewire:layout.user-menu />
             <button type="button" class="hover:text-light-base-950 dark:hover:text-base-50"
-                @click="$dispatch('right-panel-toggle')"
+                @click="toggleRightPanel"
             >
                 <x-icons.bars3BottomRight class="w-5 h-5" />
             </button>
@@ -25,11 +29,7 @@
     </x-layouts.appHeader>
 
     <x-layouts.appMain>
-        <div x-data="vault" x-cloak class="relative flex w-full"
-            @left-panel-toggle.window="isLeftPanelOpen = !isLeftPanelOpen"
-            @right-panel-toggle.window="isRightPanelOpen = !isRightPanelOpen"
-            @file-render-markup.window="$nextTick(() => { markdownToHtml() })"
-        >
+        <div class="relative flex w-full" x-cloak>
             <div class="fixed inset-0 z-40 opacity-50 bg-light-base-200 dark:bg-base-950"
                 wire:loading wire:target.except="nodeForm.name, nodeForm.content"
             >
@@ -51,7 +51,7 @@
                 :class="{ 'md:pl-60': isLeftPanelOpen, 'md:pr-60': isRightPanelOpen }" id="nodeContainer"
             >
                 <div class="flex flex-col h-full w-full max-w-[48rem] mx-auto p-4">
-                    <div class="flex flex-col w-full h-full gap-4" x-show="$wire.selectedFile">
+                    <div class="flex flex-col w-full h-full gap-4" x-show="$wire.selectedFileId">
                         <div class="z-[5]">
                             <div class="flex justify-between">
                                 <input type="text" wire:model.live.debounce.500ms="nodeForm.name"
@@ -96,7 +96,7 @@
                             </div>
                         @endif
                     </div>
-                    <div class="flex items-center justify-center w-full h-full gap-2" x-show="!$wire.selectedFile">
+                    <div class="flex items-center justify-center w-full h-full gap-2" x-show="!$wire.selectedFileId">
                         <x-form.button @click="$wire.dispatchTo('modals.search-node', 'open-modal')">
                             <x-icons.magnifyingGlass class="w-4 h-4" />
                             <span class="hidden text-sm font-medium md:block">{{ __('Open file') }}</span>
@@ -116,8 +116,8 @@
                     <div class="flex flex-col w-full gap-2">
                         <h3>Links</h3>
                         <div class="flex flex-col gap-2 text-sm">
-                            @if ($nodeForm->node && $nodeForm->node->links->count())
-                                @foreach ($nodeForm->node->links as $link)
+                            @if ($this->selectedFile && $this->selectedFile->links->count())
+                                @foreach ($this->selectedFile->links as $link)
                                     <a class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
                                         href="" @click.prevent="openFile({{ $link->id }})" wire:key="{{ $link->id }}"
                                     >{{ $link->name }}</a>
@@ -130,8 +130,8 @@
                     <div class="flex flex-col w-full gap-2">
                         <h3>Backlinks</h3>
                         <div class="flex flex-col gap-2 text-sm">
-                            @if ($nodeForm->node && $nodeForm->node->backlinks->count())
-                                @foreach ($nodeForm->node->backlinks as $link)
+                            @if ($this->selectedFile && $this->selectedFile->backlinks->count())
+                                @foreach ($this->selectedFile->backlinks as $link)
                                     <a class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
                                         href="" @click.prevent="openFile({{ $link->id }})" wire:key="{{ $link->id }}"
                                     >{{ $link->name }}</a>
@@ -144,8 +144,8 @@
                     <div class="flex flex-col w-full gap-2">
                         <h3>Tags</h3>
                         <div class="flex flex-col gap-2 text-sm">
-                            @if ($nodeForm->node && $nodeForm->node->tags->count())
-                                @foreach ($nodeForm->node->tags as $tag)
+                            @if ($this->selectedFile && $this->selectedFile->tags->count())
+                                @foreach ($this->selectedFile->tags as $tag)
                                     <a href="" class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
                                         @click.prevent="$wire.dispatchTo('modals.search-node', 'open-modal', { search: 'tag:{{ $tag->name }}' })"
                                         wire:key="{{ $tag->id }}"
@@ -179,35 +179,71 @@
             isLeftPanelOpen: false,
             isRightPanelOpen: false,
             isEditMode: Alpine.$persist(true),
-            selectedFile: $wire.entangle('selectedFile'),
+            selectedFileId: $wire.entangle('selectedFileId'),
             selectedFileExtension: $wire.entangle('selectedFileExtension'),
+            selectedFileRefreshes: $wire.entangle('selectedFileRefreshes'),
             html: '',
 
             init() {
-                this.$watch('isEditMode', value => {
-                    if (value) {
-                        return;
-                    }
-                    this.markdownToHtml();
-                });
+                if (this.selectedFileId !== null && $wire.toastErrorMessage.length === 0) {
+                    this.startVaultNodeEventListeners();
+                }
 
-                this.$watch('selectedFile', value => {
-                    if (value === null) {
-                        this.html = '';
-                        return;
-                    }
-                    this.markdownToHtml();
-                });
+                if ($wire.toastErrorMessage.length > 0) {
+                    this.$nextTick(() => {
+                        this.$dispatch('toast', { message: $wire.toastErrorMessage, type: 'error' });
+                        $wire.toastErrorMessage = '';
+                    });
+                }
 
                 this.isLeftPanelOpen = !this.isSmallDevice();
 
                 if (!this.isEditMode) {
-                    Alpine.nextTick(() => { this.markdownToHtml() });
+                    this.$nextTick(() => { this.markdownToHtml() });
                 }
+
+                this.$watch('isEditMode', value => {
+                    if (value) {
+                        return;
+                    }
+
+                    this.markdownToHtml();
+                });
+
+                this.$watch('selectedFileId', value => {
+                    if (value === null) {
+                        this.html = '';
+                        return;
+                    }
+
+                    this.markdownToHtml();
+                    this.startVaultNodeEventListeners();
+                });
+
+                this.$watch('selectedFileRefreshes', value => {
+                    if (value === 0) {
+                        return;
+                    }
+
+                    this.markdownToHtml();
+                });
+
+                Echo.private('Vault.{{ $vault->id }}')
+                    .listen('UserCollaborationDeleted', (e) => {
+                        $wire.$refresh();
+                    });
             },
 
             isSmallDevice() {
                 return window.innerWidth < 768;
+            },
+
+            toggleLeftPanel() {
+                this.isLeftPanelOpen = !this.isLeftPanelOpen;
+            },
+
+            toggleRightPanel() {
+                this.isRightPanelOpen = !this.isRightPanelOpen;
             },
 
             closePanels() {
@@ -220,6 +256,10 @@
             },
 
             openFile(nodeId) {
+                if (nodeId !== this.selectedFileId) {
+                    this.stopVaultNodeEventListeners();
+                }
+
                 $wire.openFileId(nodeId);
 
                 if (this.isSmallDevice()) {
@@ -230,11 +270,11 @@
             },
 
             resetScrollPosition() {
-                if (!Number.isInteger(this.selectedFile)) {
+                if (!Number.isInteger(this.selectedFileId)) {
                     return;
                 }
 
-                let scrollElementId = this.isEditMode ? 'noteEdit' : 'nodeContainer';
+                const scrollElementId = this.isEditMode ? 'noteEdit' : 'nodeContainer';
                 if (document.getElementById(scrollElementId) == null) {
                     return;
                 }
@@ -251,7 +291,7 @@
                     return;
                 }
 
-                const node = this.selectedFile;
+                const node = this.selectedFileId;
                 const renderer = {
                     image(token) {
                         let html = '';
@@ -280,17 +320,40 @@
                     },
                 };
                 marked.use({
-                    renderer
+                    renderer,
                 });
-
-                const sanitizedHtml = DOMPurify.sanitize(marked.parse(el.value), {
-                    ADD_ATTR: ['wire:click.prevent'],
-                });
-
-                this.html = sanitizedHtml
+                this.html = DOMPurify
+                    // sanitize markdown
+                    .sanitize(marked.parse(el.value), {
+                        ADD_ATTR: ['wire:click.prevent'],
+                    })
                     // improve check lists design
                     .replaceAll('<li><input', '<li class="task-list-item"><input class="task-list-item-checkbox"');
             },
-        }))
+
+            startVaultNodeEventListeners() {
+                if (this.selectedFileId === null) {
+                    return;
+                }
+
+                Echo.private('VaultNode.' + this.selectedFileId)
+                    .listen('VaultNodeUpdated', (e) => {
+                        $wire.refreshFile(this.selectedFileId);
+                    })
+                    .listen('VaultNodeDeleted', (e) => {
+                        $wire.dispatch('file-close');
+                    });
+            },
+
+            stopVaultNodeEventListeners() {
+                if (this.selectedFileId === null) {
+                    return;
+                }
+
+                Echo.private('VaultNode.' + this.selectedFileId)
+                    .stopListening('VaultNodeUpdated')
+                    .stopListening('VaultNodeDeleted');
+            },
+        }));
     </script>
 @endscript

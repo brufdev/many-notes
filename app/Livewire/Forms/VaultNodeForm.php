@@ -12,6 +12,7 @@ use App\Models\Vault;
 use App\Models\VaultNode;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Unique;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
 
@@ -19,7 +20,8 @@ final class VaultNodeForm extends Form
 {
     public Vault $vault;
 
-    public ?VaultNode $node = null;
+    #[Locked]
+    public ?int $nodeId = null;
 
     public ?int $parent_id = null;
 
@@ -46,7 +48,7 @@ final class VaultNodeForm extends Form
                     ->where('vault_id', $this->vault->id)
                     ->where('parent_id', $this->parent_id)
                     ->where('extension', $this->extension)
-                    ->ignore($this->node),
+                    ->ignore($this->nodeId),
             ],
         ];
     }
@@ -58,7 +60,7 @@ final class VaultNodeForm extends Form
 
     public function setNode(VaultNode $node): void
     {
-        $this->node = $node;
+        $this->nodeId = $node->id;
         $this->parent_id = $node->parent_id;
         $this->is_file = (bool) $node->is_file;
         $this->name = $node->name;
@@ -88,24 +90,29 @@ final class VaultNodeForm extends Form
         return $node;
     }
 
-    public function update(): void
+    public function update(): ?VaultNode
     {
-        if (is_null($this->node)) {
-            return;
+        $node = $this->vault->nodes()->find($this->nodeId);
+
+        if ($node === null) {
+            return null;
         }
 
         $this->name = mb_ltrim($this->name);
         $this->validate();
 
-        new UpdateVaultNode()->handle($this->node, [
+        new UpdateVaultNode()->handle($node, [
             'parent_id' => $this->parent_id,
             'name' => $this->name,
             'content' => $this->content,
         ]);
+        $node->refresh();
 
-        if ($this->node->is_file && $this->node->extension === 'md') {
-            new ProcessVaultNodeLinks()->handle($this->node);
-            new ProcessVaultNodeTags()->handle($this->node);
+        if ($node->is_file && $node->extension === 'md') {
+            new ProcessVaultNodeLinks()->handle($node);
+            new ProcessVaultNodeTags()->handle($node);
         }
+
+        return $node;
     }
 }
