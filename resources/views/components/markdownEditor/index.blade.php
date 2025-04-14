@@ -8,7 +8,7 @@
         id="noteEdit" x-show="isEditMode" wire:model.live.debounce.500ms="nodeForm.content"
         @keyup.enter="newLine"
     ></textarea>
-    <div class="pr-1 overflow-y-auto markdown-body" id="noteView" x-show="!isEditMode" x-html="html"></div>
+    <div class="flex flex-col flex-grow pr-1 overflow-y-auto markdown-body" id="noteView" x-show="!isEditMode" x-html="html"></div>
     <x-markdownEditor.toolbar x-show="isSmallDevice()" x-cloak />
 </div>
 
