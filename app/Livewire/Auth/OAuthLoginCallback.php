@@ -21,14 +21,14 @@ final class OAuthLoginCallback extends Component
             $providerUser = Socialite::driver($provider)->user();
         } catch (Exception) {
             session()->flash('error', __('An error occurred while authenticating.'));
-            $this->redirect('/login', true);
+            $this->redirect('/login');
 
             return;
         }
 
         if (!filter_var($providerUser->getEmail(), FILTER_VALIDATE_EMAIL)) {
             session()->flash('error', __('No email address found.'));
-            $this->redirect('/login', true);
+            $this->redirect('/login');
 
             return;
         }
@@ -47,6 +47,6 @@ final class OAuthLoginCallback extends Component
         $redirectUrl = mb_strlen((string) $user->last_visited_url) > 0
             ? $user->last_visited_url
             : route('vaults.index', absolute: false);
-        $this->redirectIntended($redirectUrl, true);
+        $this->redirectIntended($redirectUrl);
     }
 }

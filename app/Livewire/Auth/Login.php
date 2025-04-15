@@ -39,7 +39,7 @@ final class Login extends Component
         $redirectUrl = mb_strlen((string) $user->last_visited_url) > 0
             ? $user->last_visited_url
             : route('vaults.index', absolute: false);
-        $this->redirectIntended($redirectUrl, true);
+        $this->redirectIntended($redirectUrl);
     }
 
     public function render(): Factory|View
