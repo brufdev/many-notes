@@ -17,7 +17,7 @@ final class Register extends Component
     {
         $this->form->register();
 
-        $this->redirect(route('vaults.index', absolute: false), navigate: true);
+        $this->redirect(route('vaults.index', absolute: false));
     }
 
     public function render(): Factory|View

@@ -28,7 +28,7 @@ final class ResetPassword extends Component
             return;
         }
 
-        $this->redirect(route('login', absolute: false), navigate: true);
+        $this->redirect(route('login', absolute: false));
     }
 
     public function render(): Factory|View

@@ -17,7 +17,7 @@
             <x-form.text>
                 {{ __('Already registered?') }}
 
-                <x-form.link wire:navigate href="{{ route('login') }}">
+                <x-form.link href="{{ route('login') }}">
                     {{ __('Sign in') }}
                 </x-form.link>
             </x-form.text>

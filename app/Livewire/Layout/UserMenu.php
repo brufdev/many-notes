@@ -55,7 +55,7 @@ final class UserMenu extends Component
         Session::invalidate();
         Session::regenerateToken();
 
-        $this->redirect(route('login', absolute: false), navigate: true);
+        $this->redirect(route('login', absolute: false));
     }
 
     public function render(): Factory|View

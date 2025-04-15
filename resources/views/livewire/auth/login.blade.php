@@ -35,7 +35,7 @@
         <div class="flex flex-col gap-2 text-center">
             @if (Route::has('forgot.password'))
                 <x-form.text>
-                    <x-form.link wire:navigate href="{{ route('forgot.password') }}">
+                    <x-form.link href="{{ route('forgot.password') }}">
                         {{ __('Forgot your password?') }}
                     </x-form.link>
                 </x-form.text>
@@ -45,7 +45,7 @@
                 <x-form.text>
                     {{ __('Don\'t have an account?') }}
 
-                    <x-form.link wire:navigate href="{{ route('register') }}">
+                    <x-form.link href="{{ route('register') }}">
                         {{ __('Sign up') }}
                     </x-form.link>
                 </x-form.text>

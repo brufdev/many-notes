@@ -61,7 +61,7 @@
             </x-modal>
 
             <x-menu.close>
-                <x-menu.itemLink href="/vaults" wire:navigate>
+                <x-menu.itemLink href="{{ route('vaults.index') }}">
                     <x-icons.circleStack class="w-4 h-4" />
                     {{ __('Vaults') }}
                 </x-menu.itemLink>

@@ -13,7 +13,7 @@
 
         <div class="text-center">
             <x-form.text>
-                <x-form.link wire:navigate href="{{ route('login') }}">
+                <x-form.link href="{{ route('login') }}">
                     {{ __('Back to Sign in') }}
                 </x-form.link>
             </x-form.text>
