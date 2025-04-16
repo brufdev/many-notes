@@ -3,21 +3,21 @@
         <div class="flex items-center">
             <div class="flex flex-col gap-1">
                 <h6 class="font-semibold">
-                    <a href="/vaults/{{ $vault->id }}" wire:navigate>{{ $vault->name }}</a>
+                    <a href="/vaults/{{ $this->vault->id }}">{{ $this->vault->name }}</a>
                 </h6>
                 <span class="text-xs">
                     {{ __('Updated on') }}
-                    {{ $vault->updated_at->format('F j, Y') }}
+                    {{ $this->vault->updated_at->format('F j, Y') }}
                 </span>
-                @if ($vault->created_by !== auth()->user()->id)
+                @if ($this->vault->created_by !== auth()->user()->id)
                     <span class="text-xs">
-                        {{ sprintf("Invited by %s", $vault->user()->first()->name) }}
+                        {{ sprintf("Invited by %s", $this->vault->user()->first()->name) }}
                     </span>
                 @endif
             </div>
         </div>
         <div class="flex items-center justify-center gap-2">
-            @if ($vault->collaborators()->wherePivot('accepted', true)->count())
+            @if ($this->vault->collaborators()->wherePivot('accepted', true)->count())
                 <span title="{{ __('This vault has collaborators') }}">
                     <x-icons.userGroup class="w-5 h-5" />
                 </span>
@@ -55,7 +55,7 @@
                             {{ __('Export') }}
                         </x-menu.item>
 
-                        @if ($vault->created_by === auth()->user()->id)
+                        @if ($this->vault->created_by === auth()->user()->id)
                             <x-menu.item wire:confirm="{{ __('Are you sure you want to delete this vault?') }}"
                                 wire:click="$dispatch('vault-delete')"
                             >

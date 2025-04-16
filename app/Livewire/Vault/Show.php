@@ -9,15 +9,17 @@ use App\Actions\GetUrlFromVaultNode;
 use App\Actions\GetVaultNodeFromPath;
 use App\Actions\ResolveTwoPaths;
 use App\Actions\UpdateVault;
-use App\Events\VaultFileSystemUpdated;
-use App\Events\VaultNodeDeleted;
-use App\Events\VaultNodeUpdated;
+use App\Events\VaultFileSystemUpdatedEvent;
+use App\Events\VaultNodeDeletedEvent;
+use App\Events\VaultNodeUpdatedEvent;
 use App\Livewire\Forms\VaultNodeForm;
 use App\Models\User;
 use App\Models\Vault;
 use App\Models\VaultNode;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
@@ -27,9 +29,10 @@ use Throwable;
 
 final class Show extends Component
 {
-    public Vault $vault;
-
     public VaultNodeForm $nodeForm;
+
+    #[Locked]
+    public int $vaultId;
 
     #[Url(as: 'file', history: true)]
     public ?int $selectedFileId = null;
@@ -43,23 +46,47 @@ final class Show extends Component
     #[Locked]
     public int $selectedFileRefreshes = 0;
 
+    #[Locked]
     public string $toastErrorMessage = '';
 
-    public function mount(Vault $vault): void
+    public function mount(): void
     {
-        $this->authorize('view', $vault);
-        $this->nodeForm->setVault($this->vault);
+        $this->checkPermission();
+        $this->nodeForm->setVault($this->vaultId);
         $this->openFileId($this->selectedFileId);
+    }
+
+    #[Computed]
+    public function vault(): Vault
+    {
+        return Vault::findOrFail($this->vaultId);
     }
 
     #[Computed]
     public function selectedFile(): ?VaultNode
     {
+        if ($this->vault === null) {
+            return null;
+        }
+
         return $this->vault
             ->nodes()
             ->where('id', $this->selectedFileId)
             ->where('is_file', true)
             ->first();
+    }
+
+    public function checkPermission(): void
+    {
+        try {
+            $this->authorize('view', $this->vault);
+        } catch (AuthorizationException) {
+            session()->flash('error', __('This vault is no longer available'));
+            $this->redirect(route('vaults.index'));
+        } catch (ModelNotFoundException) { /** @phpstan-ignore catch.neverThrown */
+            session()->flash('error', __('Vault not found'));
+            $this->redirect(route('vaults.index'));
+        }
     }
 
     public function updatedSelectedFileId(): void
@@ -86,9 +113,9 @@ final class Show extends Component
 
         if ($node === null) {
             $this->reset(['selectedFileId']);
-            $errorMessage = __('File not found');
-            $this->toastErrorMessage = $errorMessage;
-            $this->dispatch('toast', message: $errorMessage, type: 'error');
+
+            $this->toastErrorMessage = __('File not found');
+            $this->dispatch('toast', message: $this->toastErrorMessage, type: 'error');
 
             return;
         }
@@ -115,7 +142,6 @@ final class Show extends Component
         $this->openFile($node);
     }
 
-    #[On('file-refresh')]
     public function refreshFile(int $nodeId): void
     {
         if ($nodeId !== $this->selectedFileId) {
@@ -150,11 +176,10 @@ final class Show extends Component
         if ($node->wasChanged(['parent_id', 'name'])) {
             /** @var Vault $vault */
             $vault = $node->vault;
-            $this->dispatch('node-updated');
-            broadcast(new VaultFileSystemUpdated($vault))->toOthers();
+            broadcast(new VaultFileSystemUpdatedEvent($vault));
         }
 
-        broadcast(new VaultNodeUpdated($node))->toOthers();
+        broadcast(new VaultNodeUpdatedEvent($node))->toOthers();
     }
 
     public function setTemplateFolder(VaultNode $node): void
@@ -170,6 +195,7 @@ final class Show extends Component
         new UpdateVault()->handle($this->vault, [
             'templates_node_id' => $node->id,
         ]);
+
         $this->dispatch('toast', message: __('Template folder updated'), type: 'success');
     }
 
@@ -179,8 +205,6 @@ final class Show extends Component
 
         try {
             $deletedNodes = new DeleteVaultNode()->handle($node);
-            $this->dispatch('node-updated');
-
             $openFileDeleted = !is_null(
                 array_find(
                     $deletedNodes,
@@ -192,9 +216,11 @@ final class Show extends Component
                 $this->closeFile();
             }
 
-            broadcast(new VaultNodeDeleted($node))->toOthers();
             $message = $node->is_file ? __('File deleted') : __('Folder deleted');
             $this->dispatch('toast', message: $message, type: 'success');
+
+            broadcast(new VaultFileSystemUpdatedEvent($this->vault));
+            broadcast(new VaultNodeDeletedEvent($node))->toOthers();
         } catch (Throwable $e) {
             $this->dispatch('toast', message: $e->getMessage(), type: 'error');
         }
@@ -231,7 +257,7 @@ final class Show extends Component
     {
         /** @var User $currentUser */
         $currentUser = auth()->user();
-        $currentUrl = route('vaults.show', ['vault' => $this->vault->id], false)
+        $currentUrl = route('vaults.show', ['vaultId' => $this->vaultId], false)
             . ($this->selectedFileId !== null ? '?file=' . $this->selectedFileId : '');
         $currentUser->update([
             'last_visited_url' => $currentUrl,

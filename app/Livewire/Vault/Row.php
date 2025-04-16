@@ -8,17 +8,26 @@ use App\Livewire\Forms\VaultForm;
 use App\Models\Vault;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 final class Row extends Component
 {
-    public Vault $vault;
-
     public VaultForm $form;
+
+    #[Locked]
+    public int $vaultId;
 
     public function mount(): void
     {
         $this->form->setVault($this->vault);
+    }
+
+    #[Computed]
+    public function vault(): Vault
+    {
+        return Vault::findOrFail($this->vaultId);
     }
 
     public function update(): void
@@ -26,7 +35,7 @@ final class Row extends Component
         $this->authorize('update', $this->vault);
         $this->validate();
         $this->form->update();
-        $this->vault->refresh();
+        unset($this->vault);
         $this->dispatch('close-modal');
         $this->dispatch('toast', message: __('Vault edited'), type: 'success');
     }

@@ -20,7 +20,7 @@ Route::middleware('auth')->group(function (): void {
 
     Route::prefix('vaults')->group(function (): void {
         Route::get('/', VaultIndex::class)->name('vaults.index');
-        Route::get('/{vault}', VaultShow::class)->name('vaults.show');
+        Route::get('/{vaultId}', VaultShow::class)->name('vaults.show');
     });
 
     Route::get('files/{vault}', [FileController::class, 'show'])->name('files.show');

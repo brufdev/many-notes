@@ -14,7 +14,6 @@
             >
                 <x-icons.magnifyingGlass class="w-5 h-5" />
             </button>
-            <button wire:click="openFileId(5464)">open</button>
         </div>
 
         <div class="flex items-center gap-4">
@@ -44,7 +43,7 @@
             <div class="absolute top-0 left-0 z-30 flex flex-col h-full overflow-hidden overflow-y-auto transition-all w-60 bg-light-base-50 dark:bg-base-900"
                 :class="{ 'translate-x-0': isLeftPanelOpen, '-translate-x-full hidden': !isLeftPanelOpen }"
             >
-                <livewire:vault.tree-view lazy="on-load" :$vault />
+                <livewire:vault.tree-view lazy="on-load" :vault="$this->vault" />
             </div>
 
             <div class="absolute top-0 bottom-0 right-0 flex flex-col w-full overflow-y-auto transition-all text-start bg-light-base-200 dark:bg-base-950"
@@ -161,15 +160,15 @@
         </div>
     </x-layouts.appMain>
 
-    <livewire:modals.add-node :$vault />
-    <livewire:modals.import-file :$vault />
-    <livewire:modals.edit-node :$vault />
-    <livewire:modals.search-node :$vault />
-    <livewire:modals.markdown-editor-search :$vault />
-    <livewire:modals.markdown-editor-template :$vault />
+    <livewire:modals.add-node :vault="$this->vault" />
+    <livewire:modals.import-file :vault="$this->vault" />
+    <livewire:modals.edit-node :vault="$this->vault" />
+    <livewire:modals.search-node :vault="$this->vault" />
+    <livewire:modals.markdown-editor-search :vault="$this->vault" />
+    <livewire:modals.markdown-editor-template :vault="$this->vault" />
 
-    @if ($vault->created_by === auth()->user()->id)
-        <livewire:modals.collaboration :$vault />
+    @if ($this->vault->created_by === auth()->user()->id)
+        <livewire:modals.collaboration :vault="$this->vault" />
     @endif
 </div>
 
@@ -192,7 +191,6 @@
                 if ($wire.toastErrorMessage.length > 0) {
                     this.$nextTick(() => {
                         this.$dispatch('toast', { message: $wire.toastErrorMessage, type: 'error' });
-                        $wire.toastErrorMessage = '';
                     });
                 }
 
@@ -228,9 +226,13 @@
                     this.markdownToHtml();
                 });
 
-                Echo.private('Vault.{{ $vault->id }}')
-                    .listen('UserCollaborationDeleted', (e) => {
-                        $wire.$refresh();
+                Echo.private('User.{{ auth()->user()->id }}')
+                    .listen('CollaborationDeletedEvent', (e) => {
+                        if (e.vault_id !== {{ $this->vault->id }}) {
+                            return;
+                        }
+
+                        $wire.checkPermission();
                     });
             },
 
@@ -301,7 +303,7 @@
                             html = '<img src="' + token.href + '" alt="' + token.text + '" />';
                         } else {
                             // internal images
-                            html = '<img src="/files/{{ $vault->id }}?path=' + token.href + '&node=' +
+                            html = '<img src="/files/{{ $this->vault->id }}?path=' + token.href + '&node=' +
                                 node + '" alt="' + token.text + '" />';
                         }
 
@@ -337,10 +339,10 @@
                 }
 
                 Echo.private('VaultNode.' + this.selectedFileId)
-                    .listen('VaultNodeUpdated', (e) => {
+                    .listen('VaultNodeUpdatedEvent', (e) => {
                         $wire.refreshFile(this.selectedFileId);
                     })
-                    .listen('VaultNodeDeleted', (e) => {
+                    .listen('VaultNodeDeletedEvent', (e) => {
                         $wire.dispatch('file-close');
                     });
             },
@@ -351,8 +353,8 @@
                 }
 
                 Echo.private('VaultNode.' + this.selectedFileId)
-                    .stopListening('VaultNodeUpdated')
-                    .stopListening('VaultNodeDeleted');
+                    .stopListening('VaultNodeUpdatedEvent')
+                    .stopListening('VaultNodeDeletedEvent');
             },
         }));
     </script>

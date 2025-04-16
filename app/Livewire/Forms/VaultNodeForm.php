@@ -18,7 +18,8 @@ use Livewire\Form;
 
 final class VaultNodeForm extends Form
 {
-    public Vault $vault;
+    #[Locked]
+    public int $vaultId;
 
     #[Locked]
     public ?int $nodeId = null;
@@ -45,7 +46,7 @@ final class VaultNodeForm extends Form
                 'min:3',
                 'regex:/^[\w]+[\s\w._\-\&\%\#\[\]\(\)]+$/u',
                 Rule::unique(VaultNode::class)
-                    ->where('vault_id', $this->vault->id)
+                    ->where('vault_id', $this->vaultId)
                     ->where('parent_id', $this->parent_id)
                     ->where('extension', $this->extension)
                     ->ignore($this->nodeId),
@@ -53,9 +54,9 @@ final class VaultNodeForm extends Form
         ];
     }
 
-    public function setVault(Vault $vault): void
+    public function setVault(int $vaultId): void
     {
-        $this->vault = $vault;
+        $this->vaultId = $vaultId;
     }
 
     public function setNode(VaultNode $node): void
@@ -72,7 +73,10 @@ final class VaultNodeForm extends Form
     {
         $this->name = mb_ltrim($this->name);
         $this->validate();
-        $node = new CreateVaultNode()->handle($this->vault, [
+
+        /** @var Vault $vault */
+        $vault = Vault::find($this->vaultId);
+        $node = new CreateVaultNode()->handle($vault, [
             'parent_id' => $this->parent_id,
             'is_file' => $this->is_file,
             'name' => $this->name,
@@ -92,7 +96,7 @@ final class VaultNodeForm extends Form
 
     public function update(): ?VaultNode
     {
-        $node = $this->vault->nodes()->find($this->nodeId);
+        $node = VaultNode::find($this->nodeId);
 
         if ($node === null) {
             return null;
@@ -100,7 +104,6 @@ final class VaultNodeForm extends Form
 
         $this->name = mb_ltrim($this->name);
         $this->validate();
-
         new UpdateVaultNode()->handle($node, [
             'parent_id' => $this->parent_id,
             'name' => $this->name,

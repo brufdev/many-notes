@@ -15,7 +15,7 @@ use Livewire\Form;
 
 final class VaultForm extends Form
 {
-    public ?Vault $vault = null;
+    public ?int $vaultId = null;
 
     #[Validate]
     public string $name = '';
@@ -35,23 +35,24 @@ final class VaultForm extends Form
                 'regex:/^[\w]+[\s\w._\-\&\%\#\[\]\(\)]+$/u',
                 Rule::unique(Vault::class)
                     ->where('created_by', $currentUser->id)
-                    ->ignore($this->vault),
+                    ->ignore($this->vaultId),
             ],
         ];
     }
 
     public function setVault(Vault $vault): void
     {
-        $this->vault = $vault;
+        $this->vaultId = $vault->id;
         $this->name = $vault->name;
     }
 
     public function create(): void
     {
-        $this->name = mb_trim($this->name);
-        $this->validate();
         /** @var User $currentUser */
         $currentUser = auth()->user();
+        $this->name = mb_trim($this->name);
+        $this->validate();
+
         new CreateVault()->handle($currentUser, [
             'name' => $this->name,
         ]);
@@ -60,14 +61,15 @@ final class VaultForm extends Form
 
     public function update(): void
     {
-        if (is_null($this->vault)) {
+        $vault = Vault::find($this->vaultId);
+
+        if ($vault === null) {
             return;
         }
 
         $this->name = mb_trim($this->name);
         $this->validate();
-
-        new UpdateVault()->handle($this->vault, [
+        new UpdateVault()->handle($vault, [
             'name' => $this->name,
         ]);
     }
