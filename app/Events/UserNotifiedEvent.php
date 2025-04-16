@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Events;
 
-use App\Models\Vault;
+use App\Models\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -12,7 +12,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-final class VaultFileSystemUpdated implements ShouldBroadcastNow
+final class UserNotifiedEvent implements ShouldBroadcastNow
 {
     use Dispatchable;
     use InteractsWithSockets;
@@ -22,7 +22,7 @@ final class VaultFileSystemUpdated implements ShouldBroadcastNow
      * Create a new event instance.
      */
     public function __construct(
-        private Vault $vault
+        private User $user,
     ) {
         //
     }
@@ -35,7 +35,7 @@ final class VaultFileSystemUpdated implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('Vault.' . $this->vault->id),
+            new PrivateChannel('User.' . $this->user->id),
         ];
     }
 }

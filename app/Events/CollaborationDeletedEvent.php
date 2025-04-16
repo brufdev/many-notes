@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Events;
 
 use App\Models\User;
+use App\Models\Vault;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -12,7 +13,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-final class UserNotified implements ShouldBroadcastNow
+final class CollaborationDeletedEvent implements ShouldBroadcastNow
 {
     use Dispatchable;
     use InteractsWithSockets;
@@ -23,6 +24,7 @@ final class UserNotified implements ShouldBroadcastNow
      */
     public function __construct(
         private User $user,
+        private Vault $vault,
     ) {
         //
     }
@@ -36,6 +38,18 @@ final class UserNotified implements ShouldBroadcastNow
     {
         return [
             new PrivateChannel('User.' . $this->user->id),
+        ];
+    }
+
+    /**
+     * Get the data to broadcast.
+     *
+     * @return array<string, mixed>
+     */
+    public function broadcastWith(): array
+    {
+        return [
+            'vault_id' => $this->vault->id,
         ];
     }
 }

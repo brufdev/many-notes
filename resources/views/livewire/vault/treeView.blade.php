@@ -1,7 +1,7 @@
 <div class="flex flex-grow px-4"
     x-init="
         Echo.private('Vault.{{ $vault->id }}')
-            .listen('VaultFileSystemUpdated', (e) => {
+            .listen('VaultFileSystemUpdatedEvent', (e) => {
                 $wire.$refresh();
             });
     "

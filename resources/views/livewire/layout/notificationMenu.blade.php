@@ -1,7 +1,7 @@
 <div
     x-init="
         Echo.private('User.{{ auth()->user()->id }}')
-            .listen('UserNotified', (e) => {
+            .listen('UserNotifiedEvent', (e) => {
                 $wire.$refresh();
             });
     "

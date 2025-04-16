@@ -12,7 +12,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-final class VaultNodeUpdated implements ShouldBroadcastNow
+final class VaultNodeDeletedEvent implements ShouldBroadcastNow
 {
     use Dispatchable;
     use InteractsWithSockets;
