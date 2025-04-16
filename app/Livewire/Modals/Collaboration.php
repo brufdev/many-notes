@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Livewire\Modals;
 
 use App\Actions\DeleteCollaborationInvite;
-use App\Events\UserCollaborationDeleted;
-use App\Events\UserNotified;
+use App\Events\CollaborationDeletedEvent;
+use App\Events\UserNotifiedEvent;
 use App\Livewire\Forms\CollaborationInviteForm;
 use App\Models\User;
 use App\Models\Vault;
@@ -44,6 +44,7 @@ final class Collaboration extends Component
         try {
             $this->form->create();
             $this->reset('selectedTab');
+
             $this->dispatch('toast', message: __('Invite sent'), type: 'success');
         } catch (Exception $e) {
             $this->form->addError('email', $e->getMessage());
@@ -55,14 +56,17 @@ final class Collaboration extends Component
         try {
             $collaboration = $this->vault
                 ->collaborators()
-                ->where('user_id', $user->id)
+                ->wherePivot('user_id', $user->id)
                 ->firstOrFail();
+
             new DeleteCollaborationInvite()->handle($this->vault, $user);
+
+            $this->dispatch('toast', message: __('Invite deleted'), type: 'success');
+
             /** @phpstan-ignore-next-line */
             $collaboration->pivot->accepted
-                ? broadcast(new UserCollaborationDeleted($user, $this->vault))
-                : broadcast(new UserNotified($user));
-            $this->dispatch('toast', message: __('Invite deleted'), type: 'success');
+                ? broadcast(new CollaborationDeletedEvent($user, $this->vault))
+                : broadcast(new UserNotifiedEvent($user));
         } catch (Exception) {
             $this->dispatch('toast', message: __('Something went wrong'), type: 'error');
         }

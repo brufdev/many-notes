@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Modals;
 
+use App\Events\VaultFileSystemUpdatedEvent;
 use App\Livewire\Forms\VaultNodeForm;
 use App\Models\Vault;
 use App\Models\VaultNode;
@@ -21,14 +22,14 @@ final class AddNode extends Component
     public function mount(Vault $vault): void
     {
         $this->authorize('update', $vault);
-        $this->form->setVault($vault);
+        $this->form->setVault($vault->id);
     }
 
     #[On('open-modal')]
     public function open(VaultNode $parent, bool $isFile = true): void
     {
-        if (!is_null($parent->vault)) {
-            $this->authorize('update', $parent->vault);
+        if ($parent->vault !== null && $parent->vault->id !== $this->form->vaultId) {
+            return;
         }
 
         $this->form->parent_id = $parent->id;
@@ -39,11 +40,15 @@ final class AddNode extends Component
 
     public function add(): void
     {
+        /** @var Vault $vault */
+        $vault = Vault::find($this->form->vaultId);
         $this->form->create();
         $this->closeModal();
-        $this->dispatch('node-updated');
+
         $message = $this->form->is_file ? __('File created') : __('Folder created');
         $this->dispatch('toast', message: $message, type: 'success');
+
+        broadcast(new VaultFileSystemUpdatedEvent($vault));
     }
 
     public function render(): Factory|View

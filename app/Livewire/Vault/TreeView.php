@@ -5,16 +5,15 @@ declare(strict_types=1);
 namespace App\Livewire\Vault;
 
 use App\Actions\UpdateVaultNode;
+use App\Events\VaultNodeUpdatedEvent;
 use App\Livewire\Forms\VaultForm;
 use App\Models\Vault;
 use App\Models\VaultNode;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
-use Livewire\Attributes\On;
 use Livewire\Component;
 use Staudenmeir\LaravelAdjacencyList\Eloquent\Builder;
 
-#[On('node-updated')]
 final class TreeView extends Component
 {
     public Vault $vault;
@@ -43,7 +42,6 @@ final class TreeView extends Component
 
         /** @var Vault $sourceVault */
         $sourceVault = $source->vault;
-
         /** @var VaultNode $target */
         if ($target->exists && !$sourceVault->is($target->vault)) {
             abort(403);
@@ -66,8 +64,10 @@ final class TreeView extends Component
         }
 
         new UpdateVaultNode()->handle($source, ['parent_id' => $parentId]);
-        $this->dispatch('file-refresh', node: $source);
+
         $this->dispatch('toast', message: __('Node moved'), type: 'success');
+
+        broadcast(new VaultNodeUpdatedEvent($source));
     }
 
     public function placeholder(): string

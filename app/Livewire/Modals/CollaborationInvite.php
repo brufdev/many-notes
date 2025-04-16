@@ -6,8 +6,13 @@ namespace App\Livewire\Modals;
 
 use App\Actions\AcceptCollaborationInvite;
 use App\Actions\DeclineCollaborationInvite;
+use App\Events\CollaborationAcceptedEvent;
+use App\Events\CollaborationDeclinedEvent;
+use App\Events\UserNotifiedEvent;
 use App\Models\User;
 use App\Models\Vault;
+use App\Notifications\CollaborationAccepted;
+use App\Notifications\CollaborationDeclined;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\On;
@@ -17,7 +22,7 @@ final class CollaborationInvite extends Component
 {
     use Modal;
 
-    public Vault $vault;
+    public ?Vault $vault = null;
 
     #[On('open-modal')]
     public function open(Vault $vault): void
@@ -28,41 +33,70 @@ final class CollaborationInvite extends Component
 
     public function accept(): void
     {
-        /** @var User $currentUser */
-        $currentUser = auth()->user();
-
-        if (!new AcceptCollaborationInvite()->handle($this->vault, $currentUser)) {
+        if (!$this->vault instanceof Vault) {
             return;
         }
 
-        $this->dispatch('notifications-refresh');
-        $this->dispatch('vaults-refresh');
+        /** @var User $currentUser */
+        $currentUser = auth()->user();
+        /** @var Vault $vault */
+        $vault = $this->vault;
+
+        if (!new AcceptCollaborationInvite()->handle($vault, $currentUser)) {
+            return;
+        }
+
         $this->closeModal();
+
+        $this->dispatch('vaults-refresh');
         $this->dispatch('toast', message: __('Invite accepted'), type: 'success');
+
+        /** @var User $vaultOwner */
+        $vaultOwner = $vault->user;
+        $vaultOwner->notify(new CollaborationAccepted($vault, $currentUser));
+
+        broadcast(new CollaborationAcceptedEvent($vaultOwner));
+        broadcast(new UserNotifiedEvent($currentUser));
+        broadcast(new UserNotifiedEvent($vaultOwner));
     }
 
     public function decline(): void
     {
-        /** @var User $currentUser */
-        $currentUser = auth()->user();
-
-        if (!new DeclineCollaborationInvite()->handle($this->vault, $currentUser)) {
+        if (!$this->vault instanceof Vault) {
             return;
         }
 
-        $this->dispatch('notifications-refresh');
+        /** @var User $currentUser */
+        $currentUser = auth()->user();
+        /** @var Vault $vault */
+        $vault = $this->vault;
+
+        if (!new DeclineCollaborationInvite()->handle($vault, $currentUser)) {
+            return;
+        }
+
         $this->closeModal();
+
         $this->dispatch('toast', message: __('Invite declined'), type: 'success');
+
+        /** @var User $vaultOwner */
+        $vaultOwner = $vault->user;
+        $vaultOwner->notify(new CollaborationDeclined($vault, $currentUser));
+
+        broadcast(new CollaborationDeclinedEvent($vaultOwner));
+        broadcast(new UserNotifiedEvent($currentUser));
+        broadcast(new UserNotifiedEvent($vaultOwner));
     }
 
     public function render(): Factory|View
     {
         $name = $username = '';
 
-        if (isset($this->vault)) {
-            $name = $this->vault->name;
+        if ($this->vault instanceof Vault) {
             /** @var User $user */
             $user = $this->vault->user;
+
+            $name = $this->vault->name;
             $username = $user->name;
         }
 

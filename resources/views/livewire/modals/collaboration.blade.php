@@ -1,4 +1,14 @@
-<x-modal wire:model="show">
+<x-modal wire:model="show"
+    x-init="
+        Echo.private('User.{{ auth()->user()->id }}')
+            .listen('CollaborationAcceptedEvent', (e) => {
+                $wire.$refresh();
+            })
+            .listen('CollaborationDeclinedEvent', (e) => {
+                $wire.$refresh();
+            });
+    "
+>
     <x-modal.panel title="{{ __('Collaboration') }}" top>
         <div class="w-full" x-data="{ selectedTab: $wire.entangle('selectedTab') }">
             <div class="flex gap-2 overflow-x-auto" role="tablist" aria-label="tab options"
@@ -51,7 +61,7 @@
                                     <td class="text-right">
                                         <button title="{{ __('Delete') }}"
                                             wire:click="delete({{ $collaborator->id }})"
-                                            wire:confirm="Are you sure you want to delete this collaborator?"
+                                            wire:confirm="{{ __('Are you sure you want to delete this collaborator?') }}"
                                         >
                                             <x-icons.trash class="w-4 h-4" />
                                         </button>

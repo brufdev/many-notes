@@ -1,11 +1,4 @@
-<div class="flex flex-col h-dvh"
-    x-init="
-        Echo.private('User.{{ auth()->user()->id }}')
-            .listen('UserCollaborationDeleted', (e) => {
-                $wire.$refresh();
-            });
-    "
->
+<div class="flex flex-col h-dvh" x-data="vaults">
     <x-layouts.appHeader>
         <div class="flex items-center gap-4"></div>
 
@@ -52,9 +45,11 @@
                         <div class="flex-grow h-0 min-h-full">
                             <ul class="flex flex-col" wire:loading.class="opacity-50">
                                 @forelse ($vaults as $vault)
-                                    <livewire:vault.row :key="$vault->id" :$vault
+                                    <livewire:vault.row :vaultId="$vault->id"
+                                        :key="'vault-row-' . $vault->id"
                                         @vault-export="export({{ $vault->id }})"
-                                        @vault-delete="delete({{ $vault->id }})" />
+                                        @vault-delete="delete({{ $vault->id }})"
+                                    />
                                 @empty
                                     <li class="items-center pt-3 pb-4">
                                         <p>{{ __('You have no vaults yet.') }}</p>
@@ -70,3 +65,22 @@
         <livewire:modals.import-vault @vault-imported="$refresh" />
     </x-layouts.appMain>
 </div>
+
+@script
+    <script>
+        Alpine.data('vaults', () => ({
+            init() {
+                if ($wire.toastErrorMessage.length > 0) {
+                    this.$nextTick(() => {
+                        this.$dispatch('toast', { message: $wire.toastErrorMessage, type: 'error' });
+                    });
+                }
+
+                Echo.private('User.{{ auth()->user()->id }}')
+                    .listen('CollaborationDeletedEvent', (e) => {
+                        $wire.$refresh();
+                    });
+            }
+        }));
+    </script>
+@endscript

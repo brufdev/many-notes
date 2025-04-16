@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Modals;
 
 use App\Actions\ProcessImportedFile;
+use App\Events\VaultFileSystemUpdatedEvent;
 use App\Models\Vault;
 use App\Models\VaultNode;
 use App\Services\VaultFile;
@@ -70,14 +71,18 @@ final class ImportFile extends Component
     public function updatedFile(): void
     {
         $this->validate();
+
         /** @var TemporaryUploadedFile $file */
         $file = $this->file;
         $fileName = $file->getClientOriginalName();
         $filePath = $file->getRealPath();
+
         new ProcessImportedFile()->handle($this->vault, $this->parent, $fileName, $filePath);
-        $this->dispatch('node-updated');
         $this->closeModal();
+
         $this->dispatch('toast', message: __('File imported'), type: 'success');
+
+        broadcast(new VaultFileSystemUpdatedEvent($this->vault));
     }
 
     public function render(): Factory|View

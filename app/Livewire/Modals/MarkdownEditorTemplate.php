@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Modals;
 
+use App\Events\VaultNodeUpdatedEvent;
 use App\Models\Vault;
 use App\Models\VaultNode;
 use App\Services\VaultFiles\Note;
@@ -63,8 +64,10 @@ final class MarkdownEditorTemplate extends Component
             ? str_replace('{{content}}', (string) $selectedFile->content, $content)
             : $content . PHP_EOL . $selectedFile->content;
         $selectedFile->update(['content' => $content]);
-        $this->dispatch('file-refresh', node: $selectedFile);
+
         $this->dispatch('toast', message: __('Template inserted'), type: 'success');
+
+        broadcast(new VaultNodeUpdatedEvent($selectedFile));
     }
 
     public function render(): Factory|View
