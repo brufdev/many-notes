@@ -12,6 +12,7 @@ use App\Models\Vault;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -24,9 +25,18 @@ final class Index extends Component
 
     public bool $showCreateModal = false;
 
+    #[Locked]
+    public string $toastErrorMessage = '';
+
     public function mount(): void
     {
         $this->setLastVisitedUrl();
+
+        if (session('error') !== null) {
+            /** @var string $error */
+            $error = session('error');
+            $this->toastErrorMessage = $error;
+        }
     }
 
     public function create(): void

@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
-use App\Events\UserNotified;
 use App\Models\User;
 use App\Models\Vault;
-use App\Notifications\CollaborationDeclined;
 use App\Notifications\CollaborationInvited;
 
 final readonly class DeclineCollaborationInvite
@@ -15,7 +13,7 @@ final readonly class DeclineCollaborationInvite
     public function handle(Vault $vault, User $user): bool
     {
         $inviteExists = $vault->collaborators()
-            ->where('user_id', $user->id)
+            ->wherePivot('user_id', $user->id)
             ->wherePivot('accepted', false)
             ->exists();
 
@@ -31,11 +29,6 @@ final readonly class DeclineCollaborationInvite
                 $notification->delete();
             }
         }
-
-        /** @var User $vaultOwner */
-        $vaultOwner = $vault->user;
-        $vaultOwner->notify(new CollaborationDeclined($vault, $user));
-        broadcast(new UserNotified($vaultOwner));
 
         return true;
     }

@@ -9,10 +9,8 @@ use App\Models\Vault;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Notifications\DatabaseNotification;
-use Livewire\Attributes\On;
 use Livewire\Component;
 
-#[On('notifications-refresh')]
 final class NotificationMenu extends Component
 {
     public function delete(DatabaseNotification $notification): void
@@ -27,7 +25,6 @@ final class NotificationMenu extends Component
         }
 
         $notification->delete();
-        $this->dispatch('notifications-refresh');
     }
 
     public function render(): Factory|View

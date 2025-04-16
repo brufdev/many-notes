@@ -10,10 +10,11 @@ final readonly class ProcessVaultLinks
 {
     public function handle(Vault $vault): void
     {
+        $processVaultNodeLinks = new ProcessVaultNodeLinks();
         $nodes = $vault->nodes()->where('is_file', true)->where('extension', 'md')->get();
 
         foreach ($nodes as $node) {
-            new ProcessVaultNodeLinks()->handle($node);
+            $processVaultNodeLinks->handle($node);
         }
     }
 }
