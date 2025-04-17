@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Layout;
 
+use App\Events\UserNotifiedEvent;
 use App\Models\User;
 use App\Models\Vault;
 use Illuminate\Contracts\View\Factory;
@@ -25,15 +26,17 @@ final class NotificationMenu extends Component
         }
 
         $notification->delete();
+
+        broadcast(new UserNotifiedEvent($user));
     }
 
     public function render(): Factory|View
     {
-        /** @var User $currentUser */
-        $currentUser = auth()->user();
+        /** @var User $user */
+        $user = auth()->user();
         $notifications = [];
 
-        foreach ($currentUser->notifications as $notification) {
+        foreach ($user->notifications as $notification) {
             $type = class_basename($notification->type);
             $message = match ($type) {
                 'CollaborationInvited' => $this->collaborationInvited($notification),
