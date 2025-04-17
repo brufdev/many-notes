@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Vault;
 
+use App\Events\VaultFileSystemUpdatedEvent;
 use App\Livewire\Forms\VaultForm;
 use App\Models\Vault;
 use Illuminate\Contracts\View\Factory;
@@ -33,11 +34,16 @@ final class Row extends Component
     public function update(): void
     {
         $this->authorize('update', $this->vault);
+
         $this->validate();
+
         $this->form->update();
         unset($this->vault);
+
         $this->dispatch('close-modal');
         $this->dispatch('toast', message: __('Vault edited'), type: 'success');
+
+        broadcast(new VaultFileSystemUpdatedEvent($this->vault));
     }
 
     public function render(): Factory|View

@@ -6,6 +6,7 @@ namespace App\Livewire\Vault;
 
 use App\Actions\DeleteVault;
 use App\Actions\ExportVault;
+use App\Events\VaultListUpdatedEvent;
 use App\Livewire\Forms\VaultForm;
 use App\Models\User;
 use App\Models\Vault;
@@ -15,12 +16,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
-use Livewire\Attributes\On;
 use Livewire\Component;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Throwable;
 
-#[On('vaults-refresh')]
 final class Index extends Component
 {
     public VaultForm $form;
@@ -86,6 +85,9 @@ final class Index extends Component
     {
         $this->authorize('delete', $vault);
 
+        /** @var User $user */
+        $user = auth()->user();
+
         try {
             new DeleteVault()->handle($vault);
         } catch (Throwable $e) {
@@ -95,6 +97,8 @@ final class Index extends Component
         }
 
         $this->dispatch('toast', message: __('Vault deleted'), type: 'success');
+
+        broadcast(new VaultListUpdatedEvent($user));
     }
 
     public function render(): Factory|View

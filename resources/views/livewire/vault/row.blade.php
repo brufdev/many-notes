@@ -1,4 +1,11 @@
-<li class="items-center pt-3 pb-4 border-b last:border-b-0 border-light-base-300 dark:border-base-500">
+<li class="items-center pt-3 pb-4 border-b last:border-b-0 border-light-base-300 dark:border-base-500"
+    x-init="
+        Echo.private('Vault.{{ $this->vault->id }}')
+            .listen('VaultFileSystemUpdatedEvent', (e) => {
+                $wire.$refresh();
+            });
+    "
+>
     <div class="flex items-center justify-between w-full">
         <div class="flex items-center">
             <div class="flex flex-col gap-1">

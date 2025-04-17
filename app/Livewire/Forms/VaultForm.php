@@ -6,6 +6,7 @@ namespace App\Livewire\Forms;
 
 use App\Actions\CreateVault;
 use App\Actions\UpdateVault;
+use App\Events\VaultListUpdatedEvent;
 use App\Models\User;
 use App\Models\Vault;
 use Illuminate\Validation\Rule;
@@ -48,15 +49,17 @@ final class VaultForm extends Form
 
     public function create(): void
     {
-        /** @var User $currentUser */
-        $currentUser = auth()->user();
+        /** @var User $user */
+        $user = auth()->user();
         $this->name = mb_trim($this->name);
         $this->validate();
 
-        new CreateVault()->handle($currentUser, [
+        new CreateVault()->handle($user, [
             'name' => $this->name,
         ]);
         $this->reset(['name']);
+
+        broadcast(new VaultListUpdatedEvent($user));
     }
 
     public function update(): void
@@ -69,6 +72,7 @@ final class VaultForm extends Form
 
         $this->name = mb_trim($this->name);
         $this->validate();
+
         new UpdateVault()->handle($vault, [
             'name' => $this->name,
         ]);

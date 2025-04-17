@@ -9,6 +9,7 @@ use App\Actions\DeclineCollaborationInvite;
 use App\Events\CollaborationAcceptedEvent;
 use App\Events\CollaborationDeclinedEvent;
 use App\Events\UserNotifiedEvent;
+use App\Events\VaultListUpdatedEvent;
 use App\Models\User;
 use App\Models\Vault;
 use App\Notifications\CollaborationAccepted;
@@ -37,27 +38,27 @@ final class CollaborationInvite extends Component
             return;
         }
 
-        /** @var User $currentUser */
-        $currentUser = auth()->user();
+        /** @var User $user */
+        $user = auth()->user();
         /** @var Vault $vault */
         $vault = $this->vault;
 
-        if (!new AcceptCollaborationInvite()->handle($vault, $currentUser)) {
+        if (!new AcceptCollaborationInvite()->handle($vault, $user)) {
             return;
         }
 
         $this->closeModal();
 
-        $this->dispatch('vaults-refresh');
         $this->dispatch('toast', message: __('Invite accepted'), type: 'success');
 
         /** @var User $vaultOwner */
         $vaultOwner = $vault->user;
-        $vaultOwner->notify(new CollaborationAccepted($vault, $currentUser));
+        $vaultOwner->notify(new CollaborationAccepted($vault, $user));
 
         broadcast(new CollaborationAcceptedEvent($vaultOwner));
-        broadcast(new UserNotifiedEvent($currentUser));
+        broadcast(new UserNotifiedEvent($user));
         broadcast(new UserNotifiedEvent($vaultOwner));
+        broadcast(new VaultListUpdatedEvent($user));
     }
 
     public function decline(): void
@@ -66,12 +67,12 @@ final class CollaborationInvite extends Component
             return;
         }
 
-        /** @var User $currentUser */
-        $currentUser = auth()->user();
+        /** @var User $user */
+        $user = auth()->user();
         /** @var Vault $vault */
         $vault = $this->vault;
 
-        if (!new DeclineCollaborationInvite()->handle($vault, $currentUser)) {
+        if (!new DeclineCollaborationInvite()->handle($vault, $user)) {
             return;
         }
 
@@ -81,10 +82,10 @@ final class CollaborationInvite extends Component
 
         /** @var User $vaultOwner */
         $vaultOwner = $vault->user;
-        $vaultOwner->notify(new CollaborationDeclined($vault, $currentUser));
+        $vaultOwner->notify(new CollaborationDeclined($vault, $user));
 
         broadcast(new CollaborationDeclinedEvent($vaultOwner));
-        broadcast(new UserNotifiedEvent($currentUser));
+        broadcast(new UserNotifiedEvent($user));
         broadcast(new UserNotifiedEvent($vaultOwner));
     }
 

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Livewire\Modals;
 
 use App\Actions\ProcessImportedVault;
+use App\Events\VaultListUpdatedEvent;
+use App\Models\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\On;
@@ -31,6 +33,8 @@ final class ImportVault extends Component
     {
         $this->validate();
 
+        /** @var User $user */
+        $user = auth()->user();
         /** @var TemporaryUploadedFile $file */
         $file = $this->file;
         $fileName = $file->getClientOriginalName();
@@ -39,8 +43,9 @@ final class ImportVault extends Component
         new ProcessImportedVault()->handle($fileName, $filePath);
         $this->closeModal();
 
-        $this->dispatch('vault-imported');
         $this->dispatch('toast', message: __('Vault imported'), type: 'success');
+
+        broadcast(new VaultListUpdatedEvent($user));
     }
 
     public function render(): Factory|View

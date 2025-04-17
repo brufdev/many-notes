@@ -62,7 +62,7 @@
             </div>
         </div>
 
-        <livewire:modals.import-vault @vault-imported="$refresh" />
+        <livewire:modals.import-vault />
     </x-layouts.appMain>
 </div>
 
@@ -78,6 +78,9 @@
 
                 Echo.private('User.{{ auth()->user()->id }}')
                     .listen('CollaborationDeletedEvent', (e) => {
+                        $wire.$refresh();
+                    })
+                    .listen('VaultListUpdatedEvent', (e) => {
                         $wire.$refresh();
                     });
             }
