@@ -6,6 +6,7 @@ use App\Actions\CreateVault;
 use App\Actions\GetPathFromUser;
 use App\Livewire\Vault\Row;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
 it('updates the vault', function (): void {
@@ -16,7 +17,7 @@ it('updates the vault', function (): void {
     $newName = fake()->words(3, true);
 
     Livewire::actingAs($user)
-        ->test(Row::class, ['vault' => $vault])
+        ->test(Row::class, ['vaultId' => $vault->id])
         ->set('form.name', $newName)
         ->call('update');
     expect($user->vaults()->first()->name)->toBe($newName);

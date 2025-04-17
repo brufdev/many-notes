@@ -27,7 +27,7 @@ it('opens a file', function (): void {
 
     Livewire::actingAs($user)
         ->withQueryParams(['file' => $node->id])
-        ->test(Show::class, ['vault' => $vault])
+        ->test(Show::class, ['vaultId' => $vault->id])
         ->assertSet('nodeForm.name', $node->name);
 });
 
@@ -39,7 +39,7 @@ it('does not open a non-existing file', function (): void {
 
     Livewire::actingAs($user)
         ->withQueryParams(['file' => 500])
-        ->test(Show::class, ['vault' => $vault])
+        ->test(Show::class, ['vaultId' => $vault->id])
         ->assertDispatched('toast', type: 'error');
 });
 
@@ -54,7 +54,7 @@ it('does not open a folder', function (): void {
     ]);
 
     Livewire::actingAs($user)
-        ->test(Show::class, ['vault' => $vault])
+        ->test(Show::class, ['vaultId' => $vault->id])
         ->call('openFileId', $node->id)
         ->assertDispatched('toast', type: 'error');
 });
@@ -71,7 +71,7 @@ it('opens a file from the path', function (): void {
     ]);
 
     Livewire::actingAs($user)
-        ->test(Show::class, ['vault' => $vault])
+        ->test(Show::class, ['vaultId' => $vault->id])
         ->call('openFilePath', $node->name)
         ->assertSet('selectedFileId', $node->id);
 });
@@ -100,7 +100,7 @@ it('opens a file from the path with an open file', function (): void {
 
     Livewire::actingAs($user)
         ->withQueryParams(['file' => $firstNode->id])
-        ->test(Show::class, ['vault' => $vault])
+        ->test(Show::class, ['vaultId' => $vault->id])
         ->call('openFilePath', $secondNode->name)
         ->assertSet('selectedFileId', $secondNode->id);
 });
@@ -112,7 +112,7 @@ it('does not open a file from a non-existent path', function (): void {
     ]);
 
     Livewire::actingAs($user)
-        ->test(Show::class, ['vault' => $vault])
+        ->test(Show::class, ['vaultId' => $vault->id])
         ->call('openFilePath', fake()->words(4, true))
         ->assertDispatched('toast', type: 'error');
 });
@@ -133,7 +133,7 @@ it('refreshes an open file', function (): void {
 
     Livewire::actingAs($user)
         ->withQueryParams(['file' => $node->id])
-        ->test(Show::class, ['vault' => $vault])
+        ->test(Show::class, ['vaultId' => $vault->id])
         ->assertSet('selectedFileUrl', $url)
         ->set('nodeForm.name', $newName)
         ->call('refreshFile', $node->refresh()->id)
@@ -158,7 +158,7 @@ it('does not refresh a file that is not open', function (): void {
 
     Livewire::actingAs($user)
         ->withQueryParams(['file' => $firstNode->id])
-        ->test(Show::class, ['vault' => $vault])
+        ->test(Show::class, ['vaultId' => $vault->id])
         ->call('refreshFile', $secondNode->id)
         ->assertSet('selectedFileId', $firstNode->id);
 });
@@ -176,7 +176,7 @@ it('closes an open file', function (): void {
 
     Livewire::actingAs($user)
         ->withQueryParams(['file' => $node->id])
-        ->test(Show::class, ['vault' => $vault])
+        ->test(Show::class, ['vaultId' => $vault->id])
         ->assertSet('selectedFileId', $node->id)
         ->call('closeFile')
         ->assertSet('selectedFileId', null);
@@ -193,7 +193,7 @@ it('sets the template folder', function (): void {
     ]);
 
     Livewire::actingAs($user)
-        ->test(Show::class, ['vault' => $vault])
+        ->test(Show::class, ['vaultId' => $vault->id])
         ->assertSet('vault.templates_node_id', null)
         ->call('setTemplateFolder', $node)
         ->assertSet('vault.templates_node_id', $node->id);
@@ -211,7 +211,7 @@ it('does not set the template folder if it is a file', function (): void {
     ]);
 
     Livewire::actingAs($user)
-        ->test(Show::class, ['vault' => $vault])
+        ->test(Show::class, ['vaultId' => $vault->id])
         ->assertSet('vault.templates_node_id', null)
         ->call('setTemplateFolder', $node)
         ->assertSet('vault.templates_node_id', null);
@@ -232,7 +232,7 @@ it('updates the node', function (): void {
 
     Livewire::actingAs($user)
         ->withQueryParams(['file' => $node->id])
-        ->test(Show::class, ['vault' => $vault])
+        ->test(Show::class, ['vaultId' => $vault->id])
         ->set('nodeForm.content', $newContent);
     expect($vault->nodes()->first()->content)->toBe($newContent);
 
@@ -262,7 +262,7 @@ it('process the links when updating a node', function (): void {
 
     Livewire::actingAs($user)
         ->withQueryParams(['file' => $firstNode->id])
-        ->test(Show::class, ['vault' => $vault])
+        ->test(Show::class, ['vaultId' => $vault->id])
         ->set('nodeForm.content', $content);
 
     expect($firstNode->links()->count())->toBe(1);
@@ -284,7 +284,7 @@ it('process the tags when updating a node', function (): void {
 
     Livewire::actingAs($user)
         ->withQueryParams(['file' => $node->id])
-        ->test(Show::class, ['vault' => $vault])
+        ->test(Show::class, ['vaultId' => $vault->id])
         ->set('nodeForm.content', $content);
 
     expect($node->tags->count())->toBe(2);
@@ -311,7 +311,7 @@ it('deletes a node', function (): void {
     expect($vault->nodes()->count())->toBe(2);
 
     Livewire::actingAs($user)
-        ->test(Show::class, ['vault' => $vault])
+        ->test(Show::class, ['vaultId' => $vault->id])
         ->call('deleteNode', $folderNode)
         ->assertDispatched('toast');
     expect($vault->nodes()->count())->toBe(0);
@@ -334,7 +334,7 @@ it('closes an open file when it is deleted', function (): void {
 
     Livewire::actingAs($user)
         ->withQueryParams(['file' => $node->id])
-        ->test(Show::class, ['vault' => $vault])
+        ->test(Show::class, ['vaultId' => $vault->id])
         ->assertSet('selectedFileId', $node->id)
         ->call('deleteNode', $node)
         ->assertSet('selectedFileId', null);
@@ -365,7 +365,7 @@ it('deletes the links and backlinks when deleting a node', function (): void {
     expect($secondNode->links()->count())->toBe(1);
 
     Livewire::actingAs($user)
-        ->test(Show::class, ['vault' => $vault])
+        ->test(Show::class, ['vaultId' => $vault->id])
         ->call('deleteNode', $firstNode)
         ->assertDispatched('toast');
 
@@ -388,7 +388,7 @@ it('deletes the tags when deleting a node', function (): void {
     expect($node->tags->count())->toBe(2);
 
     Livewire::actingAs($user)
-        ->test(Show::class, ['vault' => $vault])
+        ->test(Show::class, ['vaultId' => $vault->id])
         ->call('deleteNode', $node)
         ->assertDispatched('toast');
 

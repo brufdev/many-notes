@@ -29,7 +29,7 @@ it('accepts the invite', function (): void {
         ->assertSet('show', false);
 
     $inviteAccepted = $vault->collaborators()
-        ->where('user_id', $user->id)
+        ->wherePivot('user_id', $user->id)
         ->wherePivot('accepted', true)
         ->exists();
     expect($inviteAccepted)->toBeTrue();
@@ -59,7 +59,7 @@ it('declines the invite', function (): void {
         ->assertSet('show', false);
 
     $inviteDeclined = !$vault->collaborators()
-        ->where('user_id', $user->id)
+        ->wherePivot('user_id', $user->id)
         ->exists();
     expect($inviteDeclined)->toBeTrue();
 
