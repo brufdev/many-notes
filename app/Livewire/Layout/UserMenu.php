@@ -34,6 +34,7 @@ final class UserMenu extends Component
     public function editProfile(): void
     {
         $this->profileForm->update();
+
         $this->dispatch('close-modal');
         $this->dispatch('toast', message: __('Profile updated'), type: 'success');
     }
@@ -41,6 +42,7 @@ final class UserMenu extends Component
     public function editPassword(): void
     {
         $this->passwordForm->update();
+
         $this->dispatch('close-modal');
         $this->dispatch('toast', message: __('Password updated'), type: 'success');
     }

@@ -13,10 +13,10 @@ final readonly class ProcessImportedVault
 {
     public function handle(string $fileName, string $filePath): void
     {
-        $nodeIds = ['.' => null];
-        $vaultName = pathinfo($fileName, PATHINFO_FILENAME);
         /** @var User $currentUser */
         $currentUser = auth()->user();
+        $nodeIds = ['.' => null];
+        $vaultName = pathinfo($fileName, PATHINFO_FILENAME);
         $vault = new CreateVault()->handle($currentUser, [
             'name' => $vaultName,
         ]);
@@ -24,6 +24,7 @@ final readonly class ProcessImportedVault
         // Create vault nodes with valid zip files and folders
         $zip = new ZipArchive();
         $zip->open($filePath);
+
         for ($i = 0, $zipCount = $zip->count(); $i < $zipCount; $i++) {
             $entryName = $zip->getNameIndex($i);
 
@@ -62,6 +63,7 @@ final readonly class ProcessImportedVault
 
                 $attributes['content'] = (string) $zip->getFromIndex($i);
             }
+
             $node = new CreateVaultNode()->handle($vault, $attributes);
 
             if (!array_key_exists($entryDirName, $nodeIds)) {

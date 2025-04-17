@@ -21,10 +21,13 @@ final readonly class DeleteVaultNode
     {
         try {
             DB::beginTransaction();
+
             $deletedNodes = $this->deleteFromDatabase($node);
+
             DB::commit();
         } catch (Throwable) {
             DB::rollBack();
+
             throw new Exception(__('Something went wrong'));
         }
 

@@ -50,7 +50,6 @@ final readonly class ProcessVaultNodeLinks
              */
             $fullPath = $node->ancestorsAndSelf()->get()->last()->full_path;
             $path = new ResolveTwoPaths()->handle($fullPath, $link['path']);
-
             $destinationNode = new GetVaultNodeFromPath()->handle($node->vault_id, $path);
 
             if (is_null($destinationNode)) {

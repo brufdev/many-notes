@@ -14,6 +14,7 @@ final readonly class DeleteCollaborationInvite
     {
         $vault->collaborators()->detach($user);
         $notifications = $user->notifications()->where('type', CollaborationInvited::class)->get();
+
         foreach ($notifications as $notification) {
             if ($notification->data['vault_id'] === $vault->id) {
                 $notification->delete();

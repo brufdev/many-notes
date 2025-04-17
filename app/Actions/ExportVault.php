@@ -26,6 +26,7 @@ final readonly class ExportVault
         }
 
         Storage::disk('local')->put($relativePath, '');
+
         if ($zip->open($path, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
             throw new Exception(__('Something went wrong'));
         }

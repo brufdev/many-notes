@@ -30,13 +30,16 @@ final class ImportVault extends Component
     public function updatedFile(): void
     {
         $this->validate();
+
         /** @var TemporaryUploadedFile $file */
         $file = $this->file;
         $fileName = $file->getClientOriginalName();
         $filePath = $file->getRealPath();
+
         new ProcessImportedVault()->handle($fileName, $filePath);
-        $this->dispatch('vault-imported');
         $this->closeModal();
+
+        $this->dispatch('vault-imported');
         $this->dispatch('toast', message: __('Vault imported'), type: 'success');
     }
 

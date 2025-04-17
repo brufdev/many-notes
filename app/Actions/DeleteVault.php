@@ -44,6 +44,7 @@ final readonly class DeleteVault
             DB::commit();
         } catch (Throwable) {
             DB::rollBack();
+
             throw new Exception(__('Something went wrong'));
         }
 

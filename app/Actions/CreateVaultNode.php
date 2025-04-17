@@ -61,6 +61,7 @@ final readonly class CreateVaultNode
 
         // Save node to disk
         $nodePath = new GetPathFromVaultNode()->handle($node);
+
         if ($node->is_file) {
             Storage::disk('local')->put($nodePath, $attributes['content'] ?? '');
         } else {
