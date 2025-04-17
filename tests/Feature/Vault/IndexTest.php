@@ -19,7 +19,7 @@ it('only lists the user\'s vaults', function (): void {
 
     Livewire::actingAs($user)
         ->test(Index::class)
-        ->assertViewHas('vaults', fn ($vaults): bool => count($vaults) === 2);
+        ->assertCount('vaults', 2);
 });
 
 it('creates a vault', function (): void {
