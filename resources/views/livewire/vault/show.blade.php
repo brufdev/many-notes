@@ -118,7 +118,9 @@
                             @if ($this->selectedFile && $this->selectedFile->links->count())
                                 @foreach ($this->selectedFile->links as $link)
                                     <a class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
-                                        href="" @click.prevent="openFile({{ $link->id }})" wire:key="{{ $link->id }}"
+                                        href=""
+                                        wire:key="file-link-{{ $link->id }}"
+                                        @click.prevent="openFile({{ $link->id }})"
                                     >{{ $link->name }}</a>
                                 @endforeach
                             @else
@@ -132,7 +134,9 @@
                             @if ($this->selectedFile && $this->selectedFile->backlinks->count())
                                 @foreach ($this->selectedFile->backlinks as $link)
                                     <a class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
-                                        href="" @click.prevent="openFile({{ $link->id }})" wire:key="{{ $link->id }}"
+                                        href=""
+                                        wire:key="file-backlink-{{ $link->id }}"
+                                        @click.prevent="openFile({{ $link->id }})"
                                     >{{ $link->name }}</a>
                                 @endforeach
                             @else
@@ -145,9 +149,10 @@
                         <div class="flex flex-col gap-2 text-sm">
                             @if ($this->selectedFile && $this->selectedFile->tags->count())
                                 @foreach ($this->selectedFile->tags as $tag)
-                                    <a href="" class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
+                                    <a class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
+                                        href=""
+                                        wire:key="file-tag-{{ $tag->id }}"
                                         @click.prevent="$wire.dispatchTo('modals.search-node', 'open-modal', { search: 'tag:{{ $tag->name }}' })"
-                                        wire:key="{{ $tag->id }}"
                                     >{{ $tag->name }}</a>
                                 @endforeach
                             @else

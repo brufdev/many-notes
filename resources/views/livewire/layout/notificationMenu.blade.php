@@ -18,7 +18,9 @@
         <x-menu.items>
             <x-menu.close>
                 @forelse ($notifications as $notification)
-                    <x-dynamic-component component="notification.{{ lcfirst($notification['type']) }}" :$notification />
+                    <div wire:key="notification-{{ $notification['id'] }}">
+                        <x-dynamic-component component="notification.{{ lcfirst($notification['type']) }}" :$notification />
+                    </div>
                 @empty
                     <div class="px-3 text-sm">
                         {{ __('No notifications') }}

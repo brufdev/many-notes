@@ -47,13 +47,15 @@
                                 </td>
                             </tr>
                             @foreach ($collaborators as $collaborator)
-                                <tr class="w-full pt-3 pb-4 border-b last:border-b-0 border-light-base-300 dark:border-base-500">
-                                    <td class="">
+                                <tr class="w-full pt-3 pb-4 border-b last:border-b-0 border-light-base-300 dark:border-base-500"
+                                    wire:key="collaborator-{{ $collaborator->id }}"
+                                >
+                                    <td>
                                         <div class="flex items-center">
                                             <p class="mb-1" title="{{ $collaborator->email }}">{{ $collaborator->name }}</p>
                                         </div>
                                     </td>
-                                    <td class="">
+                                    <td>
                                         <div class="flex items-center">
                                             <p class="mb-1">{{ $collaborator->pivot->accepted ? __('Accepted') : __('Pending') }}</p>
                                         </div>

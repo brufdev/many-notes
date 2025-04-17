@@ -45,7 +45,8 @@
                         <div class="flex-grow h-0 min-h-full">
                             <ul class="flex flex-col" wire:loading.class="opacity-50">
                                 @forelse ($this->vaults as $vault)
-                                    <livewire:vault.row :vaultId="$vault->id"
+                                    <livewire:vault.row
+                                        :vaultId="$vault->id"
                                         :key="'vault-row-' . $vault->id"
                                         @vault-export="export({{ $vault->id }})"
                                         @vault-delete="delete({{ $vault->id }})"

@@ -1,6 +1,6 @@
 @props(['node'])
 
-<x-treeView.item :$node>
+<x-treeView.item :$node wire:key="{{ 'treeview-node-' . $node->id }}">
     @if (!$node->is_file)
         <x-treeView.itemFolder />
 

@@ -3,7 +3,7 @@
         @if ($templates && count($templates))
             <ul class="flex flex-col gap-2" wire:loading.class="opacity-50">
                 @foreach ($templates as $template)
-                    <li wire:key="{{ $template->id }}">
+                    <li wire:key="mde-template-{{ $template->id }}">
                         <button type="button"
                             class="flex w-full gap-2 py-1 hover:text-light-base-950 dark:hover:text-base-50"
                             wire:click="insertTemplate({{ $template->id }}); modalOpen = false"
