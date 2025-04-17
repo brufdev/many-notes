@@ -12,6 +12,8 @@ use App\Models\Vault;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -37,6 +39,25 @@ final class Index extends Component
             $error = session('error');
             $this->toastErrorMessage = $error;
         }
+    }
+
+    /**
+     * @return Collection<int, Vault>
+     */
+    #[Computed]
+    public function vaults(): Collection
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        return Vault::query()
+            ->where('created_by', $user->id)
+            ->orWhereHas('collaborators', function (Builder $query) use ($user): void {
+                $query->where('user_id', $user->id)
+                    ->where('accepted', true);
+            })
+            ->orderBy('updated_at', 'DESC')
+            ->get();
     }
 
     public function create(): void
@@ -78,20 +99,7 @@ final class Index extends Component
 
     public function render(): Factory|View
     {
-        /** @var User $currentUser */
-        $currentUser = auth()->user();
-        $vaults = Vault::query()
-            ->where('created_by', $currentUser->id)
-            ->orWhereHas('collaborators', function (Builder $query) use ($currentUser): void {
-                $query->where('user_id', $currentUser->id)
-                    ->where('accepted', true);
-            })
-            ->orderBy('updated_at', 'DESC')
-            ->get();
-
-        return view('livewire.vault.index', [
-            'vaults' => $vaults,
-        ]);
+        return view('livewire.vault.index');
     }
 
     private function setLastVisitedUrl(): void
