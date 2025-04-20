@@ -19,12 +19,15 @@ Broadcast::channel('Vault.{vaultId}', function (User $user, int $vaultId): bool 
     return $user->can('update', $vault);
 });
 
-Broadcast::channel('VaultNode.{nodeId}', function (User $user, int $nodeId): bool {
+Broadcast::channel('VaultNode.{nodeId}', function (User $user, int $nodeId): ?array {
     $node = VaultNode::find($nodeId);
 
-    if ($node === null) {
-        return false;
+    if ($node instanceof VaultNode && $user->can('update', $node->vault)) {
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+        ];
     }
 
-    return $user->can('update', $node->vault);
+    return null;
 });

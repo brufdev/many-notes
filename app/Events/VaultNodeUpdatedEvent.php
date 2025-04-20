@@ -7,7 +7,7 @@ namespace App\Events;
 use App\Models\VaultNode;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 
 final class VaultNodeUpdatedEvent implements ShouldBroadcastNow
@@ -31,7 +31,7 @@ final class VaultNodeUpdatedEvent implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('VaultNode.' . $this->node->id),
+            new PresenceChannel('VaultNode.' . $this->node->id),
         ];
     }
 }

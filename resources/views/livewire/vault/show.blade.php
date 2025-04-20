@@ -60,11 +60,30 @@
                                     <span class="flex items-center" wire:loading.flex wire:target="nodeForm.name, nodeForm.content">
                                         <x-icons.spinner class="w-4 h-4 animate-spin" />
                                     </span>
-                                    <div class="flex gap-2">
-                                        <button title="{{ __('Close file') }}" wire:click="closeFile">
-                                            <x-icons.xMark class="w-5 h-5" />
-                                        </button>
+                                    <div x-show="users.length > 1">
+                                        <x-menu class="flex">
+                                            <button x-ref="button"
+                                                @mouseenter="menuOpen = true"
+                                                @mouseleave="menuOpen = false"
+                                            >
+                                                <x-icons.userGroup class="w-[1.1rem] h-[1.1rem]" />
+                                                <span class="absolute bottom-0 right-0 w-1.5 h-1.5 rounded-full border bg-success-500 border-light-base-200 dark:border-base-950"></span>
+                                            </button>
+                    
+                                            <x-menu.items>
+                                                <div class="px-3">
+                                                    {{ __('Users in this file') }}
+                                                </div>
+                                                <x-menu.itemDivider></x-menu.itemDivider>
+                                                <template x-for="user in users">
+                                                    <x-menu.item x-text="user.name"></x-menu.item>
+                                                </template>
+                                            </x-menu.items>
+                                        </x-menu>
                                     </div>
+                                    <button title="{{ __('Close file') }}" wire:click="closeFile">
+                                        <x-icons.xMark class="w-5 h-5" />
+                                    </button>
                                 </div>
                             </div>
 
@@ -187,6 +206,7 @@
             selectedFileExtension: $wire.entangle('selectedFileExtension'),
             selectedFileRefreshes: $wire.entangle('selectedFileRefreshes'),
             html: '',
+            users: [],
 
             init() {
                 if (this.selectedFileId !== null && $wire.toastErrorMessage.length === 0) {
@@ -343,7 +363,16 @@
                     return;
                 }
 
-                Echo.private('VaultNode.' + this.selectedFileId)
+                Echo.join('VaultNode.' + this.selectedFileId)
+                    .here((users) => {
+                        this.users = users;
+                    })
+                    .joining((user) => {
+                        this.users.push(user);
+                    })
+                    .leaving((user) => {
+                        this.users = this.users.filter(u => u.id !== user.id);
+                    })
                     .listen('VaultNodeUpdatedEvent', (e) => {
                         $wire.refreshFile(this.selectedFileId);
                     })
@@ -357,9 +386,7 @@
                     return;
                 }
 
-                Echo.private('VaultNode.' + this.selectedFileId)
-                    .stopListening('VaultNodeUpdatedEvent')
-                    .stopListening('VaultNodeDeletedEvent');
+                Echo.leave('VaultNode.' + this.selectedFileId);
             },
         }));
     </script>
