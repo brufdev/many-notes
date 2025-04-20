@@ -40,7 +40,7 @@ final class ImportVault extends Component
         $fileName = $file->getClientOriginalName();
         $filePath = $file->getRealPath();
 
-        new ProcessImportedVault()->handle($fileName, $filePath);
+        new ProcessImportedVault()->handle($user, $fileName, $filePath);
         $this->closeModal();
 
         $this->dispatch('toast', message: __('Vault imported'), type: 'success');

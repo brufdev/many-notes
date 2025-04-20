@@ -11,13 +11,11 @@ use ZipArchive;
 
 final readonly class ProcessImportedVault
 {
-    public function handle(string $fileName, string $filePath): void
+    public function handle(User $user, string $fileName, string $filePath): void
     {
-        /** @var User $currentUser */
-        $currentUser = auth()->user();
         $nodeIds = ['.' => null];
         $vaultName = pathinfo($fileName, PATHINFO_FILENAME);
-        $vault = new CreateVault()->handle($currentUser, [
+        $vault = new CreateVault()->handle($user, [
             'name' => $vaultName,
         ]);
 
