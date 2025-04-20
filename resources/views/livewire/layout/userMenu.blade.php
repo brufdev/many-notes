@@ -87,6 +87,52 @@
                             <li class="relative p-3 mb-3 last:mb-0 bg-light-base-200 dark:bg-base-950" x-data="{ index: 1 }">
                                 <button type="button" class="w-full font-semibold text-left" @click="toggle(index)">
                                     <div class="flex items-center justify-between">
+                                        <span>{{ __( 'General' ) }}</span>
+                                        <x-icons.chevronRight x-show="!isSelected(index)" class="w-5 h-5" />
+                                        <x-icons.chevronDown x-show="isSelected(index)" class="w-5 h-5" x-cloak />
+                                    </div>
+                                </button>
+                                <div class="relative overflow-hidden transition-all duration-700" x-show="isSelected(index)" x-collapse>
+                                    <div class="flex flex-col gap-3 pt-3">
+                                        <p>
+                                            <b>{{ __('Vaults') }}</b>:
+                                            {{ __('Vaults are simply storage containers for your files, and Many Notes lets you choose to keep all your files in one vault or organize them into separate vaults.') }}
+                                        </p>
+                                        <p>
+                                            <b>{{ __('Bookmarks') }}</b>:
+                                            {{ __('Any file can be accessed via its unique URL, making it easy to bookmark specific files using your browser.') }}
+                                        </p>
+                                        <p>
+                                            <b>{{ __('Collaboration') }}</b>:
+                                            {{ __('Easily invite others to join your vaults and watch as everyone contributes their ideas in one place.') }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="relative p-3 mb-3 last:mb-0 bg-light-base-200 dark:bg-base-950" x-data="{ index: 2 }">
+                                <button type="button" class="w-full font-semibold text-left" @click="toggle(index)">
+                                    <div class="flex items-center justify-between">
+                                        <span>{{ __( 'Importing and exporting' ) }}</span>
+                                        <x-icons.chevronRight x-show="!isSelected(index)" class="w-5 h-5" />
+                                        <x-icons.chevronDown x-show="isSelected(index)" class="w-5 h-5" x-cloak />
+                                    </div>
+                                </button>
+                                <div class="relative overflow-hidden transition-all duration-700" x-show="isSelected(index)" x-collapse>
+                                    <div class="flex flex-col gap-3 pt-3">
+                                        <p>
+                                            <b>{{ __('Importing vaults') }}</b>:
+                                            {{ __('You can import any vault, not just those exported from Many Notes, although only files with valid extensions will be imported. To import a vault, simply upload a zip file containing your files and folders. You may upload text files (md, txt, pdf), images (jpg, jpeg, png, gif, webp), videos (mp4, avi), and audio files (mp3, flac).') }}
+                                        </p>
+                                        <p>
+                                            <b>{{ __('Exporting vaults') }}</b>:
+                                            {{ __('The export feature allows you to download a ZIP file containing all files and folders within the selected vault. This feature enables you to back up your vaults into a single, convenient file format.') }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="relative p-3 mb-3 last:mb-0 bg-light-base-200 dark:bg-base-950" x-data="{ index: 3 }">
+                                <button type="button" class="w-full font-semibold text-left" @click="toggle(index)">
+                                    <div class="flex items-center justify-between">
                                         <span>{{ __( 'Tree view' ) }}</span>
                                         <x-icons.chevronRight x-show="!isSelected(index)" class="w-5 h-5" />
                                         <x-icons.chevronDown x-show="isSelected(index)" class="w-5 h-5" x-cloak />
@@ -100,7 +146,7 @@
                                     </div>
                                 </div>
                             </li>
-                            <li class="relative p-3 mb-3 last:mb-0 bg-light-base-200 dark:bg-base-950" x-data="{ index: 2 }">
+                            <li class="relative p-3 mb-3 last:mb-0 bg-light-base-200 dark:bg-base-950" x-data="{ index: 4 }">
                                 <button type="button" class="w-full font-semibold text-left" @click="toggle(index)">
                                     <div class="flex items-center justify-between">
                                         <span>{{ __( 'Templates' ) }}</span>
