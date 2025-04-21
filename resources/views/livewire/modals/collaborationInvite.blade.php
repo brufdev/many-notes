@@ -2,7 +2,7 @@
     <x-modal.panel title="{{ __('New invite') }}">
         <p>
             {{ __(sprintf('%s has invited you to join the vault', $username)) }}
-            <strong>{{ $name }}</strong>.
+            <span class="font-semibold">{{ $name }}</span>.
         </p>
         <div class="gap-2 mt-6 text-sm sm:flex sm:flex-row-reverse">
             <button class="inline-flex justify-center w-full px-3 py-2 mt-3 border rounded-md sm:w-auto sm:mt-0 border-primary-300 dark:border-primary-600 bg-primary-400 dark:bg-primary-500 hover:bg-primary-300 dark:hover:bg-primary-600 text-light-base-50"

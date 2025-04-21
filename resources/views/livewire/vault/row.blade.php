@@ -26,7 +26,7 @@
         <div class="flex items-center justify-center gap-2">
             @if ($this->vault->collaborators()->wherePivot('accepted', true)->count())
                 <span title="{{ __('This vault has collaborators') }}">
-                    <x-icons.userGroup class="w-5 h-5" />
+                    <x-icons.userGroup class="w-[1.1rem] h-[1.1rem]" />
                 </span>
             @endif
 

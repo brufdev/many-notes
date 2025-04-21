@@ -17,7 +17,7 @@
     @vite('resources/js/app.js')
 </head>
 
-<body>
+<body class="text-light-base-950 dark:text-base-50">
     {{ $slot }}
 </body>
 
