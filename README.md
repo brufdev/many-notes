@@ -27,6 +27,7 @@ Vaults are simply storage containers for your files, and Many Notes lets you cho
 - **Multiple vaults per user**: Choose how to organize your files
 - **OAuth support**: Authenticate using one of the supported providers
 - **Collaboration**: Invite other users to access your vaults
+- **Broadcasting**: Real-time, live-updating user interfaces
 - **File search**: Quickly find what you are looking for
 - **Tree view explorer**: Fast navigation with relevant actions in the context menu
 - **Smart Markdown editor**: Write your Markdown notes faster
@@ -34,6 +35,7 @@ Vaults are simply storage containers for your files, and Many Notes lets you cho
 - **Templates**: Maintain consistent formatting for your notes
 - **Links/backlinks/tags**: Improve note organization by connecting related notes
 - **Import/export vaults**: Easily back up and restore your vaults
+- **Starter vault**: Helps you get started with Many Notes
 - **Light/dark theme**: Automatically selected based on your OS setting
 - **Mobile friendly**: Provides a similar experience to the desktop
 
@@ -44,7 +46,6 @@ Choose your preferred method to install Many Notes:
 - Docker with volumes, for a simpler installation (read below)
 - Docker with bind mounts, for easy access to shared paths from the host ([read here](docs/installation/docker-bind-mounts.md))
 - Docker with a different database, if you prefer not to use SQLite ([read here](docs/installation/docker-different-database.md))
-- Bare metal installation, if you prefer not to use Docker ([read here](docs/installation/non-docker.md))
 
 ### Docker with volumes
 
