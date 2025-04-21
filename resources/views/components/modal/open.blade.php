@@ -1,3 +1,3 @@
-<div x-on:click="modalOpen = true" tabindex="-1" class="flex items-center">
+<div class="flex items-center" tabindex="-1" @click="modalOpen = true">
     {{ $slot }}
 </div>

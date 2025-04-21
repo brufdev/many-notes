@@ -1,3 +1,3 @@
-<div {{ $attributes }} x-on:click="modalOpen = false">
+<div {{ $attributes }} @click="modalOpen = false">
     {{ $slot }}
 </div>
