@@ -1,7 +1,7 @@
 {
     "name": "brufdev/many-notes",
     "description": "A markdown note-taking app designed for simplicity.",
-    "version": "0.7.2",
+    "version": "0.8.0",
     "type": "project",
     "keywords": ["notes", "Markdown", "note management", "Markdown support", "Markdown editor", "filesystem storage", "database storage", "authentication", "responsive design", "SPA", "self-hosting", "privacy-focused", "open source", "PHP", "lightweight"],
     "homepage": "https://github.com/brufdev/many-notes",
