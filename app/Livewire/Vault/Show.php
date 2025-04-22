@@ -161,6 +161,7 @@ final class Show extends Component
 
         $this->reset(['selectedFileId', 'selectedFileExtension', 'selectedFileUrl', 'selectedFileRefreshes']);
         $this->nodeForm->reset('nodeId');
+        unset($this->selectedFile);
     }
 
     public function updated(string $name): void
@@ -241,6 +242,7 @@ final class Show extends Component
         $this->selectedFileExtension = $node->extension;
         $this->selectedFileUrl = new GetUrlFromVaultNode()->handle($node);
         $this->nodeForm->setNode($node);
+        unset($this->selectedFile);
     }
 
     private function openFile(VaultNode $node): void
