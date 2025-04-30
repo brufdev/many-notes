@@ -54,17 +54,21 @@ final class Collaboration extends Component
     public function delete(User $user): void
     {
         try {
-            $collaboration = $this->vault
+            $collaborations = $this->vault
                 ->collaborators()
                 ->wherePivot('user_id', $user->id)
-                ->firstOrFail();
+                ->get();
+
+            if ($collaborations->count() === 0) {
+                return;
+            }
 
             new DeleteCollaborationInvite()->handle($this->vault, $user);
 
-            $this->dispatch('toast', message: __('Invite deleted'), type: 'success');
+            $this->dispatch('toast', message: __('Collaboration deleted'), type: 'success');
 
             /** @phpstan-ignore-next-line */
-            $collaboration->pivot->accepted
+            $collaborations->first()->pivot->accepted
                 ? broadcast(new CollaborationDeletedEvent($user, $this->vault))
                 : broadcast(new UserNotifiedEvent($user));
         } catch (Exception) {
