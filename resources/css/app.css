@@ -1,9 +1,51 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@plugin "@tailwindcss/forms";
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --color-primary-300: #639be9;
+    --color-primary-400: #5893e7;
+    --color-primary-500: #4d8ce6;
+    --color-primary-600: #3c81e3;
+    --color-secondary: #3f3f3f;
+    --color-success-500: #44cf6e;
+    --color-success-600: #0cb54f;
+    --color-error-400: var(--color-red-400);
+    --color-error-500: var(--color-red-500);
+    --color-error-600: var(--color-red-600);
+    --color-error-700: var(--color-red-700);
+    --color-warning-600: var(--color-orange-600);
+    --color-info-600: var(--color-blue-600);
+    --color-light-base-50: #ffffff;
+    --color-light-base-100: #fcfcfc;
+    --color-light-base-200: #f6f7f8;
+    --color-light-base-300: #ebedf0;
+    --color-light-base-400: #e2e5e9;
+    --color-light-base-500: #d8d9da;
+    --color-light-base-600: #afb5bd;
+    --color-light-base-700: #6e767e;
+    --color-light-base-800: #6d757d;
+    --color-light-base-900: #555e68;
+    --color-light-base-950: #222222;
+    --color-base-50: #dadada;
+    --color-base-100: #bec6cf;
+    --color-base-200: #a8afb8;
+    --color-base-300: #a5adb5;
+    --color-base-400: #536170;
+    --color-base-500: #35393e;
+    --color-base-600: #34383b;
+    --color-base-700: #383c43;
+    --color-base-800: #282c34;
+    --color-base-900: #1c2127;
+    --color-base-950: #181c20;
+}
 
 @layer base {
-
     * {
         scrollbar-width: thin;
     }
@@ -14,21 +56,7 @@
     }
 }
 
-.markdown-body {
-    --base-size-4: 0.25rem;
-    --base-size-8: 0.5rem;
-    --base-size-16: 1rem;
-    --base-size-24: 1.5rem;
-    --base-size-40: 2.5rem;
-    --base-text-weight-normal: 400;
-    --base-text-weight-medium: 500;
-    --base-text-weight-semibold: 600;
-    --fontStack-monospace: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-    --fgColor-accent: Highlight;
-}
-
 @media (prefers-color-scheme: dark) {
-
     .markdown-body,
     [data-theme="dark"] {
         /* dark */
@@ -88,7 +116,6 @@
 }
 
 @media (prefers-color-scheme: light) {
-
     .markdown-body,
     [data-theme="light"] {
         /* light */
@@ -148,6 +175,16 @@
 }
 
 .markdown-body {
+    --base-size-4: 0.25rem;
+    --base-size-8: 0.5rem;
+    --base-size-16: 1rem;
+    --base-size-24: 1.5rem;
+    --base-size-40: 2.5rem;
+    --base-text-weight-normal: 400;
+    --base-text-weight-medium: 500;
+    --base-text-weight-semibold: 600;
+    --fontStack-monospace: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+    --fgColor-accent: Highlight;
     -ms-text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
     margin: 0;
@@ -155,12 +192,6 @@
     line-height: 1.5;
     word-wrap: break-word;
     scroll-behavior: auto !important;
-}
-
-.markdown-body .octicon {
-    display: inline-block;
-    fill: currentColor;
-    vertical-align: text-bottom;
 }
 
 .markdown-body h1:hover .anchor .octicon-link:before,
