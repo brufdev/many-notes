@@ -19,19 +19,6 @@ final class VaultNode extends Model
     use HasRecursiveRelationships;
 
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'parent_id',
-        'is_file',
-        'name',
-        'extension',
-        'content',
-    ];
-
-    /**
      * Get the associated vault.
      *
      * @return BelongsTo<Vault, $this>

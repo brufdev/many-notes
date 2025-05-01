@@ -17,16 +17,6 @@ final class Vault extends Model
     use HasFactory;
 
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'templates_node_id',
-        'name',
-    ];
-
-    /**
      * Get the associated user.
      *
      * @return BelongsTo<User, $this>
