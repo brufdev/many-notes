@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 final readonly class CreateVault
 {
     /**
-     * @param  array{name: string}  $attributes
+     * @param array{name: string} $attributes
      */
     public function handle(User $user, array $attributes): Vault
     {

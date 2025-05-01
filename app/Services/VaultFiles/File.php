@@ -9,7 +9,7 @@ final class File
     /**
      * Get the extensions for the files.
      *
-     * @param  list<string>  $extensions
+     * @param list<string> $extensions
      * @return list<string>
      */
     public static function extensionsWithDots(array $extensions): array

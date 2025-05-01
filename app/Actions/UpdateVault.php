@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 final readonly class UpdateVault
 {
     /**
-     * @param  array{name?: string, templates_node_id?: int|null}  $attributes
+     * @param array{name?: string, templates_node_id?: int|null} $attributes
      */
     public function handle(Vault $vault, array $attributes): void
     {

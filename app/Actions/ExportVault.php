@@ -38,7 +38,7 @@ final readonly class ExportVault
     }
 
     /**
-     * @param  Collection<int, VaultNode>  $nodes
+     * @param Collection<int, VaultNode> $nodes
      */
     private function exportNodes(ZipArchive &$zip, Collection $nodes, string $path = ''): void
     {
