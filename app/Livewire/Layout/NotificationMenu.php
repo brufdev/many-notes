@@ -38,12 +38,14 @@ final class NotificationMenu extends Component
 
         foreach ($user->notifications as $notification) {
             $type = class_basename($notification->type);
+
             $message = match ($type) {
                 'CollaborationInvited' => $this->collaborationInvited($notification),
                 'CollaborationAccepted' => $this->collaborationAccepted($notification),
                 'CollaborationDeclined' => $this->collaborationDeclined($notification),
                 default => '',
             };
+
             $notifications[] = [
                 'id' => $notification->id,
                 'type' => $type,
