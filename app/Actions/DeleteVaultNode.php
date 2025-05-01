@@ -13,8 +13,6 @@ use Throwable;
 final readonly class DeleteVaultNode
 {
     /**
-     * Handles the action.
-     *
      * @return array<int, VaultNode>
      */
     public function handle(VaultNode $node, bool $deleteFromDisk = true): array
@@ -39,7 +37,7 @@ final readonly class DeleteVaultNode
     }
 
     /**
-     * Deletes node from the database.
+     * Delete node from the database.
      *
      * @return array<int, VaultNode>
      */
@@ -65,7 +63,7 @@ final readonly class DeleteVaultNode
     }
 
     /**
-     * Deletes node from the disk.
+     * Delete node from the disk.
      */
     private function deleteFromDisk(VaultNode $node): void
     {

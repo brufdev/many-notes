@@ -22,10 +22,10 @@ final readonly class DeleteVault
         try {
             DB::beginTransaction();
 
-            // delete invites and collaborators
+            // Delete invites and collaborators
             $vault->collaborators()->detach();
 
-            // delete notifications
+            // Delete notifications
             $notifications = DatabaseNotification::query()
                 ->where('type', CollaborationInvited::class)
                 ->orWhere('type', CollaborationAccepted::class)
@@ -38,7 +38,7 @@ final readonly class DeleteVault
                 }
             }
 
-            // delete vault
+            // Delete vault
             $this->deleteFromDatabase($vault);
 
             DB::commit();
@@ -52,7 +52,7 @@ final readonly class DeleteVault
     }
 
     /**
-     * Deletes vault from the database.
+     * Delete vault from the database.
      */
     private function deleteFromDatabase(Vault $vault): void
     {
@@ -67,7 +67,7 @@ final readonly class DeleteVault
     }
 
     /**
-     * Deletes vault from the disk.
+     * Delete vault from the disk.
      */
     private function deleteFromDisk(Vault $vault): void
     {

@@ -8,7 +8,9 @@ use App\Enums\OAuthProviders;
 
 final readonly class GetAvailableOAuthProviders
 {
-    /** @return array<int, OAuthProviders> */
+    /**
+     * @return array<int, OAuthProviders>
+     */
     public function handle(): array
     {
         return array_filter(
