@@ -29,8 +29,11 @@ Route::middleware('auth')->group(function (): void {
 Route::middleware(['guest', 'throttle'])->group(function (): void {
     Route::get('register', Register::class)->name('register');
     Route::get('login', Login::class)->name('login');
-    Route::get('forgot-password', ForgotPassword::class)->name('forgot.password');
-    Route::get('reset-password/{token}', ResetPassword::class)->name('password.reset');
+
+    if (config('mail.default') !== 'log') {
+        Route::get('forgot-password', ForgotPassword::class)->name('forgot.password');
+        Route::get('reset-password/{token}', ResetPassword::class)->name('password.reset');
+    }
 
     Route::prefix('oauth')->group(function (): void {
         $providers = implode('|', array_map(
