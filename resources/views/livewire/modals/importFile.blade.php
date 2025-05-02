@@ -4,11 +4,11 @@
             <div
                 class="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg border-light-base-300 dark:border-base-500"
                 x-data="{ uploading: false, progress: 0 }"
-                @livewire-upload-start="uploading = true"
-                @livewire-upload-finish="uploading = false"
-                @livewire-upload-cancel="uploading = false"
-                @livewire-upload-error="uploading = false"
-                @livewire-upload-progress="progress = $event.detail.progress"
+                x-on:livewire-upload-start="uploading = true"
+                x-on:livewire-upload-finish="uploading = false"
+                x-on:livewire-upload-cancel="uploading = false"
+                x-on:livewire-upload-error="uploading = false"
+                x-on:livewire-upload-progress="progress = $event.detail.progress"
             >
                 <label
                     for="file-upload"
