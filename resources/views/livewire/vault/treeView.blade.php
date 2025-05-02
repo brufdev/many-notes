@@ -1,4 +1,5 @@
-<div class="flex flex-grow px-4"
+<div
+    class="flex flex-grow px-4"
     x-init="
         Echo.private('Vault.{{ $vault->id }}')
             .listen('VaultFileSystemUpdatedEvent', (e) => {
@@ -8,17 +9,24 @@
 >
     <x-treeView>
         <div class="sticky top-0 z-[5] flex flex-col gap-2 py-4 bg-light-base-50 dark:bg-base-900">
-            <div class="flex justify-center py-1 rounded-sm bg-primary-400 dark:bg-primary-500 text-light-base-50"
-                x-show="moving()" x-transition
-            >{{ __('Drop item') }}</div>
-            <div class="flex justify-between w-full"
+            <div
+                class="flex justify-center py-1 rounded-sm bg-primary-400 dark:bg-primary-500 text-light-base-50"
+                x-show="moving()"
+                x-transition
+            >
+                {{ __('Drop item') }}
+            </div>
+            <div
+                class="flex justify-between w-full"
                 x-data="{ hovered: false }"
                 @mouseenter="hovered = true"
                 @mouseleave="hovered = false"
             >
                 <h3>{{ $vault->name }}</h3>
 
-                <div class="flex items-center" x-show="!moving()"
+                <div
+                    class="flex items-center"
+                    x-show="!moving()"
                     x-transition:enter.duration.300ms
                     x-transition:leave.duration.150ms
                 >
@@ -71,7 +79,9 @@
                     </x-menu>
                 </div>
 
-                <a href="" class="flex items-center text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
+                <a
+                    href=""
+                    class="flex items-center text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
                     x-show="moving() && hovered"
                     x-transition:enter.duration.300ms
                     x-transition:leave.duration.150ms

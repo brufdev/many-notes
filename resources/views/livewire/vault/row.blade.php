@@ -1,4 +1,5 @@
-<li class="items-center pt-3 pb-4 border-b last:border-b-0 border-light-base-300 dark:border-base-500"
+<li
+    class="items-center pt-3 pb-4 border-b last:border-b-0 border-light-base-300 dark:border-base-500"
     x-init="
         Echo.private('Vault.{{ $this->vault->id }}')
             .listen('VaultFileSystemUpdatedEvent', (e) => {
@@ -57,13 +58,14 @@
                             </x-modal.panel>
                         </x-modal>
 
-                        <x-menu.item x-on:click="$dispatch('vault-export')">
+                        <x-menu.item @click="$dispatch('vault-export')">
                             <x-icons.arrowDownTray class="w-4 h-4" />
                             {{ __('Export') }}
                         </x-menu.item>
 
                         @if ($this->vault->created_by === auth()->user()->id)
-                            <x-menu.item wire:confirm="{{ __('Are you sure you want to delete this vault?') }}"
+                            <x-menu.item
+                                wire:confirm="{{ __('Are you sure you want to delete this vault?') }}"
                                 wire:click="$dispatch('vault-delete')"
                             >
                                 <x-icons.trash class="w-4 h-4" />

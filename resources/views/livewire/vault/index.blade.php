@@ -12,12 +12,14 @@
         <div class="relative flex w-full">
             <div class="absolute inset-0 overflow-y-auto">
                 <div class="flex flex-col h-full">
-                    <div
-                        class="sticky top-0 z-[5] flex items-center justify-between p-4 bg-light-base-50 dark:bg-base-900">
+                    <div class="sticky top-0 z-[5] flex items-center justify-between p-4 bg-light-base-50 dark:bg-base-900">
                         <h2 class="text-lg">{{ __('My vaults') }}</h2>
                         <div class="flex items-center gap-2">
-                            <button type="button" @click="$wire.dispatchTo('modals.import-vault', 'open-modal')"
-                                title="{{ __('Import vault') }}">
+                            <button
+                                type="button"
+                                title="{{ __('Import vault') }}"
+                                @click="$wire.dispatchTo('modals.import-vault', 'open-modal')"
+                            >
                                 <x-icons.arrowUpTray class="w-5 h-5" />
                             </button>
 

@@ -9,12 +9,11 @@
     @endif
 
     <input
-        type="{{ $attributes->merge(['type' => 'text'])->get('type') }}"
-        wire:model="{{ $name }}"
         @class([
             'block w-full px-2 py-1.5 bg-light-base-100 dark:bg-base-800 text-light-base-700 dark:text-base-200 rounded-lg focus:ring-0 focus:outline focus:outline-0 border border-light-base-300 dark:border-base-500 focus:border-light-base-600 dark:focus:border-base-400',
             'border border-error-500 focus:border-error-700 dark:border-error-500 dark:focus:border-error-700' => $errors->has($name),
         ])
+        type="{{ $attributes->merge(['type' => 'text'])->get('type') }}"
         @error($name)
             aria-invalid="true"
             aria-description="{{ $message }}"
@@ -25,6 +24,7 @@
         @if ($attributes->has('placeholder'))
             placeholder="{{ $placeholder }}"
         @endif
+        wire:model="{{ $name }}"
     />
 
     @error($name)

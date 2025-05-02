@@ -2,7 +2,11 @@
 
 <div class="relative w-full">
     <x-menu>
-        <a href="" class="flex items-center w-full gap-2" title="{{ $node->name }}" x-ref="button"
+        <a
+            href=""
+            class="flex items-center w-full gap-2"
+            title="{{ $node->name }}"
+            x-ref="button"
             @click.prevent="openFile({{ $node->id }})"
             @contextmenu.prevent="menuOpen = !menuOpen"
             @keydown.escape="menuOpen = false"

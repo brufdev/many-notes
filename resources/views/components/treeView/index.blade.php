@@ -1,4 +1,6 @@
-<div class="flex flex-col flex-grow w-full" x-data="treeView"
+<div
+    class="flex flex-col flex-grow w-full"
+    x-data="treeView"
     @treeview-enter-node.window="enterNode($event.detail.event)"
     @treeview-leave-node.window="leaveNode($event.detail.event)"
     @treeview-move-node.window="moveNode($event.detail.event)"

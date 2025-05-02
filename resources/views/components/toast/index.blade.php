@@ -1,4 +1,5 @@
-<div class="absolute w-full z-[99] max-w-xs right-0 bottom-0 mb-4 px-4"
+<div
+    class="absolute w-full z-[99] max-w-xs right-0 bottom-0 mb-4 px-4"
     x-data="{
         toasts: [],
         remove(key) {

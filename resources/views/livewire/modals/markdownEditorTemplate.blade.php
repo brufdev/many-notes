@@ -4,11 +4,13 @@
             <ul class="flex flex-col gap-2" wire:loading.class="opacity-50">
                 @foreach ($templates as $template)
                     <li wire:key="mde-template-{{ $template->id }}">
-                        <button type="button"
+                        <button
                             class="flex w-full gap-2 py-1 hover:text-light-base-950 dark:hover:text-base-50"
+                            type="button"
                             wire:click="insertTemplate({{ $template->id }}); modalOpen = false"
                         >
-                            <span class="overflow-hidden whitespace-nowrap text-ellipsis"
+                            <span
+                                class="overflow-hidden whitespace-nowrap text-ellipsis"
                                 title="{{ $template->name }}"
                             >
                                 {{ $template->name }}

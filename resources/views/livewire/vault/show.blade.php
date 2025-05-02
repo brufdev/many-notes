@@ -1,15 +1,20 @@
-<div class="flex flex-col h-dvh"
+<div
+    class="flex flex-col h-dvh"
     x-data="vault"
     @file-render-markup.window="$nextTick(() => { markdownToHtml() })"
 >
     <x-layouts.appHeader>
         <div class="flex items-center gap-4">
-            <button type="button" class="hover:text-light-base-950 dark:hover:text-base-50"
+            <button
+                class="hover:text-light-base-950 dark:hover:text-base-50"
+                type="button"
                 @click="toggleLeftPanel"
             >
                 <x-icons.bars3BottomLeft class="w-5 h-5" />
             </button>
-            <button type="button" class="hover:text-light-base-950 dark:hover:text-base-50"
+            <button
+                class="hover:text-light-base-950 dark:hover:text-base-50"
+                type="button"
                 @click="$wire.dispatchTo('modals.search-node', 'open-modal')"
             >
                 <x-icons.magnifyingGlass class="w-5 h-5" />
@@ -19,7 +24,9 @@
         <div class="flex items-center gap-4">
             <livewire:layout.notification-menu />
             <livewire:layout.user-menu />
-            <button type="button" class="hover:text-light-base-950 dark:hover:text-base-50"
+            <button
+                class="hover:text-light-base-950 dark:hover:text-base-50"
+                type="button"
                 @click="toggleRightPanel"
             >
                 <x-icons.bars3BottomRight class="w-5 h-5" />
@@ -29,32 +36,42 @@
 
     <x-layouts.appMain>
         <div class="relative flex w-full" x-cloak>
-            <div class="fixed inset-0 z-40 opacity-50 bg-light-base-200 dark:bg-base-950"
+            <div
+                class="fixed inset-0 z-40 opacity-50 bg-light-base-200 dark:bg-base-950"
                 wire:loading wire:target.except="nodeForm.name, nodeForm.content"
             >
                 <div class="flex items-center justify-center h-full">
                     <x-icons.spinner class="w-5 h-5 animate-spin" />
                 </div>
             </div>
-            <div class="fixed inset-0 z-20 opacity-50 bg-light-base-200 dark:bg-base-950"
-                x-show="(isLeftPanelOpen || isRightPanelOpen) && isSmallDevice" @click="closePanels"
-                x-transition:enter="ease-out duration-300" x-transition:leave="ease-in duration-200"
+            <div
+                class="fixed inset-0 z-20 opacity-50 bg-light-base-200 dark:bg-base-950"
+                x-show="(isLeftPanelOpen || isRightPanelOpen) && isSmallDevice"
+                @click="closePanels"
+                x-transition:enter="ease-out duration-300"
+                x-transition:leave="ease-in duration-200"
             ></div>
-            <div class="absolute top-0 left-0 z-30 flex flex-col h-full overflow-hidden overflow-y-auto transition-all w-60 bg-light-base-50 dark:bg-base-900"
+            <div
+                class="absolute top-0 left-0 z-30 flex flex-col h-full overflow-hidden overflow-y-auto transition-all w-60 bg-light-base-50 dark:bg-base-900"
                 :class="{ 'translate-x-0': isLeftPanelOpen, '-translate-x-full hidden': !isLeftPanelOpen }"
             >
                 <livewire:vault.tree-view lazy="on-load" :vault="$this->vault" />
             </div>
 
-            <div class="absolute top-0 bottom-0 right-0 flex flex-col w-full overflow-y-auto transition-all text-start bg-light-base-200 dark:bg-base-950"
-                :class="{ 'md:pl-60': isLeftPanelOpen, 'md:pr-60': isRightPanelOpen }" id="nodeContainer"
+            <div
+                class="absolute top-0 bottom-0 right-0 flex flex-col w-full overflow-y-auto transition-all text-start bg-light-base-200 dark:bg-base-950"
+                :class="{ 'md:pl-60': isLeftPanelOpen, 'md:pr-60': isRightPanelOpen }"
+                id="nodeContainer"
             >
                 <div class="flex flex-col h-full w-full max-w-[48rem] mx-auto p-4">
                     <div class="flex flex-col w-full h-full gap-4" x-show="$wire.selectedFileId">
                         <div class="z-[5]">
                             <div class="flex justify-between">
-                                <input type="text" wire:model.live.debounce.500ms="nodeForm.name"
-                                    class="flex flex-grow p-0 px-1 text-lg bg-transparent border-0 focus:ring-0 focus:outline-0" />
+                                <input
+                                    class="flex flex-grow p-0 px-1 text-lg bg-transparent border-0 focus:ring-0 focus:outline-0"
+                                    type="text"
+                                    wire:model.live.debounce.500ms="nodeForm.name"
+                                />
 
                                 <div class="flex items-center gap-2">
                                     <span class="flex items-center" wire:loading.flex wire:target="nodeForm.name, nodeForm.content">
@@ -62,7 +79,8 @@
                                     </span>
                                     <div x-show="users.length > 1">
                                         <x-menu class="flex">
-                                            <button x-ref="button"
+                                            <button
+                                                x-ref="button"
                                                 @mouseenter="menuOpen = true"
                                                 @mouseleave="menuOpen = false"
                                             >
@@ -98,8 +116,11 @@
                                 <img src="{{ $selectedFileUrl }}" />
                             </div>
                         @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Pdf::extensions()))
-                            <object type="application/pdf" data="{{ $selectedFileUrl }}"
-                                class="w-full h-full"></object>
+                            <object
+                                class="w-full h-full"
+                                type="application/pdf"
+                                data="{{ $selectedFileUrl }}"
+                            ></object>
                         @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Video::extensions()))
                             <video class="w-full" controls>
                                 <source src="{{ $selectedFileUrl }}" />
@@ -127,20 +148,24 @@
                 </div>
             </div>
 
-            <div class="absolute top-0 right-0 z-30 flex flex-col h-full overflow-hidden overflow-y-auto transition-all w-60 bg-light-base-50 dark:bg-base-900"
+            <div
+                class="absolute top-0 right-0 z-30 flex flex-col h-full overflow-hidden overflow-y-auto transition-all w-60 bg-light-base-50 dark:bg-base-900"
                 :class="{ 'translate-x-0': isRightPanelOpen, '-translate-x-full hidden': !isRightPanelOpen }"
             >
                 <div class="flex flex-col gap-4 p-4">
                     <div class="flex flex-col w-full gap-2">
-                        <h3>Links</h3>
+                        <h3>{{ __('Links') }}</h3>
                         <div class="flex flex-col gap-2 text-sm">
                             @if ($this->selectedFile && $this->selectedFile->links->count())
                                 @foreach ($this->selectedFile->links as $link)
-                                    <a class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
+                                    <a
+                                        class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
                                         href=""
-                                        wire:key="file-link-{{ $link->id }}"
                                         @click.prevent="openFile({{ $link->id }})"
-                                    >{{ $link->name }}</a>
+                                        wire:key="file-link-{{ $link->id }}"
+                                    >
+                                        {{ $link->name }}
+                                    </a>
                                 @endforeach
                             @else
                                 <p>{{ __('No links found') }}</p>
@@ -148,15 +173,18 @@
                         </div>
                     </div>
                     <div class="flex flex-col w-full gap-2">
-                        <h3>Backlinks</h3>
+                        <h3>{{ __('Backlinks') }}</h3>
                         <div class="flex flex-col gap-2 text-sm">
                             @if ($this->selectedFile && $this->selectedFile->backlinks->count())
                                 @foreach ($this->selectedFile->backlinks as $link)
-                                    <a class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
+                                    <a
+                                        class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
                                         href=""
                                         wire:key="file-backlink-{{ $link->id }}"
                                         @click.prevent="openFile({{ $link->id }})"
-                                    >{{ $link->name }}</a>
+                                    >
+                                        {{ $link->name }}
+                                    </a>
                                 @endforeach
                             @else
                                 <p>{{ __('No backlinks found') }}</p>
@@ -164,15 +192,18 @@
                         </div>
                     </div>
                     <div class="flex flex-col w-full gap-2">
-                        <h3>Tags</h3>
+                        <h3>{{ __('Tags') }}</h3>
                         <div class="flex flex-col gap-2 text-sm">
                             @if ($this->selectedFile && $this->selectedFile->tags->count())
                                 @foreach ($this->selectedFile->tags as $tag)
-                                    <a class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
+                                    <a
+                                        class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
                                         href=""
                                         wire:key="file-tag-{{ $tag->id }}"
                                         @click.prevent="$wire.dispatchTo('modals.search-node', 'open-modal', { search: 'tag:{{ $tag->name }}' })"
-                                    >{{ $tag->name }}</a>
+                                    >
+                                        {{ $tag->name }}
+                                    </a>
                                 @endforeach
                             @else
                                 <p>{{ __('No tags found') }}</p>

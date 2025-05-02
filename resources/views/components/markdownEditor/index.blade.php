@@ -1,11 +1,16 @@
-<div class="flex flex-col h-full gap-3 overflow-hidden" x-data="toolbar"
+<div
+    {{ $attributes }}
+    class="flex flex-col h-full gap-3 overflow-hidden"
+    x-data="toolbar"
     @mde-link.window="link($event.detail.name, $event.detail.path); $nextTick(() => { editor.focus() });"
     @mde-image.window="image($event.detail.name, $event.detail.path); $nextTick(() => { editor.focus() });"
-    {{ $attributes }}
 >
     <x-markdownEditor.toolbar x-show="!isSmallDevice()" x-cloak />
-    <textarea class="w-full h-full p-0 px-1 bg-transparent border-0 focus:ring-0 focus:outline-0"
-        id="noteEdit" x-show="isEditMode" wire:model.live.debounce.500ms="nodeForm.content"
+    <textarea
+        class="w-full h-full p-0 px-1 bg-transparent border-0 focus:ring-0 focus:outline-0"
+        id="noteEdit"
+        x-show="isEditMode"
+        wire:model.live.debounce.500ms="nodeForm.content"
         @keyup.enter="newLine"
     ></textarea>
     <div class="flex flex-col flex-grow pr-1 overflow-y-auto markdown-body" id="noteView" x-show="!isEditMode" x-html="html"></div>

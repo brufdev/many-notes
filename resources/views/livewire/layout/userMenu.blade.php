@@ -189,8 +189,13 @@
                         <div>
                             <h2>{{ __('GitHub') }}</h2>
                             <p>
-                                <a href="{{ $githubUrl }}" target="_blank"
-                                    class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600">{{ $githubUrl }}</a>
+                                <a
+                                    href="{{ $githubUrl }}"
+                                    class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
+                                    target="_blank"
+                                >
+                                    {{ $githubUrl }}
+                                </a>
                             </p>
                         </div>
                     </div>
