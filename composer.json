@@ -26,6 +26,7 @@
         "php": "^8.4",
         "laravel/framework": "^12.10.2",
         "laravel/reverb": "^1.5",
+        "laravel/scout": "^10.14",
         "laravel/socialite": "^5.20",
         "laravel/tinker": "^2.10.1",
         "livewire/livewire": "^3.6.3",
@@ -33,7 +34,8 @@
         "socialiteproviders/authentik": "^5.2",
         "socialiteproviders/keycloak": "^5.3",
         "socialiteproviders/zitadel": "^4.1",
-        "staudenmeir/laravel-adjacency-list": "^1.24"
+        "staudenmeir/laravel-adjacency-list": "^1.24",
+        "typesense/typesense-php": "^5.1"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.15.4",
