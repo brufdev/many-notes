@@ -50,6 +50,11 @@
         scrollbar-width: thin;
     }
 
+    button:not(:disabled),
+    [role="button"]:not(:disabled) {
+        cursor: pointer;
+    }
+
     .markdown-body ul,
     .markdown-body ol {
         list-style: revert;
