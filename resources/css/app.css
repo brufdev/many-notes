@@ -189,7 +189,6 @@
     --base-text-weight-medium: 500;
     --base-text-weight-semibold: 600;
     --fontStack-monospace: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-    --fgColor-accent: Highlight;
     -ms-text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
     margin: 0;
@@ -911,7 +910,7 @@
     padding: 0;
     margin: 0;
     word-break: normal;
-    white-space: pre;
+    white-space: pre-wrap;
     background: transparent;
     border: 0;
 }
@@ -928,7 +927,6 @@
 .markdown-body .highlight pre,
 .markdown-body pre {
     padding: var(--base-size-16);
-    overflow: auto;
     font-size: 85%;
     line-height: 1.45;
     color: var(--fgColor-default);
