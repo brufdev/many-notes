@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\VaultNode;
 
 return [
@@ -210,7 +212,7 @@ return [
                     'default_sorting_field' => 'updated_at',
                 ],
                 'search-parameters' => [
-                    'query_by' => 'name, content'
+                    'query_by' => 'name, content',
                 ],
             ],
         ],
