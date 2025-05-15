@@ -1,0 +1,3 @@
+#!/command/execlineb -P
+with-contenv
+/opt/typesense-server --data-dir=/var/www/html/typesense --api-key=xyz
