@@ -4,7 +4,7 @@
 
 <template x-teleport="body">
     <div
-        class="fixed inset-0 z-50 w-full overflow-x-hidden overflow-y-auto max-h-full flex justify-center{{ $top ? ' mt-5' : ' items-end sm:items-center' }}"
+        class="fixed inset-0 z-50 w-full overflow-x-hidden overflow-y-auto max-h-full flex justify-center {{ $top ? 'sm:mt-5' : 'items-end sm:items-center' }}"
         x-show="modalOpen"
         @keydown.escape.window="modalOpen = false"
     >
