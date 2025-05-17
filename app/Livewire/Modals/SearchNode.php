@@ -9,9 +9,9 @@ use App\Models\VaultNode;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder as IlluminateBuilder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Livewire\Attributes\On;
 use Livewire\Component;
-use Staudenmeir\LaravelAdjacencyList\Eloquent\Builder;
 use Staudenmeir\LaravelAdjacencyList\Eloquent\Collection;
 
 final class SearchNode extends Component
@@ -22,6 +22,8 @@ final class SearchNode extends Component
 
     /** @var list<array<string, mixed>> */
     public array $nodes;
+
+    public int $selectedNode = 0;
 
     public string $search = '';
 
@@ -41,6 +43,12 @@ final class SearchNode extends Component
     public function search(): void
     {
         $this->nodes = [];
+        $this->selectedNode = 0;
+
+        if ($this->search === '') {
+            return;
+        }
+
         preg_match('/tag:([\w:-]+)/', $this->search, $matches);
         $nodes = $matches === [] ? $this->searchText() : $this->searchTag($matches[1]);
 
@@ -73,19 +81,12 @@ final class SearchNode extends Component
     /**
      * Searches for nodes with a given name.
      *
-     * @return Collection<int, VaultNode>
+     * @return EloquentCollection<int, VaultNode>
      */
-    private function searchText(): Collection
+    private function searchText(): EloquentCollection
     {
-        return VaultNode::query()
-            ->select('id', 'name', 'extension')
+        return VaultNode::search($this->search)
             ->where('vault_id', $this->vault->id)
-            ->where('is_file', true)
-            ->when(mb_strlen($this->search), function (Builder $query): void {
-                $query->where('name', 'like', '%' . $this->search . '%');
-            })
-            ->orderByDesc('updated_at')
-            ->limit(5)
             ->get();
     }
 
