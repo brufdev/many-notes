@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Laravel\Scout\Searchable;
 use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
 
 final class VaultNode extends Model
@@ -17,6 +18,7 @@ final class VaultNode extends Model
     use HasFactory;
 
     use HasRecursiveRelationships;
+    use Searchable;
 
     /**
      * Get the associated vault.
@@ -83,6 +85,29 @@ final class VaultNode extends Model
                 'reverse' => true,
             ],
         ];
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array<string, mixed>
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'id' => (string) $this->id,
+            'vault_id' => (string) $this->vault_id,
+            'name' => $this->name,
+            'content' => (string) $this->content,
+        ];
+    }
+
+    /**
+     * Determine if the model should be searchable.
+     */
+    public function shouldBeSearchable(): bool
+    {
+        return (bool) $this->is_file;
     }
 
     /**

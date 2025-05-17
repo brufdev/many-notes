@@ -189,12 +189,8 @@ return [
                 'collection-schema' => [
                     'fields' => [
                         [
-                            'name' => 'id',
-                            'type' => 'string',
-                        ],
-                        [
                             'name' => 'vault_id',
-                            'type' => 'int64',
+                            'type' => 'string',
                         ],
                         [
                             'name' => 'name',
@@ -204,12 +200,7 @@ return [
                             'name' => 'content',
                             'type' => 'string',
                         ],
-                        [
-                            'name' => 'updated_at',
-                            'type' => 'int64',
-                        ],
                     ],
-                    'default_sorting_field' => 'updated_at',
                 ],
                 'search-parameters' => [
                     'query_by' => 'name, content',
