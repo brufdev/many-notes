@@ -28,85 +28,41 @@ final class RunCommand extends Command
      */
     public function handle(): void
     {
-        $this->init();
-        $this->processLinks();
-        $this->syncDatabaseNotes();
-        $this->createStartupVault();
-        $this->reimportDataIntoTypesense();
+        $commands = [
+            'upgrade:process-links',
+            'upgrade:sync-database-notes',
+            'upgrade:create-startup-vault',
+            'upgrade:reimport-data-into-typesense',
+        ];
+
+        $this->executeCommands($commands);
     }
 
-    private function init(): void
+    /**
+     * @param list<string> $commands
+     */
+    private function executeCommands(array $commands): void
     {
-        if (DB::table('upgrades')->count()) {
-            return;
-        }
+        $commandsExecuted = $this->getTotalCommandsExecuted();
+        $commandsTotal = count($commands);
 
-        DB::table('upgrades')->insert([
-            'executed' => 0,
-        ]);
+        for ($i = $commandsExecuted; $i < $commandsTotal; $i++) {
+            $this->call($commands[$i]);
+            DB::table('upgrades')->update(['executed' => $i + 1]);
+        }
     }
 
-    private function processLinks(): void
+    private function getTotalCommandsExecuted(): int
     {
-        /** @var object{executed: int} $upgrades */
-        $upgrades = DB::table('upgrades')->first();
+        if (DB::table('upgrades')->count() > 0) {
+            /** @var object{executed: int} $upgrades */
+            $upgrades = DB::table('upgrades')->first();
 
-        if ($upgrades->executed !== 0) {
-            return;
+            return $upgrades->executed;
         }
 
-        $this->call('upgrade:process-links');
+        DB::table('upgrades')->insert(['executed' => 0]);
 
-        DB::table('upgrades')->update([
-            'executed' => 1,
-        ]);
-    }
-
-    private function syncDatabaseNotes(): void
-    {
-        /** @var object{executed: int} $upgrades */
-        $upgrades = DB::table('upgrades')->first();
-
-        if ($upgrades->executed !== 1) {
-            return;
-        }
-
-        $this->call('upgrade:sync-database-notes');
-
-        DB::table('upgrades')->update([
-            'executed' => 2,
-        ]);
-    }
-
-    private function createStartupVault(): void
-    {
-        /** @var object{executed: int} $upgrades */
-        $upgrades = DB::table('upgrades')->first();
-
-        if ($upgrades->executed !== 2) {
-            return;
-        }
-
-        $this->call('upgrade:create-startup-vault');
-
-        DB::table('upgrades')->update([
-            'executed' => 3,
-        ]);
-    }
-
-    private function reimportDataIntoTypesense(): void
-    {
-        /** @var object{executed: int} $upgrades */
-        $upgrades = DB::table('upgrades')->first();
-
-        if ($upgrades->executed !== 3) {
-            return;
-        }
-
-        $this->call('upgrade:reimport-data-into-typesense');
-
-        DB::table('upgrades')->update([
-            'executed' => 4,
-        ]);
+        return 0;
     }
 }
