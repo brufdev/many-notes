@@ -32,6 +32,7 @@ final class RunCommand extends Command
         $this->processLinks();
         $this->syncDatabaseNotes();
         $this->createStartupVault();
+        $this->reimportDataIntoTypesense();
     }
 
     private function init(): void
@@ -90,6 +91,22 @@ final class RunCommand extends Command
 
         DB::table('upgrades')->update([
             'executed' => 3,
+        ]);
+    }
+
+    private function reimportDataIntoTypesense(): void
+    {
+        /** @var object{executed: int} $upgrades */
+        $upgrades = DB::table('upgrades')->first();
+
+        if ($upgrades->executed !== 3) {
+            return;
+        }
+
+        $this->call('upgrade:reimport-data-into-typesense');
+
+        DB::table('upgrades')->update([
+            'executed' => 4,
         ]);
     }
 }
