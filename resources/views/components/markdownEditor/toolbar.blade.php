@@ -36,9 +36,9 @@
             <x-markdownEditor.itemDropdown>
                 <x-markdownEditor.button>{{ __('Insert') }}</x-markdownEditor.button>
                 <x-markdownEditor.items x-show="isToolbarOpen" x-anchor.bottom="$refs.button">
-                    <x-markdownEditor.subButton @click="$wire.dispatchTo('modals.markdown-editor-search', 'open-modal')">{{ __('Link') }}</x-markdownEditor.subButton>
+                    <x-markdownEditor.subButton @click="$dispatch('toggle-mde-search-link-modal')">{{ __('Link') }}</x-markdownEditor.subButton>
                     <x-markdownEditor.subButton @click="link()">{{ __('External link') }}</x-markdownEditor.subButton>
-                    <x-markdownEditor.subButton @click="$wire.dispatchTo('modals.markdown-editor-search', 'open-modal', { type: 'image' })">{{ __('Image') }}</x-markdownEditor.subButton>
+                    <x-markdownEditor.subButton @click="$dispatch('toggle-mde-search-image-modal')">{{ __('Image') }}</x-markdownEditor.subButton>
                     <x-markdownEditor.subButton @click="image()">{{ __('External image') }}</x-markdownEditor.subButton>
                     <x-markdownEditor.subButton @click="table">{{ __('Table') }}</x-markdownEditor.subButton>
                     <x-markdownEditor.subButton @click="$wire.dispatchTo('modals.markdown-editor-template', 'open-modal', { selectedFile: $wire.selectedFile })">{{ __('Template') }}</x-markdownEditor.subButton>

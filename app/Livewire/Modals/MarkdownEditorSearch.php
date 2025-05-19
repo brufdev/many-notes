@@ -20,7 +20,9 @@ final class MarkdownEditorSearch extends Component
     public Vault $vault;
 
     /** @var list<array<string, mixed>> */
-    public array $nodes;
+    public array $files;
+
+    public int $selectedFile = 0;
 
     public string $search = '';
 
@@ -42,7 +44,14 @@ final class MarkdownEditorSearch extends Component
 
     public function search(): void
     {
-        $nodes = VaultNode::query()
+        $this->files = [];
+        $this->selectedFile = 0;
+
+        if ($this->search === '') {
+            return;
+        }
+
+        $files = VaultNode::query()
             ->select('id', 'name', 'extension')
             ->where('vault_id', $this->vault->id)
             ->where('is_file', true)
@@ -56,21 +65,20 @@ final class MarkdownEditorSearch extends Component
             ->limit(5)
             ->get();
 
-        $this->nodes = [];
-        foreach ($nodes as $node) {
+        foreach ($files as $file) {
             /**
              * @var string $fullPath
              *
              * @phpstan-ignore-next-line larastan.noUnnecessaryCollectionCall
              */
-            $fullPath = $node->ancestorsAndSelf()->get()->last()->full_path;
+            $fullPath = $file->ancestorsAndSelf()->get()->last()->full_path;
             $fullPathEncoded = preg_replace('/\s/', '%20', $fullPath);
-            $dirName = preg_replace('/' . $node->name . '$/', '', $fullPath);
+            $dirName = preg_replace('/' . $file->name . '$/', '', $fullPath);
 
-            $this->nodes[] = [
-                'id' => $node->id,
-                'name' => $node->name,
-                'extension' => $node->extension,
+            $this->files[] = [
+                'id' => $file->id,
+                'name' => $file->name,
+                'extension' => $file->extension,
                 'full_path' => $fullPath,
                 'full_path_encoded' => $fullPathEncoded,
                 'dir_name' => $dirName,
