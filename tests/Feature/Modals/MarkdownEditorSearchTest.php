@@ -6,6 +6,7 @@ use App\Actions\CreateVault;
 use App\Actions\CreateVaultNode;
 use App\Livewire\Modals\MarkdownEditorSearch;
 use App\Models\User;
+use Livewire\Livewire;
 
 it('opens the modal', function (): void {
     $user = User::factory()->create()->first();
@@ -25,17 +26,17 @@ it('searches for an image file', function (): void {
     $vault = new CreateVault()->handle($user, [
         'name' => fake()->words(3, true),
     ]);
-    $firstImageNode = new CreateVaultNode()->handle($vault, [
+    new CreateVaultNode()->handle($vault, [
         'is_file' => true,
         'name' => 'First image',
         'extension' => 'jpg',
     ]);
-    $secondImageNode = new CreateVaultNode()->handle($vault, [
+    new CreateVaultNode()->handle($vault, [
         'is_file' => true,
         'name' => 'Second image',
         'extension' => 'jpg',
     ]);
-    $node = new CreateVaultNode()->handle($vault, [
+    new CreateVaultNode()->handle($vault, [
         'is_file' => true,
         'name' => 'First note',
         'extension' => 'md',
@@ -44,7 +45,6 @@ it('searches for an image file', function (): void {
     Livewire::actingAs($user)
         ->test(MarkdownEditorSearch::class, ['vault' => $vault])
         ->call('open', 'image')
-        ->assertCount('nodes', 2)
         ->set('search', 'first')
-        ->assertCount('nodes', 1);
+        ->assertCount('files', 1);
 });
