@@ -43,7 +43,7 @@ final class OAuthLoginCallback extends Component
             ]);
         }
 
-        Auth::login($user);
+        Auth::login($user, true);
         $redirectUrl = mb_strlen((string) $user->last_visited_url) > 0
             ? $user->last_visited_url
             : route('vaults.index', absolute: false);
