@@ -36,6 +36,7 @@ final class AppServiceProvider extends ServiceProvider
         $this->configureDates();
         $this->configureModels();
         $this->configureVite();
+        $this->configureAssetURL();
         $this->configureSocialite();
     }
 
@@ -62,6 +63,14 @@ final class AppServiceProvider extends ServiceProvider
     private function configureVite(): void
     {
         Vite::useAggressivePrefetching();
+    }
+
+    /**
+     * Configure the application's asset URL.
+     */
+    private function configureAssetURL(): void
+    {
+        config(['app.asset_url' => config('app.url')]);
     }
 
     /**
