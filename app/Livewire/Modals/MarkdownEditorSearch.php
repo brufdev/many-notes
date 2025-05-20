@@ -81,7 +81,7 @@ final class MarkdownEditorSearch extends Component
                 'extension' => $file->extension,
                 'full_path' => $fullPath,
                 'full_path_encoded' => $fullPathEncoded,
-                'dir_name' => $dirName,
+                'dir_name' => '/' . $dirName,
             ];
         }
     }

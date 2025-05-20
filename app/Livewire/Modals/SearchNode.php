@@ -66,7 +66,7 @@ final class SearchNode extends Component
                 'name' => $node->name,
                 'extension' => $node->extension,
                 'full_path' => $fullPath,
-                'dir_name' => $dirName,
+                'dir_name' => '/' . $dirName,
             ];
         }
     }
