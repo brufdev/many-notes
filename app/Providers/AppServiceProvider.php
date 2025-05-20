@@ -36,19 +36,7 @@ final class AppServiceProvider extends ServiceProvider
         $this->configureDates();
         $this->configureModels();
         $this->configureVite();
-
-        Event::listen(function (SocialiteWasCalled $event): void {
-            $event->extendSocialite('authelia', AutheliaProvider::class);
-        });
-        Event::listen(function (SocialiteWasCalled $event): void {
-            $event->extendSocialite('authentik', AuthentikProvider::class);
-        });
-        Event::listen(function (SocialiteWasCalled $event): void {
-            $event->extendSocialite('keycloak', KeycloakProvider::class);
-        });
-        Event::listen(function (SocialiteWasCalled $event): void {
-            $event->extendSocialite('zitadel', ZitadelProvider::class);
-        });
+        $this->configureSocialite();
     }
 
     /**
@@ -74,5 +62,24 @@ final class AppServiceProvider extends ServiceProvider
     private function configureVite(): void
     {
         Vite::useAggressivePrefetching();
+    }
+
+    /**
+     * Configure Laravel Socialite extra providers.
+     */
+    private function configureSocialite(): void
+    {
+        Event::listen(function (SocialiteWasCalled $event): void {
+            $event->extendSocialite('authelia', AutheliaProvider::class);
+        });
+        Event::listen(function (SocialiteWasCalled $event): void {
+            $event->extendSocialite('authentik', AuthentikProvider::class);
+        });
+        Event::listen(function (SocialiteWasCalled $event): void {
+            $event->extendSocialite('keycloak', KeycloakProvider::class);
+        });
+        Event::listen(function (SocialiteWasCalled $event): void {
+            $event->extendSocialite('zitadel', ZitadelProvider::class);
+        });
     }
 }
