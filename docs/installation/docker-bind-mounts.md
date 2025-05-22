@@ -11,10 +11,9 @@ First, create a new directory called `many-notes` with the following structure:
 ```
 many-notes/
 ├── database/
-├── storage-logs/
-├── storage-private/
-├── storage-public/
-└── storage-sessions/
+├── logs/
+├── private/
+├── typesense/
 ```
 
 Next, create a `Dockerfile` file with:
@@ -40,12 +39,13 @@ services:
         UID: USER_ID # change id
         GID: GROUP_ID # change id
     restart: unless-stopped
+    environment:
+      - APP_URL=http://localhost # change url
     volumes:
       - ./database:/var/www/html/database/sqlite
-      - ./storage-logs:/var/www/html/storage/logs
-      - ./storage-private:/var/www/html/storage/app/private
-      - ./storage-public:/var/www/html/storage/app/public
-      - ./storage-sessions:/var/www/html/storage/framework/sessions
+      - ./logs:/var/www/html/storage/logs
+      - ./private:/var/www/html/storage/app/private
+      - ./typesense:/var/www/html/typesense
     ports:
       - 80:8080
 ```

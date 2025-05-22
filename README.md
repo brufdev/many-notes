@@ -9,7 +9,9 @@
     <img alt="License" src="https://img.shields.io/github/license/brufdev/many-notes" />
 </p>
 
-Many Notes is a markdown note-taking app designed for simplicity! Easily create or import your vaults and organize your thoughts right away.
+Many Notes is a Markdown note-taking web application designed for simplicity! Easily create or import your vaults and organize your thoughts right away.
+
+It uses a database to power its features, but your files are also saved in the filesystem, giving you full control over your vault structure and making it easy to access or transfer your files to another application.
 
 Vaults are simply storage containers for your files, and Many Notes lets you choose to keep all your files in one vault or organize them into separate vaults.
 
@@ -28,7 +30,7 @@ Vaults are simply storage containers for your files, and Many Notes lets you cho
 - **OAuth support**: Authenticate using one of the supported providers
 - **Collaboration**: Invite other users to access your vaults
 - **Broadcasting**: Real-time, live-updating user interfaces
-- **File search**: Quickly find what you are looking for
+- **File search**: Experience a fast and typo-tolerant search
 - **Tree view explorer**: Fast navigation with relevant actions in the context menu
 - **Smart Markdown editor**: Write your Markdown notes faster
 - **Automatic saving**: Focus on writing; saving is automatic
@@ -58,21 +60,21 @@ services:
   php:
     image: brufdev/many-notes:latest
     restart: unless-stopped
+    environment:
+      - APP_URL=http://localhost # change url
     volumes:
       - database:/var/www/html/database/sqlite
-      - storage-logs:/var/www/html/storage/logs
-      - storage-private:/var/www/html/storage/app/private
-      - storage-public:/var/www/html/storage/app/public
-      - storage-sessions:/var/www/html/storage/framework/sessions
+      - logs:/var/www/html/storage/logs
+      - private:/var/www/html/storage/app/private
+      - typesense:/var/www/html/typesense
     ports:
       - 80:8080
 
 volumes:
   database:
-  storage-logs:
-  storage-private:
-  storage-public:
-  storage-sessions:
+  logs:
+  private:
+  typesense:
 ```
 
 Feel free to change anything else if you know what you're doing, and read the customization section below before continue. Then run:
@@ -83,7 +85,7 @@ docker compose up -d
 
 ## Customization
 
-To customize Many Notes, add environment variables to the `compose.yaml` file if using the Docker installation. If you chose the non-Docker installation, you should add the environment variables to a `.env` file instead.
+To customize Many Notes, add environment variables to the `compose.yaml` file if using the Docker installation. If you chose the non-Docker installation, you should add the environment variables to the `.env` file instead.
 
 ### Custom URL (default: http://localhost)
 
@@ -92,7 +94,6 @@ If you change the default port from 80 or use a reverse proxy with a custom URL,
 ```yaml
 environment:
   - APP_URL=http://localhost:8080
-  - ASSET_URL=http://localhost:8080
 ```
 
 ### Custom timezone (default: UTC)
@@ -144,6 +145,10 @@ environment:
   - MAIL_FROM_ADDRESS=hello@example.com
   - MAIL_FROM_NAME="Many Notes"
 ```
+
+## Frequently Asked Questions
+
+Read the [FAQs](docs/support/faqs.md) to find the answers to the most common questions.
 
 ## License
 

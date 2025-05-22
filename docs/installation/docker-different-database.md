@@ -14,6 +14,7 @@ services:
     image: brufdev/many-notes:latest
     restart: unless-stopped
     environment:
+      - APP_URL=http://localhost # change url
       - DB_CONNECTION=mariadb
       - DB_HOST=many-notes-mariadb-1
       - DB_PORT=3306
@@ -21,10 +22,9 @@ services:
       - DB_USERNAME=user
       - DB_PASSWORD=USER_PASSWORD # change password
     volumes:
-      - storage-logs:/var/www/html/storage/logs
-      - storage-private:/var/www/html/storage/app/private
-      - storage-public:/var/www/html/storage/app/public
-      - storage-sessions:/var/www/html/storage/framework/sessions
+      - logs:/var/www/html/storage/logs
+      - private:/var/www/html/storage/app/private
+      - typesense:/var/www/html/typesense
     ports:
       - 80:8080
   mariadb:
@@ -40,10 +40,9 @@ services:
 
 volumes:
   database:
-  storage-logs:
-  storage-private:
-  storage-public:
-  storage-sessions:
+  logs:
+  private:
+  typesense:
 ```
 
 Make sure to change the passwords. Feel free to change anything else if you know what you're doing, and read the [customization section](../../README.md#customization) before continuing. Then run:
