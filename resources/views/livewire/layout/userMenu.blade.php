@@ -84,7 +84,7 @@
                         toggle(selection) { this.selected = this.selected != selection ? selection : 0 },
                     }">
                         <ul>
-                            <li class="relative p-3 mb-3 last:mb-0 bg-light-base-200 dark:bg-base-950" x-data="{ index: 1 }">
+                            <li class="relative py-3 mb-3 last:mb-0 bg-light-base-200 dark:bg-base-950" x-data="{ index: 1 }">
                                 <button type="button" class="w-full font-semibold text-left" @click="toggle(index)">
                                     <div class="flex items-center justify-between">
                                         <span>{{ __('General') }}</span>
@@ -109,7 +109,7 @@
                                     </div>
                                 </div>
                             </li>
-                            <li class="relative p-3 mb-3 last:mb-0 bg-light-base-200 dark:bg-base-950" x-data="{ index: 2 }">
+                            <li class="relative py-3 mb-3 last:mb-0 bg-light-base-200 dark:bg-base-950" x-data="{ index: 2 }">
                                 <button type="button" class="w-full font-semibold text-left" @click="toggle(index)">
                                     <div class="flex items-center justify-between">
                                         <span>{{ __('Importing and exporting') }}</span>
@@ -130,7 +130,7 @@
                                     </div>
                                 </div>
                             </li>
-                            <li class="relative p-3 mb-3 last:mb-0 bg-light-base-200 dark:bg-base-950" x-data="{ index: 3 }">
+                            <li class="relative py-3 mb-3 last:mb-0 bg-light-base-200 dark:bg-base-950" x-data="{ index: 3 }">
                                 <button type="button" class="w-full font-semibold text-left" @click="toggle(index)">
                                     <div class="flex items-center justify-between">
                                         <span>{{ __('Tree view') }}</span>
@@ -146,7 +146,7 @@
                                     </div>
                                 </div>
                             </li>
-                            <li class="relative p-3 mb-3 last:mb-0 bg-light-base-200 dark:bg-base-950" x-data="{ index: 4 }">
+                            <li class="relative py-3 mb-3 last:mb-0 bg-light-base-200 dark:bg-base-950" x-data="{ index: 4 }">
                                 <button type="button" class="w-full font-semibold text-left" @click="toggle(index)">
                                     <div class="flex items-center justify-between">
                                         <span>{{ __('Templates') }}</span>
