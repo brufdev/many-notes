@@ -36,6 +36,13 @@ final class OAuthLoginCallback extends Component
         $user = User::query()->where('email', $providerUser->getEmail())->first();
 
         if (!$user) {
+            if (!config('settings.registration.enabled')) {
+                session()->flash('error', __('Registration is currently disabled.'));
+                $this->redirect('/login');
+
+                return;
+            }
+
             $user = new CreateUser()->handle([
                 'name' => $providerUser->getName() ?? '',
                 'email' => $providerUser->getEmail() ?? '',

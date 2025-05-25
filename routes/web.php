@@ -27,8 +27,11 @@ Route::middleware('auth')->group(function (): void {
 });
 
 Route::middleware(['guest', 'throttle'])->group(function (): void {
-    Route::get('register', Register::class)->name('register');
     Route::get('login', Login::class)->name('login');
+
+    if (config('settings.registration.enabled')) {
+        Route::get('register', Register::class)->name('register');
+    }
 
     if (config('mail.default') !== 'log') {
         Route::get('forgot-password', ForgotPassword::class)->name('forgot.password');
