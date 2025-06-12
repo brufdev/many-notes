@@ -24,8 +24,6 @@ final class Collaboration extends Component
 
     public CollaborationInviteForm $form;
 
-    public string $selectedTab = 'users';
-
     public function mount(Vault $vault): void
     {
         $this->authorize('update', $vault);
@@ -43,8 +41,8 @@ final class Collaboration extends Component
     {
         try {
             $this->form->create();
-            $this->reset('selectedTab');
 
+            $this->dispatch('collaboration-select-tab', tab: 'users');
             $this->dispatch('toast', message: __('Invite sent'), type: 'success');
         } catch (Exception $e) {
             $this->form->addError('email', $e->getMessage());
