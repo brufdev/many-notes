@@ -1,68 +1,117 @@
 <x-modal wire:model="show">
-    <x-modal.panel title="{{ __('Search') }}" top>
+    <x-modal.panel title="{{ __('Insert file') }}" top>
         <div
             x-data="searchFile"
-            @toggle-mde-search-link-modal.window="openModal()"
-            @toggle-mde-search-image-modal.window="openModal('image')"
+            @toggle-mde-search-link-modal.window="openModal('all', $event.detail.url)"
+            @toggle-mde-search-image-modal.window="openModal('image', $event.detail.url)"
         >
-            <input
-                class="block w-full p-2 border rounded-lg bg-light-base-100 dark:bg-base-800 text-light-base-700 dark:text-base-200 focus:ring-0 focus:outline focus:outline-0 border-light-base-300 dark:border-base-500 focus:border-light-base-600 dark:focus:border-base-400"
-                type="text"
-                placeholder="{{ __('Search') }}"
-                autofocus
-                wire:model.live.debounce.500ms="search"
-                @keydown.up.prevent="selectPreviousFile()"
-                @keydown.down.prevent="selectNextFile()"
-                @keydown.enter.prevent="insertFile()"
-            />
+            <x-tab
+                default="internal"
+                @mde-insert-link-set-tab.window="selectedTab = $event.detail.tab"
+            >
+                <x-slot:tabs>
+                    <x-tab.button tab="internal">
+                        {{ __('Internal') }}
+                    </x-tab.button>
+                    <x-tab.button tab="external">
+                        {{ __('External') }}
+                    </x-tab.button>
+                </x-slot>
+                <x-tab.content tab="internal">
+                    <input
+                        class="block w-full p-2 border rounded-lg bg-light-base-100 dark:bg-base-800 text-light-base-700 dark:text-base-200 focus:ring-0 focus:outline focus:outline-0 border-light-base-300 dark:border-base-500 focus:border-light-base-600 dark:focus:border-base-400"
+                        type="text"
+                        placeholder="{{ __('Search') }}"
+                        autofocus
+                        wire:model.live.debounce.500ms="search"
+                        @keydown.up.prevent="selectPreviousFile()"
+                        @keydown.down.prevent="selectNextFile()"
+                        @keydown.enter.prevent="insertFile()"
+                    />
+                    <div class="mt-4">
+                        @if (count($files))
+                            <ul class="flex flex-col gap-2" wire:loading.class="opacity-50">
+                                @foreach ($files as $index => $file)
+                                    <li
+                                        class="p-2 rounded-lg"
+                                        :class="
+                                            selectedFile === {{ $index }}
+                                            ? 'bg-light-base-300 dark:bg-base-800 text-light-base-950 dark:text-base-50'
+                                            : 'text-light-base-700 dark:text-base-200'
+                                        "
+                                        @mouseenter="selectFile({{ $index }})"
+                                        wire:key="mde-search-{{ $file['id'] }}"
+                                    >
+                                        <button
+                                            class="flex flex-col w-full gap-2 py-1 text-left"
+                                            type="button"
+                                            @click="insertFile({{ $file['id'] }})"
+                                        >
+                                            @if ($file['id'] === 0)
+                                                <span class="flex gap-2">
+                                                    <span
+                                                        class="overflow-hidden font-semibold whitespace-nowrap text-ellipsis"
+                                                        title="{{ $file['name'] }}"
+                                                    >
+                                                        {{ $file['name'] }}
+                                                    </span>
+                                                </span>
+                                            @else
+                                                <span class="flex gap-2">
+                                                    <span
+                                                        class="overflow-hidden font-semibold whitespace-nowrap text-ellipsis"
+                                                        title="{{ $file['name'] }}"
+                                                    >
+                                                        {{ $file['name'] }}
+                                                    </span>
 
-            <div class="mt-4">
-                @if (count($files))
-                    <ul class="flex flex-col gap-2" wire:loading.class="opacity-50">
-                        @foreach ($files as $index => $file)
-                            <li
-                                class="p-2 rounded-lg"
-                                :class="
-                                    selectedFile === {{ $index }}
-                                    ? 'bg-light-base-300 dark:bg-base-800 text-light-base-950 dark:text-base-50'
-                                    : 'text-light-base-700 dark:text-base-200'
-                                "
-                                @mouseenter="selectFile({{ $index }})"
-                                wire:key="mde-search-{{ $file['id'] }}"
+                                                    @if ($file['extension'] !== 'md')
+                                                        <x-treeView.badge>{{ $file['extension'] }}</x-treeView.badge>
+                                                    @endif
+                                                </span>
+                                                @if ($file['dir_name'] !== '')
+                                                    <span
+                                                        class="overflow-hidden text-xs whitespace-nowrap text-ellipsis"
+                                                        title="{{ $file['full_path'] }}"
+                                                    >
+                                                        {{ $file['dir_name'] }}
+                                                    </span>
+                                                @endif
+                                            @endif
+                                        </button>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @elseif ($search !== '')
+                            <p>{{ __('No results found') }}</p>
+                        @endif
+                    </div>
+                </x-tab.content>
+                <x-tab.content tab="external">
+                    <x-form class="flex flex-col gap-6" @submit.prevent="insertUrl">
+                        <div>
+                            <input
+                                class="block w-full p-2 border rounded-lg bg-light-base-100 dark:bg-base-800 text-light-base-700 dark:text-base-200 focus:ring-0 focus:outline focus:outline-0 border-light-base-300 dark:border-base-500 focus:border-light-base-600 dark:focus:border-base-400"
+                                :class="!errors.externalUrl || 'border-error-500 focus:border-error-700 dark:border-error-500 dark:focus:border-error-700'"
+                                type="text"
+                                placeholder="{{ __('Type URL') }}"
+                                x-model="externalUrl"
+                            />
+                            <p
+                                class="mt-2 text-xs"
+                                :class="errors.externalUrl ? 'text-error-500' : 'text-gray-500 dark:text-gray-400'"
                             >
-                                <button
-                                    class="flex flex-col w-full gap-2 py-1 text-left"
-                                    type="button"
-                                    @click="insertFile({{ $file['id'] }})"
-                                >
-                                    <span class="flex gap-2">
-                                        <span
-                                            class="overflow-hidden font-semibold whitespace-nowrap text-ellipsis"
-                                            title="{{ $file['name'] }}"
-                                        >
-                                            {{ $file['name'] }}
-                                        </span>
+                                {{ __('URLs must start with http(s)://') }}
+                            </p>
+                        </div>
 
-                                        @if ($file['extension'] !== 'md')
-                                            <x-treeView.badge>{{ $file['extension'] }}</x-treeView.badge>
-                                        @endif
-                                    </span>
-                                    @if ($file['dir_name'] !== '')
-                                        <span
-                                            class="overflow-hidden text-xs whitespace-nowrap text-ellipsis"
-                                            title="{{ $file['full_path'] }}"
-                                        >
-                                            {{ $file['dir_name'] }}
-                                        </span>
-                                    @endif
-                                </button>
-                            </li>
-                        @endforeach
-                    </ul>
-                @elseif ($search !== '')
-                    <p>{{ __('No results found') }}</p>
-                @endif
-            </div>
+
+                        <div class="flex justify-end">
+                            <x-form.submit label="{{ __('Save') }}" />
+                        </div>
+                    </x-form>
+                </x-tab.content>
+            </x-tab>
         </div>
     </x-modal.panel>
 </x-modal>
@@ -74,10 +123,33 @@
             files: $wire.entangle('files'),
             selectedFile: $wire.entangle('selectedFile'),
             searchType: $wire.entangle('searchType'),
+            externalUrl: '',
+            errors: {},
 
-            openModal(searchType) {
+            openModal(searchType, url) {
                 this.searchType = searchType === 'image' ? 'image' : 'all';
                 this.show = !this.show;
+
+                if (url.startsWith('http://') || url.startsWith('https://')) {
+                    //this.internalValue = '';
+                    $wire.search = '';
+                    this.externalUrl = url;
+
+                    $dispatch('mde-insert-link-set-tab', { tab: 'external' });
+                } else {
+                    let filename = url.split(/[\/\\]/).pop() || '';
+                    const lastDotIndex = filename.lastIndexOf('.');
+
+                    if (lastDotIndex > 0) {
+                        filename = filename.substring(0, lastDotIndex);
+                    }
+
+                    //this.internalValue = url.substring(0, url.lastIndexOf('.')) || url;
+                    $wire.search = filename.replaceAll('%20', ' ');
+                    this.externalUrl = '';
+
+                    $dispatch('mde-insert-link-set-tab', { tab: 'internal' });
+                }
             },
 
             selectPreviousFile() {
@@ -152,6 +224,15 @@
             },
 
             insertFile() {
+                if ($wire.search === '') {
+                    const eventName = this.searchType === 'image' ? 'mde-image' : 'mde-link';
+
+                    $dispatch(eventName, { path: '' });
+                    $dispatch('close-modal');
+
+                    return;
+                }
+
                 if (this.files.length === 0) {
                     return;
                 }
@@ -161,11 +242,33 @@
 
             insertFileId(id) {
                 const eventName = this.searchType === 'image' ? 'mde-image' : 'mde-link';
-                const fileName = this.files[this.selectedFile]['name'];
-                const filePath = '/' + this.files[this.selectedFile]['full_path_encoded'] + '.' + this.files[this.selectedFile]['extension'];
+                //const path = '/' + this.files[this.selectedFile]['full_path_encoded'] + '.' + this.files[this.selectedFile]['extension'];
+                const path = `/${this.files[this.selectedFile]['full_path_encoded']}.${this.files[this.selectedFile]['extension']}`;
 
-                $dispatch(eventName, { name: fileName, path: filePath });
+                $dispatch(eventName, { path: path });
                 $dispatch('close-modal');
+            },
+
+            insertUrl(event) {
+                const eventName = this.searchType === 'image' ? 'mde-image' : 'mde-link';
+                const url = event.target.getElementsByTagName('input')[0].value;
+
+                this.errors.externalUrl = !this.validateUrl(url);
+
+                if (url === '' || !this.errors.externalUrl) {
+                    $dispatch(eventName, { path: url });
+                    $dispatch('close-modal');
+                }
+            },
+
+            validateUrl(url) {
+                try {
+                    const objUrl = new URL(url);
+
+                    return objUrl.protocol === 'http:' || objUrl.protocol === 'https:';
+                } catch (error) {
+                    return false;
+                }
             },
         }));
     </script>

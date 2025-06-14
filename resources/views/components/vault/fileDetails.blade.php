@@ -1,12 +1,13 @@
 @props(['header' => ''])
 
-<div class="flex flex-col flex-grow gap-3XXX">
-    <div class="sticky top-0 flex flex-col gap-3 py-4 z-40 bg-light-base-200 dark:bg-base-950">
+<div class="flex flex-col flex-grow">
+    <div class="sticky top-0 flex flex-col gap-3 py-4 z-15 bg-light-base-200 dark:bg-base-950">
         <div class="z-[5]">
             <div class="flex justify-between">
                 <input
                     class="flex flex-grow p-0 px-1 text-lg bg-transparent border-0 focus:ring-0 focus:outline-0"
                     type="text"
+                    spellcheck="false"
                     wire:model.live.debounce.500ms="nodeForm.name"
                 />
 
@@ -36,7 +37,7 @@
                             </x-menu.items>
                         </x-menu>
                     </div>
-                    <button title="{{ __('Close file') }}" wire:click="closeFile">
+                    <button title="{{ __('Close file') }}" @click="closeFile">
                         <x-icons.xMark class="w-5 h-5" />
                     </button>
                 </div>

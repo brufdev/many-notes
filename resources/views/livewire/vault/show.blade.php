@@ -1,7 +1,10 @@
 <div
     class="flex flex-col h-dvh"
     x-data="vault"
-    @file-render-markup.window="$nextTick(() => { markdownToHtml() })"
+    @mde-link.window="editor.toggleLink($event.detail.path)"
+    @mde-image.window="editor.setImage($event.detail.path)"
+    @file-opened.window="$nextTick(() => { fileOpened() })"
+    @file-refreshed.window="$nextTick(() => { fileRefreshed() })"
 >
     <x-layouts.appHeader>
         <div class="flex items-center gap-4">
@@ -59,81 +62,44 @@
             </div>
 
             <div
-                class="absolute top-0 bottom-0 right-0 flex flex-col w-full overflow-y-auto transition-all text-start bg-light-base-200 dark:bg-base-950"
+                class="absolute top-0 bottom-0 right-0 flex flex-col w-full transition-all text-start bg-light-base-200 dark:bg-base-950"
                 :class="{ 'md:pl-60': isLeftPanelOpen, 'md:pr-60': isRightPanelOpen }"
                 id="nodeContainer"
             >
-                <div class="flex flex-col h-full w-full max-w-[48rem] mx-auto p-4">
-                    <div class="flex flex-col w-full h-full gap-4" x-show="$wire.selectedFileId">
-                        <div class="z-[5]">
-                            <div class="flex justify-between">
-                                <input
-                                    class="flex flex-grow p-0 px-1 text-lg bg-transparent border-0 focus:ring-0 focus:outline-0"
+                <div class="flex flex-col h-full w-full max-w-[48rem] mx-auto px-4 overflow-y-auto">
+                    <div class="flex flex-col w-full h-full" x-show="$wire.selectedFileId">
+                        <x-vault.fileDetails>
+                            @if (in_array($nodeForm->extension, App\Services\VaultFiles\Note::extensions()))
+                                <x-slot:header>
+                                    <x-tiptapEditor.toolbar />
+                                </x-slot:header>
+                                <textarea
+                                    class="hidden"
                                     type="text"
-                                    wire:model.live.debounce.500ms="nodeForm.name"
-                                />
-
-                                <div class="flex items-center gap-2">
-                                    <span class="flex items-center" wire:loading.flex wire:target="nodeForm.name, nodeForm.content">
-                                        <x-icons.spinner class="w-4 h-4 animate-spin" />
-                                    </span>
-                                    <div x-show="users.length > 1">
-                                        <x-menu class="flex">
-                                            <button
-                                                x-ref="button"
-                                                @mouseenter="menuOpen = true"
-                                                @mouseleave="menuOpen = false"
-                                            >
-                                                <x-icons.userGroup class="w-[1.1rem] h-[1.1rem]" />
-                                                <span class="absolute bottom-0 right-0 w-1.5 h-1.5 rounded-full border bg-success-500 border-light-base-200 dark:border-base-950"></span>
-                                            </button>
-                    
-                                            <x-menu.items>
-                                                <div class="px-3">
-                                                    {{ __('Users in this file') }}
-                                                </div>
-                                                <x-menu.itemDivider></x-menu.itemDivider>
-                                                <template x-for="user in users">
-                                                    <x-menu.item x-text="user.name"></x-menu.item>
-                                                </template>
-                                            </x-menu.items>
-                                        </x-menu>
-                                    </div>
-                                    <button title="{{ __('Close file') }}" wire:click="closeFile">
-                                        <x-icons.xMark class="w-5 h-5" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            @error('nodeForm.name')
-                                <p class="text-sm text-error-500" aria-live="assertive">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        @if (in_array($nodeForm->extension, App\Services\VaultFiles\Note::extensions()))
-                            <x-markdownEditor />
-                        @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Image::extensions()))
-                            <div>
-                                <img src="{{ $selectedFileUrl }}" />
-                            </div>
-                        @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Pdf::extensions()))
-                            <object
-                                class="w-full h-full"
-                                type="application/pdf"
-                                data="{{ $selectedFileUrl }}"
-                            ></object>
-                        @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Video::extensions()))
-                            <video class="w-full" controls>
-                                <source src="{{ $selectedFileUrl }}" />
-                                {{ __('Your browser does not support the video tag') }}
-                            </video>
-                        @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Audio::extensions()))
-                            <div class="flex items-start justify-center w-full">
+                                    x-ref="noteContent"
+                                    wire:model.live.debounce.1000ms="nodeForm.content"
+                                ></textarea>
+                                <div class="h-full" spellcheck="false" x-ref="noteEditor" wire:ignore></div>
+                            @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Image::extensions()))
+                                <img src="{{ $selectedFileUrl }}" alt="" />
+                            @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Pdf::extensions()))
+                                <object
+                                    class="w-full h-full"
+                                    type="application/pdf"
+                                    data="{{ $selectedFileUrl }}"
+                                ></object>
+                            @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Video::extensions()))
+                                <video class="w-full" controls>
+                                    <source src="{{ $selectedFileUrl }}" />
+                                    {{ __('Your browser does not support the video tag') }}
+                                </video>
+                            @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Audio::extensions()))
                                 <audio class="w-full" controls>
                                     <source src="{{ $selectedFileUrl }}">
                                     {{ __('Your browser does not support the audio tag') }}
                                 </audio>
-                            </div>
-                        @endif
+                            @endif
+                        </x-vault.fileDetails>
                     </div>
                     <div class="flex items-center justify-center w-full h-full gap-2" x-show="!$wire.selectedFileId">
                         <x-form.button @click="$wire.dispatchTo('modals.search-node', 'open-modal')">
@@ -233,14 +199,12 @@
             isLeftPanelOpen: false,
             isRightPanelOpen: false,
             isEditMode: Alpine.$persist(true),
-            selectedFileId: $wire.entangle('selectedFileId'),
-            selectedFileExtension: $wire.entangle('selectedFileExtension'),
-            selectedFileRefreshes: $wire.entangle('selectedFileRefreshes'),
-            html: '',
+            editor: null,
             users: [],
 
             init() {
-                if (this.selectedFileId !== null && $wire.toastErrorMessage.length === 0) {
+                if ($wire.selectedFileId !== null && $wire.toastErrorMessage.length === 0) {
+                    this.initializeEditor();
                     this.startVaultNodeEventListeners();
                 }
 
@@ -252,44 +216,36 @@
 
                 this.isLeftPanelOpen = !this.isSmallDevice();
 
-                if (!this.isEditMode) {
-                    this.$nextTick(() => { this.markdownToHtml() });
-                }
-
-                this.$watch('isEditMode', value => {
-                    if (value) {
-                        return;
-                    }
-
-                    this.markdownToHtml();
-                });
-
-                this.$watch('selectedFileId', value => {
-                    if (value === null) {
-                        this.html = '';
-                        return;
-                    }
-
-                    this.markdownToHtml();
-                    this.startVaultNodeEventListeners();
-                });
-
-                this.$watch('selectedFileRefreshes', value => {
-                    if (value === 0) {
-                        return;
-                    }
-
-                    this.markdownToHtml();
-                });
-
                 Echo.private('User.{{ auth()->user()->id }}')
                     .listen('CollaborationDeletedEvent', (e) => {
-                        if (e.vault_id !== {{ $this->vault->id }}) {
+                        if (e.vault_id !== $wire.vaultId) {
                             return;
                         }
 
                         $wire.checkPermission();
                     });
+            },
+
+            initializeEditor() {
+                if (this.editor) {
+                    this.editor.destroyEditor();
+                }
+
+                this.editor = setupEditor({
+                    placeholder: '{{ __('Start writing your note...') }}',
+                    element: this.$refs.noteEditor,
+                    vaultId: $wire.nodeForm.vaultId,
+                    content: $wire.nodeForm.content,
+                    editable: this.isEditMode,
+                    onUpdate: (markdown) => {
+                        if ($refs.noteContent.value === markdown) {
+                            return;
+                        }
+
+                        $refs.noteContent.value = markdown;
+                        $refs.noteContent.dispatchEvent(new Event('input'));
+                    },
+                });
             },
 
             isSmallDevice() {
@@ -311,90 +267,48 @@
 
             toggleEditMode() {
                 this.isEditMode = !this.isEditMode;
+                this.editor.setEditable(this.isEditMode);
             },
 
-            openFile(nodeId) {
-                if (nodeId !== this.selectedFileId) {
+            openFile(fileId) {
+                const previousSelectedFileId = $wire.selectedFileId;
+
+                if (fileId !== previousSelectedFileId) {
                     this.stopVaultNodeEventListeners();
                 }
 
-                $wire.openFileId(nodeId);
+                $wire.openFileId(fileId);
 
                 if (this.isSmallDevice()) {
                     this.closePanels();
                 }
-
-                this.resetScrollPosition();
             },
 
-            resetScrollPosition() {
-                if (!Number.isInteger(this.selectedFileId)) {
-                    return;
-                }
+            fileOpened() {
+                this.startVaultNodeEventListeners();
 
-                const scrollElementId = this.isEditMode ? 'noteEdit' : 'nodeContainer';
-                if (document.getElementById(scrollElementId) == null) {
-                    return;
+                if ($wire.nodeForm.extension == 'md') {
+                    this.initializeEditor();
                 }
-
-                document.getElementById(scrollElementId).scrollTop = 0;
             },
 
-            markdownToHtml() {
-                const el = document.getElementById('noteEdit');
-
-                if (!el) {
-                    this.html = '';
-
-                    return;
+            fileRefreshed() {
+                if ($wire.nodeForm.extension == 'md') {
+                    this.initializeEditor();
                 }
+            },
 
-                const node = this.selectedFileId;
-                const renderer = {
-                    image(token) {
-                        let html = '';
-
-                        if (token.href.startsWith('http://') || token.href.startsWith('https://')) {
-                            // external images
-                            html = '<img src="' + token.href + '" alt="' + token.text + '" />';
-                        } else {
-                            // internal images
-                            html = '<img src="/files/{{ $this->vault->id }}?path=' + token.href + '&node=' +
-                                node + '" alt="' + token.text + '" />';
-                        }
-
-                        return '<span class="flex items-center justify-center">' + html + '</span>';
-                    },
-                    link(token) {
-                        // external links
-                        if (token.href.startsWith('http://') || token.href.startsWith('https://')) {
-                            return '<a href="' + token.href + '" title="' + (token.title ?? '') +
-                                '" target="_blank">' + token.text + '</a>';
-                        }
-
-                        // internal links
-                        return '<a href="" wire:click.prevent="openFilePath(\'' + token.href +
-                            '\')" title="' + (token.title ?? '') + '">' + token.text + '</a>';
-                    },
-                };
-                marked.use({
-                    renderer,
-                });
-                this.html = DOMPurify
-                    // sanitize markdown
-                    .sanitize(marked.parse(el.value), {
-                        ADD_ATTR: ['wire:click.prevent'],
-                    })
-                    // improve check lists design
-                    .replaceAll('<li><input', '<li class="task-list-item"><input class="task-list-item-checkbox"');
+            closeFile() {
+                this.stopVaultNodeEventListeners();
+                $wire.closeFile();
             },
 
             startVaultNodeEventListeners() {
-                if (this.selectedFileId === null) {
+                if ($wire.selectedFileId === null) {
                     return;
                 }
 
-                Echo.join('VaultNode.' + this.selectedFileId)
+                Echo.join('VaultNode.' + $wire.selectedFileId)
                     .here((users) => {
                         this.users = users;
                     })
@@ -405,7 +319,7 @@
                         this.users = this.users.filter(u => u.id !== user.id);
                     })
                     .listen('VaultNodeUpdatedEvent', (e) => {
-                        $wire.refreshFile(this.selectedFileId);
+                        $wire.refreshFile($wire.selectedFileId);
                     })
                     .listen('VaultNodeDeletedEvent', (e) => {
                         $wire.dispatch('file-close');
@@ -413,11 +327,11 @@
             },
 
             stopVaultNodeEventListeners() {
-                if (this.selectedFileId === null) {
+                if ($wire.selectedFileId === null) {
                     return;
                 }
 
-                Echo.leave('VaultNode.' + this.selectedFileId);
+                Echo.leave('VaultNode.' + $wire.selectedFileId);
             },
         }));
     </script>

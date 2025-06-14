@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Renderless;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Throwable;
@@ -42,9 +43,6 @@ final class Show extends Component
 
     #[Locked]
     public ?string $selectedFileUrl = null;
-
-    #[Locked]
-    public int $selectedFileRefreshes = 0;
 
     #[Locked]
     public string $toastErrorMessage = '';
@@ -96,8 +94,6 @@ final class Show extends Component
 
     public function openFileId(?int $fileId = null): void
     {
-        $this->reset(['selectedFileRefreshes']);
-
         if ($fileId === null) {
             $this->reset(['selectedFileId']);
             $this->setLastVisitedUrl();
@@ -149,7 +145,8 @@ final class Show extends Component
         }
 
         $this->setNode($this->selectedFile);
-        $this->selectedFileRefreshes++;
+
+        $this->dispatch('file-refreshed');
     }
 
     #[On('file-close')]
@@ -159,11 +156,12 @@ final class Show extends Component
             $this->dispatch('toast', message: __('This file is no longer available'), type: 'error');
         }
 
-        $this->reset(['selectedFileId', 'selectedFileExtension', 'selectedFileUrl', 'selectedFileRefreshes']);
+        $this->reset(['selectedFileId', 'selectedFileExtension', 'selectedFileUrl']);
         $this->nodeForm->reset('nodeId');
         unset($this->selectedFile);
     }
 
+    #[Renderless]
     public function updated(string $name): void
     {
         if (!str_starts_with($name, 'nodeForm') || !$this->selectedFile instanceof VaultNode) {
@@ -183,6 +181,7 @@ final class Show extends Component
         broadcast(new VaultNodeUpdatedEvent($node))->toOthers();
     }
 
+    #[Renderless]
     public function setTemplateFolder(VaultNode $node): void
     {
         $this->authorize('update', $node->vault);
@@ -200,6 +199,7 @@ final class Show extends Component
         $this->dispatch('toast', message: __('Template folder updated'), type: 'success');
     }
 
+    #[Renderless]
     public function deleteNode(VaultNode $node): void
     {
         $this->authorize('delete', $node);
@@ -250,9 +250,7 @@ final class Show extends Component
         $this->setNode($node);
         $this->setLastVisitedUrl();
 
-        if ($node->extension === 'md') {
-            $this->dispatch('file-render-markup');
-        }
+        $this->dispatch('file-opened');
     }
 
     private function setLastVisitedUrl(): void
