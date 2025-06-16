@@ -43,8 +43,9 @@ final class VaultNodeForm extends Form
         return [
             'name' => [
                 'required',
-                'min:3',
-                'regex:/^[\w]+[\s\w._\-\&\%\#\[\]\(\)]+$/u',
+                'min:1',
+                // One or more allowed characters, not starting with a dot or space
+                'regex:/^(?![. ])[\w\s.,;_\-&%#\[\]()=]+$/u',
                 Rule::unique(VaultNode::class)
                     ->where('vault_id', $this->vaultId)
                     ->where('parent_id', $this->parent_id)
@@ -71,11 +72,11 @@ final class VaultNodeForm extends Form
 
     public function create(): VaultNode
     {
-        $this->name = mb_ltrim($this->name);
         $this->validate();
 
         /** @var Vault $vault */
         $vault = Vault::find($this->vaultId);
+
         $node = new CreateVaultNode()->handle($vault, [
             'parent_id' => $this->parent_id,
             'is_file' => $this->is_file,
@@ -102,8 +103,8 @@ final class VaultNodeForm extends Form
             return null;
         }
 
-        $this->name = mb_ltrim($this->name);
         $this->validate();
+
         new UpdateVaultNode()->handle($node, [
             'parent_id' => $this->parent_id,
             'name' => $this->name,

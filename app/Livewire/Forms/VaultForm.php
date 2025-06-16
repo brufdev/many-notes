@@ -32,8 +32,9 @@ final class VaultForm extends Form
         return [
             'name' => [
                 'required',
-                'min:3',
-                'regex:/^[\w]+[\s\w._\-\&\%\#\[\]\(\)]+$/u',
+                'min:1',
+                // One or more allowed characters, not starting with a dot or space
+                'regex:/^(?![. ])[\w\s.,;_\-&%#\[\]()=]+$/u',
                 Rule::unique(Vault::class)
                     ->where('created_by', $currentUser->id)
                     ->ignore($this->vaultId),
@@ -49,10 +50,10 @@ final class VaultForm extends Form
 
     public function create(): void
     {
+        $this->validate();
+
         /** @var User $user */
         $user = auth()->user();
-        $this->name = mb_trim($this->name);
-        $this->validate();
 
         new CreateVault()->handle($user, [
             'name' => $this->name,
@@ -70,7 +71,6 @@ final class VaultForm extends Form
             return;
         }
 
-        $this->name = mb_trim($this->name);
         $this->validate();
 
         new UpdateVault()->handle($vault, [
