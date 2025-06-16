@@ -2,7 +2,7 @@
 
 **Read the [upgrading guide](../../UPGRADING.md) if you are upgrading from a previous version.**
 
-Many Notes uses SQLite by default but supports other databases like MariaDB, MySQL, and PostgreSQL. This guide will use MariaDB, but you can easily adapt it to one of the other databases.
+Many Notes uses SQLite by default but supports other databases like MariaDB, MySQL, and PostgreSQL. This guide will use MariaDB, but you can easily adapt it to one of the other databases. The only difference is the `DB_CONNECTION` environment variable, which should be set to `mariadb` for MariaDB, `mysql` for MySQL, and `pgsql` for PostgreSQL.
 
 ## Instructions
 
@@ -14,7 +14,7 @@ services:
     image: brufdev/many-notes:latest
     restart: unless-stopped
     environment:
-      - APP_URL=http://localhost # change url
+      - APP_URL=http://localhost # address used to access the application
       - DB_CONNECTION=mariadb
       - DB_HOST=many-notes-mariadb-1
       - DB_PORT=3306

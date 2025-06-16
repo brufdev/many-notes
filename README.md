@@ -61,7 +61,7 @@ services:
     image: brufdev/many-notes:latest
     restart: unless-stopped
     environment:
-      - APP_URL=http://localhost # change url
+      - APP_URL=http://localhost # address used to access the application
     volumes:
       - database:/var/www/html/database/sqlite
       - logs:/var/www/html/storage/logs
