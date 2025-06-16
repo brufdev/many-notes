@@ -22,7 +22,6 @@ environment:
 
 The numbers of severity levels `INFO`, `WARNING`, `ERROR`, and `FATAL` are 0, 1, 2, and 3, respectively.
 </details>
-<br/>
 
 <details>
 <summary><strong>Why is the build phase required when using bind mounts</strong></summary>
@@ -30,7 +29,6 @@ The numbers of severity levels `INFO`, `WARNING`, `ERROR`, and `FATAL` are 0, 1,
 
 The build phase may seem unnecessary when using bind mounts, but since the Docker image runs with an unprivileged user, updating permissions for files and services can only be done during the build stage. I have created a [discussion](https://github.com/brufdev/many-notes/discussions/40) to share my perspective on this topic. Feel free to join and share your thoughts.
 </details>
-<br/>
 
 <details>
 <summary><strong>The search feature is not returning any results</strong></summary>
