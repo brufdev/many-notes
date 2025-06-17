@@ -36,8 +36,8 @@ services:
     build:
       context: .
       args:
-        UID: USER_ID # change id
-        GID: GROUP_ID # change id
+        UID: 1000 # host user id
+        GID: 1000 # host group id
     restart: unless-stopped
     environment:
       - APP_URL=http://localhost # address used to access the application
@@ -50,7 +50,7 @@ services:
       - 80:8080
 ```
 
-Make sure to update the IDs to match the host user IDs. Feel free to change anything else if you know what you're doing, and read the [customization section](../../README.md#customization) before continuing. Then run:
+Make sure to update the IDs to match the host user IDs and the address used to access the application. Feel free to change anything else if you know what you're doing, and read the [customization section](../../README.md#customization) before continuing. Then run:
 
 ```shell
 docker compose up -d

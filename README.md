@@ -77,7 +77,7 @@ volumes:
   typesense:
 ```
 
-Feel free to change anything else if you know what you're doing, and read the customization section below before continue. Then run:
+Make sure to change the address used to access the application. Feel free to change anything else if you know what you're doing, and read the customization section below before continue. Then run:
 
 ```shell
 docker compose up -d
