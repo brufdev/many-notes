@@ -77,7 +77,7 @@
                                     class="hidden"
                                     type="text"
                                     x-ref="noteContent"
-                                    wire:model.live.debounce.1000ms="nodeForm.content"
+                                    wire:model.live="nodeForm.content"
                                 ></textarea>
                                 <div class="h-full" spellcheck="false" x-ref="noteEditor" wire:ignore></div>
                             @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Image::extensions()))
@@ -201,6 +201,14 @@
             isEditMode: Alpine.$persist(true),
             editor: null,
             users: [],
+            updateContent: Alpine.debounce((markdown) => {
+                if ($refs.noteContent.value === markdown) {
+                    return;
+                }
+
+                $refs.noteContent.value = markdown;
+                $refs.noteContent.dispatchEvent(new Event('input'));
+            }, 500),
 
             init() {
                 if ($wire.selectedFileId !== null && $wire.toastErrorMessage.length === 0) {
@@ -237,14 +245,7 @@
                     vaultId: $wire.nodeForm.vaultId,
                     content: $wire.nodeForm.content,
                     editable: this.isEditMode,
-                    onUpdate: (markdown) => {
-                        if ($refs.noteContent.value === markdown) {
-                            return;
-                        }
-
-                        $refs.noteContent.value = markdown;
-                        $refs.noteContent.dispatchEvent(new Event('input'));
-                    },
+                    onUpdate: (markdown) => this.updateContent(markdown),
                 });
             },
 
