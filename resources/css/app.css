@@ -146,6 +146,10 @@
                 background-color: var(--color-base-900) !important;
             }
 
+            br:last-of-type {
+                display: none;
+            }
+
             .hljs-comment,
             .hljs-quote {
                 color: #616161;
