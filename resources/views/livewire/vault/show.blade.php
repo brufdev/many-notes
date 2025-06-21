@@ -212,7 +212,10 @@
 
             init() {
                 if ($wire.selectedFileId !== null && $wire.toastErrorMessage.length === 0) {
-                    this.initializeEditor();
+                    if ($wire.nodeForm.extension == 'md') {
+                        this.initializeEditor();
+                    }
+
                     this.startVaultNodeEventListeners();
                 }
 
