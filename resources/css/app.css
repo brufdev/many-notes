@@ -129,6 +129,16 @@
                     border-radius: 4px;
                 }
             }
+
+            li[data-checked="true"] {
+                p {
+                    opacity: 0.7;
+
+                    @media (prefers-color-scheme: dark) {
+                        opacity: 0.5;
+                    }
+                }
+            }
         }
 
         table {
