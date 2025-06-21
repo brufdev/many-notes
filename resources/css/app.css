@@ -97,6 +97,7 @@
             li {
                 margin-top: 0.3em !important;
                 margin-bottom: 0.3em !important;
+                padding-left: 0 !important;
             }
 
             li p {
@@ -114,6 +115,7 @@
                 padding-inline-start: 0 !important;
 
                 > label {
+                    margin-top: -0.1rem;
                     margin-right: 0.5rem;
                 }
 
