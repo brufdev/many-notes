@@ -1,16 +1,18 @@
-import { Editor, Extension, mergeAttributes } from '@tiptap/core';
+import { Editor, mergeAttributes } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import TaskItem from '@tiptap/extension-task-item';
 import TaskList from '@tiptap/extension-task-list';
 import Table from '@tiptap/extension-table';
-import TableCell from '@tiptap/extension-table-cell';
-import TableHeader from '@tiptap/extension-table-header';
 import TableRow from '@tiptap/extension-table-row';
-import { CodeBlockLowlight } from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import DOMPurify from 'dompurify';
+
+import { CustomCodeBlockLowlight } from './tiptap/extension-custom-code-block-low-light';
+import { CustomTableHeader } from './tiptap/extension-custom-table-header';
+import { CustomTableCell } from './tiptap/extension-custom-table-cell';
+import { CustomTableColumnAlign } from './tiptap/extension-custom-table-column-align';
 import { markedService } from './marked';
 import { turndownService } from './turndown';
 
@@ -49,84 +51,6 @@ window.setupEditor = function (options) {
         );
     }
 
-    const TableAlignmentCommands = Extension.create({
-        name: 'tableAlignmentCommands',
-
-        addCommands() {
-            return {
-                setTableColumnAlignment: (alignment) => ({ tr, state, dispatch }) => {
-                    const { selection } = state;
-                    const { $from } = selection;
-
-                    // Find the current cell and column index
-                    let columnIndex = -1;
-                    let cellDepth = -1;
-                    let rowDepth = -1;
-                    let tableDepth = -1;
-
-                    // Walk up to find table structure
-                    for (let depth = $from.depth; depth > 0; depth--) {
-                        const node = $from.node(depth);
-
-                        if (node.type.name === 'tableCell' || node.type.name === 'tableHeader') {
-                            cellDepth = depth;
-                        } else if (node.type.name === 'tableRow') {
-                            rowDepth = depth;
-                        } else if (node.type.name === 'table') {
-                            tableDepth = depth;
-                            break;
-                        }
-                    }
-
-                    if (tableDepth === -1 || rowDepth === -1 || cellDepth === -1) {
-                        return false;
-                    }
-
-                    // Get column index
-                    columnIndex = $from.index(rowDepth);
-
-                    // Get table node and position
-                    const tableNode = $from.node(tableDepth);
-                    const tableStart = $from.start(tableDepth);
-
-                    let modified = false;
-
-                    // Iterate through each row to update the column
-                    tableNode.descendants((node, pos) => {
-                        if (node.type.name === 'tableRow') {
-                            // Check if this row has enough columns
-                            if (columnIndex < node.childCount) {
-                                const targetCell = node.child(columnIndex);
-
-                                // Calculate the actual position of the target cell
-                                let cellPos = tableStart + pos + 1;
-
-                                // Add positions of previous cells in this row
-                                for (let i = 0; i < columnIndex; i++) {
-                                    cellPos += node.child(i).nodeSize;
-                                }
-
-                                // Update the cell with new alignment
-                                const newAttrs = { ...targetCell.attrs, align: alignment };
-                                tr.setNodeMarkup(cellPos, null, newAttrs);
-                                modified = true;
-                            }
-
-                            // Don't descend into nested structures
-                            return false;
-                        }
-                    })
-
-                    if (modified && dispatch) {
-                        dispatch(tr);
-                    }
-
-                    return modified;
-                }
-            }
-        }
-    });
-
     return {
         editor: new Editor({
             element: options.element,
@@ -139,48 +63,16 @@ window.setupEditor = function (options) {
                     },
                     codeBlock: false,
                 }),
-                CodeBlockLowlight.configure({
+                CustomCodeBlockLowlight.configure({
                     defaultLanguage: 'plaintext',
                     lowlight: createLowlight(common),
-                }).extend({
-                    addNodeView() {
-                        return ({ editor, node, getPos }) => {
-                            const pre = document.createElement('pre');
-
-                            if (navigator.clipboard) {
-                                pre.classList.add('relative');
-                                const button = document.createElement('button');
-                                button.classList.add('absolute', 'top-2', 'right-2', 'w-4', 'h-4', 'focus:outline-none');
-                                button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
-                                pre.appendChild(button);
-                                button.addEventListener('click', async (e) => {
-                                    e.preventDefault();
-                                    const pos = getPos();
-                                    const node = editor.view.nodeDOM(pos);
-                                    const code = node.querySelector('code');
-                                    editor.commands.focus();
-                                    editor.commands.setTextSelection(pos + 1);
-                                    await navigator.clipboard.writeText(code.textContent);
-                                });
-                            }
-
-                            const code = document.createElement('code');
-                            code.classList.add(`language-${node.attrs.language || 'text'}`);
-                            pre.appendChild(code);
-
-                            return {
-                                dom: pre,
-                                contentDOM: code,
-                            };
-                        }
-                    },
                 }),
                 Image.extend({
                     renderHTML({ HTMLAttributes }) {
                         const { src } = HTMLAttributes;
 
-                        if (src && !src.startsWith('http')) {
-                            HTMLAttributes.src = `/files/${options.vaultId}?path=` + src;
+                        if (src && !src.startsWith('http://') && !src.startsWith('https://')) {
+                            HTMLAttributes.src = `/files/${options.vaultId}?path=${src}`;
                         }
 
                         return ['img', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes)];
@@ -208,57 +100,17 @@ window.setupEditor = function (options) {
                 }),
                 Table,
                 TableRow,
-                TableHeader.configure({
+                CustomTableHeader.configure({
                     HTMLAttributes: {
                         class: 'border border-light-base-400 dark:border-base-700 p-2',
                     },
-                }).extend({
-                    addAttributes() {
-                        return {
-                            ...this.parent?.(),
-                            align: {
-                                default: null,
-                                parseHTML: element => element.getAttribute('align'),
-                                renderHTML: attributes => {
-                                    if (!attributes.align) {
-                                        return {}
-                                    }
-
-                                    return {
-                                        align: attributes.align,
-                                        style: `text-align: ${attributes.align}`,
-                                    }
-                                },
-                            },
-                        }
-                    },
                 }),
-                TableCell.configure({
+                CustomTableCell.configure({
                     HTMLAttributes: {
                         class: 'border border-light-base-400 dark:border-base-700 p-2',
                     },
-                }).extend({
-                    addAttributes() {
-                        return {
-                            ...this.parent?.(),
-                            align: {
-                                default: null,
-                                parseHTML: element => element.getAttribute('align'),
-                                renderHTML: attributes => {
-                                    if (!attributes.align) {
-                                        return {}
-                                    }
-
-                                    return {
-                                        align: attributes.align,
-                                        style: `text-align: ${attributes.align}`,
-                                    }
-                                },
-                            },
-                        }
-                    },
                 }),
-                TableAlignmentCommands,
+                CustomTableColumnAlign,
             ],
             content: content,
             editable: options.editable,
@@ -417,5 +269,5 @@ window.setupEditor = function (options) {
         setTableColumnAlignmentRight() {
             this.getEditor().chain().focus().setTableColumnAlignment('right').run();
         },
-    }
+    };
 }
