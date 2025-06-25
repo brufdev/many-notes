@@ -15,13 +15,10 @@ It uses a database to power its features, but your files are also saved in the f
 
 Vaults are simply storage containers for your files, and Many Notes lets you choose to keep all your files in one vault or organize them into separate vaults.
 
-## Screenshots
+## Preview
 
 ![Screenshot](art/theme-light.png?raw=true)
 *Light theme*
-
-![Screenshot](art/theme-dark.png?raw=true)
-*Dark theme*
 
 ## Features
 
