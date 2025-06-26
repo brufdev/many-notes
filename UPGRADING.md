@@ -1,6 +1,6 @@
 # Upgrade guide
 
-This guide will walk you through the necessary changes to upgrade from a previous version of Many Notes. If you need further help, consult the [FAQs](docs/support/faqs.md), or if your question isn't answered there, please open an issue on GitHub.
+This guide will walk you through the necessary changes to upgrade from a previous version of Many Notes. Be sure to back up your data, especially before updates. If you need further help, consult the [FAQs](docs/support/faqs.md), or if your question isn't answered there, please open an issue on GitHub.
 
 ## Upgrading from any version below 0.9
 

@@ -24,7 +24,7 @@ Vaults are simply storage containers for your files, and Many Notes lets you cho
 
 - **Multiple users**: Protect your files behind authentication
 - **Multiple vaults per user**: Choose how to organize your files
-- **OAuth support**: Authenticate using one of the supported providers
+- **OAuth support**: Authenticate using one of the many supported providers
 - **Collaboration**: Invite other users to access your vaults
 - **Broadcasting**: Real-time, live-updating user interfaces
 - **File search**: Experience a fast and typo-tolerant search
@@ -35,7 +35,7 @@ Vaults are simply storage containers for your files, and Many Notes lets you cho
 - **Links/backlinks/tags**: Improve note organization by connecting related notes
 - **Import/export vaults**: Easily back up and restore your vaults
 - **Starter vault**: Helps you get started with Many Notes
-- **Light/dark theme**: Automatically selected based on your OS setting
+- **Light/dark theme**: Automatically selected based on your system settings
 - **Progressive Web App**: Provides a native app-like experience
 
 ## Installation
