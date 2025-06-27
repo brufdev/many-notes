@@ -16,7 +16,7 @@
                     @click.outside="modalOpen = false"
                 >
                     <div class="flex justify-between p-6 pb-0 rounded-t-lg bg-light-base-200 dark:bg-base-950 text-light-base-950 dark:text-base-50">
-                        <h3 class="text-lg">{{ $title }}</h3>
+                        <h3 class="text-lg" x-ref="modalTitle">{{ $title }}</h3>
                         <x-modal.close class="flex items-center">
                             <button type="button">
                                 <span class="sr-only">{{ __('Close') }}</span>

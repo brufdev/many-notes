@@ -1,5 +1,5 @@
 <x-modal wire:model="show">
-    <x-modal.panel title="{{ __('Insert file') }}" top>
+    <x-modal.panel title="{{ $title }}" top>
         <div
             x-data="searchFile"
             @toggle-mde-search-link-modal.window="openModal('all', $event.detail.url)"
@@ -23,7 +23,7 @@
                         type="text"
                         placeholder="{{ __('Search') }}"
                         autofocus
-                        wire:model.live.debounce.500ms="search"
+                        wire:model.live.debounce.500ms="query"
                         @keydown.up.prevent="selectPreviousFile()"
                         @keydown.down.prevent="selectNextFile()"
                         @keydown.enter.prevent="insertFile()"
@@ -82,7 +82,7 @@
                                     </li>
                                 @endforeach
                             </ul>
-                        @elseif ($search !== '')
+                        @elseif ($query !== '')
                             <p>{{ __('No results found') }}</p>
                         @endif
                     </div>
@@ -120,19 +120,24 @@
     <script>
         Alpine.data('searchFile', () => ({
             show: $wire.entangle('show'),
+            title: $wire.entangle('title'),
             files: $wire.entangle('files'),
             selectedFile: $wire.entangle('selectedFile'),
-            searchType: $wire.entangle('searchType'),
+            queryType: $wire.entangle('queryType'),
             externalUrl: '',
             errors: {},
 
-            openModal(searchType, url) {
-                this.searchType = searchType === 'image' ? 'image' : 'all';
-                this.show = !this.show;
+            openModal(type, url) {
+                if (type === 'image') {
+                    this.queryType = 'image';
+                    this.title = '{{ __('Insert image') }}';
+                } else {
+                    this.queryType = 'all';
+                    this.title = '{{ __('Insert link') }}';
+                }
 
                 if (url.startsWith('http://') || url.startsWith('https://')) {
-                    //this.internalValue = '';
-                    $wire.search = '';
+                    $wire.query = '';
                     this.externalUrl = url;
 
                     $dispatch('mde-insert-link-set-tab', { tab: 'external' });
@@ -144,12 +149,15 @@
                         filename = filename.substring(0, lastDotIndex);
                     }
 
-                    //this.internalValue = url.substring(0, url.lastIndexOf('.')) || url;
-                    $wire.search = filename.replaceAll('%20', ' ');
+                    $wire.query = filename.replaceAll('%20', ' ');
                     this.externalUrl = '';
 
                     $dispatch('mde-insert-link-set-tab', { tab: 'internal' });
                 }
+
+                $refs.modalTitle.innerText = this.title;
+                this.show = true;
+                $wire.search();
             },
 
             selectPreviousFile() {
@@ -224,8 +232,8 @@
             },
 
             insertFile() {
-                if ($wire.search === '') {
-                    const eventName = this.searchType === 'image' ? 'mde-image' : 'mde-link';
+                if ($wire.query === '') {
+                    const eventName = this.queryType === 'image' ? 'mde-image' : 'mde-link';
 
                     $dispatch(eventName, { path: '' });
                     $dispatch('close-modal');
@@ -241,8 +249,7 @@
             },
 
             insertFileId(id) {
-                const eventName = this.searchType === 'image' ? 'mde-image' : 'mde-link';
-                //const path = '/' + this.files[this.selectedFile]['full_path_encoded'] + '.' + this.files[this.selectedFile]['extension'];
+                const eventName = this.queryType === 'image' ? 'mde-image' : 'mde-link';
                 const path = `/${this.files[this.selectedFile]['full_path_encoded']}.${this.files[this.selectedFile]['extension']}`;
 
                 $dispatch(eventName, { path: path });
@@ -250,7 +257,7 @@
             },
 
             insertUrl(event) {
-                const eventName = this.searchType === 'image' ? 'mde-image' : 'mde-link';
+                const eventName = this.queryType === 'image' ? 'mde-image' : 'mde-link';
                 const url = event.target.getElementsByTagName('input')[0].value;
 
                 this.errors.externalUrl = !this.validateUrl(url);

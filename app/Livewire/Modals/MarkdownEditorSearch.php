@@ -19,14 +19,16 @@ final class MarkdownEditorSearch extends Component
 
     public Vault $vault;
 
+    public string $title = '';
+
     /** @var list<array<string, mixed>> */
     public array $files;
 
     public int $selectedFile = 0;
 
-    public string $search = '';
+    public string $query = '';
 
-    public string $searchType = 'all';
+    public string $queryType = 'all';
 
     public function mount(Vault $vault): void
     {
@@ -37,8 +39,8 @@ final class MarkdownEditorSearch extends Component
     #[On('open-modal')]
     public function open(string $type = 'all'): void
     {
-        $this->searchType = $type;
-        $this->reset('search');
+        $this->queryType = $type;
+        $this->reset('query');
         $this->openModal();
     }
 
@@ -47,7 +49,7 @@ final class MarkdownEditorSearch extends Component
         $this->files = [];
         $this->selectedFile = 0;
 
-        if ($this->search === '') {
+        if ($this->query === '') {
             return;
         }
 
@@ -55,11 +57,11 @@ final class MarkdownEditorSearch extends Component
             ->select('id', 'name', 'extension')
             ->where('vault_id', $this->vault->id)
             ->where('is_file', true)
-            ->when($this->searchType === 'image', function (Builder $query): void {
+            ->when($this->queryType === 'image', function (Builder $query): void {
                 $query->whereIn('extension', Image::extensions());
             })
-            ->when(mb_strlen($this->search), function (Builder $query): void {
-                $query->where('name', 'like', '%' . $this->search . '%');
+            ->when(mb_strlen($this->query), function (Builder $query): void {
+                $query->where('name', 'like', '%' . $this->query . '%');
             })
             ->orderByDesc('updated_at')
             ->limit(5)

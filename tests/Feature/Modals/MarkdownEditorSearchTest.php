@@ -45,6 +45,6 @@ it('searches for an image file', function (): void {
     Livewire::actingAs($user)
         ->test(MarkdownEditorSearch::class, ['vault' => $vault])
         ->call('open', 'image')
-        ->set('search', 'first')
+        ->set('query', 'first')
         ->assertCount('files', 1);
 });
