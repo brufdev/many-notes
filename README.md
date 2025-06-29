@@ -82,7 +82,7 @@ docker compose up -d
 
 ## Customization
 
-To customize Many Notes, add environment variables to the `compose.yaml` file if using the Docker installation. If you chose the non-Docker installation, you should add the environment variables to the `.env` file instead.
+You can customize Many Notes by adding environment variables to the `compose.yaml` file.
 
 ### Custom URL (default: http://localhost)
 
