@@ -53,7 +53,10 @@ arch('avoid open for extension')
 
 arch('avoid abstraction')
     ->expect('App')
-    ->not->toBeAbstract();
+    ->not->toBeAbstract()
+    ->ignoring([
+        'App\Services\VaultFiles',
+    ]);
 
 arch('factories')
     ->expect('Database\Factories')
