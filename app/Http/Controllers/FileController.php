@@ -9,6 +9,7 @@ use App\Actions\GetVaultNodeFromPath;
 use App\Actions\ResolveTwoPaths;
 use App\Models\Vault;
 use App\Models\VaultNode;
+use App\Services\VaultFiles\Types\Note;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -43,8 +44,16 @@ final readonly class FileController
             $path = new ResolveTwoPaths()->handle($currentPath, $path);
         }
 
-        /** @var VaultNode $node */
         $node = new GetVaultNodeFromPath()->handle($vault->id, $path);
+
+        if (!$node instanceof VaultNode) {
+            abort(404);
+        }
+
+        if (in_array($node->extension, Note::extensions())) {
+            abort(403);
+        }
+
         $relativePath = new GetPathFromVaultNode()->handle($node);
         $absolutePath = Storage::disk('local')->path($relativePath);
 
