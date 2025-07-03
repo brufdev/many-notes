@@ -7,6 +7,7 @@ namespace App\Actions;
 use App\Models\User;
 use App\Services\VaultFile;
 use App\Services\VaultFiles\Types\Note;
+use finfo;
 use ZipArchive;
 
 final readonly class ProcessImportedVault
@@ -20,6 +21,7 @@ final readonly class ProcessImportedVault
         ]);
 
         // Create vault nodes with valid zip files and folders
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
         $zip = new ZipArchive();
         $zip->open($filePath);
 
@@ -50,16 +52,16 @@ final readonly class ProcessImportedVault
                 $entryDirName = $pathInfo['dirname'];
                 $attributes['extension'] = $pathInfo['extension'] ?? '';
                 $attributes['parent_id'] = $nodeIds[$entryDirName];
+                $attributes['content'] = (string) $zip->getFromIndex($i);
+                $fileMimeType = $finfo->buffer($attributes['content']) ?: '';
 
-                if (!in_array($attributes['extension'], VaultFile::extensions())) {
+                if (!VaultFile::validate($attributes['extension'], $fileMimeType)) {
                     continue;
                 }
 
                 if (in_array($attributes['extension'], Note::extensions())) {
                     $attributes['extension'] = 'md';
                 }
-
-                $attributes['content'] = (string) $zip->getFromIndex($i);
             }
 
             $node = new CreateVaultNode()->handle($vault, $attributes);

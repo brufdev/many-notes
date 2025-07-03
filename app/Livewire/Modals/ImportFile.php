@@ -26,23 +26,10 @@ final class ImportFile extends Component
 
     public VaultNode $parent;
 
-    #[Validate]
+    #[Validate('required|file')]
     public ?TemporaryUploadedFile $file = null;
 
     public string $fileMimes;
-
-    /**
-     * @return array<string, list<string>>
-     */
-    public function rules(): array
-    {
-        return [
-            'file' => [
-                'required',
-                'mimes:' . implode(',', VaultFile::extensions()),
-            ],
-        ];
-    }
 
     public function mount(Vault $vault): void
     {
@@ -74,8 +61,18 @@ final class ImportFile extends Component
 
         /** @var TemporaryUploadedFile $file */
         $file = $this->file;
+        $fileExtension = $file->getClientOriginalExtension();
+        $fileMimeType = $file->getMimeType();
         $fileName = $file->getClientOriginalName();
         $filePath = $file->getRealPath();
+
+        if (!VaultFile::validate($fileExtension, $fileMimeType)) {
+            $this->closeModal();
+
+            $this->dispatch('toast', message: __('File not supported'), type: 'error');
+
+            return;
+        }
 
         new ProcessImportedFile()->handle($this->vault, $this->parent, $fileName, $filePath);
         $this->closeModal();

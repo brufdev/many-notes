@@ -147,7 +147,7 @@ it('does not import a file with a non-allowed extension', function (): void {
         ->assertSet('show', false)
         ->call('open')
         ->set('file', $file)
-        ->assertHasErrors('file');
+        ->assertDispatched('toast', type: 'error');
 });
 
 it('creates links when importing a file', function (): void {
