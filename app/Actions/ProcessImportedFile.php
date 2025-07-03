@@ -6,7 +6,7 @@ namespace App\Actions;
 
 use App\Models\Vault;
 use App\Models\VaultNode;
-use App\Services\VaultFiles\Note;
+use App\Services\VaultFiles\Types\Note;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Storage;
 

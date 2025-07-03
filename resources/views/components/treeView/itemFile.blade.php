@@ -16,7 +16,7 @@
                 {{ $node->name }}
             </span>
 
-            @if (!in_array($node->extension, App\Services\VaultFiles\Note::extensions())) 
+            @if (!in_array($node->extension, App\Services\VaultFiles\Types\Note::extensions())) 
                 <x-treeView.badge>{{ $node->extension }}</x-treeView.badge>
             @endif
         </a>

@@ -6,7 +6,7 @@ namespace App\Actions;
 
 use App\Models\User;
 use App\Services\VaultFile;
-use App\Services\VaultFiles\Note;
+use App\Services\VaultFiles\Types\Note;
 use ZipArchive;
 
 final readonly class ProcessImportedVault

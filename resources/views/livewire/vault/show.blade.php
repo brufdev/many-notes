@@ -69,7 +69,7 @@
                 <div class="flex flex-col h-full w-full max-w-[48rem] mx-auto px-4 overflow-y-auto">
                     <div class="flex flex-col w-full h-full" x-show="$wire.selectedFileId">
                         <x-vault.fileDetails>
-                            @if (in_array($nodeForm->extension, App\Services\VaultFiles\Note::extensions()))
+                            @if (in_array($nodeForm->extension, App\Services\VaultFiles\Types\Note::extensions()))
                                 <x-slot:header>
                                     <x-tiptapEditor.toolbar />
                                 </x-slot:header>
@@ -80,20 +80,20 @@
                                     wire:model.live="nodeForm.content"
                                 ></textarea>
                                 <div class="h-full" spellcheck="false" x-ref="noteEditor" wire:ignore></div>
-                            @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Image::extensions()))
+                            @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Types\Image::extensions()))
                                 <img src="{{ $selectedFileUrl }}" alt="" />
-                            @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Pdf::extensions()))
+                            @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Types\Pdf::extensions()))
                                 <object
                                     class="w-full h-full"
                                     type="application/pdf"
                                     data="{{ $selectedFileUrl }}"
                                 ></object>
-                            @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Video::extensions()))
+                            @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Types\Video::extensions()))
                                 <video class="w-full" controls>
                                     <source src="{{ $selectedFileUrl }}" />
                                     {{ __('Your browser does not support the video tag') }}
                                 </video>
-                            @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Audio::extensions()))
+                            @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Types\Audio::extensions()))
                                 <audio class="w-full" controls>
                                     <source src="{{ $selectedFileUrl }}">
                                     {{ __('Your browser does not support the audio tag') }}

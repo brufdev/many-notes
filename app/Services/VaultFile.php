@@ -4,27 +4,53 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Services\VaultFiles\Audio;
-use App\Services\VaultFiles\Image;
-use App\Services\VaultFiles\Note;
-use App\Services\VaultFiles\Pdf;
-use App\Services\VaultFiles\Video;
+use App\Services\VaultFiles\Contracts\VaultFileType;
+use App\Services\VaultFiles\Types\Audio;
+use App\Services\VaultFiles\Types\Image;
+use App\Services\VaultFiles\Types\Note;
+use App\Services\VaultFiles\Types\Pdf;
+use App\Services\VaultFiles\Types\Video;
 
 final class VaultFile
 {
+    /** @var list<class-string<VaultFileType>> */
+    private static array $fileTypes = [
+        Audio::class,
+        Image::class,
+        Note::class,
+        Pdf::class,
+        Video::class,
+    ];
+
     /**
-     * Get the extensions for the vault files.
+     * Get the extensions for the supported vault files, with or without the dot.
      *
      * @return list<string>
      */
     public static function extensions(bool $withDots = false): array
     {
-        return [
-            ...Audio::extensions($withDots),
-            ...Image::extensions($withDots),
-            ...Note::extensions($withDots),
-            ...Pdf::extensions($withDots),
-            ...Video::extensions($withDots),
-        ];
+        $all = [];
+
+        foreach (self::$fileTypes as $type) {
+            foreach ($type::extensions($withDots) as $ext) {
+                $all[] = $ext;
+            }
+        }
+
+        return $all;
+    }
+
+    /**
+     * Validate if the extension and mimetype correspond to a supported vault file.
+     */
+    public static function validate(string $extension, string $mimeType): bool
+    {
+        foreach (self::$fileTypes as $type) {
+            if ($type::validate($extension, $mimeType)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

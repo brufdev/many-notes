@@ -7,7 +7,7 @@ namespace App\Livewire\Modals;
 use App\Events\VaultNodeUpdatedEvent;
 use App\Models\Vault;
 use App\Models\VaultNode;
-use App\Services\VaultFiles\Note;
+use App\Services\VaultFiles\Types\Note;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\On;

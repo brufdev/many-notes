@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Models\VaultNode;
-use App\Services\VaultFiles\Note;
+use App\Services\VaultFiles\Types\Note;
 use Illuminate\Support\Facades\Storage;
 
 final readonly class UpdateVaultNode
