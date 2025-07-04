@@ -7,7 +7,6 @@ import TaskList from '@tiptap/extension-task-list';
 import Table from '@tiptap/extension-table';
 import TableRow from '@tiptap/extension-table-row';
 import { common, createLowlight } from 'lowlight';
-import DOMPurify from 'dompurify';
 
 import { CustomCodeBlockLowlight } from './tiptap/extension-custom-code-block-low-light';
 import { CustomTableHeader } from './tiptap/extension-custom-table-header';
@@ -46,9 +45,7 @@ window.setupEditor = function (options) {
     }
 
     if (options.content) {
-        content = DOMPurify.sanitize(
-            markedService.parse(options.content),
-        );
+        content = markedService.parse(options.content);
     }
 
     return {
