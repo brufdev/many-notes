@@ -67,7 +67,7 @@ final class VaultNodeForm extends Form
         $this->is_file = (bool) $node->is_file;
         $this->name = $node->name;
         $this->extension = $node->extension;
-        $this->content = $node->content;
+        $this->content = htmlspecialchars($node->content ?? '', ENT_QUOTES, 'UTF-8');
     }
 
     public function create(): VaultNode
