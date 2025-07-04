@@ -58,4 +58,10 @@ renderer.listitem = function(item) {
     return `<li${itemAttr}>${itemBody}</li>\n`;
 };
 
+renderer.code = function({ text, lang }) {
+    const langClass = lang ? ` class="language-${lang}"` : '';
+
+    return `<pre><code${langClass}>${text}</code></pre>`;
+};
+
 export const markedService = marked.setOptions({ renderer: renderer });
