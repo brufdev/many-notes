@@ -40,7 +40,7 @@
     <x-layouts.appMain>
         <div class="relative flex w-full" x-cloak>
             <div
-                class="fixed inset-0 z-40 opacity-50 bg-light-base-200 dark:bg-base-950"
+                class="fixed inset-0 z-40 opacity-50 bg-light-base-50 dark:bg-base-900"
                 wire:loading wire:target.except="nodeForm.name, nodeForm.content"
             >
                 <div class="flex items-center justify-center h-full">
@@ -48,23 +48,22 @@
                 </div>
             </div>
             <div
-                class="fixed inset-0 z-20 opacity-50 bg-light-base-200 dark:bg-base-950"
+                class="fixed inset-0 z-20 opacity-50 bg-light-base-50 dark:bg-base-900"
                 x-show="(isLeftPanelOpen || isRightPanelOpen) && isSmallDevice"
                 @click="closePanels"
                 x-transition:enter="ease-out duration-300"
                 x-transition:leave="ease-in duration-200"
             ></div>
             <div
-                class="absolute top-0 left-0 z-30 flex flex-col h-full overflow-hidden overflow-y-auto transition-all w-60 bg-light-base-50 dark:bg-base-900"
+                class="absolute top-0 left-0 z-30 flex flex-col h-full overflow-hidden overflow-y-auto transition-all w-60 bg-light-base-200 dark:bg-base-950"
                 :class="{ 'translate-x-0': isLeftPanelOpen, '-translate-x-full hidden': !isLeftPanelOpen }"
             >
                 <livewire:vault.tree-view lazy="on-load" :vault="$this->vault" />
             </div>
 
             <div
-                class="absolute top-0 bottom-0 right-0 flex flex-col w-full transition-all text-start bg-light-base-200 dark:bg-base-950"
+                class="absolute top-0 bottom-0 right-0 flex flex-col w-full transition-all text-start bg-light-base-50 dark:bg-base-900"
                 :class="{ 'md:pl-60': isLeftPanelOpen, 'md:pr-60': isRightPanelOpen }"
-                id="nodeContainer"
             >
                 <div class="flex flex-col h-full w-full max-w-[48rem] mx-auto px-4 overflow-y-auto">
                     <div class="flex flex-col w-full h-full" x-show="$wire.selectedFileId">
@@ -115,7 +114,7 @@
             </div>
 
             <div
-                class="absolute top-0 right-0 z-30 flex flex-col h-full overflow-hidden overflow-y-auto transition-all w-60 bg-light-base-50 dark:bg-base-900"
+                class="absolute top-0 right-0 z-30 flex flex-col h-full overflow-hidden overflow-y-auto transition-all w-60 bg-light-base-200 dark:bg-base-950"
                 :class="{ 'translate-x-0': isRightPanelOpen, '-translate-x-full hidden': !isRightPanelOpen }"
             >
                 <div class="flex flex-col gap-4 p-4">

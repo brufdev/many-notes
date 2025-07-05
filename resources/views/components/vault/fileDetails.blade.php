@@ -1,7 +1,7 @@
 @props(['header' => ''])
 
 <div class="flex flex-col flex-grow">
-    <div class="sticky top-0 flex flex-col gap-3 py-4 z-15 bg-light-base-200 dark:bg-base-950">
+    <div class="sticky top-0 flex flex-col gap-3 py-4 z-15 bg-light-base-50 dark:bg-base-900">
         <div class="z-[5]">
             <div class="flex justify-between">
                 <input
