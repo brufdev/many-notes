@@ -198,17 +198,17 @@
                 </x-tiptapEditor.items>
             </x-tiptapEditor.itemDropdown>
         </ul>
-        <div x-show="!isEditMode" class="absolute inset-0 opacity-25 bg-light-base-200 dark:bg-base-950"></div>
+        <div x-show="!isEditMode" class="absolute inset-0 opacity-50 bg-light-base-200 dark:bg-base-950"></div>
     </div>
     <ul class="flex gap-1">
         <li>
             <x-tiptapEditor.button
                 x-bind:class="!isEditMode ? 'bg-light-base-400 dark:bg-base-700' : ''"
-                title="{{ __('Preview') }}"
+                title="{{ __('Read mode') }}"
                 @click="toggleEditMode"
             >
                 <x-icons.eye class="w-4.5 h-4.5" />
-                <span class="sr-only">{{ __('Preview') }}</span>
+                <span class="sr-only">{{ __('Read mode') }}</span>
             </x-tiptapEditor.button>
         </li>
     </ul>
