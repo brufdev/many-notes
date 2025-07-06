@@ -17,7 +17,19 @@ import { turndownService } from './turndown';
 
 window.setupEditor = function (options) {
     let content = '';
-    let isSavingAllowed = false;
+    let isSavingEnabled = false;
+
+    function enableSaving() {
+        isSavingEnabled = true;
+    };
+
+    function disableSaving() {
+        isSavingEnabled = false;
+    };
+
+    function isSavingActive() {
+        return isSavingEnabled;
+    };
 
     const prepareTiptapHTML = function(html) {
         return html
@@ -42,7 +54,7 @@ window.setupEditor = function (options) {
                     return `<li${liAttributes}">${input}${content}</li>`;
                 }
             );
-    }
+    };
 
     if (options.content) {
         content = markedService.parse(options.content);
@@ -124,10 +136,10 @@ window.setupEditor = function (options) {
                     editor.commands.deleteNode('paragraph');
                 }
 
-                isSavingAllowed = true;
+                enableSaving();
             },
             onUpdate({ editor }) {
-                if (!isSavingAllowed) {
+                if (!isSavingActive()) {
                     return;
                 }
 
@@ -150,7 +162,9 @@ window.setupEditor = function (options) {
         },
 
         setEditable(editable) {
+            disableSaving();
             this.getEditor().setEditable(editable);
+            enableSaving();
         },
 
         undo() {
@@ -267,4 +281,4 @@ window.setupEditor = function (options) {
             this.getEditor().chain().focus().setTableColumnAlignment('right').run();
         },
     };
-}
+};
