@@ -21,9 +21,7 @@ it('edits the profile', function (): void {
 
 it('edits the password', function (): void {
     $password = Hash::make('password');
-    $user = User::create([
-        'name' => fake()->name(),
-        'email' => fake()->safeEmail(),
+    $user = User::factory()->create([
         'password' => $password,
     ]);
     expect($user->password)->toBe($password);
@@ -40,9 +38,7 @@ it('edits the password', function (): void {
 
 it('finds errors in the password', function (): void {
     $password = Hash::make('password');
-    $user = User::create([
-        'name' => fake()->name(),
-        'email' => fake()->safeEmail(),
+    $user = User::factory()->create([
         'password' => $password,
     ]);
     expect($user->password)->toBe($password);
