@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -32,6 +33,7 @@ final class UserFactory extends Factory
             'password' => self::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
             'last_visited_url' => null,
+            'role' => UserRole::USER,
         ];
     }
 
@@ -42,6 +44,26 @@ final class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes): array => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the model is an admin.
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'role' => UserRole::ADMIN,
+        ]);
+    }
+
+    /**
+     * Indicate that the model is a super admin.
+     */
+    public function superAdmin(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'role' => UserRole::SUPER_ADMIN,
         ]);
     }
 }
