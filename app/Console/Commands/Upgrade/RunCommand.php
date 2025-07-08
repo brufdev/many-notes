@@ -33,6 +33,7 @@ final class RunCommand extends Command
             'upgrade:sync-database-notes',
             'upgrade:create-startup-vault',
             'upgrade:reimport-data-into-typesense',
+            'upgrade:set-super-admin',
         ];
 
         $this->executeCommands($commands);
