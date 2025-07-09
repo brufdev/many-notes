@@ -53,8 +53,10 @@ final class User extends Authenticatable
      */
     public function isAdmin(): bool
     {
-        return $this->role === UserRole::ADMIN->value
-            || $this->role === UserRole::SUPER_ADMIN->value;
+        /** @var UserRole $role */
+        $role = $this->role;
+
+        return $role === UserRole::ADMIN || $role === UserRole::SUPER_ADMIN;
     }
 
     /**
