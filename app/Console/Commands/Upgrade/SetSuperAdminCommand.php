@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\Upgrade;
 
-use App\Actions\ProcessVaultLinks;
 use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Console\Command;
@@ -29,7 +28,7 @@ final class SetSuperAdminCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(ProcessVaultLinks $processVaultLinks): int
+    public function handle(): int
     {
         try {
             $oldestUser = User::oldest('created_at')->first();
