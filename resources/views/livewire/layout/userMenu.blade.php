@@ -37,7 +37,7 @@
             <x-modal>
                 <x-menu.close>
                     <x-menu.item @click="modalOpen = true">
-                        <x-icons.lockClosed class="w-4 h-4" />
+                        <x-icons.lock class="w-4 h-4" />
                         {{ __('Password') }}
                     </x-menu.item>
                 </x-menu.close>
@@ -72,7 +72,7 @@
             <x-modal>
                 <x-menu.close>
                     <x-menu.item @click="modalOpen = true">
-                        <x-icons.questionMarkCircle class="w-4 h-4" />
+                        <x-icons.messageCircleQuestionMark class="w-4 h-4" />
                         {{ __('Help') }}
                     </x-menu.item>
                 </x-menu.close>
@@ -203,7 +203,7 @@
             </x-modal>
 
             <x-menu.item wire:click="logout">
-                <x-icons.arrowRightStartOnRectangle class="w-4 h-4" />
+                <x-icons.arrowRightTray class="w-4 h-4" />
                 {{ __('Logout') }}
             </x-menu.item>
         </x-menu.items>
