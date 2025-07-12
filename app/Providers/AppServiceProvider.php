@@ -6,9 +6,12 @@ namespace App\Providers;
 
 use App\Models\Setting;
 use Carbon\CarbonImmutable;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Override;
@@ -39,6 +42,7 @@ final class AppServiceProvider extends ServiceProvider
         $this->configureVite();
         $this->configureAssetURL();
         $this->configureSocialite();
+        $this->checkForUpdates();
     }
 
     /**
@@ -106,6 +110,40 @@ final class AppServiceProvider extends ServiceProvider
         });
         Event::listen(function (SocialiteWasCalled $event): void {
             $event->extendSocialite('zitadel', ZitadelProvider::class);
+        });
+    }
+
+    /**
+     * Check for updates.
+     */
+    private function checkForUpdates(): void
+    {
+        if ($this->app->runningInConsole()) {
+            return;
+        }
+
+        $autoUpdateCheck = $this->app->make(Setting::class)->auto_update_check;
+        $cachedLatestVersion = Cache::get('app:latest_version');
+
+        if (!$autoUpdateCheck || $cachedLatestVersion !== null) {
+            return;
+        }
+
+        defer(function (): void {
+            $githubApiUrl = 'https://api.github.com/repos/brufdev/many-notes/releases/latest';
+            $defaultVersion = '0.0.0';
+
+            try {
+                $response = Http::retry(3, 100)->get($githubApiUrl);
+                /** @var string $latestVersion */
+                $latestVersion = $response->successful()
+                    ? $response->json('tag_name', $defaultVersion)
+                    : $defaultVersion;
+            } catch (Exception) {
+                $latestVersion = $defaultVersion;
+            }
+
+            Cache::put('app:latest_version', mb_ltrim($latestVersion, 'v'), now()->addHours(24));
         });
     }
 }

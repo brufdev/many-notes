@@ -9,6 +9,7 @@ use App\Livewire\Forms\EditProfileForm;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Session;
 use Livewire\Component;
 
@@ -20,15 +21,25 @@ final class UserMenu extends Component
 
     public string $appVersion;
 
+    public string $latestVersion;
+
     public string $githubUrl;
+
+    public bool $updateAvailable;
 
     public function mount(): void
     {
         $this->profileForm->setUser();
-        /** @var array{root: array{pretty_version: string}} $composerInfo */
-        $composerInfo = require base_path('vendor/composer/installed.php');
-        $this->appVersion = $composerInfo['root']['pretty_version'];
         $this->githubUrl = 'https://github.com/brufdev/many-notes';
+
+        /** @var string $appVersion */
+        $appVersion = config('app.version');
+        /** @var string $latestVersion */
+        $latestVersion = Cache::get('app:latest_version', '0.0.0');
+
+        $this->appVersion = $appVersion;
+        $this->latestVersion = $latestVersion;
+        $this->updateAvailable = version_compare($this->appVersion, $this->latestVersion, '<');
     }
 
     public function editProfile(): void

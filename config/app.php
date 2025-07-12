@@ -125,4 +125,15 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Application Version
+    |--------------------------------------------------------------------------
+    |
+    | This value is the version of your application.
+    |
+    */
+
+    'version' => json_decode(file_get_contents(base_path('composer.json')), true)['version'] ?? '0.0.0',
+
 ];

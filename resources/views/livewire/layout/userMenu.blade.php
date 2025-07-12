@@ -2,6 +2,10 @@
     <x-menu anchorElement="$refs.header" anchorOffset="-15">
         <x-menu.button>
             <x-icons.user class="w-5 h-5" />
+
+            @if ($updateAvailable)
+                <span class="absolute top-0 right-0.5 block h-2 w-2 rounded-full bg-success-600"></span>
+            @endif
         </x-menu.button>
 
         <x-menu.items>
@@ -183,8 +187,16 @@
             <x-modal>
                 <x-menu.close>
                     <x-menu.item @click="modalOpen = true">
+                        @if ($updateAvailable)
+                            <span class="flex items-center gap-2 text-success-600">
+                        @endif
+
                         <x-icons.informationCircle class="w-4 h-4" />
                         {{ __('About') }}
+
+                        @if ($updateAvailable)
+                            </span>
+                        @endif
                     </x-menu.item>
                 </x-menu.close>
 
@@ -198,6 +210,13 @@
                             <h2>{{ __('Version') }}</h2>
                             <p>{{ $appVersion }}</p>
                         </div>
+
+                        @if ($updateAvailable)
+                            <div>
+                                <h2>{{ __('Update available') }}</h2>
+                                <p class="text-success-600">{{ $latestVersion }}</p>
+                            </div>
+                        @endif
 
                         <div>
                             <h2>{{ __('GitHub') }}</h2>
