@@ -69,6 +69,19 @@
 
             <x-menu.itemDivider></x-menu.itemDivider>
 
+            @if (auth()->user()->isAdmin())
+                <x-menu.close>
+                    <x-menu.item @click="$wire.dispatchTo('modals.settings', 'open-modal')">
+                        <x-icons.cog6Tooth class="w-4 h-4" />
+                        {{ __('Settings') }}
+                    </x-menu.item>
+
+                    <livewire:modals.settings />
+                </x-menu.close>
+
+                <x-menu.itemDivider></x-menu.itemDivider>
+            @endif
+
             <x-modal>
                 <x-menu.close>
                     <x-menu.item @click="modalOpen = true">
