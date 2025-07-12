@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Models\Setting;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Date;
@@ -25,7 +26,7 @@ final class AppServiceProvider extends ServiceProvider
     #[Override]
     public function register(): void
     {
-        //
+        $this->bindSettings();
     }
 
     /**
@@ -38,6 +39,22 @@ final class AppServiceProvider extends ServiceProvider
         $this->configureVite();
         $this->configureAssetURL();
         $this->configureSocialite();
+    }
+
+    /**
+     * Bind the application's settings singleton.
+     */
+    private function bindSettings(): void
+    {
+        $this->app->singleton(Setting::class, function () {
+            $setting = Setting::firstOrCreate();
+
+            if ($setting->wasRecentlyCreated) {
+                $setting->refresh();
+            }
+
+            return $setting;
+        });
     }
 
     /**
