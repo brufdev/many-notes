@@ -20,6 +20,7 @@ use SocialiteProviders\Authentik\Provider as AuthentikProvider;
 use SocialiteProviders\Keycloak\Provider as KeycloakProvider;
 use SocialiteProviders\Manager\SocialiteWasCalled;
 use SocialiteProviders\Zitadel\Provider as ZitadelProvider;
+use Throwable;
 
 final class AppServiceProvider extends ServiceProvider
 {
@@ -51,13 +52,17 @@ final class AppServiceProvider extends ServiceProvider
     private function bindSettings(): void
     {
         $this->app->singleton(Setting::class, function () {
-            $setting = Setting::firstOrCreate();
+            try {
+                $setting = Setting::firstOrCreate();
 
-            if ($setting->wasRecentlyCreated) {
-                $setting->refresh();
+                if ($setting->wasRecentlyCreated) {
+                    $setting->refresh();
+                }
+
+                return $setting;
+            } catch (Throwable) {
+                return new Setting();
             }
-
-            return $setting;
         });
     }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Auth;
 
 use App\Actions\CreateUser;
+use App\Models\Setting;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Auth;
@@ -36,7 +37,7 @@ final class OAuthLoginCallback extends Component
         $user = User::query()->where('email', $providerUser->getEmail())->first();
 
         if (!$user) {
-            if (!config('settings.registration.enabled')) {
+            if (!app(Setting::class)->registration) {
                 session()->flash('error', __('Registration is currently disabled.'));
                 $this->redirect('/login');
 

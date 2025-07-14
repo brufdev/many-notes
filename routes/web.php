@@ -13,6 +13,7 @@ use App\Livewire\Auth\ResetPassword;
 use App\Livewire\Dashboard\Index as DashboardIndex;
 use App\Livewire\Vault\Index as VaultIndex;
 use App\Livewire\Vault\Show as VaultShow;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function (): void {
@@ -29,7 +30,7 @@ Route::middleware('auth')->group(function (): void {
 Route::middleware(['guest', 'throttle'])->group(function (): void {
     Route::get('login', Login::class)->name('login');
 
-    if (config('settings.registration.enabled')) {
+    if (app(Setting::class)->registration) {
         Route::get('register', Register::class)->name('register');
     }
 
