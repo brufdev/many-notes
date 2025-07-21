@@ -29,7 +29,7 @@
         "laravel/scout": "^10.15.0",
         "laravel/socialite": "^5.21",
         "laravel/tinker": "^2.10.1",
-        "livewire/livewire": "^3.6.3",
+        "livewire/livewire": "^3.6.4",
         "socialiteproviders/authelia": "^4.0",
         "socialiteproviders/authentik": "^5.2",
         "socialiteproviders/keycloak": "^5.3",
