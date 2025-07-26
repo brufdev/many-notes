@@ -10,7 +10,7 @@ it('returns a successful response', function (): void {
         ->assertStatus(200);
 });
 
-it('successfully registers an user', function (): void {
+it('successfully registers a user', function (): void {
     $password = 'new-password';
 
     Livewire::test(Register::class)

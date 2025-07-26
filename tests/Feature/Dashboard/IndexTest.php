@@ -6,12 +6,12 @@ use App\Livewire\Dashboard\Index;
 use App\Models\User;
 use Livewire\Livewire;
 
-it('redirects guests to login page', function (): void {
+it('redirects guest to login page', function (): void {
     $this->get('/')
         ->assertRedirect(route('login'));
 });
 
-it('redirects users to vaults page', function (): void {
+it('redirects user to vaults page', function (): void {
     $user = User::factory()->hasVaults(1)->create();
 
     Livewire::actingAs($user)
