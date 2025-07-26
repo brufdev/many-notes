@@ -18,3 +18,13 @@ it('redirects user to vaults page', function (): void {
         ->test(Index::class)
         ->assertRedirect(route('vaults.index'));
 });
+
+it('redirects user to last visited page', function (): void {
+    $user = User::factory()->hasVaults(1)->create([
+        'last_visited_url' => route('vaults.show', ['vaultId' => 1], false),
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(Index::class)
+        ->assertRedirect(route('vaults.show', ['vaultId' => 1]));
+});
