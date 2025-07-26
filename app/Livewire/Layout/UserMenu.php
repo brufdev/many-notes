@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Livewire\Layout;
 
+use App\Actions\GetOAuthPostLogoutRedirectUri;
+use App\Actions\IsLocalAuthEnabled;
 use App\Livewire\Forms\EditPasswordForm;
 use App\Livewire\Forms\EditProfileForm;
 use Illuminate\Contracts\View\Factory;
@@ -63,12 +65,18 @@ final class UserMenu extends Component
      */
     public function logout(): void
     {
+        if (!new IsLocalAuthEnabled()->handle()) {
+            $postLogoutRedirectUri = new GetOAuthPostLogoutRedirectUri()->handle();
+        } else {
+            $postLogoutRedirectUri = route('login', absolute: false);
+        }
+
         Auth::guard('web')->logout();
 
         Session::invalidate();
         Session::regenerateToken();
 
-        $this->redirect(route('login', absolute: false));
+        $this->redirect($postLogoutRedirectUri);
     }
 
     public function render(): Factory|View

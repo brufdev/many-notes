@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace App\Livewire\Auth;
 
 use App\Actions\GetAvailableOAuthProviders;
+use App\Actions\IsLocalAuthEnabled;
 use App\Enums\OAuthProviders;
 use App\Livewire\Forms\LoginForm;
 use App\Models\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Session;
+use Laravel\Socialite\Facades\Socialite;
 use Livewire\Component;
+use Throwable;
 
 final class Login extends Component
 {
@@ -23,6 +26,16 @@ final class Login extends Component
     public function mount(): void
     {
         $this->providers = new GetAvailableOAuthProviders()->handle();
+
+        if ($this->providers !== [] && !new IsLocalAuthEnabled()->handle()) {
+            try {
+                /** @var OAuthProviders $provider */
+                $provider = current($this->providers);
+                $this->redirect(Socialite::driver($provider->value)->redirect()->getTargetUrl());
+            } catch (Throwable) {
+                abort(404);
+            }
+        }
     }
 
     /**
