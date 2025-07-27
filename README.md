@@ -112,15 +112,6 @@ environment:
   - PHP_UPLOAD_MAX_FILE_SIZE=1G
 ```
 
-### Registration enabled (default: true)
-
-In case you want to disable registration for new users, add:
-
-```yaml
-environment:
-  - SETTINGS_REGISTRATION_ENABLED=false
-```
-
 ### Enable OAuth providers
 
 Many Notes supports a convenient way to authenticate with OAuth providers. Typically, these credentials may be retrieved by creating a "developer application" within the dashboard of the service you wish to use. Many Notes currently supports authentication via Facebook, Twitter, LinkedIn, Google, GitHub, GitLab, Bitbucket, Slack, Authelia, Authentik, Keycloak, and Zitadel. You can enable multiple providers simultaneously by adding the corresponding environment variables.
