@@ -53,12 +53,27 @@ it('finds errors in the password', function (): void {
     expect($user->refresh()->password)->toBe($password);
 });
 
-it('logouts the user', function (): void {
+it('logouts the user and redirects to the login page when local auth is enabled', function (): void {
+    config()->set('settings.local_auth.enabled', true);
     $user = User::factory()->create();
 
     Livewire::actingAs($user)
         ->test(UserMenu::class)
-        ->call('logout');
+        ->call('logout')
+        ->assertRedirect(route('login', absolute: false));
+
+    expect(auth()->user())->toBeNull();
+});
+
+it('logouts the user and redirects to the post_logout_redirect_uri when local auth is disabled', function (): void {
+    config()->set('settings.local_auth.enabled', false);
+    config()->set('services.github.post_logout_redirect_uri', 'https://github.com');
+    $user = User::factory()->create();
+
+    Livewire::actingAs($user)
+        ->test(UserMenu::class)
+        ->call('logout')
+        ->assertRedirect('https://github.com');
 
     expect(auth()->user())->toBeNull();
 });
