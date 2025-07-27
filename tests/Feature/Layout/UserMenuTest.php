@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
-use App\Livewire\Layout\UserMenu;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
+use App\Livewire\Layout\UserMenu;
+use App\Actions\IsLocalAuthEnabled;
+use Illuminate\Support\Facades\Hash;
+use App\Actions\GetOAuthPostLogoutRedirectUri;
 
 it('edits the profile', function (): void {
     $user = User::factory()->create();
@@ -54,7 +56,8 @@ it('finds errors in the password', function (): void {
 });
 
 it('logouts the user and redirects to the login page when local auth is enabled', function (): void {
-    config()->set('settings.local_auth.enabled', true);
+    $isLocalAuthEnabled = Mockery::mock(new IsLocalAuthEnabled());
+    $isLocalAuthEnabled->shouldReceive('handle')->andReturn(true);
     $user = User::factory()->create();
 
     Livewire::actingAs($user)
@@ -66,8 +69,10 @@ it('logouts the user and redirects to the login page when local auth is enabled'
 });
 
 it('logouts the user and redirects to the post_logout_redirect_uri when local auth is disabled', function (): void {
-    config()->set('settings.local_auth.enabled', false);
-    config()->set('services.github.post_logout_redirect_uri', 'https://github.com');
+    $isLocalAuthEnabled = Mockery::mock(new IsLocalAuthEnabled());
+    $isLocalAuthEnabled->shouldReceive('handle')->andReturn(false);
+    $isLocalAuthEnabled = Mockery::mock(new GetOAuthPostLogoutRedirectUri());
+    $isLocalAuthEnabled->shouldReceive('handle')->andReturn('https://github.com');
     $user = User::factory()->create();
 
     Livewire::actingAs($user)
