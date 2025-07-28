@@ -127,6 +127,19 @@ environment:
 
 Authelia, Authentik, Keycloak, and Zitadel providers require additional configuration. Read the [OAuth documentation](docs/customization/oauth.md) for more information.
 
+### Local authentication (default: true)
+
+Disable local authentication by configuring an OAuth provider and specifying a URL to redirect after logout. For example, to use GitHub OAuth as the only authentication method, add:
+
+```yaml
+environment:
+  - SETTINGS_LOCAL_AUTH_ENABLED=false
+  - GITHUB_CLIENT_ID=CLIENT_ID # change id
+  - GITHUB_CLIENT_SECRET=CLIENT_SECRET # change secret
+  - GITHUB_REDIRECT_URI=http://localhost/oauth/github/callback # change domain and provider
+  - GITHUB_POST_LOGOUT_REDIRECT_URI=https://github.com/logout # change URL
+```
+
 ### Custom email service
 
 Configure an email service to send registration and password reset emails by adding:
