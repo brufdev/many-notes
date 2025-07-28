@@ -8,6 +8,8 @@ use App\Actions\GetPathFromVaultNode;
 use App\Livewire\Modals\ImportFile;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Livewire;
 
 it('opens the modal', function (): void {
     $user = User::factory()->create()->first();
@@ -103,13 +105,13 @@ it('handles name collisions when importing a file with a name existing in multip
         'name' => fake()->words(3, true),
     ]);
     $nodeName = fake()->words(3, true);
-    $firstNode = new CreateVaultNode()->handle($vault, [
+    new CreateVaultNode()->handle($vault, [
         'is_file' => true,
         'name' => $nodeName,
         'extension' => 'md',
         'content' => fake()->paragraph(),
     ]);
-    $secondNode = new CreateVaultNode()->handle($vault, [
+    new CreateVaultNode()->handle($vault, [
         'is_file' => true,
         'name' => $nodeName . '-1',
         'extension' => 'md',
@@ -156,7 +158,7 @@ it('creates links when importing a file', function (): void {
         'name' => fake()->words(3, true),
     ]);
     $nodeName = fake()->words(3, true);
-    $node = new CreateVaultNode()->handle($vault, [
+    new CreateVaultNode()->handle($vault, [
         'is_file' => true,
         'name' => $nodeName,
         'extension' => 'md',
