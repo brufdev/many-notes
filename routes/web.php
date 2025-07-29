@@ -41,7 +41,7 @@ Route::middleware(['guest', 'throttle'])->group(function (): void {
 
     Route::prefix('oauth')->group(function (): void {
         $providers = implode('|', array_map(
-            fn ($provider) => $provider->value,
+            fn($provider) => $provider->value,
             new GetAvailableOAuthProviders()->handle(),
         ));
 

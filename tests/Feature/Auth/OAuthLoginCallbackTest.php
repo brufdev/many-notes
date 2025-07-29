@@ -35,7 +35,7 @@ it('successfully authenticates a registered user', function (): void {
 
 it('successfully authenticates a non-registered user', function (): void {
     $settings = Setting::create();
-    app()->bind(Setting::class, fn (): Setting => $settings->refresh());
+    app()->bind(Setting::class, fn(): Setting => $settings->refresh());
 
     $abstractUser = Mockery::mock(SocialiteUser::class);
     $abstractUser->shouldReceive('getId')
@@ -87,7 +87,7 @@ it('fails to authenticate a non-registered user when registration is disabled', 
     $settings = Setting::create([
         'registration' => false,
     ]);
-    app()->bind(Setting::class, fn (): Setting => $settings->refresh());
+    app()->bind(Setting::class, fn(): Setting => $settings->refresh());
 
     $abstractUser = Mockery::mock(SocialiteUser::class);
     $abstractUser->shouldReceive('getId')

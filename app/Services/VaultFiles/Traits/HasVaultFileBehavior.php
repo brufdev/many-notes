@@ -22,7 +22,7 @@ trait HasVaultFileBehavior
     public static function extensions(bool $withDots = false): array
     {
         return $withDots
-            ? array_map(fn (string $value): string => '.' . $value, static::extensionsList())
+            ? array_map(fn(string $value): string => '.' . $value, static::extensionsList())
             : static::extensionsList();
     }
 
@@ -31,7 +31,7 @@ trait HasVaultFileBehavior
         return in_array($extension, static::extensionsList())
             && array_any(
                 static::mimeTypesList(),
-                fn (string $value): bool => str_starts_with($mimeType, $value),
+                fn(string $value): bool => str_starts_with($mimeType, $value),
             );
     }
 }

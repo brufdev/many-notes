@@ -58,6 +58,9 @@
             "spacing": "one"
         },
         "not_operator_with_successor_space": false,
+        "function_declaration": {
+            "closure_fn_spacing": "none"
+        },
         "phpdoc_align": {
             "align": "left",
             "spacing": {

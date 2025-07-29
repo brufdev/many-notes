@@ -7,7 +7,7 @@ use App\Models\Vault;
 use App\Models\VaultNode;
 use Illuminate\Support\Facades\Broadcast;
 
-Broadcast::channel('User.{userId}', fn (User $user, int $userId): bool => (int) $user->id === $userId);
+Broadcast::channel('User.{userId}', fn(User $user, int $userId): bool => (int) $user->id === $userId);
 
 Broadcast::channel('Vault.{vaultId}', function (User $user, int $vaultId): bool {
     $vault = Vault::find($vaultId);

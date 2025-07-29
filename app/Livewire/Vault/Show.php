@@ -209,7 +209,7 @@ final class Show extends Component
             $openFileDeleted = !is_null(
                 array_find(
                     $deletedNodes,
-                    fn (VaultNode $node): bool => $node->id === $this->selectedFileId,
+                    fn(VaultNode $node): bool => $node->id === $this->selectedFileId,
                 )
             );
 

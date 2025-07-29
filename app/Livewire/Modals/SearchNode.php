@@ -101,7 +101,7 @@ final class SearchNode extends Component
             ->select('id', 'name', 'extension')
             ->where('vault_id', $this->vault->id)
             ->where('is_file', true)
-            ->whereHas('tags', fn (IlluminateBuilder $query): IlluminateBuilder => $query->where('name', $tag))
+            ->whereHas('tags', fn(IlluminateBuilder $query): IlluminateBuilder => $query->where('name', $tag))
             ->orderByDesc('updated_at')
             ->limit(5)
             ->get();

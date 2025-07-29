@@ -37,7 +37,7 @@ final readonly class ProcessVaultNodeLinks
         $linkPaths = array_column($matches[1], 0);
         $linkPositions = array_column($matches[0], 1);
         $links = array_map(
-            fn (string $path, int $position): array => ['path' => $path, 'position' => $position],
+            fn(string $path, int $position): array => ['path' => $path, 'position' => $position],
             $linkPaths,
             $linkPositions,
         );
