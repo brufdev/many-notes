@@ -24,6 +24,7 @@
         @if ($attributes->has('placeholder'))
             placeholder="{{ $placeholder }}"
         @endif
+        @disabled($attributes->has('disabled') && $disabled)
         wire:model="{{ $name }}"
     />
 
