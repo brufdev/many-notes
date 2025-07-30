@@ -79,11 +79,6 @@
 
             @if (auth()->user()->isAdmin())
                 <x-menu.close>
-                    <x-menu.itemLink href="{{ route('admin.users') }}">
-                        <x-icons.users class="w-4 h-4" />
-                        {{ __('Users') }}
-                    </x-menu.itemLink>
-
                     <x-menu.item @click="$wire.dispatchTo('modals.settings', 'open-modal')">
                         <x-icons.cog6Tooth class="w-4 h-4" />
                         {{ __('Settings') }}
