@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Forms;
 
+use App\Actions\IsLocalAuthEnabled;
 use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
@@ -36,6 +37,10 @@ final class EditPasswordForm extends Form
 
     public function update(): void
     {
+        if (!new IsLocalAuthEnabled()->handle()) {
+            return;
+        }
+
         try {
             /** @var array<string, string> $validated */
             $validated = $this->validate();

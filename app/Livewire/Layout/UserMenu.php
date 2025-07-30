@@ -13,6 +13,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Session;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 final class UserMenu extends Component
@@ -21,24 +22,31 @@ final class UserMenu extends Component
 
     public EditPasswordForm $passwordForm;
 
+    #[Locked]
+    public bool $localAuthEnabled;
+
+    #[Locked]
     public string $appVersion;
 
+    #[Locked]
     public string $latestVersion;
 
+    #[Locked]
     public string $githubUrl;
 
+    #[Locked]
     public bool $updateAvailable;
 
     public function mount(): void
     {
-        $this->profileForm->setUser();
-        $this->githubUrl = 'https://github.com/brufdev/many-notes';
-
         /** @var string $appVersion */
         $appVersion = config('app.version');
         /** @var string $latestVersion */
         $latestVersion = Cache::get('app:latest_version', '0.0.0');
 
+        $this->profileForm->setUser();
+        $this->localAuthEnabled = new IsLocalAuthEnabled()->handle();
+        $this->githubUrl = 'https://github.com/brufdev/many-notes';
         $this->appVersion = $appVersion;
         $this->latestVersion = $latestVersion;
         $this->updateAvailable = version_compare($this->appVersion, $this->latestVersion, '<');
@@ -46,6 +54,10 @@ final class UserMenu extends Component
 
     public function editProfile(): void
     {
+        if (!$this->localAuthEnabled) {
+            return;
+        }
+
         $this->profileForm->update();
 
         $this->dispatch('close-modal');
@@ -54,6 +66,10 @@ final class UserMenu extends Component
 
     public function editPassword(): void
     {
+        if (!$this->localAuthEnabled) {
+            return;
+        }
+
         $this->passwordForm->update();
 
         $this->dispatch('close-modal');

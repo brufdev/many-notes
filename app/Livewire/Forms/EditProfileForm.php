@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Forms;
 
+use App\Actions\IsLocalAuthEnabled;
 use App\Models\User;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Unique;
@@ -51,6 +52,10 @@ final class EditProfileForm extends Form
 
     public function update(): void
     {
+        if (!new IsLocalAuthEnabled()->handle()) {
+            return;
+        }
+
         /** @var User $currentUser */
         $currentUser = auth()->user();
 

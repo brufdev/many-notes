@@ -7,6 +7,7 @@ use App\Enums\OAuthProviders;
 use App\Livewire\Auth\Login;
 use App\Livewire\Layout\UserMenu;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
 use Livewire\Livewire;
 
@@ -35,6 +36,36 @@ it('fails to redirect the user to the provider URL', function (): void {
 
     Livewire::test(Login::class, ['provider' => 'github'])
         ->assertStatus(404);
+});
+
+it('does not allow to edit the profile', function (): void {
+    $user = User::factory()->create();
+    $newName = fake()->name();
+
+    Livewire::actingAs($user)
+        ->test(UserMenu::class)
+        ->assertSet('profileForm.name', $user->name)
+        ->set('profileForm.name', $newName)
+        ->call('editProfile');
+
+    expect($user->refresh()->name)->not->toBe($newName);
+});
+
+it('does not allow to edit the password', function (): void {
+    $password = Hash::make('password');
+    $user = User::factory()->create([
+        'password' => $password,
+    ]);
+    expect($user->password)->toBe($password);
+
+    Livewire::actingAs($user)
+        ->test(UserMenu::class)
+        ->set('passwordForm.current_password', 'password')
+        ->set('passwordForm.password', 'newpassword')
+        ->set('passwordForm.password_confirmation', 'newpassword')
+        ->call('editPassword');
+
+    expect($user->refresh()->password)->toBe($password);
 });
 
 it('logouts the user and redirects to the post_logout_redirect_uri', function (): void {

@@ -23,21 +23,24 @@
                     </x-menu.item>
                 </x-menu.close>
 
-                <x-modal.panel title="Edit profile">
+                <x-modal.panel title="{{ __('Profile') }}">
                     <x-form wire:submit="editProfile" class="flex flex-col gap-6">
-                        <x-form.input name="profileForm.name" placeholder="{{ __('Name') }}" type="text" required
-                            autofocus />
+                        <x-form.input name="profileForm.name" placeholder="{{ __('Name') }}" type="text"
+                            required :disabled="!$localAuthEnabled" autofocus />
 
                         <x-form.input name="profileForm.email" placeholder="{{ __('Email') }}" type="email"
-                            required />
+                            required :disabled="!$localAuthEnabled" />
 
+                        @if ($localAuthEnabled)
                         <div class="flex justify-end">
-                            <x-form.submit label="{{ __('Edit') }}" target="edit" />
+                            <x-form.submit label="{{ __('Edit') }}" target="editProfile" />
                         </div>
+                        @endif
                     </x-form>
                 </x-modal.panel>
             </x-modal>
 
+            @if ($localAuthEnabled)
             <x-modal>
                 <x-menu.close>
                     <x-menu.item @click="modalOpen = true">
@@ -46,7 +49,7 @@
                     </x-menu.item>
                 </x-menu.close>
 
-                <x-modal.panel title="Edit password">
+                <x-modal.panel title="{{ __('Password') }}">
                     <x-form wire:submit="editPassword" class="flex flex-col gap-6">
                         <x-form.input name="passwordForm.current_password" placeholder="{{ __('Current password') }}"
                             type="password" required autofocus />
@@ -58,11 +61,12 @@
                             placeholder="{{ __('Confirm password') }}" type="password" required />
 
                         <div class="flex justify-end">
-                            <x-form.submit label="{{ __('Edit') }}" target="edit" />
+                            <x-form.submit label="{{ __('Edit') }}" target="editPassword" />
                         </div>
                     </x-form>
                 </x-modal.panel>
             </x-modal>
+            @endif
 
             <x-menu.close>
                 <x-menu.itemLink href="{{ route('vaults.index') }}">
@@ -75,6 +79,11 @@
 
             @if (auth()->user()->isAdmin())
                 <x-menu.close>
+                    <x-menu.itemLink href="{{ route('admin.users') }}">
+                        <x-icons.users class="w-4 h-4" />
+                        {{ __('Users') }}
+                    </x-menu.itemLink>
+
                     <x-menu.item @click="$wire.dispatchTo('modals.settings', 'open-modal')">
                         <x-icons.cog6Tooth class="w-4 h-4" />
                         {{ __('Settings') }}
