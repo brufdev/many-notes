@@ -15,6 +15,8 @@ It uses a database to power its features, but your files are also saved in the f
 
 Vaults are simply storage containers for your files, and Many Notes lets you choose to keep all your files in one vault or organize them into separate vaults.
 
+It is recommended to run Many Notes behind a reverse proxy serving the application with HTTPS. This not only secures your connections but also gives you access to additional features like PWA support or copying to clipboard from code blocks.
+
 ## Preview
 
 ![Screenshot](art/theme-light.png?raw=true)
@@ -34,6 +36,7 @@ Vaults are simply storage containers for your files, and Many Notes lets you cho
 - **Templates**: Maintain consistent formatting for your notes
 - **Links/backlinks/tags**: Improve note organization by connecting related notes
 - **Import/export vaults**: Easily back up and restore your vaults
+- **Automatic update check**: Notifies you when a new version is available
 - **Starter vault**: Helps you get started with Many Notes
 - **Light/dark theme**: Automatically selected based on your system settings
 - **Progressive Web App**: Provides a native app-like experience
