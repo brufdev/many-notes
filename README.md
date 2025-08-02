@@ -163,6 +163,10 @@ environment:
 
 Read the [FAQs](./docs/support/faqs.md) to find the answers to the most common questions.
 
+## Contributing
+
+If you're interested in contributing to Many Notes, please read the [contributing guide](./CONTRIBUTING.md) before submitting a pull request.
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for the full license text.
