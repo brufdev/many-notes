@@ -19,7 +19,7 @@ It is recommended to run Many Notes behind a reverse proxy serving the applicati
 
 ## Preview
 
-![Screenshot](art/theme-light.png?raw=true)
+![Screenshot](./art/theme-light.png?raw=true)
 *Light theme*
 
 ## Features
@@ -46,12 +46,12 @@ It is recommended to run Many Notes behind a reverse proxy serving the applicati
 Choose your preferred method to install Many Notes:
 
 - Docker with volumes, for a simpler installation (read below)
-- Docker with bind mounts, for easy access to shared paths from the host ([read here](docs/installation/docker-bind-mounts.md))
-- Docker with a different database, if you prefer not to use SQLite ([read here](docs/installation/docker-different-database.md))
+- Docker with bind mounts, for easy access to shared paths from the host ([read here](./docs/installation/docker-bind-mounts.md))
+- Docker with a different database, if you prefer not to use SQLite ([read here](./docs/installation/docker-different-database.md))
 
 ### Docker with volumes
 
-**Read the [upgrading guide](UPGRADING.md) if you are upgrading from a previous version.**
+**Read the [upgrading guide](./UPGRADING.md) if you are upgrading from a previous version.**
 
 Create a `compose.yaml` file with:
 
@@ -128,7 +128,7 @@ environment:
   - GITHUB_REDIRECT_URI=http://localhost/oauth/github/callback # change domain and provider
 ```
 
-Authelia, Authentik, Keycloak, and Zitadel providers require additional configuration. Read the [OAuth documentation](docs/customization/oauth.md) for more information.
+Authelia, Authentik, Keycloak, and Zitadel providers require additional configuration. Read the [OAuth documentation](./docs/customization/oauth.md) for more information.
 
 ### Local authentication (default: true)
 
@@ -161,8 +161,8 @@ environment:
 
 ## Frequently Asked Questions
 
-Read the [FAQs](docs/support/faqs.md) to find the answers to the most common questions.
+Read the [FAQs](./docs/support/faqs.md) to find the answers to the most common questions.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for the full license text.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for the full license text.
