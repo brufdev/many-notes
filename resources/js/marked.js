@@ -64,4 +64,8 @@ renderer.code = function({ text, lang }) {
     return `<pre><code${langClass}>${text}</code></pre>`;
 };
 
+renderer.codespan = function({ text }) {
+    return `<code>${text}</code>`;
+};
+
 export const markedService = marked.setOptions({ renderer: renderer });
