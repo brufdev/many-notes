@@ -1,6 +1,10 @@
 import TurndownService from 'turndown';
 import { highlightedCodeBlock, strikethrough, tables, taskListItems } from '@guyplusplus/turndown-plugin-gfm';
 
+TurndownService.prototype.escape = function (string) {
+    return string;
+};
+
 export const turndownService = new TurndownService({
     headingStyle: 'atx',
     hr: '---',
