@@ -49,7 +49,7 @@ final class SearchNode extends Component
             return;
         }
 
-        preg_match('/tag:([\w:-]+)/', $this->search, $matches);
+        preg_match('/tag:([\p{L}0-9_-]+)/u', $this->search, $matches);
         $nodes = $matches === [] ? $this->searchText() : $this->searchTag($matches[1]);
 
         foreach ($nodes as $node) {

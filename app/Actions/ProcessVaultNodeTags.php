@@ -19,7 +19,7 @@ final readonly class ProcessVaultNodeTags
 
         /** @var string $content */
         $content = $node->content;
-        preg_match_all('/#[\w:-]+/', $content, $matches, PREG_OFFSET_CAPTURE);
+        preg_match_all('/#[\p{L}0-9_-]+/u', $content, $matches, PREG_OFFSET_CAPTURE);
 
         if ($matches[0] === []) {
             return;
