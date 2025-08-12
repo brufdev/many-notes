@@ -44,11 +44,29 @@
     --color-base-800: #282c34;
     --color-base-900: #1c2127;
     --color-base-950: #181c20;
+    --color-scrollbar-primary: #171717;
+    --color-scrollbar-secondary: #787878;
 }
 
 @layer base {
     * {
         scrollbar-width: thin;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        /* Firefox */
+        * {
+            scrollbar-color: var(--color-scrollbar-secondary) var(--color-scrollbar-primary);
+        }
+
+        /* Chrome, Edge, and Safari */
+        *::-webkit-scrollbar-track {
+            background: var(--color-scrollbar-primary);
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background-color: var(--color-scrollbar-secondary);
+        }
     }
 
     button:not(:disabled),
