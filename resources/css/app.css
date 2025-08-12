@@ -75,6 +75,30 @@
     }
 
     .prose {
+        h1 {
+            font-size: 1.75em !important;
+        }
+
+        h2 {
+            margin-top: 1em !important;
+        }
+
+        h3 {
+            font-size: 1.4em !important;
+        }
+
+        h4 {
+            font-size: 1.3em !important;
+        }
+
+        h5 {
+            font-size: 1.2em !important;
+        }
+
+        h6 {
+            font-size: 1.1em !important;
+        }
+
         a {
             color: var(--color-primary-400) !important;
             cursor: pointer;
