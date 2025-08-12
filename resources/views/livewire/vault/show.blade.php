@@ -74,11 +74,22 @@
                                 </x-slot:header>
                                 <textarea
                                     class="hidden"
-                                    type="text"
                                     x-ref="noteContent"
                                     wire:model.live="nodeForm.content"
                                 ></textarea>
-                                <div class="h-full" spellcheck="false" x-ref="noteEditor" wire:ignore></div>
+                                <div
+                                    class="h-full"
+                                    spellcheck="false"
+                                    x-ref="noteEditor"
+                                    wire:ignore
+                                ></div>
+                                <textarea
+                                    class="h-full w-full p-0 bg-transparent border-0 focus:ring-0"
+                                    :class="isEditingMarkdown ? '' : 'hidden'"
+                                    :disabled="!isEditMode"
+                                    x-ref="noteMarkdown"
+                                    @input="editor.setContent(event.target.value)"
+                                ></textarea>
                             @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Types\Image::extensions()))
                                 <img src="{{ $selectedFileUrl }}" alt="" />
                             @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Types\Pdf::extensions()))
@@ -197,6 +208,7 @@
         Alpine.data('vault', () => ({
             isLeftPanelOpen: false,
             isRightPanelOpen: false,
+            isEditingMarkdown: false,
             isEditMode: Alpine.$persist(true),
             editor: null,
             users: [],
@@ -244,11 +256,17 @@
                 this.editor = setupEditor({
                     placeholder: '{{ __('Start writing your note...') }}',
                     element: this.$refs.noteEditor,
+                    markdownElement: this.$refs.noteMarkdown,
                     vaultId: $wire.nodeForm.vaultId,
                     content: $wire.nodeForm.content,
+                    isEditingMarkdown: this.isEditingMarkdown,
                     editable: this.isEditMode,
                     onUpdate: (markdown) => this.updateContent(markdown),
                 });
+
+                if (this.isEditingMarkdown) {
+                    this.editor.updateMarkdown();
+                }
             },
 
             isSmallDevice() {
@@ -268,9 +286,15 @@
                 this.isRightPanelOpen = false;
             },
 
+            toggleMarkdown() {
+                this.isEditingMarkdown = !this.isEditingMarkdown;
+                this.editor.toggleMarkdown();
+            },
+
             toggleEditMode() {
                 this.isEditMode = !this.isEditMode;
                 this.editor.setEditable(this.isEditMode);
+                this.$refs.noteMarkdown.disabled = !this.isEditMode;
             },
 
             openFile(fileId) {

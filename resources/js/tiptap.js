@@ -18,6 +18,7 @@ import { turndownService } from './turndown';
 window.setupEditor = function (options) {
     let content = '';
     let isSavingEnabled = false;
+    let isEditingMarkdown = options.isEditingMarkdown;
 
     function enableSaving() {
         isSavingEnabled = true;
@@ -145,6 +146,7 @@ window.setupEditor = function (options) {
 
                 const html = prepareTiptapHTML(editor.getHTML());
                 const markdown = turndownService.turndown(html);
+
                 options.onUpdate(markdown);
             },
         }),
@@ -165,6 +167,31 @@ window.setupEditor = function (options) {
             disableSaving();
             this.getEditor().setEditable(editable);
             enableSaving();
+        },
+
+        setContent(content) {
+            this.getEditor().commands.setContent(markedService.parse(content), {
+                emitUpdate: true,
+            });
+        },
+
+        toggleMarkdown() {
+            if (isEditingMarkdown) {
+                options.markdownElement.classList.add('hidden');
+                options.element.classList.remove('hidden');
+            } else {
+                this.updateMarkdown();
+                options.element.classList.add('hidden');
+                options.markdownElement.classList.remove('hidden');
+            }
+
+            isEditingMarkdown = !isEditingMarkdown;
+        },
+
+        updateMarkdown() {
+            const html = prepareTiptapHTML(this.getEditor().getHTML());
+            const markdown = turndownService.turndown(html);
+            options.markdownElement.value = markdown;
         },
 
         undo() {
