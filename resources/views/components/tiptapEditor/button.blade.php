@@ -1,7 +1,12 @@
+@props(['icon' => false])
+
 <button
     {{ $attributes }}
-    class="flex items-center w-full gap-2 px-2 py-1 text-sm text-left transition-colors border rounded hover:bg-light-base-400 dark:hover:bg-base-700 text-light-base-950 dark:text-base-50 border-light-base-400 dark:border-base-700"
+    class="flex items-center w-full gap-2 px-2 py-1 text-sm text-left transition-colors border rounded text-light-base-950 dark:text-base-50 border-light-base-400 dark:border-base-700 hover:enabled:bg-primary-400 dark:hover:enabled:bg-primary-500 hover:enabled:text-light-base-50 disabled:opacity-50"
     type="button"
 >
-    {{ $slot }}
+    @if ($icon)
+        <x-dynamic-component component="icons.{{ $icon }}" class="w-4.5 h-4.5" />
+    @endif
+    <span class="sr-only">{{ $attributes->get('title') }}</span>
 </button>
