@@ -277,6 +277,14 @@
     <ul class="flex gap-1">
         <li>
             <x-tiptapEditor.button
+                title="{{ __('Toggle Markdown') }}"
+                icon="markdown"
+                x-bind:class="isEditingMarkdown ? 'bg-primary-400 dark:bg-primary-500 text-light-base-50! dark:text-light-base-50!' : ''"
+                @click="toggleMarkdown"
+            />
+        </li>
+        <li>
+            <x-tiptapEditor.button
                 title="{{ __('Toggle editing') }}"
                 icon="pencilOff"
                 x-bind:class="!isEditMode ? 'bg-primary-400 dark:bg-primary-500 text-light-base-50! dark:text-light-base-50!' : ''"
