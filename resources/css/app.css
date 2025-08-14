@@ -408,3 +408,7 @@
         }
     }
 }
+
+@utility scrollbar-hidden {
+    @apply [scrollbar-width:none] [&::-webkit-scrollbar]:hidden;
+}

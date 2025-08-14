@@ -3,7 +3,7 @@
     class="flex justify-between gap-1"
     x-data="{ isToolbarLocked() { return !isEditMode || isEditingMarkdown } }"
 >
-    <div class="relative">
+    <div class="overflow-x-auto scrollbar-hidden">
         <ul class="flex gap-1">
             <li>
                 <x-tiptapEditor.button
