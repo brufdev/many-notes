@@ -20,35 +20,23 @@ window.setupEditor = function (options) {
     let isSavingEnabled = false;
     let isEditingMarkdown = options.isEditingMarkdown;
 
-    function enableSaving() {
-        isSavingEnabled = true;
-    };
-
-    function disableSaving() {
-        isSavingEnabled = false;
-    };
-
-    function isSavingActive() {
-        return isSavingEnabled;
-    };
-
-    const prepareTiptapHTML = function(html) {
+    const prepareTiptapHTML = (html) => {
         return html
-            // Prepare plain text code
+            // prepare plain text code
             .replace(
                 /<code\s+([^>]*?)class="language-plaintext"([^>]*?)>/g,
                 (match, before, after) => {
                     return `<code${before}${after}>`;
                 }
             )
-            // Prepare links
+            // prepare links
             .replace(
                 /<a\s+([^>]*?)data-href([^>]*?)>/g,
                 (match, before, after) => {
                     return `<a ${before}href${after}>`;
                 }
             )
-            // Prepare task lists
+            // prepare task lists
             .replace(
                 /<li([^>]*)>\s*(?:<label[^>]*>)\s*(<input type="checkbox"[^>]*>)(?:<span><\/span><\/label>)(?:<div>)?(?:<p>)?(.*?)(?:<\/p>)?(?:<\/div>)?<\/li>/gs,
                 (match, liAttributes, input, content) => {
@@ -137,16 +125,15 @@ window.setupEditor = function (options) {
                     editor.commands.deleteNode('paragraph');
                 }
 
-                enableSaving();
+                isSavingEnabled = true;
             },
             onUpdate({ editor }) {
-                if (!isSavingActive()) {
+                if (!isSavingEnabled) {
                     return;
                 }
 
                 const html = prepareTiptapHTML(editor.getHTML());
                 const markdown = turndownService.turndown(html);
-
                 options.onUpdate(markdown);
             },
         }),
@@ -164,9 +151,9 @@ window.setupEditor = function (options) {
         },
 
         setEditable(editable) {
-            disableSaving();
+            isSavingEnabled = false;
             this.getEditor().setEditable(editable);
-            enableSaving();
+            isSavingEnabled = true;
         },
 
         setContent(content) {
