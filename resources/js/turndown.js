@@ -50,6 +50,33 @@ export const turndownService = new TurndownService({
         const title = node.getAttribute('title');
         const titlePart = title ? ` "${title}"` : '';
 
-        return src ? `![${alt}](${src}${titlePart})` : '';
+        if (!src) {
+            return '';
+        }
+
+        try {
+            const decodedSrc = decodeURIComponent(src);
+
+            return `![${alt}](${decodedSrc}${titlePart})`;
+        } catch (error) {
+            return '';
+        }
     },
+}).addRule('decodeLinks', {
+    filter: 'a',
+    replacement: function(content, node) {
+        const href = node.getAttribute('href');
+
+        if (!href) {
+            return content;
+        }
+        
+        try {
+            const decodedHref = decodeURIComponent(href);
+
+            return `[${content}](${decodedHref})`;
+        } catch (error) {
+            return `[${content}](${href})`;
+        }
+    }
 });
