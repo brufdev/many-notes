@@ -45,8 +45,18 @@ window.setupEditor = function (options) {
             );
     };
 
+    const encodeHTML = (text) => {
+        const map = {
+            '<': '&lt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+
+        return text.replace(/[<"']/g, (char) => map[char]);
+    };
+
     if (options.content) {
-        content = markedService.parse(options.content);
+        content = markedService.parse(encodeHTML(options.content));
     }
 
     return {
@@ -157,7 +167,8 @@ window.setupEditor = function (options) {
         },
 
         setContent(content) {
-            this.getEditor().commands.setContent(markedService.parse(content), {
+            const html = markedService.parse(encodeHTML(content));
+            this.getEditor().commands.setContent(html, {
                 emitUpdate: true,
             });
         },
