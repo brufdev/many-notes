@@ -20,12 +20,12 @@ final readonly class ProcessVaultNodeLinks
         $extensions = implode('|', VaultFile::extensions());
         $pattern = <<<REGEX
             /
-            (?<!\!)                       # Negative lookbehind: Ensure the link is not preceded by "!"
-            \[.+?\]                       # Match a markdown-style link text [any text]
-            \(                            # Match opening parenthesis "("
-                (.*?\.(?:{$extensions}))  # Capture group 1: Match a file name with a valid extension
-                (?:\s".+")?               # Optional: Match a title in quotes after the filename
-            \)                            # Match closing parenthesis ")"
+            !?                                 # Optional: Match "!" at the beginning of the link to process images too
+            \[.*?\]                            # Match a markdown-style link text [any text]
+            \(                                 # Match opening parenthesis "("
+                (.*?(?:\.(?:{$extensions}))?)  # Capture group 1: Match a file name with an optional valid extension
+                (?:\s".*?")?                   # Optional: Match a title in quotes after the filename
+            \)                                 # Match closing parenthesis ")"
             /xi
         REGEX;
         preg_match_all($pattern, $node->content, $matches, PREG_OFFSET_CAPTURE);
