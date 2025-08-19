@@ -34,6 +34,7 @@ final class RunCommand extends Command
             'upgrade:create-startup-vault',
             'upgrade:reimport-data-into-typesense',
             'upgrade:set-super-admin',
+            'upgrade:process-links',
         ];
 
         $this->executeCommands($commands);
