@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
+use App\Events\VaultNodeUpdatedEvent;
 use App\Models\VaultNode;
 use App\Services\VaultFiles\Types\Note;
 use Illuminate\Support\Facades\Storage;
@@ -58,6 +59,8 @@ final readonly class UpdateVaultNode
             // Update all backlinks
             new UpdateVaultNodeBacklinks()->handle($node, $originalLinkPath);
         }
+
+        broadcast(new VaultNodeUpdatedEvent($node));
 
         return $node;
     }

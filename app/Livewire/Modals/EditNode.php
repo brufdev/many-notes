@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Livewire\Modals;
 
-use App\Events\VaultFileSystemUpdatedEvent;
-use App\Events\VaultNodeUpdatedEvent;
 use App\Livewire\Forms\VaultNodeForm;
 use App\Models\Vault;
 use App\Models\VaultNode;
@@ -42,15 +40,10 @@ final class EditNode extends Component
             return;
         }
 
-        /** @var Vault $vault */
-        $vault = $node->vault;
         $this->closeModal();
 
         $message = $this->form->is_file ? __('File edited') : __('Folder edited');
         $this->dispatch('toast', message: $message, type: 'success');
-
-        broadcast(new VaultFileSystemUpdatedEvent($vault));
-        broadcast(new VaultNodeUpdatedEvent($node));
     }
 
     public function render(): Factory|View

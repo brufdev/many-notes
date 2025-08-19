@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Vault;
 
 use App\Actions\UpdateVaultNode;
-use App\Events\VaultNodeUpdatedEvent;
+use App\Events\VaultFileSystemUpdatedEvent;
 use App\Livewire\Forms\VaultForm;
 use App\Models\Vault;
 use App\Models\VaultNode;
@@ -42,6 +42,7 @@ final class TreeView extends Component
 
         /** @var Vault $sourceVault */
         $sourceVault = $source->vault;
+
         /** @var VaultNode $target */
         if ($target->exists && !$sourceVault->is($target->vault)) {
             abort(403);
@@ -50,8 +51,11 @@ final class TreeView extends Component
         $parentId = null;
 
         if ($target->exists) {
-            // Ignore if $target is the same as $source or if it is a child of $source
-            // @phpstan-ignore-next-line larastan.noUnnecessaryCollectionCall
+            /**
+             * Ignore if $target is the same as $source or if it is a child of $source
+             *
+             * @phpstan-ignore-next-line larastan.noUnnecessaryCollectionCall
+             */
             if ($target->ancestorsAndSelf()->pluck('id')->contains($source->id)) {
                 return;
             }
@@ -67,7 +71,7 @@ final class TreeView extends Component
 
         $this->dispatch('toast', message: __('Node moved'), type: 'success');
 
-        broadcast(new VaultNodeUpdatedEvent($source));
+        broadcast(new VaultFileSystemUpdatedEvent($sourceVault));
     }
 
     public function placeholder(): string

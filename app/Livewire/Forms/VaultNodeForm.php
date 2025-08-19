@@ -6,6 +6,7 @@ namespace App\Livewire\Forms;
 
 use App\Actions\CreateVaultNode;
 use App\Actions\UpdateVaultNode;
+use App\Events\VaultFileSystemUpdatedEvent;
 use App\Models\Vault;
 use App\Models\VaultNode;
 use Illuminate\Validation\Rule;
@@ -98,11 +99,18 @@ final class VaultNodeForm extends Form
 
         $this->validate();
 
-        new UpdateVaultNode()->handle($node, [
+        $node = new UpdateVaultNode()->handle($node, [
             'parent_id' => $this->parent_id,
             'name' => $this->name,
             'content' => $this->content,
         ]);
+
+        if ($node->wasChanged(['parent_id', 'name'])) {
+            /** @var Vault $vault */
+            $vault = $node->vault;
+
+            broadcast(new VaultFileSystemUpdatedEvent($vault));
+        }
 
         return $node;
     }

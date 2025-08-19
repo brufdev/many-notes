@@ -11,7 +11,6 @@ use App\Actions\ResolveTwoPaths;
 use App\Actions\UpdateVault;
 use App\Events\VaultFileSystemUpdatedEvent;
 use App\Events\VaultNodeDeletedEvent;
-use App\Events\VaultNodeUpdatedEvent;
 use App\Livewire\Forms\VaultNodeForm;
 use App\Models\User;
 use App\Models\Vault;
@@ -171,14 +170,6 @@ final class Show extends Component
         /** @var VaultNode $node */
         $node = $this->nodeForm->update();
         $this->setNode($node);
-
-        if ($node->wasChanged(['parent_id', 'name'])) {
-            /** @var Vault $vault */
-            $vault = $node->vault;
-            broadcast(new VaultFileSystemUpdatedEvent($vault));
-        }
-
-        broadcast(new VaultNodeUpdatedEvent($node))->toOthers();
     }
 
     #[Renderless]
