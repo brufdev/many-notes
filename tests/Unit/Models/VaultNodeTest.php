@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Actions\CreateVault;
 use App\Actions\CreateVaultNode;
-use App\Actions\ProcessVaultNodeLinks;
 use App\Actions\ProcessVaultNodeTags;
 use App\Models\Tag;
 use App\Models\User;
@@ -46,36 +45,30 @@ it('may have links', function (): void {
     $vault = new CreateVault()->handle($user, [
         'name' => fake()->words(3, true),
     ]);
-    $folderName = fake()->words(3, true);
-    $firstNodeName = fake()->words(3, true);
-    $secondNodeName = fake()->words(3, true);
-    $folderNode = new CreateVaultNode()->handle($vault, [
-        'name' => $folderName,
+    $folder = new CreateVaultNode()->handle($vault, [
+        'name' => 'folder name',
         'is_file' => false,
     ]);
-    $firstNode = new CreateVaultNode()->handle($vault, [
+    $file = new CreateVaultNode()->handle($vault, [
+        'parent_id' => $folder->id,
         'is_file' => true,
-        'name' => $firstNodeName,
+        'name' => 'file',
         'extension' => 'md',
-        'content' => '[link](/' . $folderName . '/' . $secondNodeName . '.md)'
-            . ' [link](' . $folderName . '/' . $secondNodeName . '.md)',
     ]);
-    $secondNode = new CreateVaultNode()->handle($vault, [
+    $rootFile = new CreateVaultNode()->handle($vault, [
         'is_file' => true,
-        'parent_id' => $folderNode->id,
-        'name' => $secondNodeName,
+        'name' => 'root file',
         'extension' => 'md',
-        'content' => fake()->paragraph(),
+        'content' => "Link: [file](/$folder->name/$file->name.md).",
     ]);
-    new ProcessVaultNodeLinks()->handle($firstNode);
 
-    expect($firstNode->links()->get())->toHaveCount(2)
+    expect($rootFile->links()->get())->toHaveCount(1)
         ->each->toBeInstanceOf(VaultNode::class);
-    expect($firstNode->backlinks()->get())->toHaveCount(0)
+    expect($rootFile->backlinks()->get())->toHaveCount(0)
         ->each->toBeInstanceOf(VaultNode::class);
-    expect($secondNode->backlinks()->get())->toHaveCount(2)
+    expect($file->backlinks()->get())->toHaveCount(1)
         ->each->toBeInstanceOf(VaultNode::class);
-    expect($secondNode->links()->get())->toHaveCount(0)
+    expect($file->links()->get())->toHaveCount(0)
         ->each->toBeInstanceOf(VaultNode::class);
 });
 

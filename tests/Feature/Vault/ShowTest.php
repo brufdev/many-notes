@@ -6,10 +6,13 @@ use App\Actions\CreateVault;
 use App\Actions\CreateVaultNode;
 use App\Actions\GetPathFromVaultNode;
 use App\Actions\GetUrlFromVaultNode;
-use App\Actions\ProcessVaultNodeLinks;
 use App\Actions\ProcessVaultNodeTags;
+use App\Actions\UpdateVaultNode;
+use App\Events\VaultFileSystemUpdatedEvent;
+use App\Events\VaultNodeUpdatedEvent;
 use App\Livewire\Vault\Show;
 use App\Models\User;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
@@ -240,33 +243,80 @@ it('updates the node', function (): void {
     expect(Storage::disk('local')->get($path))->toBe($newContent);
 });
 
-it('process the links when updating a node', function (): void {
+it('process the links when updating the title of a node', function (): void {
+    Event::fake();
+
     $user = User::factory()->create()->first();
     $vault = new CreateVault()->handle($user, [
         'name' => fake()->words(3, true),
     ]);
-    $firstNodeName = fake()->words(3, true);
-    $firstNode = new CreateVaultNode()->handle($vault, [
+    $folder = new CreateVaultNode()->handle($vault, [
+        'is_file' => false,
+        'name' => 'folder 1',
+    ]);
+    $file = new CreateVaultNode()->handle($vault, [
+        'parent_id' => $folder->id,
         'is_file' => true,
-        'name' => $firstNodeName,
+        'name' => 'file',
         'extension' => 'md',
     ]);
-    $secondNodeName = fake()->words(3, true);
-    $secondNode = new CreateVaultNode()->handle($vault, [
+    $rootFile1 = new CreateVaultNode()->handle($vault, [
         'is_file' => true,
-        'name' => $secondNodeName,
+        'name' => 'root file 1',
+        'extension' => 'md',
+        'content' => "Link: [file](/$folder->name/$file->name.md).",
+    ]);
+    $rootFile2 = new CreateVaultNode()->handle($vault, [
+        'is_file' => true,
+        'name' => 'root file 2',
+        'extension' => 'md',
+        'content' => "Link: [file](/$folder->name/$file->name.md).",
+    ]);
+
+    $newFileName = 'new file name';
+    Livewire::actingAs($user)
+        ->withQueryParams(['file' => $file->id])
+        ->test(Show::class, ['vaultId' => $vault->id])
+        ->set('nodeForm.name', $newFileName);
+
+    expect($file->refresh()->name)->toBe($newFileName);
+    $expectedContent = "Link: [file](/$folder->name/$newFileName.md).";
+    expect($rootFile1->refresh()->content)->toBe($expectedContent);
+    expect($rootFile2->refresh()->content)->toBe($expectedContent);
+
+    Event::assertDispatched(VaultFileSystemUpdatedEvent::class, 1);
+    Event::assertDispatched(VaultNodeUpdatedEvent::class, 3);
+});
+
+it('process the links when updating the content of a node', function (): void {
+    Event::fake();
+
+    $user = User::factory()->create()->first();
+    $vault = new CreateVault()->handle($user, [
+        'name' => fake()->words(3, true),
+    ]);
+    $file1 = new CreateVaultNode()->handle($vault, [
+        'is_file' => true,
+        'name' => 'file 1',
         'extension' => 'md',
     ]);
-    $content = '[link](/' . $secondNodeName . '.md)';
-    expect($firstNode->links()->count())->toBe(0);
+    $file2 = new CreateVaultNode()->handle($vault, [
+        'is_file' => true,
+        'name' => 'file 2',
+        'extension' => 'md',
+    ]);
+    expect($file1->links()->count())->toBe(0);
 
     Livewire::actingAs($user)
-        ->withQueryParams(['file' => $firstNode->id])
+        ->withQueryParams(['file' => $file1->id])
         ->test(Show::class, ['vaultId' => $vault->id])
-        ->set('nodeForm.content', $content);
+        ->set('nodeForm.content', "[link](/$file2->name.md)");
 
-    expect($firstNode->links()->count())->toBe(1);
-    expect($firstNode->links()->first()->is($secondNode))->toBeTrue();
+    expect($file1->links()->count())->toBe(1);
+    expect($file1->links()->first()->is($file2))->toBeTrue();
+
+    Event::assertDispatched(VaultFileSystemUpdatedEvent::class, 0);
+    Event::assertDispatched(VaultNodeUpdatedEvent::class, 1);
 });
 
 it('process the tags when updating a node', function (): void {
@@ -345,32 +395,30 @@ it('deletes the links and backlinks when deleting a node', function (): void {
     $vault = new CreateVault()->handle($user, [
         'name' => fake()->words(3, true),
     ]);
-    $firstNodeName = fake()->words(3, true);
-    $secondNodeName = fake()->words(3, true);
-    $firstNode = new CreateVaultNode()->handle($vault, [
+    $file1 = new CreateVaultNode()->handle($vault, [
         'is_file' => true,
-        'name' => $firstNodeName,
+        'name' => 'file 1',
         'extension' => 'md',
-        'content' => '[link](/' . $secondNodeName . '.md)',
     ]);
-    $secondNode = new CreateVaultNode()->handle($vault, [
+    $file2 = new CreateVaultNode()->handle($vault, [
         'is_file' => true,
-        'name' => $secondNodeName,
+        'name' => 'file 2',
         'extension' => 'md',
-        'content' => '[link](/' . $firstNodeName . '.md)',
+        'content' => "[link](/$file1->name.md)",
     ]);
-    new ProcessVaultNodeLinks()->handle($firstNode);
-    new ProcessVaultNodeLinks()->handle($secondNode);
-    expect($firstNode->links()->count())->toBe(1);
-    expect($secondNode->links()->count())->toBe(1);
+    new UpdateVaultNode()->handle($file1, [
+        'content' => "[link](/$file2->name.md)",
+    ]);
+    expect($file1->links()->count())->toBe(1);
+    expect($file2->links()->count())->toBe(1);
 
     Livewire::actingAs($user)
         ->test(Show::class, ['vaultId' => $vault->id])
-        ->call('deleteNode', $firstNode)
+        ->call('deleteNode', $file1)
         ->assertDispatched('toast');
 
-    expect($firstNode->links()->count())->toBe(0);
-    expect($secondNode->links()->count())->toBe(0);
+    expect($file1->links()->count())->toBe(0);
+    expect($file2->links()->count())->toBe(0);
 });
 
 it('deletes the tags when deleting a node', function (): void {
