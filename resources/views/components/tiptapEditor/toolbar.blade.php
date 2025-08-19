@@ -279,6 +279,7 @@
             <x-tiptapEditor.button
                 title="{{ __('Toggle Markdown') }}"
                 icon="markdown"
+                toggle="true"
                 x-bind:class="isEditingMarkdown ? 'bg-primary-400 dark:bg-primary-500 text-light-base-50! dark:text-light-base-50!' : ''"
                 @click="toggleMarkdown"
             />
@@ -287,6 +288,7 @@
             <x-tiptapEditor.button
                 title="{{ __('Toggle editing') }}"
                 icon="pencilOff"
+                toggle="true"
                 x-bind:class="!isEditMode ? 'bg-primary-400 dark:bg-primary-500 text-light-base-50! dark:text-light-base-50!' : ''"
                 @click="toggleEditMode"
             />
