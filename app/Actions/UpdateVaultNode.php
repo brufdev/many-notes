@@ -17,9 +17,23 @@ final readonly class UpdateVaultNode
      *   content?: string|null
      * } $attributes
      */
-    public function handle(VaultNode $node, array $attributes): void
+    public function handle(VaultNode $node, array $attributes): VaultNode
     {
         $originalPath = new GetPathFromVaultNode()->handle($node);
+        $originalLinkPath = '';
+        $isNameAttributeChanged = array_key_exists('name', $attributes)
+            && $attributes['name'] !== $node->name;
+        $isParentIdAttributeChanged = array_key_exists('parent_id', $attributes)
+            && $attributes['parent_id'] !== $node->parent_id;
+
+        if ($isNameAttributeChanged || $isParentIdAttributeChanged) {
+            /**
+             * @var string $originalLinkPath
+             *
+             * @phpstan-ignore-next-line larastan.noUnnecessaryCollectionCall
+             */
+            $originalLinkPath = $node->ancestorsAndSelf()->get()->last()->full_path;
+        }
 
         // Save node to database
         $node->update($attributes);
@@ -29,10 +43,17 @@ final readonly class UpdateVaultNode
             Storage::disk('local')->put($originalPath, $attributes['content'] ?? '');
         }
 
-        // Rename node on disk
+        $node->refresh();
+
         if ($node->wasChanged(['name', 'parent_id'])) {
+            // Rename node on disk
             $path = new GetPathFromVaultNode()->handle($node);
             Storage::disk('local')->move($originalPath, $path);
+
+            // Update all backlinks
+            new UpdateVaultNodeBacklinks()->handle($node, $originalLinkPath);
         }
+
+        return $node;
     }
 }
