@@ -45,6 +45,11 @@ final readonly class UpdateVaultNode
 
         $node->refresh();
 
+        if ($node->is_file && $node->extension === 'md' && $node->wasChanged(['content'])) {
+            new ProcessVaultNodeLinks()->handle($node);
+            new ProcessVaultNodeTags()->handle($node);
+        }
+
         if ($node->wasChanged(['name', 'parent_id'])) {
             // Rename node on disk
             $path = new GetPathFromVaultNode()->handle($node);

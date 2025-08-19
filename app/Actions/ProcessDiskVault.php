@@ -51,7 +51,7 @@ final readonly class ProcessDiskVault
         /** @var string $directory */
         foreach ($directories as $directory) {
             $attributes['name'] = pathinfo($directory, PATHINFO_BASENAME);
-            $node = $createVaultNode->handle($vault, $attributes);
+            $node = $createVaultNode->handle($vault, $attributes, false);
             $this->processDirectory($disk, $vault, "/$directory", $node->id);
         }
 
@@ -62,7 +62,7 @@ final readonly class ProcessDiskVault
             $attributes['name'] = $pathInfo['filename'];
             $attributes['extension'] = $pathInfo['extension'] ?? 'md';
             $attributes['content'] = (string) file_get_contents("/$file");
-            $createVaultNode->handle($vault, $attributes);
+            $createVaultNode->handle($vault, $attributes, false);
         }
     }
 }

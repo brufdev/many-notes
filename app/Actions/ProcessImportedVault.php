@@ -64,7 +64,7 @@ final readonly class ProcessImportedVault
                 }
             }
 
-            $node = new CreateVaultNode()->handle($vault, $attributes);
+            $node = new CreateVaultNode()->handle($vault, $attributes, false);
 
             if (!array_key_exists($entryDirName, $nodeIds)) {
                 $nodeIds[$entryDirName] = $node->id;

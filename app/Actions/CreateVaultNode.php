@@ -19,7 +19,7 @@ final readonly class CreateVaultNode
      *   content?: string|null
      * } $attributes
      */
-    public function handle(Vault $vault, array $attributes): VaultNode
+    public function handle(Vault $vault, array $attributes, bool $processLinksAndTags = true): VaultNode
     {
         $attributes['parent_id'] ??= null;
         $attributes['extension'] ??= null;
@@ -63,6 +63,11 @@ final readonly class CreateVaultNode
         $nodePath = new GetPathFromVaultNode()->handle($node);
 
         if ($node->is_file) {
+            if ($node->extension === 'md' && $processLinksAndTags) {
+                new ProcessVaultNodeLinks()->handle($node);
+                new ProcessVaultNodeTags()->handle($node);
+            }
+
             Storage::disk('local')->put($nodePath, $attributes['content'] ?? '');
         } else {
             Storage::disk('local')->makeDirectory($nodePath);
