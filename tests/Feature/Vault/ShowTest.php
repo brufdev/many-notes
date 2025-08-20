@@ -10,6 +10,7 @@ use App\Actions\ProcessVaultNodeTags;
 use App\Actions\UpdateVaultNode;
 use App\Events\VaultFileSystemUpdatedEvent;
 use App\Events\VaultNodeUpdatedEvent;
+use App\Events\VaultNodeDeletedEvent;
 use App\Livewire\Vault\Show;
 use App\Models\User;
 use Illuminate\Support\Facades\Event;
@@ -391,34 +392,59 @@ it('closes an open file when it is deleted', function (): void {
 });
 
 it('deletes the links and backlinks when deleting a node', function (): void {
+    Event::fake();
+
     $user = User::factory()->create()->first();
     $vault = new CreateVault()->handle($user, [
         'name' => fake()->words(3, true),
     ]);
+    $folder1 = new CreateVaultNode()->handle($vault, [
+        'is_file' => false,
+        'name' => 'folder 1',
+    ]);
+    $folder2 = new CreateVaultNode()->handle($vault, [
+        'parent_id' => $folder1->id,
+        'is_file' => false,
+        'name' => 'folder 2',
+    ]);
     $file1 = new CreateVaultNode()->handle($vault, [
+        'parent_id' => $folder2->id,
         'is_file' => true,
         'name' => 'file 1',
         'extension' => 'md',
     ]);
     $file2 = new CreateVaultNode()->handle($vault, [
+        'parent_id' => $folder2->id,
         'is_file' => true,
         'name' => 'file 2',
         'extension' => 'md',
-        'content' => "[link](/$file1->name.md)",
     ]);
-    new UpdateVaultNode()->handle($file1, [
-        'content' => "[link](/$file2->name.md)",
+    $rootFile1 = new CreateVaultNode()->handle($vault, [
+        'is_file' => true,
+        'name' => 'root file 1',
+        'extension' => 'md',
+        'content' => "Link: [file](/$folder1->name/$folder2->name/$file1->name.md).",
     ]);
-    expect($file1->links()->count())->toBe(1);
-    expect($file2->links()->count())->toBe(1);
+    $rootFile2 = new CreateVaultNode()->handle($vault, [
+        'is_file' => true,
+        'name' => 'root file 2',
+        'extension' => 'md',
+        'content' => "Link: [file](/$folder1->name/$folder2->name/$file2->name.md).",
+    ]);
+    expect($rootFile1->links()->count())->toBe(1);
+    expect($rootFile2->links()->count())->toBe(1);
 
     Livewire::actingAs($user)
         ->test(Show::class, ['vaultId' => $vault->id])
-        ->call('deleteNode', $file1)
+        ->call('deleteNode', $folder1)
         ->assertDispatched('toast');
 
-    expect($file1->links()->count())->toBe(0);
-    expect($file2->links()->count())->toBe(0);
+    expect($rootFile1->links()->count())->toBe(0);
+    expect($rootFile2->links()->count())->toBe(0);
+
+    Event::assertDispatched(VaultFileSystemUpdatedEvent::class, 1);
+    Event::assertDispatched(VaultNodeUpdatedEvent::class, 0);
+    Event::assertDispatched(VaultNodeDeletedEvent::class, 2);
 });
 
 it('deletes the tags when deleting a node', function (): void {

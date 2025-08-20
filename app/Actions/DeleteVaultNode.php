@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
+use App\Events\VaultNodeDeletedEvent;
 use App\Models\VaultNode;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -58,6 +59,10 @@ final readonly class DeleteVaultNode
         $node->backlinks()->detach();
         $node->tags()->detach();
         $node->delete();
+
+        if ($node->is_file) {
+            broadcast(new VaultNodeDeletedEvent($node))->toOthers();
+        }
 
         return $deletedNodes;
     }

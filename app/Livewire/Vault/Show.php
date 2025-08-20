@@ -10,7 +10,6 @@ use App\Actions\GetVaultNodeFromPath;
 use App\Actions\ResolveTwoPaths;
 use App\Actions\UpdateVault;
 use App\Events\VaultFileSystemUpdatedEvent;
-use App\Events\VaultNodeDeletedEvent;
 use App\Livewire\Forms\VaultNodeForm;
 use App\Models\User;
 use App\Models\Vault;
@@ -21,7 +20,6 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
-use Livewire\Attributes\On;
 use Livewire\Attributes\Renderless;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -148,7 +146,6 @@ final class Show extends Component
         $this->dispatch('file-refreshed');
     }
 
-    #[On('file-close')]
     public function closeFile(): void
     {
         if (!$this->selectedFile instanceof VaultNode) {
@@ -168,7 +165,7 @@ final class Show extends Component
         }
 
         /** @var VaultNode $node */
-        $node = $this->nodeForm->update();
+        $node = $this->nodeForm->update(true);
         $this->setNode($node);
     }
 
@@ -212,7 +209,6 @@ final class Show extends Component
             $this->dispatch('toast', message: $message, type: 'success');
 
             broadcast(new VaultFileSystemUpdatedEvent($this->vault));
-            broadcast(new VaultNodeDeletedEvent($node))->toOthers();
         } catch (Throwable $e) {
             $this->dispatch('toast', message: $e->getMessage(), type: 'error');
         }

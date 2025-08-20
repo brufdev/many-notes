@@ -41,7 +41,8 @@
         <div class="relative flex w-full" x-cloak>
             <div
                 class="fixed inset-0 z-40 opacity-50 bg-light-base-50 dark:bg-base-900"
-                wire:loading wire:target.except="nodeForm.name, nodeForm.content"
+                wire:loading
+                wire:target.except="nodeForm.name, nodeForm.content"
             >
                 <div class="flex items-center justify-center h-full">
                     <x-icons.spinner class="w-5 h-5 animate-spin" />
@@ -349,7 +350,7 @@
                         $wire.refreshFile($wire.selectedFileId);
                     })
                     .listen('VaultNodeDeletedEvent', (e) => {
-                        $wire.dispatch('file-close');
+                        this.closeFile();
                     });
             },
 

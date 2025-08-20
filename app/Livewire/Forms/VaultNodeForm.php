@@ -89,7 +89,7 @@ final class VaultNodeForm extends Form
         return $node;
     }
 
-    public function update(): ?VaultNode
+    public function update(bool $broadcastToOthers = false): ?VaultNode
     {
         $node = VaultNode::find($this->nodeId);
 
@@ -99,11 +99,15 @@ final class VaultNodeForm extends Form
 
         $this->validate();
 
-        $node = new UpdateVaultNode()->handle($node, [
-            'parent_id' => $this->parent_id,
-            'name' => $this->name,
-            'content' => $this->content,
-        ]);
+        $node = new UpdateVaultNode()->handle(
+            $node,
+            [
+                'parent_id' => $this->parent_id,
+                'name' => $this->name,
+                'content' => $this->content,
+            ],
+            $broadcastToOthers,
+        );
 
         if ($node->wasChanged(['parent_id', 'name'])) {
             /** @var Vault $vault */
