@@ -22,21 +22,21 @@ window.setupEditor = function (options) {
 
     const prepareTiptapHTML = (html) => {
         return html
-            // prepare plain text code
+            // Prepare plain text code
             .replace(
                 /<code\s+([^>]*?)class="language-plaintext"([^>]*?)>/g,
                 (match, before, after) => {
                     return `<code${before}${after}>`;
                 }
             )
-            // prepare links
+            // Prepare links
             .replace(
                 /<a\s+([^>]*?)data-href([^>]*?)>/g,
                 (match, before, after) => {
                     return `<a ${before}href${after}>`;
                 }
             )
-            // prepare task lists
+            // Prepare task lists
             .replace(
                 /<li([^>]*)>\s*(?:<label[^>]*>)\s*(<input type="checkbox"[^>]*>)(?:<span><\/span><\/label>)(?:<div>)?(?:<p>)?(.*?)(?:<\/p>)?(?:<\/div>)?<\/li>/gs,
                 (match, liAttributes, input, content) => {
@@ -46,13 +46,24 @@ window.setupEditor = function (options) {
     };
 
     const encodeHTML = (text) => {
+        // Encode paths from Markdown links
+        const encoded = text.replace(
+            /\[(.*?)\]\((.*?)(\s".*?")?\)/g,
+            (match, text, path, title) => {
+                if (title === undefined) title = '';
+
+                return `[${text}](${encodeURI(path)}${title})`;
+            },
+        );
+
+        // Encode HTML entities
         const map = {
             '<': '&lt;',
             '"': '&quot;',
             "'": '&#039;'
         };
 
-        return text.replace(/[<"']/g, (char) => map[char]);
+        return encoded.replace(/[<"']/g, (char) => map[char]);
     };
 
     if (options.content) {
