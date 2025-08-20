@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5487ca8d9e72d5b21c9d38d58708c447",
+    "content-hash": "a563e0162baa64ee15ad908990ba9804",
     "packages": [
         {
             "name": "brick/math",
@@ -65,6 +65,66 @@
                 }
             ],
             "time": "2025-03-29T13:50:30+00:00"
+        },
+        {
+            "name": "brufdev/socialiteproviders-pocketid",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/brufdev/socialiteproviders-pocketid.git",
+                "reference": "98db90de1d2d05a9ba695fad3976c6fa866d979c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/brufdev/socialiteproviders-pocketid/zipball/98db90de1d2d05a9ba695fad3976c6fa866d979c",
+                "reference": "98db90de1d2d05a9ba695fad3976c6fa866d979c",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": "^8.0",
+                "socialiteproviders/manager": "^4.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "brufdev\\SocialiteProvidersPocketID\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "brufdev",
+                    "email": "brufdev@proton.me"
+                }
+            ],
+            "description": "PocketID OAuth2 Provider for Laravel Socialite",
+            "keywords": [
+                "laravel",
+                "oauth",
+                "pocketid",
+                "provider",
+                "socialite"
+            ],
+            "support": {
+                "docs": "https://github.com/brufdev/socialiteproviders-pocketid",
+                "issues": "https://github.com/brufdev/socialiteproviders-pocketid/issues",
+                "source": "https://github.com/brufdev/socialiteproviders-pocketid"
+            },
+            "funding": [
+                {
+                    "url": "https://www.buymeacoffee.com/brufdev",
+                    "type": "buy_me_a_coffee"
+                },
+                {
+                    "url": "https://github.com/brufdev",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-08-20T10:37:36+00:00"
         },
         {
             "name": "carbonphp/carbon-doctrine-types",

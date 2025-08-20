@@ -35,6 +35,18 @@ environment:
   - KEYCLOAK_REALM=YOUR_REALM # change realm
 ```
 
+## Pocket ID
+
+To enable Pocket ID OAuth, add:
+
+```yaml
+environment:
+  - POCKETID_CLIENT_ID=CLIENT_ID # change id
+  - POCKETID_CLIENT_SECRET=CLIENT_SECRET # change secret
+  - POCKETID_REDIRECT_URI=http://localhost/oauth/pocketid/callback # change domain
+  - POCKETID_BASE_URL=http://your-pocketid-url # change url
+```
+
 ## Zitadel
 
 To enable Zitadel OAuth, add:

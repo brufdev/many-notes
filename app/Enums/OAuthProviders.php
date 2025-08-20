@@ -15,6 +15,7 @@ enum OAuthProviders: string
     case Google = 'google';
     case Keycloak = 'keycloak';
     case LinkedIn = 'linkedin';
+    case PocketID = 'pocketid';
     case Slack = 'slack';
     case Twitter = 'twitter';
     case Zitadel = 'zitadel';

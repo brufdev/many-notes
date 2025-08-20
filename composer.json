@@ -24,6 +24,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.4",
+        "brufdev/socialiteproviders-pocketid": "^1.0",
         "laravel/framework": "^12.17.0",
         "laravel/reverb": "^1.5",
         "laravel/scout": "^10.15.0",
