@@ -4,7 +4,7 @@
     <x-menu>
         <a
             href=""
-            class="flex items-center w-full gap-2"
+            class="flex items-center w-full gap-2 pl-4"
             title="{{ $node->name }}"
             x-ref="button"
             @click.prevent="openFile({{ $node->id }})"
