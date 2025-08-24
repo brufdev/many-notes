@@ -9,7 +9,7 @@
     <x-menu class="flex flex-grow">
         <a
             href=""
-            class="flex items-center w-full"
+            class="flex items-center w-full pl-4"
             title="{{ $node->name }}"
             x-ref="button"
             @click.prevent="accordionOpen = !accordionOpen"
@@ -17,8 +17,8 @@
             @keydown.escape="menuOpen = false"
             @auxclick.outside="menuOpen = false"
         >
-            <x-icons.chevronRight x-show="!accordionOpen" class="w-4 h-4" />
-            <x-icons.chevronDown x-show="accordionOpen" class="w-4 h-4" x-cloak />
+            <x-icons.chevronRight x-show="!accordionOpen" class="w-4 h-4 -ml-4" />
+            <x-icons.chevronDown x-show="accordionOpen" class="w-4 h-4 -ml-4" x-cloak />
 
             <span class="ml-1 overflow-hidden whitespace-nowrap text-ellipsis">
                 {{ $node->name }}
