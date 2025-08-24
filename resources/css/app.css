@@ -75,6 +75,7 @@
     }
 
     .tree-view-directory {
+        @apply pl-2 ml-2;
         border-left: 2px solid #e9ecef;
     }
 

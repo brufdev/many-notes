@@ -1,8 +1,10 @@
 @props(['root'])
 
 <ul
-    @unless ($root)
-        class="relative w-full pl-2 ml-2 tree-view-directory"
+    @if ($root)
+        class="relative w-full"
+    @else
+        class="relative w-full tree-view-directory"
         x-show="accordionOpen"
         x-collapse
         x-cloak
