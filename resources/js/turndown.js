@@ -51,7 +51,7 @@ export const turndownService = new TurndownService({
         const titlePart = title ? ` "${title}"` : '';
 
         if (!src) {
-            return '';
+            return content;
         }
 
         try {
