@@ -59,7 +59,7 @@ export const turndownService = new TurndownService({
 
             return `![${alt}](${decodedSrc}${titlePart})`;
         } catch (error) {
-            return '';
+            return `![${alt}](${src}${titlePart})`;
         }
     },
 }).addRule('decodeLinks', {

@@ -52,7 +52,13 @@ window.setupEditor = function (options) {
             (match, text, path, title) => {
                 if (title === undefined) title = '';
 
-                return `[${text}](${encodeURI(path)}${title})`;
+                try {
+                    const encodedPath = encodeURIComponent(path);
+
+                    return `[${text}](${encodedPath}${title})`;
+                } catch (error) {
+                    return `[${text}](${path}${title})`;
+                }
             },
         );
 
