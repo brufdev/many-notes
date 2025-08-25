@@ -53,9 +53,7 @@ window.setupEditor = function (options) {
                 if (title === undefined) title = '';
 
                 try {
-                    const encodedPath = encodeURIComponent(path);
-
-                    return `[${text}](${encodedPath}${title})`;
+                    return `[${text}](${encodeURI(path)}${title})`;
                 } catch (error) {
                     return `[${text}](${path}${title})`;
                 }

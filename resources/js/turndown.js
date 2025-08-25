@@ -21,9 +21,9 @@ export const turndownService = new TurndownService({
     filter: 'li',
     replacement: function (content, node, options) {
         content = content
-            .replace(/^\n+/, '') // remove leading newlines
-            .replace(/\n+$/, '\n') // replace trailing newlines with just a single one
-            .replace(/\n/gm, '\n    '); // indent
+            .replace(/^\n+/, '') // Remove leading newlines
+            .replace(/\n+$/, '\n') // Replace trailing newlines with just a single one
+            .replace(/\n/gm, '\n    '); // Indent
         let prefix = options.bulletListMarker + ' ';
         const parent = node.parentNode;
 
@@ -55,9 +55,7 @@ export const turndownService = new TurndownService({
         }
 
         try {
-            const decodedSrc = decodeURIComponent(src);
-
-            return `![${alt}](${decodedSrc}${titlePart})`;
+            return `![${alt}](${decodeURI(src)}${titlePart})`;
         } catch (error) {
             return `![${alt}](${src}${titlePart})`;
         }
@@ -72,9 +70,7 @@ export const turndownService = new TurndownService({
         }
         
         try {
-            const decodedHref = decodeURIComponent(href);
-
-            return `[${content}](${decodedHref})`;
+            return `[${content}](${decodeURI(href)})`;
         } catch (error) {
             return `[${content}](${href})`;
         }

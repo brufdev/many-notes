@@ -38,8 +38,6 @@ renderer.listitem = function(item) {
                 && firstToken.tokens[0].type === 'text';
 
             if (hasParagraphWithText) {
-                // Encode existing text token
-                firstToken.tokens[0].text = encodeURIComponent(firstToken.tokens[0].text);
                 firstToken.tokens[0].escaped = true;
             } else {
                 // Prepend empty text token
