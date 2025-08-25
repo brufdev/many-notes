@@ -72,8 +72,6 @@ final class OAuthLoginCallback extends Component
         }
 
         /** @phpstan-ignore-next-line */
-        $socialAccount->access_token = $socialUser->token ?? null;
-        /** @phpstan-ignore-next-line */
         $socialAccount->refresh_token = $socialUser->refreshToken ?? null;
         /** @phpstan-ignore-next-line */
         $socialAccount->token_expires_at = now()->addSeconds($socialUser->expiresIn ?? 0);
