@@ -25,4 +25,4 @@ The key is to choose a system that works best for your mind.
 
 ---
 
-What's [next](/01%20Inbox/Next%20Step.md)?
+What's [next](/01 Inbox/Next Step.md)?

@@ -12,4 +12,4 @@ Take some time to explore the interface and its features. The user menu, in part
 
 ---
 
-Check out additional information about [Organizational Methods](/01%20Inbox/Organizational%20Methods.md).
+Check out additional information about [Organizational Methods](/01 Inbox/Organizational Methods.md).
