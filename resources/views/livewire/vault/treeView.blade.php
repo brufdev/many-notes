@@ -22,7 +22,7 @@
                 @mouseenter="hovered = true"
                 @mouseleave="hovered = false"
             >
-                <h3>{{ $vault->name }}</h3>
+                <h3 class="pl-4 font-semibold">{{ $vault->name }}</h3>
 
                 <div
                     class="flex items-center"
