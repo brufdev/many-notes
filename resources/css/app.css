@@ -74,11 +74,6 @@
         cursor: pointer;
     }
 
-    .tree-view-directory {
-        @apply pl-2 ml-2;
-        border-left: 2px solid #e9ecef;
-    }
-
     .prose {
         h1 {
             font-size: 1.75em !important;
