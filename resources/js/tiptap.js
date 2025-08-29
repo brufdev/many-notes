@@ -45,12 +45,14 @@ window.setupEditor = function (options) {
             );
     };
 
-    const encodeHTML = (text) => {
+    const encodeText = (text) => {
         // Encode paths from Markdown links
         const encoded = text.replace(
             /\[(.*?)\]\((.*?)(\s".*?")?\)/g,
             (match, text, path, title) => {
-                if (title === undefined) title = '';
+                if (title === undefined) {
+                    title = '';
+                }
 
                 try {
                     return `[${text}](${encodeURI(path)}${title})`;
@@ -60,18 +62,12 @@ window.setupEditor = function (options) {
             },
         );
 
-        // Encode HTML entities
-        const map = {
-            '<': '&lt;',
-            '"': '&quot;',
-            "'": '&#039;'
-        };
-
-        return encoded.replace(/[<"']/g, (char) => map[char]);
+        // Prevent HTML rendering
+        return encoded.replace(/</g, '&lt;');
     };
 
     if (options.content) {
-        content = markedService.parse(encodeHTML(options.content));
+        content = markedService.parse(encodeText(options.content));
     }
 
     return {
@@ -182,7 +178,7 @@ window.setupEditor = function (options) {
         },
 
         setContent(content) {
-            const html = markedService.parse(encodeHTML(content));
+            const html = markedService.parse(encodeText(content));
             this.getEditor().commands.setContent(html, {
                 emitUpdate: true,
             });
