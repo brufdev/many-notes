@@ -22,7 +22,7 @@
                 @mouseenter="hovered = true"
                 @mouseleave="hovered = false"
             >
-                <h3 class="pl-4 font-semibold">{{ $vault->name }}</h3>
+                <h3 class="pl-1 font-semibold">{{ $vault->name }}</h3>
 
                 <div
                     class="flex items-center"
@@ -92,7 +92,7 @@
             </div>
         </div>
 
-        <div>
+        <div class="overflow-x-hidden">
             @if (count($nodes))
                 @include('components.vault.treeViewNode', ['nodes' => $nodes, 'root' => true])
             @else
