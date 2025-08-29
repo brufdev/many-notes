@@ -1,7 +1,5 @@
-import { Editor, mergeAttributes } from '@tiptap/core';
+import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
-import Image from '@tiptap/extension-image';
-import Link from '@tiptap/extension-link';
 import TaskItem from '@tiptap/extension-task-item';
 import TaskList from '@tiptap/extension-task-list';
 import Table from '@tiptap/extension-table';
@@ -9,6 +7,8 @@ import TableRow from '@tiptap/extension-table-row';
 import { common, createLowlight } from 'lowlight';
 
 import { CustomCodeBlockLowlight } from './tiptap/extension-custom-code-block-low-light';
+import { CustomImage } from './tiptap/extension-custom-image';
+import { CustomLink } from './tiptap/extension-custom-link';
 import { CustomTableHeader } from './tiptap/extension-custom-table-header';
 import { CustomTableCell } from './tiptap/extension-custom-table-cell';
 import { CustomTableColumnAlign } from './tiptap/extension-custom-table-column-align';
@@ -86,32 +86,11 @@ window.setupEditor = function (options) {
                     defaultLanguage: 'plaintext',
                     lowlight: createLowlight(common),
                 }),
-                Image.extend({
-                    renderHTML({ HTMLAttributes }) {
-                        const { src } = HTMLAttributes;
-
-                        if (src && !src.startsWith('http://') && !src.startsWith('https://')) {
-                            HTMLAttributes.src = `/files/${options.vaultId}?path=${src}`;
-                        }
-
-                        return ['img', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes)];
-                    },
+                CustomImage.configure({
+                    vaultId: options.vaultId,
                 }),
-                Link.configure({
+                CustomLink.configure({
                     openOnClick: false,
-                }).extend({
-                    renderHTML({ HTMLAttributes }) {
-                        const { href } = HTMLAttributes;
-
-                        if (href && !href.startsWith('http')) {
-                            HTMLAttributes.target = '_self';
-                            HTMLAttributes['wire:click.prevent'] = `openFilePath('${href}')`;
-                            HTMLAttributes['data-href'] = href;
-                            delete HTMLAttributes.href;
-                        }
-
-                        return ['a', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes), 0];
-                    },
                 }),
                 TaskList,
                 TaskItem.configure({
