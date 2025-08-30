@@ -45,12 +45,9 @@ final class VaultFile
      */
     public static function validate(string $extension, string $mimeType): bool
     {
-        foreach (self::$fileTypes as $type) {
-            if ($type::validate($extension, $mimeType)) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any(
+            self::$fileTypes,
+            fn(string $typeClass): bool => $typeClass::validate($extension, $mimeType),
+        );
     }
 }
