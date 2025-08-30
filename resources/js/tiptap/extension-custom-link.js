@@ -2,6 +2,24 @@ import { mergeAttributes } from '@tiptap/core';
 import Link from '@tiptap/extension-link';
 
 export const CustomLink = Link.extend({
+    addAttributes() {
+        return {
+            ...this.parent?.(),
+            title: {
+                default: null,
+                parseHTML: element => element.getAttribute('title'),
+                renderHTML: attributes => {
+                    if (!attributes.title) {
+                        return {};
+                    }
+
+                    return {
+                        title: attributes.title,
+                    };
+                },
+            },
+        };
+    },
     renderHTML({ HTMLAttributes }) {
         const { href } = HTMLAttributes;
 

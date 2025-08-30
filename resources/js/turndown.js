@@ -64,15 +64,17 @@ export const turndownService = new TurndownService({
     filter: 'a',
     replacement: function(content, node) {
         const href = node.getAttribute('href');
+        const title = node.getAttribute('title');
+        const titlePart = title ? ` "${title}"` : '';
 
         if (!href) {
             return content;
         }
         
         try {
-            return `[${content}](${decodeURI(href)})`;
+            return `[${content}](${decodeURI(href)}${titlePart})`;
         } catch (error) {
-            return `[${content}](${href})`;
+            return `[${content}](${href}${titlePart})`;
         }
     }
 });
