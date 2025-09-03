@@ -73,11 +73,6 @@
                                 <x-slot:header>
                                     <x-tiptapEditor.toolbar />
                                 </x-slot:header>
-                                <textarea
-                                    class="hidden"
-                                    x-ref="noteContent"
-                                    wire:model.live="nodeForm.content"
-                                ></textarea>
                                 <div
                                     class="h-full"
                                     spellcheck="false"
@@ -88,6 +83,8 @@
                                     class="h-full w-full p-0 bg-transparent border-0 focus:ring-0"
                                     :class="isEditingMarkdown ? '' : 'hidden'"
                                     :disabled="!isEditMode"
+                                    spellcheck="false"
+                                    autocomplete="off"
                                     x-ref="noteMarkdown"
                                     @input="editor.setContent(event.target.value)"
                                 ></textarea>
@@ -214,12 +211,11 @@
             editor: null,
             users: [],
             updateContent: Alpine.debounce((markdown) => {
-                if ($refs.noteContent.value === markdown) {
+                if ($wire.nodeForm.content === markdown) {
                     return;
                 }
 
-                $refs.noteContent.value = markdown;
-                $refs.noteContent.dispatchEvent(new Event('input'));
+                $wire.$set('nodeForm.content', markdown);
             }, 500),
 
             init() {

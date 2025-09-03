@@ -8,6 +8,7 @@
                     class="flex flex-grow p-0 px-1 text-lg bg-transparent border-0 focus:ring-0 focus:outline-0"
                     type="text"
                     spellcheck="false"
+                    autocomplete="off"
                     wire:model.live.debounce.500ms="nodeForm.name"
                 />
 
