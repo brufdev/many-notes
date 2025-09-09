@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Models\Setting;
-use brufdev\SocialiteProvidersPocketID\Provider as PocketIDProvider;
 use Carbon\CarbonImmutable;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
@@ -20,6 +19,7 @@ use SocialiteProviders\Authelia\Provider as AutheliaProvider;
 use SocialiteProviders\Authentik\Provider as AuthentikProvider;
 use SocialiteProviders\Keycloak\Provider as KeycloakProvider;
 use SocialiteProviders\Manager\SocialiteWasCalled;
+use SocialiteProviders\PocketID\Provider as PocketIDProvider;
 use SocialiteProviders\Zitadel\Provider as ZitadelProvider;
 use Throwable;
 

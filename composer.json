@@ -24,7 +24,6 @@
     "license": "MIT",
     "require": {
         "php": "^8.4",
-        "brufdev/socialiteproviders-pocketid": "^1.0",
         "laravel/framework": "^12.17.0",
         "laravel/reverb": "^1.5",
         "laravel/scout": "^10.15.0",
@@ -34,6 +33,7 @@
         "socialiteproviders/authelia": "^4.0",
         "socialiteproviders/authentik": "^5.2",
         "socialiteproviders/keycloak": "^5.3",
+        "socialiteproviders/pocketid": "^5.0",
         "socialiteproviders/zitadel": "^4.1",
         "staudenmeir/laravel-adjacency-list": "^1.25.1",
         "typesense/typesense-php": "^5.1"
