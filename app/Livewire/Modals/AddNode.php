@@ -42,10 +42,11 @@ final class AddNode extends Component
     {
         /** @var Vault $vault */
         $vault = Vault::find($this->form->vaultId);
-        $this->form->create();
+        $node = $this->form->create();
         $this->closeModal();
 
-        $message = $this->form->is_file ? __('File created') : __('Folder created');
+        $this->dispatch('open-file', id: $node->id);
+        $message = $node->is_file ? __('File created') : __('Folder created');
         $this->dispatch('toast', message: $message, type: 'success');
 
         broadcast(new VaultFileSystemUpdatedEvent($vault));

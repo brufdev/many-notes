@@ -3,6 +3,7 @@
     x-data="vault"
     @mde-link.window="editor.toggleLink($event.detail.path)"
     @mde-image.window="editor.setImage($event.detail.path)"
+    @open-file.window="openFile($event.detail.id)"
     @file-opened.window="$nextTick(() => { fileOpened() })"
     @file-refreshed.window="$nextTick(() => { fileRefreshed() })"
 >
