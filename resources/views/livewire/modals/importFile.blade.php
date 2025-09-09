@@ -11,14 +11,14 @@
                 x-on:livewire-upload-progress="progress = $event.detail.progress"
             >
                 <label
-                    for="file-upload"
+                    for="files-upload"
                     class="flex flex-col items-center justify-center w-full h-full gap-2 text-base font-medium cursor-pointer"
                 >
-                    <h6 class="font-semibold">{{ __('Browse file to import') }}</h6>
+                    <h6 class="font-semibold">{{ __('Browse files to import') }}</h6>
                     <span class="text-sm">{{ __('Image, video, audio, note or pdf file') }}</span>
                     <span class="text-sm">{{ __('Max size ') . ini_get('upload_max_filesize') }}</span>
 
-                    @error('file')
+                    @error('files.*')
                         <p class="text-sm text-center text-error-500" aria-live="assertive">{{ $message }}</p>
                     @enderror
 
@@ -28,7 +28,7 @@
                     </div>
                 </label>
 
-                <input type="file" id="file-upload" class="hidden" wire:model="file" accept="{{ $fileMimes }}" />
+                <input type="file" id="files-upload" class="hidden" wire:model="files" accept="{{ $fileMimes }}" multiple />
             </div>
         </x-form>
     </x-modal.panel>

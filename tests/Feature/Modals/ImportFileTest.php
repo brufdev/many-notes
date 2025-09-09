@@ -42,7 +42,7 @@ it('does not accept passing a file as parent node', function (): void {
         ->assertStatus(400);
 });
 
-it('saves an imported file to both the database and the disk', function (): void {
+it('saves imported files to both the database and the disk', function (): void {
     $user = User::factory()->create()->first();
     $vault = new CreateVault()->handle($user, [
         'name' => fake()->words(3, true),
@@ -52,16 +52,20 @@ it('saves an imported file to both the database and the disk', function (): void
         'name' => fake()->words(3, true),
     ]);
     $content = fake()->paragraph();
-    $file = UploadedFile::fake()->createWithContent('note.md', $content);
+    $file1 = UploadedFile::fake()->createWithContent('note1.md', $content);
+    $file2 = UploadedFile::fake()->createWithContent('note2.md', $content);
 
     Livewire::actingAs($user)
         ->test(ImportFile::class, ['vault' => $vault])
         ->assertSet('show', false)
         ->call('open', $node)
-        ->set('file', $file)
+        ->set('files', [$file1, $file2])
         ->assertSet('show', false);
 
-    $path = new GetPathFromVaultNode()->handle($node) . '/' . $file->name;
+    $path = new GetPathFromVaultNode()->handle($node) . '/' . $file1->name;
+    expect(Storage::disk('local')->exists($path))->toBeTrue();
+    expect(Storage::disk('local')->get($path))->toBe($content);
+    $path = new GetPathFromVaultNode()->handle($node) . '/' . $file2->name;
     expect(Storage::disk('local')->exists($path))->toBeTrue();
     expect(Storage::disk('local')->get($path))->toBe($content);
 });
@@ -87,7 +91,7 @@ it('handles name collisions when importing a file with an existing name', functi
     Livewire::actingAs($user)
         ->test(ImportFile::class, ['vault' => $vault])
         ->call('open', $folderNode)
-        ->set('file', $file);
+        ->set('files', $file);
 
     $nodes = $vault->nodes()->get();
     expect($nodes->count())->toBe(3);
@@ -122,7 +126,7 @@ it('handles name collisions when importing a file with a name existing in multip
     Livewire::actingAs($user)
         ->test(ImportFile::class, ['vault' => $vault])
         ->call('open')
-        ->set('file', $file);
+        ->set('files', $file);
 
     $nodes = $vault->nodes()->get();
     expect($nodes->count())->toBe(3);
@@ -148,7 +152,7 @@ it('does not import a file with a non-allowed extension', function (): void {
         ->test(ImportFile::class, ['vault' => $vault])
         ->assertSet('show', false)
         ->call('open')
-        ->set('file', $file)
+        ->set('files', $file)
         ->assertDispatched('toast', type: 'error');
 });
 
@@ -169,7 +173,7 @@ it('creates links when importing a file', function (): void {
     Livewire::actingAs($user)
         ->test(ImportFile::class, ['vault' => $vault])
         ->call('open')
-        ->set('file', $file);
+        ->set('files', $file);
 
     expect($vault->nodes()->get()->get(1)->links()->count())->toBe(1);
 });
@@ -185,7 +189,7 @@ it('creates tags when importing a file', function (): void {
     Livewire::actingAs($user)
         ->test(ImportFile::class, ['vault' => $vault])
         ->call('open')
-        ->set('file', $file);
+        ->set('files', $file);
 
     expect($vault->nodes()->first()->tags()->count())->toBe(2);
 });

@@ -26,8 +26,11 @@ final class ImportFile extends Component
 
     public VaultNode $parent;
 
-    #[Validate('required|file')]
-    public ?TemporaryUploadedFile $file = null;
+    /**
+     * @var array<int, TemporaryUploadedFile> $files
+     */
+    #[Validate(['files.*' => 'required|file'])]
+    public array $files = [];
 
     public string $fileMimes;
 
@@ -55,29 +58,35 @@ final class ImportFile extends Component
         $this->openModal();
     }
 
-    public function updatedFile(): void
+    public function updatedFiles(): void
     {
         $this->validate();
 
-        /** @var TemporaryUploadedFile $file */
-        $file = $this->file;
-        $fileExtension = $file->getClientOriginalExtension();
-        $fileMimeType = $file->getMimeType();
-        $fileName = $file->getClientOriginalName();
-        $filePath = $file->getRealPath();
+        $filesImported = 0;
 
-        if (!VaultFile::validate($fileExtension, $fileMimeType)) {
-            $this->closeModal();
+        foreach ($this->files as $file) {
+            $fileExtension = $file->getClientOriginalExtension();
+            $fileMimeType = $file->getMimeType();
+            $fileName = $file->getClientOriginalName();
+            $filePath = $file->getRealPath();
 
-            $this->dispatch('toast', message: __('File not supported'), type: 'error');
+            if (!VaultFile::validate($fileExtension, $fileMimeType)) {
+                continue;
+            }
+
+            new ProcessImportedFile()->handle($this->vault, $this->parent, $fileName, $filePath);
+            $filesImported++;
+        }
+
+        $this->closeModal();
+
+        if ($filesImported === 0) {
+            $this->dispatch('toast', message: __('No files imported'), type: 'error');
 
             return;
         }
 
-        new ProcessImportedFile()->handle($this->vault, $this->parent, $fileName, $filePath);
-        $this->closeModal();
-
-        $this->dispatch('toast', message: __('File imported'), type: 'success');
+        $this->dispatch('toast', message: __('Files imported'), type: 'success');
 
         broadcast(new VaultFileSystemUpdatedEvent($this->vault));
     }
