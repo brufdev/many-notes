@@ -57,7 +57,7 @@
                 x-transition:leave="ease-in duration-200"
             ></div>
             <div
-                class="absolute top-0 left-0 z-30 flex flex-col h-full overflow-hidden overflow-y-auto transition-all w-60 bg-light-base-200 dark:bg-base-950"
+                class="absolute top-0 left-0 z-30 flex flex-col h-full overflow-hidden overflow-y-auto transition-all w-60 bg-light-base-200 dark:bg-base-950 print:hidden"
                 :class="{ 'translate-x-0': isLeftPanelOpen, '-translate-x-full hidden': !isLeftPanelOpen }"
             >
                 <livewire:vault.tree-view lazy="on-load" :vault="$this->vault" />
@@ -67,7 +67,7 @@
                 class="absolute top-0 bottom-0 right-0 flex flex-col w-full transition-all text-start bg-light-base-50 dark:bg-base-900"
                 :class="{ 'md:pl-60': isLeftPanelOpen, 'md:pr-60': isRightPanelOpen }"
             >
-                <div class="flex flex-col h-full w-full max-w-[48rem] mx-auto px-4 overflow-y-auto">
+                <div class="flex flex-col h-full w-full max-w-[48rem] mx-auto px-4 overflow-y-auto print:overflow-y-visible">
                     <div class="flex flex-col w-full h-full" x-show="$wire.selectedFileId">
                         <x-vault.fileDetails>
                             @if (in_array($nodeForm->extension, App\Services\VaultFiles\Types\Note::extensions()))
@@ -124,7 +124,7 @@
             </div>
 
             <div
-                class="absolute top-0 right-0 z-30 flex flex-col h-full overflow-hidden overflow-y-auto transition-all w-60 bg-light-base-200 dark:bg-base-950"
+                class="absolute top-0 right-0 z-30 flex flex-col h-full overflow-hidden overflow-y-auto transition-all w-60 bg-light-base-200 dark:bg-base-950 print:hidden"
                 :class="{ 'translate-x-0': isRightPanelOpen, '-translate-x-full hidden': !isRightPanelOpen }"
             >
                 <div class="flex flex-col gap-4 p-4">
