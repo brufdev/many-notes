@@ -24,6 +24,4 @@ When suggesting or submitting new features, consider whether they’re likely to
 
 ## Code of Conduct
 
-Be respectful. If you're contributing, I'm assuming good intent and hoping for a straightforward, constructive interaction.
-
-It's the maintainer's responsibility to make sure all submissions meet the project's quality standards and goals. Developers have different skill sets, strengths, and weaknesses. Please respect the maintainer’s decisions, and don’t take it personally if a submission isn’t accepted.
+As the maintainer, it is my responsibility to ensure that all submissions meet the project's quality standards and goals. If you are contributing, I assume good intent and hope for straightforward and constructive interactions.
