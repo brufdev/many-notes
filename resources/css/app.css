@@ -74,6 +74,12 @@
         cursor: pointer;
     }
 
+    #file-content {
+        img, object, video, audio {
+            @apply rounded;
+        }
+    }
+
     .prose {
         h1 {
             font-size: 1.75em !important;

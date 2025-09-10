@@ -50,7 +50,7 @@
         </div>
         {{ $header }}
     </div>
-    <div class="h-full pb-4">
+    <div id="file-content" class="h-full pb-4">
         {{ $slot }}
     </div>
 </div>
