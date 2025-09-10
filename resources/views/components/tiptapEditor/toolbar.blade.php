@@ -293,5 +293,12 @@
                 @click="toggleEditMode"
             />
         </li>
+        <li>
+            <x-tiptapEditor.button
+                title="{{ __('Print') }}"
+                icon="print"
+                @click="print()"
+            />
+        </li>
     </ul>
 </div>
