@@ -9,9 +9,15 @@
         </x-menu.button>
 
         <x-menu.items>
-            <div class="px-3">
+            <div class="px-3 font-semibold">
                 {{ auth()->user()->name }}
             </div>
+
+            @if (auth()->user()->isSuperAdmin())
+                <div class="text-xs px-3 text-light-base-700 dark:text-base-400">{{ __('Super Admin') }}</div>
+            @elseif (auth()->user()->isAdmin())
+                <div class="text-xs px-3 text-light-base-700 dark:text-base-400">{{ __('Admin') }}</div>
+            @endif
 
             <x-menu.itemDivider></x-menu.itemDivider>
 

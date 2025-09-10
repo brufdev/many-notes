@@ -29,6 +29,17 @@ final class User extends Authenticatable
     ];
 
     /**
+     * Indicate if the user is a super admin.
+     */
+    public function isSuperAdmin(): bool
+    {
+        /** @var UserRole $role */
+        $role = $this->role;
+
+        return $role === UserRole::SUPER_ADMIN;
+    }
+
+    /**
      * Indicate if the user is an admin.
      */
     public function isAdmin(): bool
