@@ -1,7 +1,7 @@
 @props(['header' => ''])
 
-<div class="flex flex-col flex-grow">
-    <div class="sticky top-0 flex flex-col gap-4 py-4 z-15 bg-light-base-50 dark:bg-base-900 print:hidden">
+<div class="flex flex-col w-full h-full">
+    <div class="flex flex-col gap-4 p-4 z-15 bg-light-base-50 dark:bg-base-900 print:hidden">
         <div class="z-[5]">
             <div class="flex justify-between">
                 <input
@@ -50,7 +50,7 @@
         </div>
         {{ $header }}
     </div>
-    <div id="file-content" class="h-full pb-4">
+    <div id="file-content" class="flex flex-grow w-full pb-4 overflow-y-auto print:overflow-y-visible">
         {{ $slot }}
     </div>
 </div>

@@ -57,7 +57,7 @@
                 x-transition:leave="ease-in duration-200"
             ></div>
             <div
-                class="absolute top-0 left-0 z-30 flex flex-col h-full overflow-hidden overflow-y-auto transition-all w-60 bg-light-base-200 dark:bg-base-950 print:hidden"
+                class="absolute top-0 bottom-0 left-0 z-30 flex flex-col w-60 transition-all bg-light-base-200 dark:bg-base-950 print:hidden"
                 :class="{ 'translate-x-0': isLeftPanelOpen, '-translate-x-full hidden': !isLeftPanelOpen }"
             >
                 <livewire:vault.tree-view lazy="on-load" :vault="$this->vault" />
@@ -67,28 +67,28 @@
                 class="absolute top-0 bottom-0 right-0 flex flex-col w-full transition-all text-start bg-light-base-50 dark:bg-base-900"
                 :class="{ 'md:pl-60': isLeftPanelOpen, 'md:pr-60': isRightPanelOpen }"
             >
-                <div class="flex flex-col h-full w-full max-w-[48rem] mx-auto px-4 overflow-y-auto print:overflow-y-visible">
-                    <div class="flex flex-col w-full h-full" x-show="$wire.selectedFileId">
+                <div class="flex flex-col h-full w-full max-w-[48rem] mx-auto">
+                    <div class="flex h-full w-full" x-show="$wire.selectedFileId">
                         <x-vault.fileDetails>
                             @if (in_array($nodeForm->extension, App\Services\VaultFiles\Types\Note::extensions()))
                                 <x-slot:header>
                                     <x-tiptapEditor.toolbar />
                                 </x-slot:header>
                                 <div
-                                    class="h-full"
+                                    class="h-full w-full px-4 overflow-y-auto"
                                     spellcheck="false"
                                     x-ref="noteEditor"
                                     wire:ignore
                                 ></div>
-                                <textarea
-                                    class="h-full w-full p-0 bg-transparent border-0 focus:ring-0"
+                                <div
+                                    class="h-full w-full px-4 overflow-y-auto whitespace-pre-wrap focus:outline-none"
                                     :class="isEditingMarkdown ? '' : 'hidden'"
-                                    :disabled="!isEditMode"
+                                    :contenteditable="isEditMode"
                                     spellcheck="false"
-                                    autocomplete="off"
                                     x-ref="noteMarkdown"
-                                    @input="editor.setContent(event.target.value)"
-                                ></textarea>
+                                    wire:ignore
+                                    @input="editor.setContent(event.target.textContent)"
+                                ></div>
                             @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Types\Image::extensions()))
                                 <img src="{{ $selectedFileUrl }}" alt="" />
                             @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Types\Pdf::extensions()))
@@ -124,10 +124,10 @@
             </div>
 
             <div
-                class="absolute top-0 right-0 z-30 flex flex-col h-full overflow-hidden overflow-y-auto transition-all w-60 bg-light-base-200 dark:bg-base-950 print:hidden"
+                class="absolute top-0 bottom-0 right-0 z-30 flex flex-col w-60 py-4 transition-all bg-light-base-200 dark:bg-base-950 print:hidden"
                 :class="{ 'translate-x-0': isRightPanelOpen, '-translate-x-full hidden': !isRightPanelOpen }"
             >
-                <div class="flex flex-col gap-4 p-4">
+                <div class="flex flex-col gap-4 px-4 overflow-y-auto">
                     <div class="flex flex-col w-full gap-2">
                         <h3>{{ __('Links') }}</h3>
                         <div class="flex flex-col gap-2 text-sm">
@@ -292,7 +292,6 @@
             toggleEditMode() {
                 this.isEditMode = !this.isEditMode;
                 this.editor.setEditable(this.isEditMode);
-                this.$refs.noteMarkdown.disabled = !this.isEditMode;
             },
 
             openFile(fileId) {

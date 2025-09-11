@@ -1,5 +1,5 @@
 <div
-    class="flex flex-grow px-4"
+    class="flex h-full w-full"
     x-init="
         Echo.private('Vault.{{ $vault->id }}')
             .listen('VaultFileSystemUpdatedEvent', (e) => {
@@ -8,7 +8,7 @@
     "
 >
     <x-treeView>
-        <div class="sticky top-0 z-[5] flex flex-col gap-2 py-4 bg-light-base-200 dark:bg-base-950">
+        <div class="z-[5] flex flex-col gap-2 p-4 bg-light-base-200 dark:bg-base-950">
             <div
                 class="flex justify-center py-1 rounded-sm bg-primary-400 dark:bg-primary-500 text-light-base-50"
                 x-show="moving()"
@@ -92,7 +92,7 @@
             </div>
         </div>
 
-        <div class="overflow-x-hidden">
+        <div class="h-full pb-4 overflow-y-auto">
             @if (count($nodes))
                 @include('components.vault.treeViewNode', ['nodes' => $nodes, 'root' => true])
             @else

@@ -179,7 +179,7 @@ window.setupEditor = function (options) {
         updateMarkdown() {
             const html = prepareTiptapHTML(this.getEditor().getHTML());
             const markdown = turndownService.turndown(html);
-            options.markdownElement.value = markdown;
+            options.markdownElement.textContent = markdown;
         },
 
         undo() {
