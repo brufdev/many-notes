@@ -60,21 +60,30 @@ export const turndownService = new TurndownService({
             return `![${alt}](${src}${titlePart})`;
         }
     },
-}).addRule('decodeLinks', {
+}).addRule('link', {
     filter: 'a',
     replacement: function(content, node) {
         const href = node.getAttribute('href');
+        const autolink = node.getAttribute('class') === 'autolink';
         const title = node.getAttribute('title');
         const titlePart = title ? ` "${title}"` : '';
 
         if (!href) {
             return content;
         }
-        
+
+        let cleanHref = '';
+
         try {
-            return `[${content}](${decodeURI(href)}${titlePart})`;
+            cleanHref = decodeURI(href);
         } catch (error) {
-            return `[${content}](${href}${titlePart})`;
+            cleanHref = href;
         }
+
+        if (autolink) {
+            return cleanHref;
+        }
+
+        return `[${content}](${cleanHref}${titlePart})`;
     }
 });

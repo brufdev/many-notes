@@ -2,6 +2,22 @@ import { marked } from 'marked';
 
 const renderer = new marked.Renderer();
 
+renderer.link = function({ href, raw, text, title }) {
+    let out = `<a href="${href}"`;
+
+    if (raw === href) {
+        out += ' class="autolink"';
+    }
+
+    if (title) {
+        out += ` title="${title}"`;
+    }
+
+    out += `>${text}</a>`;
+
+    return out;
+};
+
 renderer.list = function(token) {
     const ordered = token.ordered;
     const taskList = token.items[0]?.task === true;
