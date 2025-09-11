@@ -83,7 +83,7 @@
                                 <div
                                     class="h-full w-full px-4 overflow-y-auto whitespace-pre-wrap focus:outline-none"
                                     :class="isEditingMarkdown ? '' : 'hidden'"
-                                    :contenteditable="isEditMode"
+                                    :contenteditable="isEditMode ? 'plaintext-only' : 'false'"
                                     spellcheck="false"
                                     x-ref="noteMarkdown"
                                     wire:ignore
