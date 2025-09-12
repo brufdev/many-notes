@@ -1,5 +1,31 @@
 import { marked } from 'marked';
 
+const angledLinkExtension = {
+    name: 'angledLink',
+    level: 'inline',
+    start(src) {
+        return src.match(/&lt;/)?.index;
+    },
+    tokenizer(src, tokens) {
+        const rule = /^&lt;(https?:\/\/[^>]+)>/;
+        const match = rule.exec(src);
+
+        try {
+            if (match && new URL(match[1])) {
+                return {
+                    type: 'angledLink',
+                    raw: match[0],
+                    href: match[1],
+                };
+            }
+        } catch (error) {
+        }
+    },
+    renderer(token) {
+        return `<a href="${token.href}" class="angledlink">${token.href}</a>`;
+    },
+};
+
 const renderer = new marked.Renderer();
 
 renderer.link = function({ href, raw, text, title }) {
@@ -81,5 +107,7 @@ renderer.code = function({ text, lang }) {
 renderer.codespan = function({ text }) {
     return `<code>${text}</code>`;
 };
+
+marked.use({ extensions: [angledLinkExtension] });
 
 export const markedService = marked.setOptions({ renderer: renderer });
