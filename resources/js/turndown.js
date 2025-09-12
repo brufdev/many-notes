@@ -64,8 +64,8 @@ export const turndownService = new TurndownService({
     filter: 'a',
     replacement: function(content, node) {
         const href = node.getAttribute('href');
-        const autoLink = node.getAttribute('class') === 'autolink';
-        const angledLink = node.getAttribute('class') === 'angledlink';
+        const autoLink = node.classList.contains('autoLink');
+        const angledLink = node.classList.contains('angledLink');
         const title = node.getAttribute('title');
         const titlePart = title ? ` "${title}"` : '';
 
@@ -80,6 +80,8 @@ export const turndownService = new TurndownService({
         } catch (error) {
             cleanHref = href;
         }
+
+        cleanHref = cleanHref.replace(/^mailto:/, '');
 
         if (autoLink) {
             return cleanHref;

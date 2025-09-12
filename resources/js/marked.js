@@ -7,8 +7,9 @@ const angledLinkExtension = {
         return src.match(/&lt;/)?.index;
     },
     tokenizer(src, tokens) {
-        const rule = /^&lt;(https?:\/\/[^>]+)>/;
-        const match = rule.exec(src);
+        // Process external links
+        let rule = /^&lt;(https?:\/\/[^>]+)>/;
+        let match = rule.exec(src);
 
         try {
             if (match && new URL(match[1])) {
@@ -20,9 +21,21 @@ const angledLinkExtension = {
             }
         } catch (error) {
         }
+
+        // Process email links
+        rule = /^&lt;([^>]+@[^>]+.[^>]+)>/;
+        match = rule.exec(src);
+
+        if (match) {
+            return {
+                type: 'angledLink',
+                raw: match[0],
+                href: match[1],
+            };
+        }
     },
     renderer(token) {
-        return `<a href="${token.href}" class="angledlink">${token.href}</a>`;
+        return `<a href="${token.href}" class="angledLink">${token.href}</a>`;
     },
 };
 

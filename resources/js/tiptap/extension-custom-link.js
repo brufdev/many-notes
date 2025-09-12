@@ -23,7 +23,8 @@ export const CustomLink = Link.extend({
     renderHTML({ HTMLAttributes }) {
         const { href } = HTMLAttributes;
 
-        if (href && !href.startsWith('http')) {
+        // Process only internal links (skip emails and external links)
+        if (href && !href.match(/^[^>]+@[^>]+.[^>]+$/) && !href.startsWith('http')) {
             HTMLAttributes.target = '_self';
             HTMLAttributes['wire:click.prevent'] = `openFilePath('${href}')`;
             HTMLAttributes['data-href'] = href;
