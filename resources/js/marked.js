@@ -29,19 +29,15 @@ const angledLinkExtension = {
 const renderer = new marked.Renderer();
 
 renderer.link = function({ href, raw, text, title }) {
-    let out = `<a href="${href}"`;
-
-    if (raw === href) {
-        out += ' class="autolink"';
+    // Skip autolinking URLs/emails in plain Markdown text
+    if (raw === text) {
+        return text;
     }
 
-    if (title) {
-        out += ` title="${title}"`;
-    }
+    const classAttr = raw === href ? ' class="autoLink"' : '';
+    const titleAttr = title ? ` title="${title}"` : '';
 
-    out += `>${text}</a>`;
-
-    return out;
+    return `<a href="${href}"${classAttr}${titleAttr}>${text}</a>`;
 };
 
 renderer.list = function(token) {
