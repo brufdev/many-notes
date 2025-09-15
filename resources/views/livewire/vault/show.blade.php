@@ -115,7 +115,7 @@
                         x-show="!$wire.selectedFileId"
                     >
                         <div class="flex items-center justify-between p-4">
-                            <h2 class="text-lg">{{ __('Recent files') }}</h2>
+                            <h2 class="text-lg font-semibold">{{ __('Recent files') }}</h2>
                             <div class="flex items-center gap-2">
                                 <button
                                     type="button"
@@ -129,12 +129,12 @@
                         <div class="flex flex-col flex-grow w-full px-4 overflow-y-auto">
                             <template x-for="file in recentFiles" :key="file.id">
                                 <button
-                                    class="flex flex-col gap-2 w-full text-start pt-3 pb-4 border-b last:border-b-0 border-light-base-300 dark:border-base-500 text-light-base-700 dark:text-base-200 hover:text-primary-300 hover:dark:primary-600"
+                                    class="flex flex-col gap-2 w-full text-start pt-3 pb-4 border-b last:border-b-0 border-light-base-300 dark:border-base-500 hover:text-primary-600 dark:hover:text-primary-300"
                                     @click="openFile(file.id)"
                                 >
                                     <span class="flex items-center justify-between w-full">
                                         <span
-                                            class="flex-grow overflow-hidden font-semibold whitespace-nowrap text-ellipsis"
+                                            class="flex-grow overflow-hidden whitespace-nowrap text-ellipsis"
                                             :title="file.name"
                                             x-text="file.name"
                                         ></span>
