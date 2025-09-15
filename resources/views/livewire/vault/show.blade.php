@@ -110,15 +110,47 @@
                             @endif
                         </x-vault.fileDetails>
                     </div>
-                    <div class="flex items-center justify-center w-full h-full gap-2" x-show="!$wire.selectedFileId">
-                        <x-form.button @click="$wire.dispatchTo('modals.search-node', 'open-modal')">
-                            <x-icons.magnifyingGlass class="w-4 h-4" />
-                            <span class="hidden text-sm font-medium md:block">{{ __('Open file') }}</span>
-                        </x-form.button>
-                        <x-form.button primary @click="$wire.dispatchTo('modals.add-node', 'open-modal')">
-                            <x-icons.plus class="w-4 h-4" />
-                            <span class="hidden text-sm font-medium md:block">{{ __('New note') }}</span>
-                        </x-form.button>
+                    <div
+                        class="flex flex-col w-full h-full"
+                        x-show="!$wire.selectedFileId"
+                    >
+                        <div class="flex items-center justify-between p-4">
+                            <h2 class="text-lg">{{ __('Recent files') }}</h2>
+                            <div class="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    title="{{ __('New note') }}"
+                                    @click="$wire.dispatchTo('modals.add-node', 'open-modal')"
+                                >
+                                    <x-icons.plus class="w-5 h-5" />
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex flex-col flex-grow w-full px-4 overflow-y-auto">
+                            <template x-for="file in recentFiles" :key="file.id">
+                                <button
+                                    class="flex flex-col gap-2 w-full text-start pt-3 pb-4 border-b last:border-b-0 border-light-base-300 dark:border-base-500 text-light-base-700 dark:text-base-200 hover:text-primary-300 hover:dark:primary-600"
+                                    @click="openFile(file.id)"
+                                >
+                                    <span class="flex items-center justify-between w-full">
+                                        <span
+                                            class="flex-grow overflow-hidden font-semibold whitespace-nowrap text-ellipsis"
+                                            :title="file.name"
+                                            x-text="file.name"
+                                        ></span>
+                                        <span
+                                            class="pl-2 text-xs text-light-base-700 dark:text-base-400"
+                                            x-text="file.time_elapsed"
+                                        ></span>
+                                    </span>
+                                    <span
+                                        class="overflow-hidden text-xs whitespace-nowrap text-ellipsis text-light-base-700 dark:text-base-200"
+                                        :title="file.full_path"
+                                        x-text="file.full_path"
+                                    ></span>
+                                </button>
+                            </template>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -207,6 +239,7 @@
         Alpine.data('vault', () => ({
             isLeftPanelOpen: false,
             isRightPanelOpen: false,
+            recentFiles: $wire.entangle('recentFiles'),
             isEditingMarkdown: false,
             isEditMode: Alpine.$persist(true),
             editor: null,
@@ -299,6 +332,10 @@
 
                 if (fileId !== previousSelectedFileId) {
                     this.stopVaultNodeEventListeners();
+
+                    if (this.editor) {
+                        this.editor.destroyEditor();
+                    }
                 }
 
                 $wire.openFileId(fileId);

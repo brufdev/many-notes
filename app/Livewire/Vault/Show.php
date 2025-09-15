@@ -14,6 +14,7 @@ use App\Livewire\Forms\VaultNodeForm;
 use App\Models\User;
 use App\Models\Vault;
 use App\Models\VaultNode;
+use Carbon\CarbonImmutable;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -31,6 +32,20 @@ final class Show extends Component
 
     #[Locked]
     public int $vaultId;
+
+    /**
+     * @var list<
+     *   array{
+     *     id: int,
+     *     name: string,
+     *     extension: string,
+     *     full_path: string,
+     *     time_elapsed: string,
+     *   }
+     * >
+     */
+    #[Locked]
+    public array $recentFiles = [];
 
     #[Url(as: 'file', history: true)]
     public ?int $selectedFileId = null;
@@ -187,7 +202,6 @@ final class Show extends Component
         $this->dispatch('toast', message: __('Template folder updated'), type: 'success');
     }
 
-    #[Renderless]
     public function deleteNode(VaultNode $node): void
     {
         $this->authorize('delete', $node);
@@ -201,6 +215,10 @@ final class Show extends Component
                 )
             );
 
+            if ($this->selectedFileId !== null && !$openFileDeleted) {
+                $this->skipRender();
+            }
+
             if ($openFileDeleted) {
                 $this->closeFile();
             }
@@ -210,12 +228,15 @@ final class Show extends Component
 
             broadcast(new VaultFileSystemUpdatedEvent($this->vault));
         } catch (Throwable $e) {
+            $this->skipRender();
             $this->dispatch('toast', message: $e->getMessage(), type: 'error');
         }
     }
 
     public function render(): Factory|View
     {
+        $this->loadRecentFiles();
+
         return view('livewire.vault.show');
     }
 
@@ -230,6 +251,39 @@ final class Show extends Component
         $this->selectedFileUrl = new GetUrlFromVaultNode()->handle($node);
         $this->nodeForm->setNode($node);
         unset($this->selectedFile);
+    }
+
+    private function loadRecentFiles(): void
+    {
+        $this->reset('recentFiles');
+
+        $this->vault
+            ->nodes()
+            ->select('id', 'parent_id', 'name', 'extension', 'updated_at')
+            ->where('is_file', true)
+            ->orderBy('updated_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->each(function (VaultNode $item): void {
+                /**
+                 * @var string $fullPath
+                 *
+                 * @phpstan-ignore-next-line larastan.noUnnecessaryCollectionCall
+                 */
+                $fullPath = $item->ancestorsAndSelf()->get()->last()->full_path;
+                $extension = (string) $item->extension;
+                /** @var CarbonImmutable $updatedAt */
+                $updatedAt = $item->updated_at;
+                $timeElapsed = $updatedAt->diffForHumans(short: true);
+
+                $this->recentFiles[] = [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'extension' => (string) $item->extension,
+                    'full_path' => "/{$fullPath}.{$extension}",
+                    'time_elapsed' => $timeElapsed,
+                ];
+            });
     }
 
     private function openFile(VaultNode $node): void
