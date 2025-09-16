@@ -6,8 +6,8 @@ namespace App\Livewire\Modals;
 
 use App\Models\Vault;
 use App\Models\VaultNode;
-use Carbon\CarbonInterface;
 use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder as IlluminateBuilder;
@@ -102,7 +102,7 @@ final class SearchNode extends Component
     private function searchTag(string $tag): Collection
     {
         return VaultNode::query()
-            ->select('id', 'name', 'extension')
+            ->select('id', 'name', 'extension', 'updated_at')
             ->where('vault_id', $this->vault->id)
             ->where('is_file', true)
             ->whereHas('tags', fn(IlluminateBuilder $query): IlluminateBuilder => $query->where('name', $tag))
