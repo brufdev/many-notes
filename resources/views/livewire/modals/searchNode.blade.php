@@ -20,12 +20,8 @@
                     <ul class="flex flex-col gap-2" wire:loading.class="opacity-50">
                         @foreach ($nodes as $index => $node)
                             <li
-                                class="p-2 rounded-lg"
-                                :class="
-                                    selectedNode === {{ $index }}
-                                    ? 'bg-light-base-300 dark:bg-base-800 text-light-base-950 dark:text-base-50'
-                                    : 'text-light-base-700 dark:text-base-200'
-                                "
+                                class="p-2 rounded-lg text-light-base-950 dark:text-base-50"
+                                :class="{ 'bg-light-base-300 dark:bg-base-800': selectedNode === {{ $index }} }"
                                 @mouseenter="selectNode({{ $index }})"
                                 wire:key="search-{{$node['id'] }}"
                             >
@@ -34,26 +30,23 @@
                                     type="button"
                                     @click="openFileId({{ $node['id'] }})"
                                 >
-                                    <span class="flex gap-2">
+                                    <span class="flex items-center justify-between w-full">
                                         <span
-                                            class="overflow-hidden font-semibold whitespace-nowrap text-ellipsis"
+                                            class="flex-grow overflow-hidden font-semiboldXXX whitespace-nowrap text-ellipsis"
                                             title="{{ $node['name'] }}"
                                         >
                                             {{ $node['name'] }}
                                         </span>
-
-                                        @if ($node['extension'] !== 'md')
-                                            <x-treeView.badge>{{ $node['extension'] }}</x-treeView.badge>
-                                        @endif
-                                    </span>
-                                    @if ($node['dir_name'] !== '')
-                                        <span
-                                            class="overflow-hidden text-xs whitespace-nowrap text-ellipsis"
-                                            title="{{ $node['full_path'] }}"
-                                        >
-                                            {{ $node['dir_name'] }}
+                                        <span class="pl-2 text-xs text-light-base-700 dark:text-base-400">
+                                            {{ $node['time_elapsed'] }}
                                         </span>
-                                    @endif
+                                    </span>
+                                    <span
+                                        class="overflow-hidden text-xs whitespace-nowrap text-ellipsis text-light-base-700 dark:text-base-200"
+                                        title="{{ $node['full_path'] }}"
+                                    >
+                                        {{ $node['full_path'] }}
+                                    </span>
                                 </button>
                             </li>
                         @endforeach

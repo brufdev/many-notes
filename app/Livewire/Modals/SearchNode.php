@@ -6,6 +6,8 @@ namespace App\Livewire\Modals;
 
 use App\Models\Vault;
 use App\Models\VaultNode;
+use Carbon\CarbonInterface;
+use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder as IlluminateBuilder;
@@ -59,14 +61,16 @@ final class SearchNode extends Component
              * @phpstan-ignore-next-line larastan.noUnnecessaryCollectionCall
              */
             $fullPath = $node->ancestorsAndSelf()->get()->last()->full_path;
-            $dirName = preg_replace('/' . $node->name . '$/', '', $fullPath);
+            $extension = (string) $node->extension;
+            /** @var CarbonImmutable $updatedAt */
+            $updatedAt = $node->updated_at;
+            $timeElapsed = $updatedAt->diffForHumans(syntax: CarbonInterface::DIFF_ABSOLUTE, short: true);
 
             $this->nodes[] = [
                 'id' => $node->id,
                 'name' => $node->name,
-                'extension' => $node->extension,
-                'full_path' => $fullPath,
-                'dir_name' => '/' . $dirName,
+                'full_path' => "/{$fullPath}.{$extension}",
+                'time_elapsed' => $timeElapsed,
             ];
         }
     }
