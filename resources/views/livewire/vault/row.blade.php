@@ -8,22 +8,18 @@
     "
 >
     <div class="flex items-center justify-between w-full">
-        <div class="flex items-center">
-            <div class="flex flex-col gap-1">
-                <h6 class="font-semibold">
-                    <a href="/vaults/{{ $this->vault->id }}">{{ $this->vault->name }}</a>
-                </h6>
-                <span class="text-xs">
-                    {{ __('Updated on') }}
-                    {{ $this->vault->updated_at->format('F j, Y') }}
-                </span>
-                @if ($this->vault->created_by !== auth()->user()->id)
-                    <span class="text-xs">
-                        {{ sprintf("Invited by %s", $this->vault->user()->first()->name) }}
-                    </span>
-                @endif
-            </div>
-        </div>
+        <a
+            class="flex flex-col flex-grow gap-2 w-fullXXX text-startXXX hover:text-primary-600 dark:hover:text-primary-300"
+            href="/vaults/{{ $this->vault->id }}"
+            title="{{ $this->vault->name }}"
+        >
+            <span class="flex-grow overflow-hidden whitespace-nowrap text-ellipsis">
+                {{ $this->vault->name }}
+            </span>
+            <span class="overflow-hidden text-xs whitespace-nowrap text-ellipsis text-light-base-700 dark:text-base-200">
+                {{ __('Updated on ') . $this->vault->updated_at->format('F j, Y') }}
+            </span>
+        </a>
         <div class="flex items-center justify-center gap-2">
             @if ($this->vault->collaborators()->wherePivot('accepted', true)->count())
                 <span title="{{ __('This vault has collaborators') }}">
