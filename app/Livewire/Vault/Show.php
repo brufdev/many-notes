@@ -38,7 +38,6 @@ final class Show extends Component
      *   array{
      *     id: int,
      *     name: string,
-     *     extension: string,
      *     full_path: string,
      *     time_elapsed: string,
      *   }
@@ -279,7 +278,6 @@ final class Show extends Component
                 $this->recentFiles[] = [
                     'id' => $item->id,
                     'name' => $item->name,
-                    'extension' => (string) $item->extension,
                     'full_path' => "/{$fullPath}.{$extension}",
                     'time_elapsed' => $timeElapsed,
                 ];
