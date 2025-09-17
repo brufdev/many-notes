@@ -160,61 +160,64 @@
                 :class="{ 'translate-x-0': isRightPanelOpen, '-translate-x-full hidden': !isRightPanelOpen }"
             >
                 <div class="flex flex-col gap-4 px-4 overflow-y-auto">
-                    <div class="flex flex-col w-full gap-2">
-                        <h3>{{ __('Links') }}</h3>
-                        <div class="flex flex-col gap-2 text-sm">
-                            @if ($this->selectedFile && $this->selectedFile->links->count())
-                                @foreach ($this->selectedFile->links as $link)
-                                    <a
-                                        class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
-                                        href=""
-                                        @click.prevent="openFile({{ $link->id }})"
-                                        wire:key="file-link-{{ $link->id }}"
-                                    >
-                                        {{ $link->name }}
-                                    </a>
-                                @endforeach
-                            @else
-                                <p>{{ __('No links found') }}</p>
-                            @endif
+                    @if ($this->selectedFile)
+                        <div class="flex flex-col w-full gap-2">
+                            <h3>{{ __('Links') }}</h3>
+                            <div class="flex flex-col gap-2 text-sm">
+                                @if ($this->selectedFile && $this->selectedFile->links->count())
+                                    @foreach ($this->selectedFile->links as $link)
+                                        <a
+                                            class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
+                                            href=""
+                                            @click.prevent="openFile({{ $link->id }})"
+                                            wire:key="file-link-{{ $link->id }}"
+                                        >
+                                            {{ $link->name }}
+                                        </a>
+                                    @endforeach
+                                @else
+                                    <p>{{ __('No links found') }}</p>
+                                @endif
+                            </div>
                         </div>
-                    </div>
-                    <div class="flex flex-col w-full gap-2">
-                        <h3>{{ __('Backlinks') }}</h3>
-                        <div class="flex flex-col gap-2 text-sm">
-                            @if ($this->selectedFile && $this->selectedFile->backlinks->count())
-                                @foreach ($this->selectedFile->backlinks as $link)
-                                    <a
-                                        class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
-                                        href=""
-                                        wire:key="file-backlink-{{ $link->id }}"
-                                        @click.prevent="openFile({{ $link->id }})"
-                                    >
-                                        {{ $link->name }}
-                                    </a>
-                                @endforeach
-                            @else
-                                <p>{{ __('No backlinks found') }}</p>
-                            @endif
+                        <div class="flex flex-col w-full gap-2">
+                            <h3>{{ __('Backlinks') }}</h3>
+                            <div class="flex flex-col gap-2 text-sm">
+                                @if ($this->selectedFile && $this->selectedFile->backlinks->count())
+                                    @foreach ($this->selectedFile->backlinks as $link)
+                                        <a
+                                            class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
+                                            href=""
+                                            wire:key="file-backlink-{{ $link->id }}"
+                                            @click.prevent="openFile({{ $link->id }})"
+                                        >
+                                            {{ $link->name }}
+                                        </a>
+                                    @endforeach
+                                @else
+                                    <p>{{ __('No backlinks found') }}</p>
+                                @endif
+                            </div>
                         </div>
-                    </div>
+                    @endif
                     <div class="flex flex-col w-full gap-2">
                         <h3>{{ __('Tags') }}</h3>
                         <div class="flex flex-col gap-2 text-sm">
-                            @if ($this->selectedFile && $this->selectedFile->tags->count())
-                                @foreach ($this->selectedFile->tags as $tag)
-                                    <a
-                                        class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
-                                        href=""
-                                        wire:key="file-tag-{{ $tag->id }}"
-                                        @click.prevent="$wire.dispatchTo('modals.search-node', 'open-modal', { search: 'tag:{{ $tag->name }}' })"
-                                    >
-                                        {{ $tag->name }}
-                                    </a>
-                                @endforeach
-                            @else
+                            @forelse ($this->tags as $tag)
+                                <a
+                                    class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
+                                    href=""
+                                    wire:key="file-tag-{{ $tag->id }}"
+                                    @click.prevent="$wire.dispatchTo('modals.search-node', 'open-modal', { search: 'tag:{{ $tag->name }}' })"
+                                >
+                                    <span class="flex items-center justify-between w-full">
+                                        <span class="flex-grow overflow-hidden whitespace-nowrap text-ellipsis" title="{{ $tag->name }}">#{{ $tag->name }}</span>
+                                        <span class="pl-2 text-xs text-light-base-700 dark:text-base-400">{{ $tag->total }}</span>
+                                    </span>
+                                </a>
+                            @empty
                                 <p>{{ __('No tags found') }}</p>
-                            @endif
+                            @endforelse
                         </div>
                     </div>
                 </div>

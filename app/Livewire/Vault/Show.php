@@ -11,6 +11,7 @@ use App\Actions\ResolveTwoPaths;
 use App\Actions\UpdateVault;
 use App\Events\VaultFileSystemUpdatedEvent;
 use App\Livewire\Forms\VaultNodeForm;
+use App\Models\Tag;
 use App\Models\User;
 use App\Models\Vault;
 use App\Models\VaultNode;
@@ -18,7 +19,9 @@ use Carbon\CarbonImmutable;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Renderless;
@@ -83,6 +86,22 @@ final class Show extends Component
             ->where('id', $this->selectedFileId)
             ->where('is_file', true)
             ->first();
+    }
+
+    /**
+     * @return Collection<int, Tag>
+     */
+    #[Computed]
+    public function tags(): Collection
+    {
+        /** @var Collection<int, Tag> $tags */
+        $tags = ($this->selectedFile ? $this->selectedFile->tags() : $this->vault->tags())
+            ->select(DB::raw('tags.id, tags.name, count(*) as total'))
+            ->groupBy('tags.id')
+            ->orderBy('tags.name')
+            ->get();
+
+        return $tags;
     }
 
     public function checkPermission(): void

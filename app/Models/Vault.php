@@ -10,11 +10,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Staudenmeir\EloquentHasManyDeep\HasManyDeep;
+use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
 final class Vault extends Model
 {
     /** @use HasFactory<\Database\Factories\VaultFactory> */
     use HasFactory;
+
+    use HasRelationships;
 
     /**
      * Get the associated user.
@@ -34,6 +38,16 @@ final class Vault extends Model
     public function nodes(): HasMany
     {
         return $this->hasMany(VaultNode::class);
+    }
+
+    /**
+     * Get the tags for the vault.
+     *
+     * @return HasManyDeep<Model, $this>
+     */
+    public function tags(): HasManyDeep
+    {
+        return $this->hasManyDeepFromRelations($this->nodes(), new VaultNode()->tags());
     }
 
     /**
