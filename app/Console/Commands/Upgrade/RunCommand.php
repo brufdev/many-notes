@@ -35,6 +35,7 @@ final class RunCommand extends Command
             'upgrade:reimport-data-into-typesense',
             'upgrade:set-super-admin',
             'upgrade:process-links',
+            'upgrade:reimport-data-into-typesense',
         ];
 
         $this->executeCommands($commands);
