@@ -9,7 +9,7 @@
 >
     <div class="flex items-center justify-between w-full">
         <a
-            class="flex flex-col flex-grow gap-2 w-fullXXX text-startXXX hover:text-primary-600 dark:hover:text-primary-300"
+            class="flex flex-col flex-grow gap-2 hover:text-primary-600 dark:hover:text-primary-300"
             href="/vaults/{{ $this->vault->id }}"
             title="{{ $this->vault->name }}"
         >
