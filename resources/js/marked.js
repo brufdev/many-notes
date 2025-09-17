@@ -23,7 +23,7 @@ const angledLinkExtension = {
         }
 
         // Process email links
-        rule = /^&lt;([^>]+@[^>]+.[^>]+)>/;
+        rule = /^&lt;([^>\s]+@[^>\s]+\.[^>\s]+)>/;
         match = rule.exec(src);
 
         if (match) {
