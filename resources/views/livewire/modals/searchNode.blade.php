@@ -31,21 +31,15 @@
                                     @click="openFileId({{ $node['id'] }})"
                                 >
                                     <span class="flex items-center justify-between w-full">
-                                        <span
-                                            class="flex-grow overflow-hidden font-semiboldXXX whitespace-nowrap text-ellipsis"
-                                            title="{{ $node['name'] }}"
-                                        >
-                                            {{ $node['name'] }}
+                                        <span class="flex-grow overflow-hidden whitespace-nowrap text-ellipsis">
+                                            {!! $node['name'] !!}
                                         </span>
                                         <span class="pl-2 text-xs text-light-base-700 dark:text-base-400">
                                             {{ $node['time_elapsed'] }}
                                         </span>
                                     </span>
-                                    <span
-                                        class="overflow-hidden text-xs whitespace-nowrap text-ellipsis text-light-base-700 dark:text-base-200"
-                                        title="{{ $node['full_path'] }}"
-                                    >
-                                        {{ $node['full_path'] }}
+                                    <span class="overflow-hidden text-xs whitespace-nowrap text-ellipsis text-light-base-700 dark:text-base-200">
+                                        {!! $node['content'] !!}
                                     </span>
                                 </button>
                             </li>
