@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -94,11 +95,15 @@ final class VaultNode extends Model
      */
     public function toSearchableArray(): array
     {
+        /** @var CarbonImmutable $updatedAt */
+        $updatedAt = $this->updated_at;
+
         return [
             'id' => (string) $this->id,
             'vault_id' => (string) $this->vault_id,
             'name' => $this->name,
             'content' => (string) $this->content,
+            'updated_at' => $updatedAt->timestamp,
         ];
     }
 
