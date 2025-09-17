@@ -200,6 +200,10 @@ return [
                             'name' => 'content',
                             'type' => 'string',
                         ],
+                        [
+                            'name' => 'updated_at',
+                            'type' => 'int64',
+                        ],
                     ],
                 ],
                 'search-parameters' => [
