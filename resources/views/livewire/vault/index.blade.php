@@ -13,7 +13,7 @@
             <div class="absolute inset-0 overflow-y-auto">
                 <div class="flex flex-col h-full">
                     <div class="sticky top-0 z-[5] flex items-center justify-between p-4 bg-light-base-50 dark:bg-base-900">
-                        <h2 class="text-lg font-semibold">{{ __('My vaults') }}</h2>
+                        <div class="text-lg font-semibold">{{ __('My vaults') }}</div>
                         <div class="flex items-center gap-2">
                             <button
                                 type="button"

@@ -114,8 +114,10 @@
                         class="flex flex-col w-full h-full"
                         x-show="!$wire.selectedFileId"
                     >
-                        <div class="flex items-center justify-between p-4">
-                            <h2 class="text-lg font-semibold">{{ __('Recent files') }}</h2>
+                        <div class="flex gap-2 items-center justify-between p-4">
+                            <div class="text-lg font-semibold">
+                                {{ __('Recent files') }}
+                            </div>
                             <div class="flex items-center gap-2">
                                 <button
                                     type="button"
@@ -126,10 +128,10 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="flex flex-col flex-grow w-full px-4 overflow-y-auto">
+                        <div class="flex flex-col flex-grow w-full px-4 -mt-2 overflow-y-auto">
                             <template x-for="file in recentFiles" :key="file.id">
                                 <button
-                                    class="flex flex-col gap-2 w-full text-start pt-3 pb-4 border-b last:border-b-0 border-light-base-300 dark:border-base-500 hover:text-primary-600 dark:hover:text-primary-300"
+                                    class="flex flex-col gap-2 w-full text-start pt-2 pb-4 border-b last:border-b-0 border-light-base-300 dark:border-base-500 hover:text-primary-600 dark:hover:text-primary-300"
                                     @click="openFile(file.id)"
                                 >
                                     <span class="flex items-center justify-between w-full">
@@ -161,47 +163,49 @@
             >
                 <div class="flex flex-col gap-4 px-4 overflow-y-auto">
                     @if ($this->selectedFile)
-                        <div class="flex flex-col w-full gap-2">
-                            <h3>{{ __('Links') }}</h3>
+                        <div class="flex flex-col w-full gap-4">
+                            <div class="overflow-hidden whitespace-nowrap text-ellipsis text-lg font-semibold">
+                                {{ __('Links') }}
+                            </div>
                             <div class="flex flex-col gap-2 text-sm">
-                                @if ($this->selectedFile && $this->selectedFile->links->count())
-                                    @foreach ($this->selectedFile->links as $link)
-                                        <a
-                                            class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
-                                            href=""
-                                            @click.prevent="openFile({{ $link->id }})"
-                                            wire:key="file-link-{{ $link->id }}"
-                                        >
-                                            {{ $link->name }}
-                                        </a>
-                                    @endforeach
-                                @else
+                                @forelse ($this->selectedFile->links as $link)
+                                    <a
+                                        class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
+                                        href=""
+                                        @click.prevent="openFile({{ $link->id }})"
+                                        wire:key="file-link-{{ $link->id }}"
+                                    >
+                                        {{ $link->name }}
+                                    </a>
+                                @empty
                                     <p>{{ __('No links found') }}</p>
-                                @endif
+                                @endforelse
                             </div>
                         </div>
-                        <div class="flex flex-col w-full gap-2">
-                            <h3>{{ __('Backlinks') }}</h3>
+                        <div class="flex flex-col w-full gap-4">
+                            <div class="overflow-hidden whitespace-nowrap text-ellipsis text-lg font-semibold">
+                                {{ __('Backlinks') }}
+                            </div>
                             <div class="flex flex-col gap-2 text-sm">
-                                @if ($this->selectedFile && $this->selectedFile->backlinks->count())
-                                    @foreach ($this->selectedFile->backlinks as $link)
-                                        <a
-                                            class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
-                                            href=""
-                                            wire:key="file-backlink-{{ $link->id }}"
-                                            @click.prevent="openFile({{ $link->id }})"
-                                        >
-                                            {{ $link->name }}
-                                        </a>
-                                    @endforeach
-                                @else
+                                @forelse ($this->selectedFile->backlinks as $link)
+                                    <a
+                                        class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
+                                        href=""
+                                        wire:key="file-backlink-{{ $link->id }}"
+                                        @click.prevent="openFile({{ $link->id }})"
+                                    >
+                                        {{ $link->name }}
+                                    </a>
+                                @empty
                                     <p>{{ __('No backlinks found') }}</p>
-                                @endif
+                                @endforelse
                             </div>
                         </div>
                     @endif
-                    <div class="flex flex-col w-full gap-2">
-                        <h3>{{ __('Tags') }}</h3>
+                    <div class="flex flex-col w-full gap-4">
+                        <div class="overflow-hidden whitespace-nowrap text-ellipsis text-lg font-semibold">
+                            {{ __('Tags') }}
+                        </div>
                         <div class="flex flex-col gap-2 text-sm">
                             @forelse ($this->tags as $tag)
                                 <a

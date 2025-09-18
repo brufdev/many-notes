@@ -17,13 +17,17 @@
                 {{ __('Drop item') }}
             </div>
             <div
-                class="flex justify-between w-full"
+                class="flex gap-2 items-center justify-between w-full"
                 x-data="{ hovered: false }"
                 @mouseenter="hovered = true"
                 @mouseleave="hovered = false"
             >
-                <h3 class="pl-1 font-semibold">{{ $vault->name }}</h3>
-
+                <div
+                    class="flex-grow pl-1 overflow-hidden whitespace-nowrap text-ellipsis text-lg font-semibold"
+                    title="{{ $vault->name }}"
+                >
+                    {{ $vault->name }}
+                </div>
                 <div
                     class="flex items-center"
                     x-show="!moving()"
