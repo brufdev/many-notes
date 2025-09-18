@@ -168,14 +168,17 @@
                                 {{ __('Links') }}
                             </div>
                             <div class="flex flex-col gap-2 text-sm">
-                                @forelse ($this->selectedFile->links as $link)
+                                @forelse ($this->links as $link)
                                     <a
                                         class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
                                         href=""
                                         @click.prevent="openFile({{ $link->id }})"
                                         wire:key="file-link-{{ $link->id }}"
                                     >
-                                        {{ $link->name }}
+                                        <span class="flex items-center justify-between w-full">
+                                            <span class="flex-grow overflow-hidden whitespace-nowrap text-ellipsis" title="{{ $link->name }}">{{ $link->name }}</span>
+                                            <span class="pl-2 text-xs text-light-base-700 dark:text-base-400">{{ $link->total }}</span>
+                                        </span>
                                     </a>
                                 @empty
                                     <p>{{ __('No links found') }}</p>
@@ -187,14 +190,17 @@
                                 {{ __('Backlinks') }}
                             </div>
                             <div class="flex flex-col gap-2 text-sm">
-                                @forelse ($this->selectedFile->backlinks as $link)
+                                @forelse ($this->backlinks as $link)
                                     <a
                                         class="text-primary-400 dark:text-primary-500 hover:text-primary-300 dark:hover:text-primary-600"
                                         href=""
                                         wire:key="file-backlink-{{ $link->id }}"
                                         @click.prevent="openFile({{ $link->id }})"
                                     >
-                                        {{ $link->name }}
+                                        <span class="flex items-center justify-between w-full">
+                                            <span class="flex-grow overflow-hidden whitespace-nowrap text-ellipsis" title="{{ $link->name }}">{{ $link->name }}</span>
+                                            <span class="pl-2 text-xs text-light-base-700 dark:text-base-400">{{ $link->total }}</span>
+                                        </span>
                                     </a>
                                 @empty
                                     <p>{{ __('No backlinks found') }}</p>

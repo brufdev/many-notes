@@ -89,6 +89,30 @@ final class Show extends Component
     }
 
     /**
+     * @return Collection<int, VaultNode>
+     */
+    #[Computed]
+    public function links(): Collection
+    {
+        return $this->selectedFile->links()
+            ->select(DB::raw('id, name, count(*) as total'))
+            ->groupBy('id')
+            ->get();
+    }
+
+    /**
+     * @return Collection<int, VaultNode>
+     */
+    #[Computed]
+    public function backlinks(): Collection
+    {
+        return $this->selectedFile->backlinks()
+            ->select(DB::raw('id, name, count(*) as total'))
+            ->groupBy('id')
+            ->get();
+    }
+
+    /**
      * @return Collection<int, Tag>
      */
     #[Computed]
