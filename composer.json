@@ -1,7 +1,7 @@
 {
     "name": "brufdev/many-notes",
     "description": "Markdown note-taking web application designed for simplicity",
-    "version": "0.12.5",
+    "version": "0.13.0",
     "type": "project",
     "keywords": [
         "notes",
