@@ -6,6 +6,7 @@ import Table from '@tiptap/extension-table';
 import TableRow from '@tiptap/extension-table-row';
 import { common, createLowlight } from 'lowlight';
 
+import { SmartBracket } from './tiptap/extension-smart-bracket';
 import { CustomCodeBlockLowlight } from './tiptap/extension-custom-code-block-low-light';
 import { CustomImage } from './tiptap/extension-custom-image';
 import { CustomLink } from './tiptap/extension-custom-link';
@@ -82,6 +83,7 @@ window.setupEditor = function (options) {
                     },
                     codeBlock: false,
                 }),
+                SmartBracket,
                 CustomCodeBlockLowlight.configure({
                     defaultLanguage: 'plaintext',
                     lowlight: createLowlight(common),
