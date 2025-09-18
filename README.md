@@ -35,6 +35,7 @@ It is recommended to run Many Notes behind a reverse proxy serving the applicati
 - **Automatic saving**: Focus on writing; saving is automatic
 - **Templates**: Maintain consistent formatting for your notes
 - **Links/backlinks/tags**: Improve note organization by connecting related notes
+- **Export to PDF**: Convert your Markdown notes into shareable PDFs
 - **Import/export vaults**: Easily back up and restore your vaults
 - **Automatic update check**: Notifies you when a new version is available
 - **Starter vault**: Helps you get started with Many Notes
