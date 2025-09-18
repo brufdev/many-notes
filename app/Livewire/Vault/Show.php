@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Models\Vault;
 use App\Models\VaultNode;
 use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -324,7 +325,7 @@ final class Show extends Component
                 $extension = (string) $item->extension;
                 /** @var CarbonImmutable $updatedAt */
                 $updatedAt = $item->updated_at;
-                $timeElapsed = $updatedAt->diffForHumans(short: true);
+                $timeElapsed = $updatedAt->diffForHumans(syntax: CarbonInterface::DIFF_ABSOLUTE, short: true);
 
                 $this->recentFiles[] = [
                     'id' => $item->id,
