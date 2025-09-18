@@ -94,6 +94,10 @@ final class Show extends Component
     #[Computed]
     public function links(): Collection
     {
+        if ($this->selectedFile === null) {
+            return new Collection();
+        }
+
         return $this->selectedFile->links()
             ->select(DB::raw('id, name, count(*) as total'))
             ->groupBy('id')
@@ -106,6 +110,10 @@ final class Show extends Component
     #[Computed]
     public function backlinks(): Collection
     {
+        if ($this->selectedFile === null) {
+            return new Collection();
+        }
+
         return $this->selectedFile->backlinks()
             ->select(DB::raw('id, name, count(*) as total'))
             ->groupBy('id')
