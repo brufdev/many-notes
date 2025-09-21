@@ -17,6 +17,7 @@ const angledLinkExtension = {
                     type: 'angledLink',
                     raw: match[0],
                     href: match[1],
+                    variant: 'url',
                 };
             }
         } catch (error) {
@@ -31,11 +32,14 @@ const angledLinkExtension = {
                 type: 'angledLink',
                 raw: match[0],
                 href: match[1],
+                variant: 'email',
             };
         }
     },
     renderer(token) {
-        return `<a href="${token.href}" class="angledLink">${token.href}</a>`;
+        const href = token.variant === 'email' ? `mailto:${token.href}` : token.href;
+
+        return `<a href="${href}" class="angledLink">${token.href}</a>`;
     },
 };
 
