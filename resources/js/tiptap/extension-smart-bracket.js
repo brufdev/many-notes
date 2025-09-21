@@ -27,19 +27,38 @@ export const SmartBracket = Extension.create({
                         const { tr, selection } = state;
                         const closing = bracketPairs[text];
 
+                        // Empty selection
                         if (selection.empty) {
                             tr.insertText(text + closing, from, to);
-                            tr.setSelection(
-                                state.selection.constructor.near(tr.doc.resolve(from + 1))
-                            );
-                        } else {
+                            tr.setSelection(TextSelection.create(tr.doc, from + 1));
+                            dispatch(tr);
+
+                            return true;
+                        }
+
+                        // Text selection
+                        if (selection instanceof TextSelection) {
                             const { from: selFrom, to: selTo } = selection;
                             tr.insertText(text, selFrom, selFrom);
                             tr.insertText(closing, selTo + 1, selTo + 1);
-                            tr.setSelection(state.selection.constructor.create(tr.doc, selFrom + 1, selTo + 1));
+                            tr.setSelection(TextSelection.create(tr.doc, selFrom + 1, selTo + 1));
+                            dispatch(tr);
+
+                            return true;
                         }
 
+                        // All selection or non-text selection
+                        tr.insertText(text + closing, from, to);
+
+                        // Calculate cursor position
+                        const mappedFrom = tr.mapping.map(from);
+                        const mapped = tr.doc.resolve(mappedFrom);
+                        const finalPos = mapped.parent.isTextblock
+                            ? mappedFrom + 1
+                            : mappedFrom + 2;
+                        tr.setSelection(TextSelection.create(tr.doc, finalPos));
                         dispatch(tr);
+
                         return true;
                     },
                     handleKeyDown(view, event) {
