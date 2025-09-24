@@ -5,6 +5,19 @@ export const CustomLink = Link.extend({
     addAttributes() {
         return {
             ...this.parent?.(),
+            angleBracket: {
+                default: null,
+                parseHTML: element => element.getAttribute('data-angle-bracket'),
+                renderHTML: attributes => {
+                    if (!attributes.angleBracket) {
+                        return {};
+                    }
+
+                    return {
+                        'data-angle-bracket': attributes.angleBracket,
+                    };
+                },
+            },
             title: {
                 default: null,
                 parseHTML: element => element.getAttribute('title'),
