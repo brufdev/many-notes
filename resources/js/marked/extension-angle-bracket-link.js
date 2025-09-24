@@ -24,7 +24,6 @@ export const angleBracketLink = {
         // Process email links
         rule = /^&lt;([^>\s]+@[^>\s]+\.[^>\s]+)>/;
         match = rule.exec(src);
-        console.log('match', match);
 
         if (match) {
             return {
