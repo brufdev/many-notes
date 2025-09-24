@@ -5,7 +5,6 @@ import TaskList from '@tiptap/extension-task-list';
 import Table from '@tiptap/extension-table';
 import TableRow from '@tiptap/extension-table-row';
 import { common, createLowlight } from 'lowlight';
-
 import { SmartBracket } from './tiptap/extension-smart-bracket';
 import { CustomCodeBlockLowlight } from './tiptap/extension-custom-code-block-low-light';
 import { CustomImage } from './tiptap/extension-custom-image';
@@ -92,7 +91,7 @@ window.setupEditor = function (options) {
                     vaultId: options.vaultId,
                 }),
                 CustomLink.configure({
-                    openOnClick: false,
+                    autolink: false,
                 }),
                 TaskList,
                 TaskItem.configure({

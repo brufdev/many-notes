@@ -1,20 +1,52 @@
-import { mergeAttributes } from '@tiptap/core';
+import { InputRule, mergeAttributes } from '@tiptap/core';
 import Link from '@tiptap/extension-link';
+
+const angleBracketLinkRule = function (type) {
+    return new InputRule({
+        find: /<([^>\s]+)>$/,
+        handler: ({ range, match, commands }) => {
+            const value = match[1];
+            const isEmail = /^[^>\s]+@[^>\s]+\.[^>\s]+$/.test(value);
+            const isUrl = /^https?:\/\/[^>]+$/.test(value);
+
+            if (!isEmail && !isUrl) {
+                return;
+            }
+
+            const href = isEmail ? `mailto:${value}` : value;
+
+            // Replace the full match <url>
+            commands.insertContentAt(range, {
+                type: 'text',
+                text: value,
+                marks: [
+                    {
+                        type: type.name,
+                        attrs: {
+                            href,
+                            'data-angle-bracket': 'true',
+                        },
+                    },
+                ],
+            });
+        },
+    });
+};
 
 export const CustomLink = Link.extend({
     addAttributes() {
         return {
             ...this.parent?.(),
-            angleBracket: {
+            'data-angle-bracket': {
                 default: null,
                 parseHTML: element => element.getAttribute('data-angle-bracket'),
                 renderHTML: attributes => {
-                    if (!attributes.angleBracket) {
+                    if (!attributes['data-angle-bracket']) {
                         return {};
                     }
 
                     return {
-                        'data-angle-bracket': attributes.angleBracket,
+                        'data-angle-bracket': attributes['data-angle-bracket'],
                     };
                 },
             },
@@ -33,11 +65,22 @@ export const CustomLink = Link.extend({
             },
         };
     },
+    addPasteRules() {
+        return [];
+    },
+    addInputRules() {
+        return [
+            angleBracketLinkRule(this.type),
+        ];
+    },
     renderHTML({ HTMLAttributes }) {
         const { href } = HTMLAttributes;
 
-        // Process only internal links (skip emails and external links)
-        if (href && !href.match(/^[^>]+@[^>]+.[^>]+$/) && !href.startsWith('http')) {
+        if (href.match(/^[^>]+@[^>]+.[^>]+$/)) {
+            // Process email links
+            HTMLAttributes.target = '_self';
+        } else if (!href.startsWith('http')) {
+            // Process internal links
             HTMLAttributes.target = '_self';
             HTMLAttributes['wire:click.prevent'] = `openFilePath('${href}')`;
             HTMLAttributes['data-href'] = href;
