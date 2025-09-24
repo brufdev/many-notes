@@ -1,47 +1,5 @@
 import { marked } from 'marked';
-
-const angledLinkExtension = {
-    name: 'angledLink',
-    level: 'inline',
-    start(src) {
-        return src.match(/&lt;/)?.index;
-    },
-    tokenizer(src, tokens) {
-        // Process external links
-        let rule = /^&lt;(https?:\/\/[^>]+)>/;
-        let match = rule.exec(src);
-
-        try {
-            if (match && new URL(match[1])) {
-                return {
-                    type: 'angledLink',
-                    raw: match[0],
-                    href: match[1],
-                    variant: 'url',
-                };
-            }
-        } catch (error) {
-        }
-
-        // Process email links
-        rule = /^&lt;([^>\s]+@[^>\s]+\.[^>\s]+)>/;
-        match = rule.exec(src);
-
-        if (match) {
-            return {
-                type: 'angledLink',
-                raw: match[0],
-                href: match[1],
-                variant: 'email',
-            };
-        }
-    },
-    renderer(token) {
-        const href = token.variant === 'email' ? `mailto:${token.href}` : token.href;
-
-        return `<a href="${href}" class="angledLink">${token.href}</a>`;
-    },
-};
+import { angleBracketLink } from './marked/extension-angle-bracket-link';
 
 const renderer = new marked.Renderer();
 
@@ -121,6 +79,6 @@ renderer.codespan = function({ text }) {
     return `<code>${text}</code>`;
 };
 
-marked.use({ extensions: [angledLinkExtension] });
+marked.use({ extensions: [angleBracketLink] });
 
 export const markedService = marked.setOptions({ renderer: renderer });

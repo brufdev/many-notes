@@ -65,7 +65,7 @@ export const turndownService = new TurndownService({
     replacement: function(content, node) {
         const href = node.getAttribute('href');
         const autoLink = node.classList.contains('autoLink');
-        const angledLink = node.classList.contains('angledLink');
+        const angleBracketLink = node.getAttribute('data-angle-bracket') === 'true';
         const title = node.getAttribute('title');
         const titlePart = title ? ` "${title}"` : '';
 
@@ -87,7 +87,7 @@ export const turndownService = new TurndownService({
             return cleanHref;
         }
 
-        if (angledLink) {
+        if (angleBracketLink) {
             return `<${cleanHref}>`;
         }
 
