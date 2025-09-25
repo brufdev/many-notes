@@ -127,6 +127,7 @@ window.setupEditor = function (options) {
                 }
 
                 isSavingEnabled = true;
+                options.markdownElement.textContent = options.content;
             },
             onUpdate({ editor }) {
                 if (!isSavingEnabled) {
@@ -135,6 +136,7 @@ window.setupEditor = function (options) {
 
                 const html = prepareTiptapHTML(editor.getHTML());
                 const markdown = turndownService.turndown(html);
+                options.markdownElement.textContent = markdown;
                 options.onUpdate(markdown);
             },
         }),
@@ -159,9 +161,8 @@ window.setupEditor = function (options) {
 
         setContent(content) {
             const html = markedService.parse(encodeText(content));
-            this.getEditor().commands.setContent(html, {
-                emitUpdate: true,
-            });
+            this.getEditor().commands.setContent(html);
+            options.onUpdate(content);
         },
 
         toggleMarkdown() {
@@ -169,18 +170,11 @@ window.setupEditor = function (options) {
                 options.markdownElement.classList.add('hidden');
                 options.element.classList.remove('hidden');
             } else {
-                this.updateMarkdown();
                 options.element.classList.add('hidden');
                 options.markdownElement.classList.remove('hidden');
             }
 
             isEditingMarkdown = !isEditingMarkdown;
-        },
-
-        updateMarkdown() {
-            const html = prepareTiptapHTML(this.getEditor().getHTML());
-            const markdown = turndownService.turndown(html);
-            options.markdownElement.textContent = markdown;
         },
 
         undo() {

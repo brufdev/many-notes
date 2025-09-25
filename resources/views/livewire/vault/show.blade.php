@@ -307,10 +307,6 @@
                     editable: this.isEditMode,
                     onUpdate: (markdown) => this.updateContent(markdown),
                 });
-
-                if (this.isEditingMarkdown) {
-                    this.editor.updateMarkdown();
-                }
             },
 
             isSmallDevice() {
