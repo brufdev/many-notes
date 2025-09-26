@@ -130,19 +130,19 @@ final class Show extends Component
         if ($this->selectedFile === null) {
             /** @var Collection<int, Tag> $tags */
             $tags = $this->vault->tags()
-                ->select(DB::raw('tags.id, tags.name, count(*) as total'))
+                ->select(DB::raw('tags.id, tags.name, count(*) AS total'))
                 ->groupBy('tags.id', 'tags.name', 'vault_nodes.vault_id')
                 ->orderBy('tags.name')
                 ->get();
-        } else {
-            $tags = $this->selectedFile->tags()
-                ->select(DB::raw('tags.id, tags.name, count(*) as total'))
-                ->groupBy('tags.id', 'tags.name', 'tag_vault_node.vault_node_id', 'tag_vault_node.tag_id')
-                ->orderBy('tags.name')
-                ->get();
+
+            return $tags;
         }
 
-        return $tags;
+        return $this->selectedFile->tags()
+            ->select(DB::raw('tags.id, tags.name, count(*) AS total'))
+            ->groupBy('tags.id', 'tags.name', 'tag_vault_node.vault_node_id', 'tag_vault_node.tag_id')
+            ->orderBy('tags.name')
+            ->get();
     }
 
     public function checkPermission(): void
