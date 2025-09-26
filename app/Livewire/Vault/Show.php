@@ -101,7 +101,7 @@ final class Show extends Component
 
         return $this->selectedFile->links()
             ->select(DB::raw('id, name, count(*) as total'))
-            ->groupBy('id')
+            ->groupBy('id', 'name', 'vault_node_vault_node.source_id', 'vault_node_vault_node.destination_id')
             ->get();
     }
 
@@ -117,7 +117,7 @@ final class Show extends Component
 
         return $this->selectedFile->backlinks()
             ->select(DB::raw('id, name, count(*) as total'))
-            ->groupBy('id')
+            ->groupBy('id', 'name', 'vault_node_vault_node.destination_id', 'vault_node_vault_node.source_id')
             ->get();
     }
 
@@ -127,12 +127,20 @@ final class Show extends Component
     #[Computed]
     public function tags(): Collection
     {
-        /** @var Collection<int, Tag> $tags */
-        $tags = ($this->selectedFile ? $this->selectedFile->tags() : $this->vault->tags())
-            ->select(DB::raw('tags.id, tags.name, count(*) as total'))
-            ->groupBy('tags.id')
-            ->orderBy('tags.name')
-            ->get();
+        if ($this->selectedFile === null) {
+            /** @var Collection<int, Tag> $tags */
+            $tags = $this->vault->tags()
+                ->select(DB::raw('tags.id, tags.name, count(*) as total'))
+                ->groupBy('tags.id', 'tags.name', 'vault_nodes.vault_id')
+                ->orderBy('tags.name')
+                ->get();
+        } else {
+            $tags = $this->selectedFile->tags()
+                ->select(DB::raw('tags.id, tags.name, count(*) as total'))
+                ->groupBy('tags.id', 'tags.name', 'tag_vault_node.vault_node_id', 'tag_vault_node.tag_id')
+                ->orderBy('tags.name')
+                ->get();
+        }
 
         return $tags;
     }
