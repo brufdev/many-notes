@@ -5,6 +5,7 @@ import TaskList from '@tiptap/extension-task-list';
 import Table from '@tiptap/extension-table';
 import TableRow from '@tiptap/extension-table-row';
 import { common, createLowlight } from 'lowlight';
+import { Hashtag } from './tiptap/extension-hashtag';
 import { SmartBracket } from './tiptap/extension-smart-bracket';
 import { CustomCodeBlockLowlight } from './tiptap/extension-custom-code-block-low-light';
 import { CustomImage } from './tiptap/extension-custom-image';
@@ -83,6 +84,7 @@ window.setupEditor = function (options) {
                     codeBlock: false,
                 }),
                 SmartBracket,
+                Hashtag,
                 CustomCodeBlockLowlight.configure({
                     defaultLanguage: 'plaintext',
                     lowlight: createLowlight(common),
