@@ -90,23 +90,31 @@
                                     @input="editor.setContent(event.target.textContent)"
                                 ></div>
                             @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Types\Image::extensions()))
-                                <img src="{{ $selectedFileUrl }}" alt="" />
+                                <div class="w-full px-4">
+                                    <img src="{{ $selectedFileUrl }}" alt="" />
+                                </div>
                             @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Types\Pdf::extensions()))
-                                <object
-                                    class="w-full h-full"
-                                    type="application/pdf"
-                                    data="{{ $selectedFileUrl }}"
-                                ></object>
+                                <div class="w-full px-4">
+                                    <object
+                                        class="w-full h-full"
+                                        type="application/pdf"
+                                        data="{{ $selectedFileUrl }}"
+                                    ></object>
+                                </div>
                             @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Types\Video::extensions()))
-                                <video class="w-full" controls>
-                                    <source src="{{ $selectedFileUrl }}" />
-                                    {{ __('Your browser does not support the video tag') }}
-                                </video>
+                                <div class="w-full px-4">
+                                    <video class="w-full" controls>
+                                        <source src="{{ $selectedFileUrl }}" />
+                                        {{ __('Your browser does not support the video tag') }}
+                                    </video>
+                                </div>
                             @elseif (in_array($nodeForm->extension, App\Services\VaultFiles\Types\Audio::extensions()))
-                                <audio class="w-full" controls>
-                                    <source src="{{ $selectedFileUrl }}">
-                                    {{ __('Your browser does not support the audio tag') }}
-                                </audio>
+                                <div class="w-full px-4">
+                                    <audio class="w-full" controls>
+                                        <source src="{{ $selectedFileUrl }}">
+                                        {{ __('Your browser does not support the audio tag') }}
+                                    </audio>
+                                </div>
                             @endif
                         </x-vault.fileDetails>
                     </div>
