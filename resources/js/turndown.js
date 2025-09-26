@@ -93,4 +93,10 @@ export const turndownService = new TurndownService({
 
         return `[${content}](${cleanHref}${titlePart})`;
     }
+}).addRule('hashtag', {
+    filter: node => node.nodeName === 'SPAN' && node.getAttribute('data-hashtag') === 'true',
+    replacement: (content, node) => {
+        const escaped = node.getAttribute('data-escaped') === 'true';
+        return escaped ? `\\${content}` : content;
+    },
 });

@@ -1,5 +1,6 @@
 import { marked } from 'marked';
 import { angleBracketLink } from './marked/extension-angle-bracket-link';
+import { hashtag } from './marked/extension-hashtag';
 
 const renderer = new marked.Renderer();
 
@@ -79,6 +80,11 @@ renderer.codespan = function({ text }) {
     return `<code>${text}</code>`;
 };
 
-marked.use({ extensions: [angleBracketLink] });
+marked.use({
+    extensions: [
+        angleBracketLink,
+        hashtag,
+    ],
+});
 
 export const markedService = marked.setOptions({ renderer: renderer });
