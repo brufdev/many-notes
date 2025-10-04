@@ -20,6 +20,7 @@ arch('avoid mutation')
         'App\Console\Commands',
         'App\Events',
         'App\Exceptions',
+        'App\Http\Middleware',
         'App\Jobs',
         'App\Livewire',
         'App\Models',
@@ -35,6 +36,7 @@ arch('avoid inheritance')
     ->ignoring([
         'App\Console\Commands',
         'App\Exceptions',
+        'App\Http\Middleware',
         'App\Jobs',
         'App\Livewire',
         'App\Models',
