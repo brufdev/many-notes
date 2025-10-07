@@ -4,7 +4,8 @@
     @mde-link.window="editor.toggleLink($event.detail.path)"
     @mde-image.window="editor.setImage($event.detail.path)"
     @open-file.window="openFile($event.detail.id)"
-    @file-opened.window="$nextTick(() => { fileOpened() })"
+    @open-new-file.window="openFile($event.detail.id, true)"
+    @file-opened.window="$nextTick(() => { fileOpened($event.detail.autofocus) })"
     @file-refreshed.window="$nextTick(() => { fileRefreshed() })"
 >
     <x-layouts.appHeader>
@@ -301,7 +302,7 @@
                     });
             },
 
-            initializeEditor() {
+            initializeEditor(autofocus = false) {
                 if (this.editor) {
                     this.editor.destroyEditor();
                 }
@@ -309,6 +310,7 @@
                 this.editor = setupEditor({
                     placeholder: '{{ __('Start writing your note...') }}',
                     element: this.$refs.noteEditor,
+                    autofocus: autofocus,
                     markdownElement: this.$refs.noteMarkdown,
                     vaultId: $wire.nodeForm.vaultId,
                     content: $wire.nodeForm.content,
@@ -345,7 +347,7 @@
                 this.editor.setEditable(this.isEditMode);
             },
 
-            openFile(fileId) {
+            openFile(fileId, autofocus = false) {
                 const previousSelectedFileId = $wire.selectedFileId;
 
                 if (fileId !== previousSelectedFileId) {
@@ -356,18 +358,24 @@
                     }
                 }
 
-                $wire.openFileId(fileId);
+                $wire.openFileId(fileId, autofocus);
 
                 if (this.isSmallDevice()) {
                     this.closePanels();
                 }
             },
 
-            fileOpened() {
+            fileOpened(autofocus = false) {
                 this.startVaultNodeEventListeners();
 
-                if ($wire.nodeForm.extension == 'md') {
-                    this.initializeEditor();
+                if ($wire.nodeForm.extension !== 'md') {
+                    return;
+                }
+
+                this.initializeEditor(autofocus);
+
+                if (autofocus && this.isEditingMarkdown) {
+                    this.$refs.noteMarkdown.focus();
                 }
             },
 

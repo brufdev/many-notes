@@ -45,7 +45,7 @@ final class AddNode extends Component
         $node = $this->form->create();
         $this->closeModal();
 
-        $this->dispatch('open-file', id: $node->id);
+        $this->dispatch('open-new-file', id: $node->id);
         $message = $node->is_file ? __('File created') : __('Folder created');
         $this->dispatch('toast', message: $message, type: 'success');
 

@@ -163,7 +163,7 @@ final class Show extends Component
         $this->openFileId($this->selectedFileId);
     }
 
-    public function openFileId(?int $fileId = null): void
+    public function openFileId(?int $fileId = null, bool $autofocus = false): void
     {
         if ($fileId === null) {
             $this->reset(['selectedFileId']);
@@ -187,7 +187,7 @@ final class Show extends Component
             return;
         }
 
-        $this->openFile($node);
+        $this->openFile($node, $autofocus);
     }
 
     public function openFilePath(string $path): void
@@ -344,12 +344,12 @@ final class Show extends Component
             });
     }
 
-    private function openFile(VaultNode $node): void
+    private function openFile(VaultNode $node, bool $autofocus = false): void
     {
         $this->setNode($node);
         $this->setLastVisitedUrl();
 
-        $this->dispatch('file-opened');
+        $this->dispatch('file-opened', autofocus: $autofocus);
     }
 
     private function setLastVisitedUrl(): void

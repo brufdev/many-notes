@@ -74,6 +74,7 @@ window.setupEditor = function (options) {
     return {
         editor: new Editor({
             element: options.element,
+            autofocus: options.autofocus,
             extensions: [
                 StarterKit.configure({
                     code: {
