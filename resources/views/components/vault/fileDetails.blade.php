@@ -1,6 +1,6 @@
 @props(['header' => ''])
 
-<div class="flex flex-col w-full h-full">
+<div {{ $attributes }} class="flex flex-col w-full h-full">
     <div class="flex flex-col gap-4 p-4 z-15 bg-light-base-50 dark:bg-base-900 print:hidden">
         <div class="z-[5]">
             <div class="flex justify-between">

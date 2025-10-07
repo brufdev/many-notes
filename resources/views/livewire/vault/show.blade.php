@@ -69,7 +69,7 @@
             >
                 <div class="flex flex-col h-full w-full max-w-[48rem] mx-auto">
                     <div class="flex h-full w-full" x-show="$wire.selectedFileId">
-                        <x-vault.fileDetails>
+                        <x-vault.fileDetails wire:key="file-details-{{ $nodeForm->extension }}">
                             @if (in_array($nodeForm->extension, App\Services\VaultFiles\Types\Note::extensions()))
                                 <x-slot:header>
                                     <x-tiptapEditor.toolbar />
