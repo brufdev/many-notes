@@ -27,6 +27,9 @@ services:
       - typesense:/var/www/html/typesense
     ports:
       - 80:8080
+    depends_on:
+      mysql:
+        condition: service_healthy
   mysql:
     image: mysql:9
     restart: unless-stopped
@@ -37,6 +40,12 @@ services:
       - MYSQL_PASSWORD=USER_PASSWORD # mysql user password
     volumes:
       - database:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 2
+      start_period: 0s
 
 volumes:
   database:
