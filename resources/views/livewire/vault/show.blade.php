@@ -76,6 +76,7 @@
                                 </x-slot:header>
                                 <div
                                     class="h-full w-full px-4 overflow-y-auto"
+                                    :class="isEditingMarkdown ? 'hidden' : ''"
                                     spellcheck="false"
                                     x-ref="noteEditor"
                                     wire:ignore
@@ -261,7 +262,7 @@
             isLeftPanelOpen: false,
             isRightPanelOpen: false,
             recentFiles: $wire.entangle('recentFiles'),
-            isEditingMarkdown: false,
+            isEditingMarkdown: Alpine.$persist(false),
             isEditMode: Alpine.$persist(true),
             editor: null,
             users: [],
