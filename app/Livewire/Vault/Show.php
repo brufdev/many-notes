@@ -78,10 +78,6 @@ final class Show extends Component
     #[Computed]
     public function selectedFile(): ?VaultNode
     {
-        if ($this->vault === null) {
-            return null;
-        }
-
         return $this->vault
             ->nodes()
             ->where('id', $this->selectedFileId)
