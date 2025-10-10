@@ -51,7 +51,6 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install Node dependencies
-        if: steps.npm-cache.outputs.cache-hit != 'true'
         run: npm ci
 
       - name: Build frontend
