@@ -61,6 +61,7 @@ jobs:
           cp .env.example .env
           php artisan key:generate
           php artisan config:cache
+          mkdir -p database/sqlite
 
       - name: Tests
         run: composer test
