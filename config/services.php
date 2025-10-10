@@ -46,7 +46,7 @@ return [
         'post_logout_redirect_uri' => env('AUTHENTIK_POST_LOGOUT_REDIRECT_URI'),
     ],
 
-    'azure' => [    
+    'azure' => [
         'client_id' => env('AZURE_CLIENT_ID'),
         'client_secret' => env('AZURE_CLIENT_SECRET'),
         'redirect' => env('AZURE_REDIRECT_URI'),
