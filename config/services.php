@@ -46,6 +46,14 @@ return [
         'post_logout_redirect_uri' => env('AUTHENTIK_POST_LOGOUT_REDIRECT_URI'),
     ],
 
+    'azure' => [    
+        'client_id' => env('AZURE_CLIENT_ID'),
+        'client_secret' => env('AZURE_CLIENT_SECRET'),
+        'redirect' => env('AZURE_REDIRECT_URI'),
+        'tenant' => env('AZURE_TENANT_ID'),
+        'proxy' => env('AZURE_PROXY'),
+    ],
+
     'bitbucket' => [
         'client_id' => env('BITBUCKET_CLIENT_ID'),
         'client_secret' => env('BITBUCKET_CLIENT_SECRET'),

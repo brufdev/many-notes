@@ -118,8 +118,7 @@ environment:
 
 ### Enable OAuth providers
 
-Many Notes supports a convenient way to authenticate with OAuth providers. Typically, these credentials may be retrieved by creating a "developer application" within the dashboard of the service you wish to use. Many Notes currently supports authentication via Authelia, Authentik, Bitbucket, Facebook, GitHub, GitLab, Google, Keycloak, LinkedIn, Pocket ID, Slack, Twitter, and Zitadel. You can enable multiple providers simultaneously by adding the corresponding environment variables.
-
+Many Notes supports a convenient way to authenticate with OAuth providers. Typically, these credentials may be retrieved by creating a "developer application" within the dashboard of the service you wish to use. Many Notes currently supports authentication via Authelia, Authentik, Azure, Bitbucket, Facebook, GitHub, GitLab, Google, Keycloak, LinkedIn, Pocket ID, Slack, Twitter, and Zitadel. You can enable multiple providers simultaneously by adding the corresponding environment variables.
 
 For example, to enable GitHub OAuth, add:
 
@@ -130,7 +129,7 @@ environment:
   - GITHUB_REDIRECT_URI=http://localhost/oauth/github/callback # change domain and provider
 ```
 
-Authelia, Authentik, Keycloak, and Zitadel providers require additional configuration. Read the [OAuth documentation](./docs/customization/oauth.md) for more information.
+Some providers require additional environment variables. Read the [OAuth documentation](./docs/customization/oauth.md) for more information.
 
 ### Local authentication (default: true)
 

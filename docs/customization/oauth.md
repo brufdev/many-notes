@@ -22,6 +22,18 @@ environment:
   - AUTHENTIK_BASE_URL=http://your-authentik-url # change url
 ```
 
+## Azure
+
+To enable Azure OAuth, add:
+
+```yaml
+environment:
+  - AZURE_CLIENT_ID=CLIENT_ID # change id
+  - AZURE_CLIENT_SECRET=CLIENT_SECRET # change secret
+  - AZURE_TENANT_ID=TENANT_ID # change id
+  - AZURE_PROXY=http://your-proxy-url # change url (optional configuration)
+```
+
 ## Keycloak
 
 To enable Keycloak OAuth, add:

@@ -17,6 +17,7 @@ use Illuminate\Support\ServiceProvider;
 use Override;
 use SocialiteProviders\Authelia\Provider as AutheliaProvider;
 use SocialiteProviders\Authentik\Provider as AuthentikProvider;
+use SocialiteProviders\Azure\Provider as AzureProvider;
 use SocialiteProviders\Keycloak\Provider as KeycloakProvider;
 use SocialiteProviders\Manager\SocialiteWasCalled;
 use SocialiteProviders\PocketID\Provider as PocketIDProvider;
@@ -110,6 +111,9 @@ final class AppServiceProvider extends ServiceProvider
         });
         Event::listen(function (SocialiteWasCalled $event): void {
             $event->extendSocialite('authentik', AuthentikProvider::class);
+        });
+        Event::listen(function (SocialiteWasCalled $event): void {
+            $event->extendSocialite('azure', AzureProvider::class);
         });
         Event::listen(function (SocialiteWasCalled $event): void {
             $event->extendSocialite('keycloak', KeycloakProvider::class);

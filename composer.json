@@ -16,6 +16,7 @@
         "socialiteproviders/authelia": "^4.0",
         "socialiteproviders/authentik": "^5.2",
         "socialiteproviders/keycloak": "^5.3",
+        "socialiteproviders/microsoft-azure": "^5.2",
         "socialiteproviders/pocketid": "^5.0",
         "socialiteproviders/zitadel": "^4.2",
         "staudenmeir/eloquent-has-many-deep": "^1.21.1",

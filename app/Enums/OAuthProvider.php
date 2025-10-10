@@ -8,6 +8,7 @@ enum OAuthProvider: string
 {
     case Authelia = 'authelia';
     case Authentik = 'authentik';
+    case Azure = 'azure';
     case Bitbucket = 'bitbucket';
     case Facebook = 'facebook';
     case GitHub = 'github';
