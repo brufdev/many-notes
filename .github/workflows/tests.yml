@@ -15,6 +15,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Prepare Composer cache directory
+        run: mkdir -p ~/.composer/cache
+
       - name: Cache Composer dependencies
         uses: actions/cache@v4
         with:
