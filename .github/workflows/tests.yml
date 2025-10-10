@@ -5,23 +5,21 @@ on: ['push', 'pull_request']
 jobs:
   ci:
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: true
       matrix:
         php: [8.4]
 
-    name: Tests
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Cache Dependencies PHP
-        id: php-cache
+      - name: Cache Composer dependencies
         uses: actions/cache@v4
         with:
-          path: vendor
-          key: dependencies-php-composer-${{ hashFiles('composer.lock') }}
+          path: ~/.composer/cache
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -31,26 +29,19 @@ jobs:
           tools: composer:v2
           coverage: xdebug
 
-      - name: Set up Node & NPM
-        uses: actions/setup-node@v2
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: '22.x'
-
-      - name: Setup Problem Matches
-        run: |
-          echo "::add-matcher::${{ runner.tool_cache }}/php.json"
-          echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+          node-version: '22'
 
       - name: Install PHP dependencies
-        if: steps.php-cache.outputs.cache-hit != 'true'
-        run: composer install --no-interaction --no-progress --ansi
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader --ansi
 
       - name: Get NPM cache directory
         id: npm-cache-dir
-        shell: bash
         run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
 
-      - name: Cache dependencies
+      - name: Cache Node dependencies
         id: npm-cache
         uses: actions/cache@v4
         with:
@@ -59,17 +50,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Install dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: npm install
+      - name: Install Node dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: npm ci
 
-      - name: Build dependencies
+      - name: Build frontend
         run: npm run build
 
       - name: Prepare Laravel
         run: |
           cp .env.example .env
           php artisan key:generate
+          php artisan config:cache
 
       - name: Tests
         run: composer test

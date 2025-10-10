@@ -64,16 +64,16 @@
             "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
             "@php artisan migrate --graceful --ansi"
         ],
-        "test:refactor": "rector --dry-run",
-        "test:lint": "pint --test",
+        "test:lint": [
+            "pint --parallel --test",
+            "phpcs --standard=PSR12 app database/factories database/migrations database/seeders routes tests/Feature tests/Unit",
+            "rector --dry-run"
+        ],
         "test:types": "phpstan",
-        "test:coding-standards": "phpcs --standard=PSR12 app database/factories database/migrations database/seeders routes tests/Feature tests/Unit",
         "test:type-coverage": "pest --type-coverage --min=100",
         "test:unit": "pest --parallel",
         "test": [
-            "@test:refactor",
             "@test:lint",
-            "@test:coding-standards",
             "@test:types",
             "@test:type-coverage",
             "@test:unit"
@@ -85,6 +85,7 @@
         }
     },
     "config": {
+        "bump-after-update": true,
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
