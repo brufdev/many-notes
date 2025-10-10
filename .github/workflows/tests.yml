@@ -40,6 +40,12 @@ jobs:
       - name: Install PHP dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader --ansi
 
+      - name: Cache Pest type coverage
+        uses: actions/cache@v4
+        with:
+          path: vendor/pestphp/pest-plugin-type-coverage/.temp
+          key: pest-type-coverage-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+
       - name: Get NPM cache directory
         id: npm-cache-dir
         run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
@@ -64,5 +70,5 @@ jobs:
           cp .env.example .env
           php artisan key:generate
 
-      - name: Tests
+      - name: Run linters, static analysis, and tests
         run: composer test
