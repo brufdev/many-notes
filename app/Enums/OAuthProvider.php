@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum OAuthProviders: string
+enum OAuthProvider: string
 {
     case Authelia = 'authelia';
     case Authentik = 'authentik';

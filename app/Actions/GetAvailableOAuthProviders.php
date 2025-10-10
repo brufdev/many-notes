@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
-use App\Enums\OAuthProviders;
+use App\Enums\OAuthProvider;
 
 final readonly class GetAvailableOAuthProviders
 {
     /**
-     * @return array<int, OAuthProviders>
+     * @return array<int, OAuthProvider>
      */
     public function handle(): array
     {
         return array_filter(
-            OAuthProviders::cases(),
+            OAuthProvider::cases(),
             /** @phpstan-ignore-next-line */
-            fn(OAuthProviders $provider): ?string => config("services.{$provider->value}.client_id"),
+            fn(OAuthProvider $provider): ?string => config("services.{$provider->value}.client_id"),
         );
     }
 }

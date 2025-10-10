@@ -6,7 +6,7 @@ namespace App\Livewire\Auth;
 
 use App\Actions\GetAvailableOAuthProviders;
 use App\Actions\IsLocalAuthEnabled;
-use App\Enums\OAuthProviders;
+use App\Enums\OAuthProvider;
 use App\Livewire\Forms\LoginForm;
 use App\Models\User;
 use Illuminate\Contracts\View\Factory;
@@ -20,7 +20,7 @@ final class Login extends Component
 {
     public LoginForm $form;
 
-    /** @var array<int, OAuthProviders> */
+    /** @var array<int, OAuthProvider> */
     public array $providers;
 
     public function mount(): void
@@ -29,7 +29,7 @@ final class Login extends Component
 
         if ($this->providers !== [] && !new IsLocalAuthEnabled()->handle()) {
             try {
-                /** @var OAuthProviders $provider */
+                /** @var OAuthProvider $provider */
                 $provider = current($this->providers);
                 $this->redirect(Socialite::driver($provider->value)->redirect()->getTargetUrl());
             } catch (Throwable) {

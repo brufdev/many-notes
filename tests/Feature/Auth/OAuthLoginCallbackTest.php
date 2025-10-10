@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Actions\GetAvailableOAuthProviders;
-use App\Enums\OAuthProviders;
+use App\Enums\OAuthProvider;
 use App\Livewire\Auth\OAuthLoginCallback;
 use App\Models\Setting;
 use App\Models\User;
@@ -27,7 +27,7 @@ it('successfully authenticates a registered user', function (): void {
     $provider->shouldReceive('user')->andReturn($abstractUser);
     Socialite::shouldReceive('driver')->with('github')->andReturn($provider);
     $availableProviders = Mockery::mock(new GetAvailableOAuthProviders());
-    $availableProviders->shouldReceive('handle')->andReturn([OAuthProviders::GitHub]);
+    $availableProviders->shouldReceive('handle')->andReturn([OAuthProvider::GitHub]);
 
     Livewire::test(OAuthLoginCallback::class, ['provider' => 'github'])
         ->assertRedirect(route('vaults.show', ['vaultId' => 1]));
@@ -48,7 +48,7 @@ it('successfully authenticates a non-registered user', function (): void {
     $provider->shouldReceive('user')->andReturn($abstractUser);
     Socialite::shouldReceive('driver')->with('github')->andReturn($provider);
     $availableProviders = Mockery::mock(new GetAvailableOAuthProviders());
-    $availableProviders->shouldReceive('handle')->andReturn([OAuthProviders::GitHub]);
+    $availableProviders->shouldReceive('handle')->andReturn([OAuthProvider::GitHub]);
 
     Livewire::test(OAuthLoginCallback::class, ['provider' => 'github'])
         ->assertRedirect(route('vaults.index'));
@@ -58,7 +58,7 @@ it('fails to authenticate user', function (): void {
     $provider = Mockery::mock(Provider::class);
     Socialite::shouldReceive('driver')->with('github')->andReturn($provider);
     $availableProviders = Mockery::mock(new GetAvailableOAuthProviders());
-    $availableProviders->shouldReceive('handle')->andReturn([OAuthProviders::GitHub]);
+    $availableProviders->shouldReceive('handle')->andReturn([OAuthProvider::GitHub]);
 
     Livewire::test(OAuthLoginCallback::class, ['provider' => 'github'])
         ->assertRedirect(route('login'));
@@ -77,7 +77,7 @@ it('fails to authenticate user without email', function (): void {
     $provider->shouldReceive('user')->andReturn($abstractUser);
     Socialite::shouldReceive('driver')->with('github')->andReturn($provider);
     $availableProviders = Mockery::mock(new GetAvailableOAuthProviders());
-    $availableProviders->shouldReceive('handle')->andReturn([OAuthProviders::GitHub]);
+    $availableProviders->shouldReceive('handle')->andReturn([OAuthProvider::GitHub]);
 
     Livewire::test(OAuthLoginCallback::class, ['provider' => 'github'])
         ->assertRedirect(route('login'));
@@ -100,7 +100,7 @@ it('fails to authenticate a non-registered user when registration is disabled', 
     $provider->shouldReceive('user')->andReturn($abstractUser);
     Socialite::shouldReceive('driver')->with('github')->andReturn($provider);
     $availableProviders = Mockery::mock(new GetAvailableOAuthProviders());
-    $availableProviders->shouldReceive('handle')->andReturn([OAuthProviders::GitHub]);
+    $availableProviders->shouldReceive('handle')->andReturn([OAuthProvider::GitHub]);
 
     Livewire::test(OAuthLoginCallback::class, ['provider' => 'github'])
         ->assertRedirect(route('login'));

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Actions\GetAvailableOAuthProviders;
-use App\Enums\OAuthProviders;
+use App\Enums\OAuthProvider;
 use App\Http\Controllers\FileController;
 use App\Livewire\Auth\ForgotPassword;
 use App\Livewire\Auth\Login;
@@ -42,7 +42,7 @@ Route::middleware(['guest', 'throttle'])->group(function (): void {
 
     Route::prefix('oauth')->group(function (): void {
         $providers = implode('|', array_map(
-            fn(OAuthProviders $provider): string => $provider->value,
+            fn(OAuthProvider $provider): string => $provider->value,
             new GetAvailableOAuthProviders()->handle(),
         ));
 

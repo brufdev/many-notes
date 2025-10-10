@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
-use App\Enums\OAuthProviders;
+use App\Enums\OAuthProvider;
 
 final readonly class GetOAuthPostLogoutRedirectUri
 {
@@ -13,7 +13,7 @@ final readonly class GetOAuthPostLogoutRedirectUri
         $providers = new GetAvailableOAuthProviders()->handle();
         $provider = current($providers);
 
-        if (!$provider instanceof OAuthProviders) {
+        if (!$provider instanceof OAuthProvider) {
             return '';
         }
 

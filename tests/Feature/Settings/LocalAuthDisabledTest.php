@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Actions\GetAvailableOAuthProviders;
-use App\Enums\OAuthProviders;
+use App\Enums\OAuthProvider;
 use App\Livewire\Auth\Login;
 use App\Livewire\Layout\UserMenu;
 use App\Models\User;
@@ -23,7 +23,7 @@ it('redirects the user to the OAuth authentication page', function (): void {
     $targetUrl = 'https://github.com/login/oauth/authorize';
     Socialite::shouldReceive('driver->redirect->getTargetUrl')->andReturn($targetUrl);
     $availableProviders = Mockery::mock(new GetAvailableOAuthProviders());
-    $availableProviders->shouldReceive('handle')->andReturn([OAuthProviders::GitHub]);
+    $availableProviders->shouldReceive('handle')->andReturn([OAuthProvider::GitHub]);
 
     Livewire::test(Login::class)
         ->assertRedirect($targetUrl);
@@ -32,7 +32,7 @@ it('redirects the user to the OAuth authentication page', function (): void {
 it('fails to redirect the user to the provider URL', function (): void {
     Socialite::shouldReceive('driver->redirect->getTargetUrl')->andThrowExceptions([new Exception()]);
     $availableProviders = Mockery::mock(new GetAvailableOAuthProviders());
-    $availableProviders->shouldReceive('handle')->andReturn([OAuthProviders::GitHub]);
+    $availableProviders->shouldReceive('handle')->andReturn([OAuthProvider::GitHub]);
 
     Livewire::test(Login::class, ['provider' => 'github'])
         ->assertStatus(404);
