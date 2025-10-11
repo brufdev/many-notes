@@ -52,6 +52,7 @@ return [
         'redirect' => env('AZURE_REDIRECT_URI'),
         'tenant' => env('AZURE_TENANT_ID'),
         'proxy' => env('AZURE_PROXY'),
+        'post_logout_redirect_uri' => env('AZURE_POST_LOGOUT_REDIRECT_URI'),
     ],
 
     'bitbucket' => [
