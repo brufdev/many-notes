@@ -65,7 +65,7 @@
             <livewire:vault.tree-view lazy="on-load" :vault="$this->vault" />
         </div>
 
-        <div class="h-full flex-1 transition-all text-start">
+        <div class="flex-1 h-full max-w-full transition-all text-start">
             <div
                 class="flex flex-col h-full w-full transition-maxwidth duration-300 ease-in-out mx-auto"
                 :class="{ 'max-w-full': isContentWidthFull, 'max-w-[48rem]': !isContentWidthFull }"
