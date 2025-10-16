@@ -6,6 +6,7 @@ namespace App\Livewire\Auth;
 
 use App\Actions\CreateUser;
 use App\Actions\IsLocalAuthEnabled;
+use App\Enums\OAuthProvider;
 use App\Models\Setting;
 use App\Models\SocialAccount;
 use App\Models\User;
@@ -15,13 +16,27 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Livewire\Component;
+use SocialiteProviders\Azure\User as AzureUser;
 
 final class OAuthLoginCallback extends Component
 {
     public function mount(string $provider): void
     {
         try {
-            $socialUser = Socialite::driver($provider)->user();
+            $socialProvider = Socialite::driver($provider);
+
+            if ($provider === OAuthProvider::Azure->value) {
+                /** @var AzureUser $socialUser */
+                $socialUser = $socialProvider->user();
+                $userEmail = $socialUser->getMail();
+            } else {
+                $socialUser = $socialProvider->user();
+                $userEmail = $socialUser->getEmail() ?? '';
+            }
+
+            $userName = $socialUser->getName()
+                ?? $socialUser->getNickname()
+                ?? explode('@', $userEmail)[0];
         } catch (Exception) {
             session()->flash('error', __('An error occurred while authenticating.'));
             $this->redirect(route('login', absolute: false));
@@ -29,20 +44,11 @@ final class OAuthLoginCallback extends Component
             return;
         }
 
-        $userEmail = $socialUser->getEmail() ?? '';
-        $userName = $socialUser->getName() ?? $socialUser->getNickname() ?? '';
-
-        if (!filter_var($socialUser->getEmail(), FILTER_VALIDATE_EMAIL)) {
+        if (!filter_var($userEmail, FILTER_VALIDATE_EMAIL)) {
             session()->flash('error', __('No email address found.'));
             $this->redirect(route('login', absolute: false));
 
             return;
-        }
-
-        if ($userName === '') {
-            /** @var int<0, max> $atPos */
-            $atPos = mb_strrpos($userEmail, '@');
-            $userName = mb_substr($userEmail, 0, $atPos);
         }
 
         $socialAccount = SocialAccount::firstOrNew([
