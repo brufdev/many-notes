@@ -8,7 +8,7 @@
     "
 >
     <x-treeView>
-        <div class="z-[5] flex flex-col gap-2 p-4 bg-light-base-200 dark:bg-base-950">
+        <div class="z-[5] flex flex-col gap-2 p-4">
             <div
                 class="flex justify-center py-1 rounded-sm bg-primary-400 dark:bg-primary-500 text-light-base-50"
                 x-show="moving()"

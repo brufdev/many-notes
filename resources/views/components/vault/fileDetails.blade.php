@@ -1,11 +1,11 @@
 @props(['header' => ''])
 
 <div {{ $attributes }} class="flex flex-col w-full h-full">
-    <div class="flex flex-col gap-4 p-4 z-15 bg-light-base-50 dark:bg-base-900 print:hidden">
+    <div class="flex flex-col gap-7 p-4 z-15 print:hidden">
         <div class="z-[5]">
             <div class="flex justify-between">
                 <input
-                    class="flex flex-grow p-0 px-1 text-lg bg-transparent border-0 focus:ring-0 focus:outline-0"
+                    class="flex flex-grow p-0 px-1 text-lg font-semibold bg-transparent border-0 focus:ring-0 focus:outline-0"
                     type="text"
                     spellcheck="false"
                     autocomplete="off"
@@ -38,6 +38,13 @@
                             </x-menu.items>
                         </x-menu>
                     </div>
+                    <button
+                        title="{{ __('Toggle content width') }}"
+                        x-show="window.innerWidth > 768"
+                        @click="toggleContentWidth"
+                    >
+                        <x-icons.arrowsExpandHorizontal class="w-5 h-5" />
+                    </button>
                     <button title="{{ __('Close file') }}" @click="closeFile">
                         <x-icons.xMark class="w-5 h-5" />
                     </button>
