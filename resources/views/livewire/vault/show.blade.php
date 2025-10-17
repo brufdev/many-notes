@@ -52,7 +52,7 @@
 
         <div
             class="fixed inset-0 z-20 opacity-50 bg-light-base-50 dark:bg-base-900"
-            x-show="(isLeftPanelOpen || isRightPanelOpen) && isSmallDevice()"
+            x-show="(isLeftPanelOpen || isRightPanelOpen) && isNotExtraLargeDevice()"
             @click="closePanels"
             x-transition:enter="ease-out duration-300"
             x-transition:leave="ease-in duration-200"
@@ -260,9 +260,12 @@
 @script
     <script>
         Alpine.data('vault', () => ({
+            defaultLeftPanelOpen: Alpine.$persist(true),
+            defaultRightPanelOpen: Alpine.$persist(true),
             isLeftPanelOpen: false,
             isRightPanelOpen: false,
             isContentWidthFull: Alpine.$persist(false),
+            showToggleContentWidthButton: false,
             recentFiles: $wire.entangle('recentFiles'),
             isEditingMarkdown: Alpine.$persist(false),
             isEditMode: Alpine.$persist(true),
@@ -291,8 +294,8 @@
                     });
                 }
 
-                this.isLeftPanelOpen = !this.isSmallDevice();
-                this.isRightPanelOpen = !this.isSmallDevice();
+                this.handleResponsiveLayout();
+                window.onresize = () => this.handleResponsiveLayout();
 
                 Echo.private('User.{{ auth()->user()->id }}')
                     .listen('CollaborationDeletedEvent', (e) => {
@@ -322,15 +325,38 @@
                 });
             },
 
-            isSmallDevice() {
+            isMediumDevice() {
+                return window.innerWidth > 768;
+            },
+
+            isNotExtraLargeDevice() {
                 return window.innerWidth < 1280;
             },
 
+            handleResponsiveLayout() {
+                if (this.isNotExtraLargeDevice()) {
+                    this.closePanels();
+                } else {
+                    this.isLeftPanelOpen = this.defaultLeftPanelOpen;
+                    this.isRightPanelOpen = this.defaultRightPanelOpen;
+                }
+
+                this.showToggleContentWidthButton = this.isMediumDevice();
+            },
+
             toggleLeftPanel() {
+                if (!this.isNotExtraLargeDevice()) {
+                    this.defaultLeftPanelOpen = !this.defaultLeftPanelOpen;
+                }
+
                 this.isLeftPanelOpen = !this.isLeftPanelOpen;
             },
 
             toggleRightPanel() {
+                if (!this.isNotExtraLargeDevice()) {
+                    this.defaultRightPanelOpen = !this.defaultRightPanelOpen;
+                }
+
                 this.isRightPanelOpen = !this.isRightPanelOpen;
             },
 
@@ -366,7 +392,7 @@
 
                 $wire.openFileId(fileId, autofocus);
 
-                if (this.isSmallDevice()) {
+                if (this.isNotExtraLargeDevice()) {
                     this.closePanels();
                 }
             },

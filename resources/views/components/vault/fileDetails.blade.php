@@ -40,7 +40,7 @@
                     </div>
                     <button
                         title="{{ __('Toggle content width') }}"
-                        x-show="window.innerWidth > 768"
+                        x-show="showToggleContentWidthButton"
                         @click="toggleContentWidth"
                     >
                         <x-icons.arrowsExpandHorizontal class="w-5 h-5" />
