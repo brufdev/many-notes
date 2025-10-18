@@ -43,7 +43,7 @@
                         x-show="showToggleContentWidthButton"
                         @click="toggleContentWidth"
                     >
-                        <x-icons.arrowsExpandHorizontal class="w-5 h-5" />
+                        <x-icons.fullscreen class="w-5 h-5" />
                     </button>
                     <button title="{{ __('Close file') }}" @click="closeFile">
                         <x-icons.xMark class="w-5 h-5" />
