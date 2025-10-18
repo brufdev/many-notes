@@ -4,8 +4,8 @@
 ])
 
 <div
-    class="z-[35] border bg-light-base-200 dark:bg-base-950 border-light-base-300 dark:border-base-500 rounded-md shadow-lg p-1.5 text-light-base-950 dark:text-base-50"
-    :class="wide ? 'min-w-[15rem]' : 'min-w-[10rem]'"
+    class="z-[35] px-1.5 py-2 border bg-light-base-200 dark:bg-base-950 border-light-base-300 dark:border-base-500 rounded-md shadow-lg text-light-base-950 dark:text-base-50"
+    :class="wide ? 'min-w-[15rem]' : 'min-w-[12rem]'"
     x-show="menuOpen"
     x-cloak
     @if ($anchorElement)

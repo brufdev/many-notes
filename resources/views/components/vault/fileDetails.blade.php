@@ -12,7 +12,7 @@
                     wire:model.live.debounce.500ms="nodeForm.name"
                 />
 
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-3">
                     <span class="flex items-center" wire:loading.flex wire:target="nodeForm.name, nodeForm.content">
                         <x-icons.spinner class="w-4 h-4 animate-spin" />
                     </span>
@@ -57,7 +57,7 @@
         </div>
         {{ $header }}
     </div>
-    <div id="file-content" class="flex flex-grow w-full pb-4 overflow-y-auto print:overflow-y-visible">
+    <div id="file-content" class="flex flex-grow w-full mb-4 overflow-y-auto">
         {{ $slot }}
     </div>
 </div>

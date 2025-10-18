@@ -1,5 +1,5 @@
 <div
-    class="flex flex-col h-dvh"
+    class="flex flex-col h-dvh print:h-auto"
     x-data="vault"
     @mde-link.window="editor.toggleLink($event.detail.path)"
     @mde-image.window="editor.setImage($event.detail.path)"
@@ -9,7 +9,7 @@
     @file-refreshed.window="$nextTick(() => { fileRefreshed() })"
 >
     <x-layouts.appHeader>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-3">
             <button
                 class="hover:text-light-base-950 dark:hover:text-base-50"
                 type="button"
@@ -26,7 +26,7 @@
             </button>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-3">
             <livewire:layout.notification-menu />
             <livewire:layout.user-menu />
             <button
@@ -61,11 +61,12 @@
         <div
             class="absolute xl:static flex flex-col top-0 left-0 bottom-0 z-30 w-[80%] max-w-[300px] xl:w-[20%] xl:max-w-[300px] bg-light-base-200 dark:bg-base-800 transition-all overflow-x-auto overflow-y-auto print:hidden"
             :class="{ 'translate-x-0': isLeftPanelOpen, '-translate-x-full hidden': !isLeftPanelOpen }"
+            x-cloak
         >
             <livewire:vault.tree-view lazy="on-load" :vault="$this->vault" />
         </div>
 
-        <div class="flex-1 h-full max-w-full transition-all text-start">
+        <div class="flex-1 h-full max-w-full transition-all" x-cloak>
             <div
                 class="flex flex-col h-full w-full transition-maxwidth duration-300 ease-in-out mx-auto"
                 :class="{ 'max-w-full': isContentWidthFull, 'max-w-[48rem]': !isContentWidthFull }"
@@ -77,14 +78,14 @@
                                 <x-tiptapEditor.toolbar />
                             </x-slot:header>
                             <div
-                                class="h-full w-full px-4 overflow-y-auto"
+                                class="h-full w-full px-4"
                                 :class="isEditingMarkdown ? 'hidden' : ''"
                                 spellcheck="false"
                                 x-ref="noteEditor"
                                 wire:ignore
                             ></div>
                             <div
-                                class="h-full w-full px-4 overflow-y-auto whitespace-pre-wrap focus:outline-none"
+                                class="h-full w-full px-4 whitespace-pre-wrap focus:outline-none"
                                 :class="isEditingMarkdown ? '' : 'hidden'"
                                 :contenteditable="isEditMode ? 'plaintext-only' : 'false'"
                                 spellcheck="false"
@@ -171,6 +172,7 @@
         <div
             class="absolute xl:static flex flex-col top-0 right-0 bottom-0 z-30 w-[80%] max-w-[300px] xl:w-[20%] xl:max-w-[300px] py-4 bg-light-base-200 dark:bg-base-800 transition-all overflow-x-auto overflow-y-auto print:hidden"
             :class="{ 'translate-x-0': isRightPanelOpen, '-translate-x-full hidden': !isRightPanelOpen }"
+            x-cloak
         >
             <div class="flex flex-col gap-4 px-4 overflow-y-auto">
                 @if ($this->selectedFile)
