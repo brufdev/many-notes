@@ -52,21 +52,21 @@
 
         <div
             class="fixed inset-0 z-20 opacity-50 bg-light-base-50 dark:bg-base-900"
-            x-show="(isLeftPanelOpen || isRightPanelOpen) && isNotExtraLargeDevice()"
+            x-show="(isLeftPanelOpen || isRightPanelOpen) && isNotLargeDevice()"
             @click="closePanels"
             x-transition:enter="ease-out duration-300"
             x-transition:leave="ease-in duration-200"
         ></div>
 
-        <div
-            class="absolute xl:static flex flex-col top-0 left-0 bottom-0 z-30 w-[80%] max-w-[300px] xl:w-[20%] xl:max-w-[300px] bg-light-base-200 dark:bg-base-800 transition-all overflow-x-auto overflow-y-auto print:hidden"
+        <aside
+            class="absolute lg:static flex flex-col top-0 left-0 bottom-0 z-30 w-[80%] max-w-[300px] lg:w-[20%] lg:max-w-[300px] bg-light-base-200 dark:bg-base-800 transition-all overflow-x-auto overflow-y-auto print:hidden"
             :class="{ 'translate-x-0': isLeftPanelOpen, '-translate-x-full hidden': !isLeftPanelOpen }"
             x-cloak
         >
             <livewire:vault.tree-view lazy="on-load" :vault="$this->vault" />
-        </div>
+        </aside>
 
-        <div class="flex-1 h-full max-w-full transition-all" x-cloak>
+        <section id="main-content" class="flex-1 h-full max-w-full transition-all" x-cloak>
             <div
                 class="flex flex-col h-full w-full transition-maxwidth duration-300 ease-in-out mx-auto"
                 :class="{ 'max-w-full': isContentWidthFull, 'max-w-[48rem]': !isContentWidthFull }"
@@ -167,10 +167,10 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div
-            class="absolute xl:static flex flex-col top-0 right-0 bottom-0 z-30 w-[80%] max-w-[300px] xl:w-[20%] xl:max-w-[300px] py-4 bg-light-base-200 dark:bg-base-800 transition-all overflow-x-auto overflow-y-auto print:hidden"
+        <aside
+            class="absolute lg:static flex flex-col top-0 right-0 bottom-0 z-30 w-[80%] max-w-[300px] lg:w-[20%] lg:max-w-[300px] py-4 bg-light-base-200 dark:bg-base-800 transition-all overflow-x-auto overflow-y-auto print:hidden"
             :class="{ 'translate-x-0': isRightPanelOpen, '-translate-x-full hidden': !isRightPanelOpen }"
             x-cloak
         >
@@ -244,7 +244,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </aside>
     </x-layouts.appMain>
 
     <livewire:modals.add-node :vault="$this->vault" />
@@ -327,39 +327,44 @@
                 });
             },
 
-            isMediumDevice() {
-                return window.innerWidth > 768;
-            },
-
-            isNotExtraLargeDevice() {
-                return window.innerWidth < 1280;
+            isNotLargeDevice() {
+                return window.innerWidth < 1024;
             },
 
             handleResponsiveLayout() {
-                if (this.isNotExtraLargeDevice()) {
+                if (this.isNotLargeDevice()) {
                     this.closePanels();
                 } else {
                     this.isLeftPanelOpen = this.defaultLeftPanelOpen;
                     this.isRightPanelOpen = this.defaultRightPanelOpen;
                 }
 
-                this.showToggleContentWidthButton = this.isMediumDevice();
+                this.checkButtonsVisibility();
+            },
+
+            checkButtonsVisibility() {
+                this.$nextTick(() => {
+                    const element = document.getElementById('main-content');
+                    this.showToggleContentWidthButton = element.offsetWidth > 768;
+                });
             },
 
             toggleLeftPanel() {
-                if (!this.isNotExtraLargeDevice()) {
+                if (!this.isNotLargeDevice()) {
                     this.defaultLeftPanelOpen = !this.defaultLeftPanelOpen;
                 }
 
                 this.isLeftPanelOpen = !this.isLeftPanelOpen;
+                this.checkButtonsVisibility();
             },
 
             toggleRightPanel() {
-                if (!this.isNotExtraLargeDevice()) {
+                if (!this.isNotLargeDevice()) {
                     this.defaultRightPanelOpen = !this.defaultRightPanelOpen;
                 }
 
                 this.isRightPanelOpen = !this.isRightPanelOpen;
+                this.checkButtonsVisibility();
             },
 
             closePanels() {
@@ -394,7 +399,7 @@
 
                 $wire.openFileId(fileId, autofocus);
 
-                if (this.isNotExtraLargeDevice()) {
+                if (this.isNotLargeDevice()) {
                     this.closePanels();
                 }
             },
