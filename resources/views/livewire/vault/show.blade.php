@@ -279,7 +279,7 @@
                 }
 
                 $wire.$set('nodeForm.content', markdown);
-            }, 500),
+            }, 1000),
 
             init() {
                 if ($wire.selectedFileId !== null && $wire.toastErrorMessage.length === 0) {
