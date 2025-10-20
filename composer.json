@@ -1,7 +1,7 @@
 {
     "name": "brufdev/many-notes",
     "description": "Markdown note-taking web application designed for simplicity",
-    "version": "0.14.1",
+    "version": "0.15.0",
     "type": "project",
     "homepage": "https://github.com/brufdev/many-notes",
     "license": "MIT",
