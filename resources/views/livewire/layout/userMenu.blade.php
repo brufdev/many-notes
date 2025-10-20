@@ -81,6 +81,19 @@
                 </x-menu.itemLink>
             </x-menu.close>
 
+            <x-menu.item @click="darkMode = !darkMode">
+                <span class="flex items-center justify-between w-full">
+                    <span class="flex items-center gap-2">
+                        <x-icons.moon class="w-4 h-4" />
+                        {{ __('Dark mode') }}
+                    </span>
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="checkbox" class="sr-only peer" x-model="darkMode">
+                        <span class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-primary-300 dark:peer-checked:bg-primary-600"></span>
+                    </label>
+                </span>
+            </x-menu.item>
+            
             <x-menu.itemDivider></x-menu.itemDivider>
 
             @if (auth()->user()->isAdmin())
