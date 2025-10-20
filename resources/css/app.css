@@ -55,22 +55,6 @@
         scrollbar-width: thin;
     }
 
-    @media (prefers-color-scheme: dark) {
-        /* Firefox */
-        * {
-            scrollbar-color: var(--color-scrollbar-secondary) var(--color-scrollbar-primary);
-        }
-
-        /* Chrome, Edge, and Safari */
-        *::-webkit-scrollbar-track {
-            background: var(--color-scrollbar-primary);
-        }
-
-        *::-webkit-scrollbar-thumb {
-            background-color: var(--color-scrollbar-secondary);
-        }
-    }
-
     button:not(:disabled),
     [role="button"]:not(:disabled) {
         cursor: pointer;
@@ -114,16 +98,6 @@
 
         a:hover {
             color: var(--color-primary-300) !important;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            a {
-                color: var(--color-primary-500) !important;
-            }
-
-            a:hover {
-                color: var(--color-primary-600) !important;
-            }
         }
 
         hr {
@@ -183,10 +157,6 @@
             li[data-checked="true"] {
                 p {
                     opacity: 0.7;
-
-                    @media (prefers-color-scheme: dark) {
-                        opacity: 0.5;
-                    }
                 }
             }
         }
@@ -204,11 +174,6 @@
         pre {
             background-color: var(--color-light-base-200) !important;
             color: var(--color-light-base-950) !important;
-
-            @media (prefers-color-scheme: dark) {
-                background-color: var(--color-base-950) !important;
-                color: var(--color-base-50) !important;
-            }
 
             .hljs-doctag,
             .hljs-keyword,
@@ -310,8 +275,45 @@
                 color: #b31d28;
                 background-color: #ffeef0;
             }
+        }
+    }
 
-            @media (prefers-color-scheme: dark) {
+    .dark {
+        /* Firefox */
+        * {
+            scrollbar-color: var(--color-scrollbar-secondary) var(--color-scrollbar-primary);
+        }
+
+        /* Chrome, Edge, and Safari */
+        *::-webkit-scrollbar-track {
+            background: var(--color-scrollbar-primary);
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background-color: var(--color-scrollbar-secondary);
+        }
+
+        .prose {
+            a {
+                color: var(--color-primary-500) !important;
+            }
+
+            a:hover {
+                color: var(--color-primary-600) !important;
+            }
+
+            ul[data-type="taskList"] {
+                li[data-checked="true"] {
+                    p {
+                        opacity: 0.5;
+                    }
+                }
+            }
+
+            pre {
+                background-color: var(--color-base-950) !important;
+                color: var(--color-base-50) !important;
+
                 .hljs-doctag,
                 .hljs-keyword,
                 .hljs-meta .hljs-keyword,
