@@ -87,13 +87,18 @@
                         <x-icons.moon class="w-4 h-4" />
                         {{ __('Dark mode') }}
                     </span>
-                    <label class="inline-flex items-center cursor-pointer">
-                        <input type="checkbox" class="sr-only peer" x-model="darkMode">
-                        <span class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-primary-300 dark:peer-checked:bg-primary-600"></span>
-                    </label>
+                    <span
+                        class="relative inline-flex items-center w-10 h-5 transition-colors rounded-full"
+                        :class="darkMode ? 'bg-primary-300 dark:bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'"
+                    >
+                        <span
+                            class="absolute w-4.5 h-4.5 bg-white border border-gray-300 rounded-full transition-all transform"
+                            :class="darkMode ? 'translate-x-5 rtl:-translate-x-5 border-white' : 'translate-x-0 rtl:translate-x-0 dark:border-gray-600'"
+                        ></span>
+                    </span>
                 </span>
             </x-menu.item>
-            
+
             <x-menu.itemDivider></x-menu.itemDivider>
 
             @if (auth()->user()->isAdmin())
