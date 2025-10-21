@@ -15,7 +15,8 @@ It uses a database to power its features, but your files are also saved in the f
 
 Vaults are simply storage containers for your files, and Many Notes lets you choose to keep all your files in one vault or organize them into separate vaults.
 
-It is recommended to run Many Notes behind a reverse proxy serving the application with HTTPS. This not only secures your connections but also gives you access to additional features like PWA support or copying to clipboard from code blocks.
+> [!IMPORTANT]  
+> It is recommended to run Many Notes behind a reverse proxy serving the application with HTTPS. This not only secures your traffic but also gives you access to additional features like PWA support or copying to clipboard from code blocks.
 
 ## Preview
 
@@ -41,6 +42,14 @@ It is recommended to run Many Notes behind a reverse proxy serving the applicati
 - **Starter vault**: Helps you get started with Many Notes
 - **Light/dark theme**: Automatically selected based on your system settings
 - **Progressive Web App**: Provides a native app-like experience
+
+## Support
+
+If you find this project useful, consider supporting its development:
+
+<a href="https://www.buymeacoffee.com/brufdev" target="_blank">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png" alt="Buy Me A Coffee" width="150">
+</a>
 
 ## Installation
 
