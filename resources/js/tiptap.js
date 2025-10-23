@@ -118,7 +118,7 @@ window.setupEditor = function (options) {
             editable: options.editable,
             editorProps: {
                 attributes: {
-                    class: 'h-full focus:outline-none prose !max-w-none dark:prose-invert',
+                    class: 'h-full !max-w-none flow-root focus:outline-none prose dark:prose-invert',
                     placeholder: options.placeholder,
                 },
             },
