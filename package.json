@@ -15,7 +15,8 @@
         "laravel-vite-plugin": "^2.0.1",
         "pusher-js": "^8.4.0",
         "tailwindcss": "^4.1.5",
-        "vite": "^7.1.11"
+        "vite": "^7.1.11",
+        "vite-plugin-pwa": "^1.1.0"
     },
     "dependencies": {
         "@guyplusplus/turndown-plugin-gfm": "^1.0.7",
