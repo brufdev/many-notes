@@ -15,6 +15,8 @@ It uses a database to power its features, but your files are also saved in the f
 
 Vaults are simply storage containers for your files, and Many Notes lets you choose to keep all your files in one vault or organize them into separate vaults.
 
+<br>
+
 > [!IMPORTANT]  
 > It is recommended to run Many Notes behind a reverse proxy serving the application with HTTPS. This not only secures your traffic but also gives you access to additional features like PWA support or copying to clipboard from code blocks.
 
@@ -146,11 +148,13 @@ Disable local authentication by configuring an OAuth provider and specifying a U
 
 ```yaml
 environment:
-  - SETTINGS_LOCAL_AUTH_ENABLED=false
+  # enabling github provider:
   - GITHUB_CLIENT_ID=CLIENT_ID # change id
   - GITHUB_CLIENT_SECRET=CLIENT_SECRET # change secret
   - GITHUB_REDIRECT_URI=http://localhost/oauth/github/callback # change domain and provider
+  # disabling local authentication:
   - GITHUB_POST_LOGOUT_REDIRECT_URI=https://github.com/logout # change URL
+  - SETTINGS_LOCAL_AUTH_ENABLED=false
 ```
 
 ### Custom email service
