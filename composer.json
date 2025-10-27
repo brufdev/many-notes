@@ -36,7 +36,7 @@
         "nunomaduro/collision": "^8.8.2",
         "pestphp/pest": "^4.1.2",
         "pestphp/pest-plugin-type-coverage": "^4.0.2",
-        "rector/rector": "^2.2.2",
+        "rector/rector": "^2.2.6",
         "squizlabs/php_codesniffer": "^4.0"
     },
     "autoload": {
