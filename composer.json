@@ -13,6 +13,7 @@
         "laravel/scout": "^10.15.0",
         "laravel/socialite": "^5.23",
         "laravel/tinker": "^2.10.1",
+        "laravel/wayfinder": "^0.1.12",
         "livewire/livewire": "^3.6.4",
         "socialiteproviders/authelia": "^4.0",
         "socialiteproviders/authentik": "^5.2",
