@@ -3,9 +3,14 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "lint": "eslint . --ext .ts,.vue",
+        "lint:fix": "eslint . --ext .ts,.vue --fix",
+        "format": "prettier --check .",
+        "format:fix": "prettier --write ."
     },
     "devDependencies": {
+        "@eslint/js": "^9.38.0",
         "@laravel/vite-plugin-wayfinder": "^0.1.7",
         "@tailwindcss/forms": "^0.5.10",
         "@tailwindcss/typography": "^0.5.16",
@@ -14,13 +19,21 @@
         "@vitejs/plugin-vue": "^6.0.1",
         "autoprefixer": "^10.4.21",
         "axios": "^1.12.2",
+        "eslint": "^9.38.0",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-vue": "^10.5.1",
         "laravel-echo": "^2.2.4",
         "laravel-vite-plugin": "^2.0.1",
+        "prettier": "^3.6.2",
+        "prettier-plugin-organize-imports": "^4.3.0",
+        "prettier-plugin-tailwindcss": "^0.7.1",
         "pusher-js": "^8.4.0",
         "tailwindcss": "^4.1.5",
         "typescript": "^5.9.3",
+        "typescript-eslint": "^8.46.2",
         "vite": "^7.1.11",
         "vite-plugin-pwa": "^1.1.0",
+        "vue-eslint-parser": "^10.2.0",
         "vue-tsc": "^3.1.0"
     },
     "dependencies": {
@@ -38,6 +51,7 @@
         "@tiptap/extension-task-list": "^2.12.0",
         "@tiptap/pm": "^2.12.0",
         "@tiptap/starter-kit": "^2.12.0",
+        "globals": "^16.4.0",
         "lowlight": "^3.3.0",
         "marked": "^15.0.11",
         "turndown": "^7.2.0",
