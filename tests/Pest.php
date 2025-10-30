@@ -23,7 +23,7 @@ pest()->extend(TestCase::class)
         Storage::fake('local');
         $this->freezeTime();
     })
-    ->in('Feature', 'Unit');
+    ->in('Browser', 'Feature', 'Unit');
 
 /*
 |--------------------------------------------------------------------------
