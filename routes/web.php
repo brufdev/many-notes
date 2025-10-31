@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 use App\Actions\GetAvailableOAuthProviders;
 use App\Enums\OAuthProvider;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\FileController;
 use App\Livewire\Auth\ForgotPassword;
 use App\Livewire\Auth\Login;
 use App\Livewire\Auth\OAuthLogin;
 use App\Livewire\Auth\OAuthLoginCallback;
-use App\Livewire\Auth\Register;
 use App\Livewire\Auth\ResetPassword;
 use App\Livewire\Dashboard\Index as DashboardIndex;
 use App\Livewire\Vault\Index as VaultIndex;
@@ -32,7 +32,8 @@ Route::middleware(['guest', 'throttle'])->group(function (): void {
     Route::get('login', Login::class)->name('login');
 
     if (app(Setting::class)->registration) {
-        Route::get('register', Register::class)->name('register');
+        Route::get('register', [RegisterController::class, 'create'])->name('register');
+        Route::post('register', [RegisterController::class, 'store'])->name('register.store');
     }
 
     if (config('mail.default') !== 'log') {
