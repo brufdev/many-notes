@@ -63,7 +63,11 @@ final class AppServiceProvider extends ServiceProvider
 
                 return $setting;
             } catch (Throwable) {
-                return new Setting();
+                $setting = new Setting();
+                $setting->registration = true;
+                $setting->auto_update_check = true;
+
+                return $setting;
             }
         });
     }
