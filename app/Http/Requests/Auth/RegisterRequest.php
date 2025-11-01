@@ -11,7 +11,7 @@ use Illuminate\Validation\Rules\Password;
 final class RegisterRequest extends FormRequest
 {
     /**
-     * @return array<string, array<mixed>|string>
+     * @return array<string, array<mixed>>
      */
     public function rules(): array
     {
