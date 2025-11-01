@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use App\Actions\GetAvailableOAuthProviders;
 use App\Enums\OAuthProvider;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\FileController;
 use App\Livewire\Auth\ForgotPassword;
-use App\Livewire\Auth\Login;
 use App\Livewire\Auth\OAuthLogin;
 use App\Livewire\Auth\OAuthLoginCallback;
 use App\Livewire\Auth\ResetPassword;
@@ -26,10 +26,13 @@ Route::middleware('auth')->group(function (): void {
     });
 
     Route::get('files/{vault}', [FileController::class, 'show'])->name('files.show');
+
+    Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
 });
 
 Route::middleware(['guest', 'throttle'])->group(function (): void {
-    Route::get('login', Login::class)->name('login');
+    Route::get('login', [LoginController::class, 'create'])->name('login');
+    Route::post('login', [LoginController::class, 'store'])->name('login.store');
 
     if (app(Setting::class)->registration) {
         Route::get('register', [RegisterController::class, 'create'])->name('register');

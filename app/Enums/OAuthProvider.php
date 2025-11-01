@@ -20,4 +20,13 @@ enum OAuthProvider: string
     case Slack = 'slack';
     case Twitter = 'twitter';
     case Zitadel = 'zitadel';
+
+    /** @return array<string, string> */
+    public function toArray(): array
+    {
+        return [
+            'name' => $this->name,
+            'value' => $this->value,
+        ];
+    }
 }

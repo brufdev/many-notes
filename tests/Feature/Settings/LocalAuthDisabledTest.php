@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Actions\GetAvailableOAuthProviders;
 use App\Enums\OAuthProvider;
-use App\Livewire\Auth\Login;
 use App\Livewire\Layout\UserMenu;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -25,17 +24,27 @@ it('redirects the user to the OAuth authentication page', function (): void {
     $availableProviders = Mockery::mock(new GetAvailableOAuthProviders());
     $availableProviders->shouldReceive('handle')->andReturn([OAuthProvider::GitHub]);
 
-    Livewire::test(Login::class)
-        ->assertRedirect($targetUrl);
+    $response = $this->get(route('login'));
+
+    $response->assertRedirect($targetUrl);
 });
 
-it('fails to redirect the user to the provider URL', function (): void {
-    Socialite::shouldReceive('driver->redirect->getTargetUrl')->andThrowExceptions([new Exception()]);
+it('disregards local auth disabled if post_logout_redirect_uri is missing', function (): void {
+    config()->set('services.github.post_logout_redirect_uri', null);
+
+    $response = $this->get(route('login'));
+
+    $response->assertStatus(200);
+});
+
+it('returns 404 when redirecting the user to the provider URL fails', function (): void {
+    Socialite::shouldReceive('driver->redirect->getTargetUrl')->andThrow(new Exception());
     $availableProviders = Mockery::mock(new GetAvailableOAuthProviders());
     $availableProviders->shouldReceive('handle')->andReturn([OAuthProvider::GitHub]);
 
-    Livewire::test(Login::class, ['provider' => 'github'])
-        ->assertStatus(404);
+    $response = $this->get(route('login'));
+
+    $response->assertStatus(404);
 });
 
 it('does not allow to edit the profile', function (): void {
@@ -71,10 +80,10 @@ it('does not allow to edit the password', function (): void {
 it('logouts the user and redirects to the post_logout_redirect_uri', function (): void {
     $user = User::factory()->create();
 
-    Livewire::actingAs($user)
-        ->test(UserMenu::class)
-        ->call('logout')
-        ->assertRedirect('https://github.com');
+    $this->actingAs($user);
 
-    expect(auth()->user())->toBeNull();
+    $response = $this->post('/logout');
+
+    $this->assertGuest();
+    $response->assertRedirect('https://github.com');
 });
