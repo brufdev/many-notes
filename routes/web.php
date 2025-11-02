@@ -2,14 +2,11 @@
 
 declare(strict_types=1);
 
-use App\Actions\GetAvailableOAuthProviders;
-use App\Enums\OAuthProvider;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\OAuthController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\FileController;
 use App\Livewire\Auth\ForgotPassword;
-use App\Livewire\Auth\OAuthLogin;
-use App\Livewire\Auth\OAuthLoginCallback;
 use App\Livewire\Auth\ResetPassword;
 use App\Livewire\Dashboard\Index as DashboardIndex;
 use App\Livewire\Vault\Index as VaultIndex;
@@ -45,14 +42,7 @@ Route::middleware(['guest', 'throttle'])->group(function (): void {
     }
 
     Route::prefix('oauth')->group(function (): void {
-        $providers = implode('|', array_map(
-            fn(OAuthProvider $provider): string => $provider->value,
-            new GetAvailableOAuthProviders()->handle(),
-        ));
-
-        if ($providers !== '') {
-            Route::get('/{provider}', OAuthLogin::class)->where('provider', $providers);
-            Route::get('/{provider}/callback', OAuthLoginCallback::class)->where('provider', $providers);
-        }
+        Route::get('{provider}', [OAuthController::class, 'create'])->name('oauth');
+        Route::get('{provider}/callback', [OAuthController::class, 'store'])->name('oauth.store');
     });
 });

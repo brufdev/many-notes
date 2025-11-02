@@ -7,7 +7,9 @@ use App\Enums\OAuthProvider;
 use App\Livewire\Layout\UserMenu;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Socialite\Contracts\Provider;
 use Laravel\Socialite\Facades\Socialite;
+use Laravel\Socialite\Two\User as SocialiteUser;
 use Livewire\Livewire;
 
 beforeEach(function (): void {
@@ -29,7 +31,34 @@ it('redirects the user to the OAuth authentication page', function (): void {
     $response->assertRedirect($targetUrl);
 });
 
-it('disregards local auth disabled if post_logout_redirect_uri is missing', function (): void {
+it('updates the user name and email when local authentication is disabled', function (): void {
+    $user = User::factory()->create();
+    $providerUserId = fake()->randomNumber(9, true);
+    $newName = fake()->name();
+    $newEmail = fake()->email();
+    $user->socialAccounts()->create([
+        'provider_name' => 'github',
+        'provider_user_id' => $providerUserId,
+    ]);
+    $abstractUser = Mockery::mock(SocialiteUser::class);
+    $abstractUser->shouldReceive('getId')
+        ->andReturn($providerUserId)
+        ->shouldReceive('getName')
+        ->andReturn($newName)
+        ->shouldReceive('getEmail')
+        ->andReturn($newEmail);
+    $provider = Mockery::mock(Provider::class);
+    $provider->shouldReceive('user')->andReturn($abstractUser);
+    Socialite::shouldReceive('driver')->with('github')->andReturn($provider);
+
+    $response = $this->get(route('oauth.store', ['provider' => 'github']));
+
+    expect($user->refresh()->name)->toBe($newName);
+    expect($user->email)->toBe($newEmail);
+    $response->assertRedirect(route('vaults.index'));
+});
+
+it('ignores disabled local authentication if post_logout_redirect_uri is missing', function (): void {
     config()->set('services.github.post_logout_redirect_uri', null);
 
     $response = $this->get(route('login'));

@@ -2,27 +2,59 @@
 
 declare(strict_types=1);
 
-namespace App\Livewire\Auth;
+namespace App\Http\Controllers\Auth;
 
 use App\Actions\CreateUser;
+use App\Actions\GetAvailableOAuthProviders;
 use App\Actions\IsLocalAuthEnabled;
 use App\Enums\OAuthProvider;
+use App\Http\Requests\Auth\OAuthRequest;
 use App\Models\Setting;
 use App\Models\SocialAccount;
 use App\Models\User;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
-use Livewire\Component;
 use SocialiteProviders\Azure\User as AzureUser;
 
-final class OAuthLoginCallback extends Component
+final readonly class OAuthController
 {
-    public function mount(string $provider): void
-    {
+    public function create(
+        OAuthRequest $request,
+        GetAvailableOAuthProviders $getAvailableOAuthProviders,
+    ): RedirectResponse {
         try {
+            $provider = $request->safe()->string('provider')->value();
+            $isValidProvider = in_array(
+                $provider,
+                array_map(
+                    fn(OAuthProvider $provider): string => $provider->value,
+                    $getAvailableOAuthProviders->handle(),
+                ),
+            );
+
+            if (!$isValidProvider) {
+                throw new Exception();
+            }
+
+            $url = Socialite::driver($provider)->redirect()->getTargetUrl();
+
+            return redirect($url);
+        } catch (Exception) {
+            abort(404);
+        }
+    }
+
+    public function store(
+        OAuthRequest $request,
+        CreateUser $createUser,
+        IsLocalAuthEnabled $isLocalAuthEnabled,
+    ): RedirectResponse {
+        try {
+            $provider = $request->safe()->string('provider')->value();
             $socialProvider = Socialite::driver($provider);
 
             if ($provider === OAuthProvider::Azure->value) {
@@ -36,19 +68,17 @@ final class OAuthLoginCallback extends Component
 
             $userName = $socialUser->getName()
                 ?? $socialUser->getNickname()
-                ?? explode('@', $userEmail)[0];
+                ?? explode('@', (string) $userEmail)[0];
         } catch (Exception) {
             session()->flash('error', __('An error occurred while authenticating.'));
-            $this->redirect(route('login', absolute: false));
 
-            return;
+            return redirect(route('login', absolute: false));
         }
 
         if (!filter_var($userEmail, FILTER_VALIDATE_EMAIL)) {
             session()->flash('error', __('No email address found.'));
-            $this->redirect(route('login', absolute: false));
 
-            return;
+            return redirect(route('login', absolute: false));
         }
 
         $socialAccount = SocialAccount::firstOrNew([
@@ -62,12 +92,11 @@ final class OAuthLoginCallback extends Component
             if (!$user) {
                 if (!app(Setting::class)->registration) {
                     session()->flash('error', __('Registration is currently disabled.'));
-                    $this->redirect(route('login', absolute: false));
 
-                    return;
+                    return redirect(route('login', absolute: false));
                 }
 
-                $user = new CreateUser()->handle([
+                $user = $createUser->handle([
                     'name' => $userName,
                     'email' => $userEmail,
                     'password' => Hash::make(Str::random(32)),
@@ -86,7 +115,7 @@ final class OAuthLoginCallback extends Component
         /** @var User $user */
         $user = $socialAccount->user;
 
-        if (!new IsLocalAuthEnabled()->handle()) {
+        if (!$isLocalAuthEnabled->handle()) {
             $user->name = $userName;
             $user->email = $userEmail;
             $user->save();
@@ -97,6 +126,7 @@ final class OAuthLoginCallback extends Component
         $redirectUrl = mb_strlen((string) $user->last_visited_url) > 0
             ? $user->last_visited_url
             : route('vaults.index', absolute: false);
-        $this->redirectIntended($redirectUrl);
+
+        return redirect()->intended($redirectUrl);
     }
 }
