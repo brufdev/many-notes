@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OAuthController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\FileController;
-use App\Livewire\Auth\ForgotPassword;
+use App\Http\Middleware\EnsureEmailIsConfigured;
 use App\Livewire\Auth\ResetPassword;
 use App\Livewire\Dashboard\Index as DashboardIndex;
 use App\Livewire\Vault\Index as VaultIndex;
@@ -36,10 +37,12 @@ Route::middleware(['guest', 'throttle'])->group(function (): void {
         Route::post('register', [RegisterController::class, 'store'])->name('register.store');
     }
 
-    if (config('mail.default') !== 'log') {
-        Route::get('forgot-password', ForgotPassword::class)->name('forgot.password');
+    Route::middleware([EnsureEmailIsConfigured::class])->group(function (): void {
+        Route::get('forgot-password', [ForgotPasswordController::class, 'create'])->name('forgot.password');
+        Route::post('forgot-password', [ForgotPasswordController::class, 'store'])->name('forgot.password.store');
+
         Route::get('reset-password/{token}', ResetPassword::class)->name('password.reset');
-    }
+    });
 
     Route::prefix('oauth')->group(function (): void {
         Route::get('{provider}', [OAuthController::class, 'create'])->name('oauth');

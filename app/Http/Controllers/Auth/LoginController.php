@@ -24,7 +24,7 @@ final readonly class LoginController
     public function create(
         Request $request,
         GetAvailableOAuthProviders $getAvailableOAuthProviders,
-        IsLocalAuthEnabled $isLocalAuthEnabled
+        IsLocalAuthEnabled $isLocalAuthEnabled,
     ): Response|SymfonyResponse {
         $providers = array_values(array_map(
             fn(OAuthProvider $provider): array => $provider->toArray(),
@@ -45,7 +45,7 @@ final readonly class LoginController
             'status' => $request->session()->get('status'),
             'error' => $request->session()->get('error'),
             'providers' => $providers,
-            'canResetPassword' => Route::has('forgot.password'),
+            'canResetPassword' => config('mail.default') !== 'log',
             'canRegister' => Route::has('register'),
         ]);
     }
