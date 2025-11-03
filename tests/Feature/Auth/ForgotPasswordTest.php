@@ -6,8 +6,16 @@ use App\Models\User;
 
 it('returns a successful response', function (): void {
     $response = $this->get(route('forgot.password'));
-
+    
     $response->assertStatus(200);
+});
+
+it('returns 404 if the email is not configured', function (): void {
+    config()->set('mail.default', 'log');
+
+    $response = $this->get(route('forgot.password'));
+
+    $response->assertStatus(404);
 });
 
 it('sends a password reset link', function (): void {
