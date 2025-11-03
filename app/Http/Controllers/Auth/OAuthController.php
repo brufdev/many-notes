@@ -17,15 +17,17 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 use Laravel\Socialite\Facades\Socialite;
 use SocialiteProviders\Azure\User as AzureUser;
+use Symfony\Component\HttpFoundation\Response;
 
 final readonly class OAuthController
 {
     public function create(
         OAuthRequest $request,
         GetAvailableOAuthProviders $getAvailableOAuthProviders,
-    ): RedirectResponse {
+    ): Response {
         try {
             $provider = $request->safe()->string('provider')->value();
             $isValidProvider = in_array(
@@ -42,7 +44,7 @@ final readonly class OAuthController
 
             $url = Socialite::driver($provider)->redirect()->getTargetUrl();
 
-            return redirect($url);
+            return Inertia::location($url);
         } catch (Exception) {
             abort(404);
         }
