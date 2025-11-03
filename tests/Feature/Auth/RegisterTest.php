@@ -4,12 +4,24 @@ declare(strict_types=1);
 
 use App\Actions\CreateUser;
 use App\Enums\UserRole;
+use App\Models\Setting;
 use App\Models\User;
 
 it('returns a successful response', function (): void {
     $response = $this->get(route('register'));
 
     $response->assertStatus(200);
+});
+
+it('returns 404 if the registration is not enabled', function (): void {
+    $settings = Setting::create([
+        'registration' => false,
+    ]);
+    app()->bind(Setting::class, fn(): Setting => $settings->refresh());
+
+    $response = $this->get(route('register'));
+
+    $response->assertStatus(404);
 });
 
 it('successfully registers a user', function (): void {
