@@ -9,10 +9,10 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\FileController;
 use App\Http\Middleware\EnsureEmailIsConfigured;
+use App\Http\Middleware\EnsureRegistrationIsEnabled;
 use App\Livewire\Dashboard\Index as DashboardIndex;
 use App\Livewire\Vault\Index as VaultIndex;
 use App\Livewire\Vault\Show as VaultShow;
-use App\Models\Setting;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function (): void {
@@ -32,10 +32,10 @@ Route::middleware(['guest', 'throttle'])->group(function (): void {
     Route::get('login', [LoginController::class, 'create'])->name('login');
     Route::post('login', [LoginController::class, 'store'])->name('login.store');
 
-    if (app(Setting::class)->registration) {
+    Route::middleware([EnsureRegistrationIsEnabled::class])->group(function (): void {
         Route::get('register', [RegisterController::class, 'create'])->name('register');
         Route::post('register', [RegisterController::class, 'store'])->name('register.store');
-    }
+    });
 
     Route::middleware([EnsureEmailIsConfigured::class])->group(function (): void {
         Route::get('forgot-password', [ForgotPasswordController::class, 'create'])->name('forgot.password');
