@@ -2,21 +2,22 @@
 
 declare(strict_types=1);
 
-use App\Livewire\Dashboard\Index;
 use App\Models\User;
-use Livewire\Livewire;
 
 it('redirects guest to login page', function (): void {
-    $this->get('/')
-        ->assertRedirect(route('login'));
+    $response = $this->get(route('dashboard.index'));
+
+    $response->assertRedirect(route('login'));
 });
 
 it('redirects user to vaults page', function (): void {
-    $user = User::factory()->hasVaults(1)->create();
+    $user = User::factory()->create();
 
-    Livewire::actingAs($user)
-        ->test(Index::class)
-        ->assertRedirect(route('vaults.index'));
+    $this->actingAs($user);
+
+    $response = $this->get(route('dashboard.index'));
+
+    $response->assertRedirect(route('vaults.index'));
 });
 
 it('redirects user to last visited page', function (): void {
@@ -24,7 +25,9 @@ it('redirects user to last visited page', function (): void {
         'last_visited_url' => route('vaults.show', ['vaultId' => 1], false),
     ]);
 
-    Livewire::actingAs($user)
-        ->test(Index::class)
-        ->assertRedirect(route('vaults.show', ['vaultId' => 1]));
+    $this->actingAs($user);
+
+    $response = $this->get(route('dashboard.index'));
+
+    $response->assertRedirect(route('vaults.show', ['vaultId' => 1]));
 });
