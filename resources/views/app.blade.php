@@ -15,7 +15,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.ts'])
     @inertiaHead
 </head>
-<body>
+<body class="bg-light-base-100 dark:bg-base-800 text-light-base-950 dark:text-base-50">
     @inertia
     <script>
     if ('serviceWorker' in navigator) {
