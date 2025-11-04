@@ -11,7 +11,18 @@
     <link rel="icon" type="image/svg+xml" href="/assets/icon.svg">
     <link rel="apple-touch-icon" href="/assets/icon-180x180.png" sizes="180x180">
     <link rel="manifest" href="/build/manifest.webmanifest">
+    <script>
+    (function () {
+        const theme = localStorage.getItem('theme');
+        const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
+        if (theme === 'dark' || (!theme && prefersDarkMode)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    })();
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.ts'])
     @inertiaHead
 </head>
