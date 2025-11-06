@@ -1,10 +1,15 @@
 <script setup lang="ts">
-defineProps<{
+import { computed, useId } from 'vue';
+
+const props = defineProps<{
     name: string;
     type: string;
     label?: string;
     error?: string;
 }>();
+
+const hasError = computed(() => !!props.error);
+const errorId = `${props.name}-${useId()}-error`;
 </script>
 
 <template>
@@ -25,11 +30,11 @@ defineProps<{
                     ? 'border-error-500 focus:border-error-700 dark:border-error-500 dark:focus:border-error-700'
                     : 'border-light-base-300 dark:border-base-500 focus:border-light-base-600 dark:focus:border-base-400',
             ]"
-            required
-            autofocus
+            :aria-invalid="hasError"
+            :aria-describedby="hasError ? errorId : undefined"
         />
 
-        <p v-if="error" class="text-error-500 text-sm" aria-live="assertive">
+        <p v-if="hasError" :id="errorId" class="text-error-500 text-sm">
             {{ error }}
         </p>
     </label>
