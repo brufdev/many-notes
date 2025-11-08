@@ -25,7 +25,7 @@ const errorId = `${props.name}-${useId()}-error`;
             :name="name"
             :type="type"
             :class="[
-                'bg-light-base-100 dark:bg-base-800 text-light-base-700 dark:text-base-200 block w-full rounded-lg border px-2 py-1.5 focus:ring-0 focus:outline focus:outline-0',
+                'bg-light-base-50 dark:bg-base-900 text-light-base-900 dark:text-base-100 placeholder:text-light-base-600 dark:placeholder:text-base-400 block w-full rounded-lg border px-2 py-1.5 focus:ring-0 focus:outline focus:outline-0',
                 error
                     ? 'border-error-500 focus:border-error-700 dark:border-error-500 dark:focus:border-error-700'
                     : 'border-light-base-300 dark:border-base-500 focus:border-light-base-600 dark:focus:border-base-400',
