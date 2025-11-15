@@ -3,9 +3,7 @@ import { computed, ref, watchEffect } from 'vue';
 type Theme = 'light' | 'dark';
 
 const theme = ref<Theme>('light');
-
 const preferredDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
 const savedTheme = localStorage.getItem('theme') as Theme | null;
 theme.value = savedTheme ?? (preferredDark ? 'dark' : 'light');
 
