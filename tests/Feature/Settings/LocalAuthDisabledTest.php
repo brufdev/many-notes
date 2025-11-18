@@ -78,15 +78,15 @@ it('returns 404 when redirecting the user to the provider URL fails', function (
 
 it('does not allow to edit the profile', function (): void {
     $user = User::factory()->create();
-    $newName = fake()->name();
 
-    Livewire::actingAs($user)
-        ->test(UserMenu::class)
-        ->assertSet('profileForm.name', $user->name)
-        ->set('profileForm.name', $newName)
-        ->call('editProfile');
+    $this->actingAs($user);
 
-    expect($user->refresh()->name)->not->toBe($newName);
+    $response = $this->post(route('profile.update'), [
+        'name' => $user->name,
+        'email' => $user->email,
+    ]);
+
+    $response->assertStatus(403);
 });
 
 it('does not allow to edit the password', function (): void {

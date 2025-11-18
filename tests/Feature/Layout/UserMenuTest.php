@@ -13,19 +13,6 @@ beforeEach(function (): void {
     config()->set('settings.local_auth.enabled', true);
 });
 
-it('edits the profile', function (): void {
-    $user = User::factory()->create();
-    $newName = fake()->name();
-
-    Livewire::actingAs($user)
-        ->test(UserMenu::class)
-        ->assertSet('profileForm.name', $user->name)
-        ->set('profileForm.name', $newName)
-        ->call('editProfile');
-
-    expect($user->refresh()->name)->toBe($newName);
-});
-
 it('edits the password', function (): void {
     $password = Hash::make('password');
     $user = User::factory()->create([

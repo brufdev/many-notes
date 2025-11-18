@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\EnsureEmailIsConfigured;
 use App\Http\Middleware\EnsureRegistrationIsEnabled;
 use App\Livewire\Vault\Index as VaultIndex;
@@ -24,6 +25,8 @@ Route::middleware('auth')->group(function (): void {
     });
 
     Route::get('files/{vault}', [FileController::class, 'show'])->name('files.show');
+
+    Route::post('profile', [ProfileController::class, 'update'])->name('profile.update');
 
     Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
 });

@@ -3,8 +3,13 @@ export interface SharedUser {
     email: string
 }
 
+export interface AppSettings {
+    local_auth_enabled: boolean
+}
+
 export interface SharedProps {
     auth?: { user: SharedUser }
+    app?: { settings: AppSettings }
 
     [key: string]: any
 }

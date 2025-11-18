@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Actions\IsLocalAuthEnabled;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Override;
@@ -40,11 +41,14 @@ final class HandleInertiaRequests extends Middleware
     #[Override]
     public function share(Request $request): array
     {
+        $isLocalAuthEnabled = app(IsLocalAuthEnabled::class);
+
         return [
             ...parent::share($request),
             'auth.user' => $request->user()
                 ? $request->user()->only('name', 'email')
                 : null,
+            'app.settings.local_auth_enabled' => $isLocalAuthEnabled->handle(),
         ];
     }
 }
