@@ -4,18 +4,18 @@ import Input from '@/components/form/Input.vue';
 import Submit from '@/components/form/Submit.vue';
 import { useModalManager } from '@/composables/useModalManager';
 import { useToast } from '@/composables/useToast';
-import { useAppSettingsStore } from '@/stores/appSettings';
+import { useSettingStore } from '@/stores/setting';
 import { useUserStore } from '@/stores/user';
-import { SharedProps } from '@/types/shared-props';
+import { AppPageProps } from '@/types';
 import type { Page } from '@inertiajs/core';
 import { Form } from '@inertiajs/vue3';
 
 const { closeModal } = useModalManager();
 const { createToast } = useToast();
-const appSettings = useAppSettingsStore();
+const settingStore = useSettingStore();
 const userStore = useUserStore();
 
-const handleSuccess = (page: Page<SharedProps>) => {
+const handleSuccess = (page: Page<AppPageProps>) => {
     userStore.setUser(page.props.auth?.user ?? null);
     closeModal();
     createToast('Profile updated', 'success');
@@ -38,7 +38,7 @@ const handleSuccess = (page: Page<SharedProps>) => {
                 :value="userStore.name"
                 placeholder="Name"
                 :error="errors.name"
-                :disabled="!appSettings.localAuthEnabled"
+                :disabled="!settingStore.localAuthEnabled"
                 required
                 autofocus
             />
@@ -48,10 +48,10 @@ const handleSuccess = (page: Page<SharedProps>) => {
                 :value="userStore.email"
                 placeholder="Email"
                 :error="errors.email"
-                :disabled="!appSettings.localAuthEnabled"
+                :disabled="!settingStore.localAuthEnabled"
                 required
             />
-            <Submit v-if="appSettings.localAuthEnabled" label="Edit" :processing="processing" />
+            <Submit v-if="settingStore.localAuthEnabled" label="Edit" :processing="processing" />
         </Form>
     </div>
 </template>

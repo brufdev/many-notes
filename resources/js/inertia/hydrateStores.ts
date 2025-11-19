@@ -1,11 +1,11 @@
-import { useAppSettingsStore } from '@/stores/appSettings';
+import { useSettingStore } from '@/stores/setting';
 import { useUserStore } from '@/stores/user';
-import { SharedProps } from '@/types/shared-props';
+import { AppPageProps } from '@/types';
 
-export function hydrateStoresFromPageProps(props: SharedProps) {
+export function hydrateStoresFromPageProps(props: AppPageProps) {
     const userStore = useUserStore();
     userStore.setUser(props.auth?.user ?? null);
 
-    const appSettingsStore = useAppSettingsStore();
-    appSettingsStore.setAppSettings(props.app?.settings ?? null);
+    const settingStore = useSettingStore();
+    settingStore.setSetting(props.app?.setting ?? null);
 }
