@@ -1,19 +1,17 @@
-import type { Setting } from '@/types';
+import type { Settings } from '@/types';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
 export const useSettingStore = defineStore('setting', () => {
-    const localAuthEnabled = ref<boolean | null>(null);
+    const local_auth_enabled = ref<boolean | null>(null);
+    const registration = ref<boolean | null>(null);
+    const auto_update_check = ref<boolean | null>(null);
 
-    function setSetting(setting: Setting | null) {
-        if (!setting) {
-            localAuthEnabled.value = null;
-
-            return;
-        }
-
-        localAuthEnabled.value = setting.local_auth_enabled;
+    function setSettings(settings: Settings | null) {
+        local_auth_enabled.value = settings?.local_auth_enabled ?? null;
+        registration.value = settings?.registration ?? null;
+        auto_update_check.value = settings?.auto_update_check ?? null;
     }
 
-    return { localAuthEnabled, setSetting };
+    return { local_auth_enabled, registration, auto_update_check, setSettings };
 });

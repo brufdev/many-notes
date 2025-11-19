@@ -7,5 +7,5 @@ export function hydrateStoresFromPageProps(props: AppPageProps) {
     userStore.setUser(props.auth?.user ?? null);
 
     const settingStore = useSettingStore();
-    settingStore.setSetting(props.app?.setting ?? null);
+    settingStore.setSettings(props?.settings ?? null);
 }

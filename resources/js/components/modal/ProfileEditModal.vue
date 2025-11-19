@@ -38,7 +38,7 @@ const handleSuccess = (page: Page<AppPageProps>) => {
                 :value="userStore.name"
                 placeholder="Name"
                 :error="errors.name"
-                :disabled="!settingStore.localAuthEnabled"
+                :disabled="!settingStore.local_auth_enabled"
                 required
                 autofocus
             />
@@ -48,10 +48,10 @@ const handleSuccess = (page: Page<AppPageProps>) => {
                 :value="userStore.email"
                 placeholder="Email"
                 :error="errors.email"
-                :disabled="!settingStore.localAuthEnabled"
+                :disabled="!settingStore.local_auth_enabled"
                 required
             />
-            <Submit v-if="settingStore.localAuthEnabled" label="Edit" :processing="processing" />
+            <Submit v-if="settingStore.local_auth_enabled" label="Edit" :processing="processing" />
         </Form>
     </div>
 </template>

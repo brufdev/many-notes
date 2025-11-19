@@ -1,6 +1,6 @@
 export interface AppPageProps {
     auth?: { user: User }
-    app?: { setting: Setting }
+    app?: { settings: Settings }
 
     [key: string]: any
 }
@@ -10,6 +10,8 @@ export interface User {
     email: string
 }
 
-export interface Setting {
+export interface Settings {
     local_auth_enabled: boolean
+    registration: boolean
+    auto_update_check: boolean
 }
