@@ -15,6 +15,7 @@ use App\Http\Controllers\SettingController;
 use App\Http\Middleware\EnsureEmailIsConfigured;
 use App\Http\Middleware\EnsureRegistrationIsEnabled;
 use App\Http\Middleware\EnsureUserIsAdmin;
+use App\Livewire\Vault\Index as VaultIndex;
 use App\Livewire\Vault\Show as VaultShow;
 use Illuminate\Support\Facades\Route;
 
