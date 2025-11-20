@@ -11,9 +11,10 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SettingController;
 use App\Http\Middleware\EnsureEmailIsConfigured;
 use App\Http\Middleware\EnsureRegistrationIsEnabled;
-use App\Livewire\Vault\Index as VaultIndex;
+use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Livewire\Vault\Show as VaultShow;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +30,10 @@ Route::middleware('auth')->group(function (): void {
 
     Route::post('profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('password', [PasswordController::class, 'update'])->name('password.update');
+
+    Route::middleware([EnsureUserIsAdmin::class])->group(function (): void {
+        Route::post('settings', [SettingController::class, 'update'])->name('settings.update');
+    });
 
     Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
 });

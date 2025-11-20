@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-final readonly class IsAdmin
+final readonly class EnsureUserIsAdmin
 {
     /**
      * Handle an incoming request.
@@ -18,11 +17,8 @@ final readonly class IsAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        /** @var User $user */
-        $user = auth()->user();
-
-        if (!$user->isAdmin()) {
-            abort(403, __('Admin access required'));
+        if (!$request->user()?->isAdmin()) {
+            abort(403);
         }
 
         return $next($request);
