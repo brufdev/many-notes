@@ -111,7 +111,7 @@ it('logouts the user and redirects to the post_logout_redirect_uri', function ()
 
     $this->actingAs($user);
 
-    $response = $this->post('/logout');
+    $response = $this->post(route('logout'));
 
     $this->assertGuest();
     $response->assertRedirect('https://github.com');
