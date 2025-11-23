@@ -8,11 +8,13 @@ use App\Actions\GetAvailableOAuthProviders;
 use App\Actions\IsLocalAuthEnabled;
 use App\Enums\OAuthProvider;
 use App\Livewire\Forms\LoginForm;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Session;
 use Laravel\Socialite\Facades\Socialite;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Throwable;
 
@@ -20,11 +22,15 @@ final class Login extends Component
 {
     public LoginForm $form;
 
+    #[Locked]
+    public bool $isRegistrationEnabled;
+
     /** @var array<int, OAuthProvider> */
     public array $providers;
 
     public function mount(): void
     {
+        $this->isRegistrationEnabled = app(Setting::class)->registration;
         $this->providers = new GetAvailableOAuthProviders()->handle();
 
         if ($this->providers !== [] && !new IsLocalAuthEnabled()->handle()) {

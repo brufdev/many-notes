@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Actions\GetAvailableOAuthProviders;
 use App\Enums\OAuthProvider;
 use App\Http\Controllers\FileController;
+use App\Http\Middleware\EnsureRegistrationIsEnabled;
 use App\Livewire\Auth\ForgotPassword;
 use App\Livewire\Auth\Login;
 use App\Livewire\Auth\OAuthLogin;
@@ -14,7 +15,6 @@ use App\Livewire\Auth\ResetPassword;
 use App\Livewire\Dashboard\Index as DashboardIndex;
 use App\Livewire\Vault\Index as VaultIndex;
 use App\Livewire\Vault\Show as VaultShow;
-use App\Models\Setting;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function (): void {
@@ -31,9 +31,9 @@ Route::middleware('auth')->group(function (): void {
 Route::middleware(['guest', 'throttle'])->group(function (): void {
     Route::get('login', Login::class)->name('login');
 
-    if (app(Setting::class)->registration) {
+    Route::middleware([EnsureRegistrationIsEnabled::class])->group(function (): void {
         Route::get('register', Register::class)->name('register');
-    }
+    });
 
     if (config('mail.default') !== 'log') {
         Route::get('forgot-password', ForgotPassword::class)->name('forgot.password');

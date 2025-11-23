@@ -41,7 +41,7 @@
                 </x-form.text>
             @endif
 
-            @if (Route::has('register'))
+            @if ($isRegistrationEnabled)
                 <x-form.text>
                     {{ __('Don\'t have an account?') }}
 
