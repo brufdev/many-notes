@@ -9,7 +9,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-final class EnsureRegistrationIsEnabled
+final readonly class EnsureRegistrationIsEnabled
 {
     /**
      * Handle an incoming request.
