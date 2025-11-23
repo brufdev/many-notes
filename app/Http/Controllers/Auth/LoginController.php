@@ -9,10 +9,10 @@ use App\Actions\GetOAuthPostLogoutRedirectUri;
 use App\Actions\IsLocalAuthEnabled;
 use App\Enums\OAuthProvider;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
 use Laravel\Socialite\Facades\Socialite;
@@ -46,7 +46,7 @@ final readonly class LoginController
             'error' => $request->session()->get('error'),
             'providers' => $providers,
             'canResetPassword' => config('mail.default') !== 'log',
-            'canRegister' => Route::has('register'),
+            'canRegister' => app(Setting::class)->registration,
         ]);
     }
 
