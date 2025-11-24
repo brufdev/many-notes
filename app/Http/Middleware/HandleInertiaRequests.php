@@ -49,23 +49,25 @@ final class HandleInertiaRequests extends Middleware
 
         return [
             ...parent::share($request),
-            'auth.user' => fn(): ?array => $request->user()
-                ? [
-                    'name' => $request->user()->name,
-                    'email' => $request->user()->email,
-                    'role' => $request->user()->role->name,
-                ]
-                : null,
-            'settings' => fn(): array => [
-                'local_auth_enabled' => $isLocalAuthEnabled->handle(),
-                'registration' => $setting->registration,
-                'auto_update_check' => $setting->auto_update_check,
-            ],
-            'metadata' => fn(): array => [
-                'app_version' => $appMetadata->appVersion(),
-                'latest_version' => $appMetadata->latestVersion(),
-                'github_url' => $appMetadata->githubUrl(),
-                'update_available' => $appMetadata->updateAvailable(),
+            'app' => [
+                'user' => fn(): ?array => $request->user()
+                    ? [
+                        'name' => $request->user()->name,
+                        'email' => $request->user()->email,
+                        'role' => $request->user()->role->name,
+                    ]
+                    : null,
+                'settings' => fn(): array => [
+                    'local_auth_enabled' => $isLocalAuthEnabled->handle(),
+                    'registration' => $setting->registration,
+                    'auto_update_check' => $setting->auto_update_check,
+                ],
+                'metadata' => fn(): array => [
+                    'app_version' => $appMetadata->appVersion(),
+                    'latest_version' => $appMetadata->latestVersion(),
+                    'github_url' => $appMetadata->githubUrl(),
+                    'update_available' => $appMetadata->updateAvailable(),
+                ],
             ],
         ];
     }

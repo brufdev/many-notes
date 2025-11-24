@@ -4,8 +4,8 @@ import { AppPageProps } from '@/types';
 
 export function hydrateStoresFromPageProps(props: AppPageProps) {
     const userStore = useUserStore();
-    userStore.setUser(props.auth?.user ?? null);
+    userStore.setUser(props.app?.user ?? null);
 
     const settingStore = useSettingStore();
-    settingStore.setSettings(props?.settings ?? null);
+    settingStore.setSettings(props.app?.settings ?? null);
 }

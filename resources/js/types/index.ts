@@ -1,7 +1,9 @@
 export interface AppPageProps {
-    auth?: { user: User }
-    settings?: Settings
-    metadata?: Metadata
+    app?: {
+        user?: User
+        settings?: Settings
+        metadata?: Metadata
+    }
 
     [key: string]: any
 }

@@ -16,7 +16,7 @@ const settingStore = useSettingStore();
 const userStore = useUserStore();
 
 const handleSuccess = (page: Page<AppPageProps>) => {
-    userStore.setUser(page.props.auth?.user ?? null);
+    userStore.setUser(page.props.app?.user ?? null);
     closeModal();
     createToast('Profile updated', 'success');
 };

@@ -14,7 +14,7 @@ const { createToast } = useToast();
 const settingStore = useSettingStore();
 
 const handleSuccess = (page: Page<AppPageProps>) => {
-    settingStore.setSettings(page.props?.settings ?? null);
+    settingStore.setSettings(page.props.app?.settings ?? null);
     closeModal();
     createToast('Settings updated', 'success');
 };
