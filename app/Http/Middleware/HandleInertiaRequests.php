@@ -50,7 +50,11 @@ final class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth.user' => fn(): ?array => $request->user()
-                ? $request->user()->only('name', 'email')
+                ? [
+                    'name' => $request->user()->name,
+                    'email' => $request->user()->email,
+                    'role' => $request->user()->role->name,
+                ]
                 : null,
             'settings' => fn(): array => [
                 'local_auth_enabled' => $isLocalAuthEnabled->handle(),
