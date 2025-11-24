@@ -1,4 +1,4 @@
-import { createInertiaApp } from '@inertiajs/vue3';
+import { createInertiaApp, router } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createPinia } from 'pinia';
 import type { DefineComponent } from 'vue';
@@ -21,6 +21,10 @@ createInertiaApp({
         app.use(pinia);
 
         hydrateStoresFromPageProps(props.initialPage.props);
+
+        router.on('success', event => {
+            hydrateStoresFromPageProps(event.detail.page.props);
+        });
 
         app.mount(el);
     },
