@@ -64,11 +64,18 @@ export const SmartBracket = Extension.create({
                     handleKeyDown(view, event) {
                         const { state, dispatch } = view;
                         const { selection } = state;
+
+                        if (!selection.empty) {
+                            return false;
+                        }
+
                         const { $from } = selection;
+                        const next = $from.nodeAfter;
+                        const prev = $from.nodeBefore;
 
                         // Skip over closing chars
-                        if (selection.empty && Object.values(bracketPairs).includes(event.key)) {
-                            const nextChar = $from.nodeAfter?.text?.[0];
+                        if (Object.values(bracketPairs).includes(event.key)) {
+                            const nextChar = next?.text?.[0];
 
                             if (nextChar === event.key) {
                                 dispatch(
@@ -76,23 +83,31 @@ export const SmartBracket = Extension.create({
                                         TextSelection.create(state.doc, $from.pos + 1)
                                     )
                                 );
-
                                 return true;
                             }
+
+                            return false;
                         }
 
                         // Delete bracket pair when cursor between opening and closing chars
-                        if (event.key === 'Backspace' && selection.empty) {
-                            const prevChar = $from.nodeBefore?.text?.slice(-1);
-                            const nextChar = $from.nodeAfter?.text?.[0];
+                        if (event.key === 'Backspace') {
+                            if (
+                                prev &&
+                                next &&
+                                prev.isText &&
+                                next.isText &&
+                                $from.parent.isTextblock
+                            ) {
+                                const prevChar = prev.text.slice(-1);
+                                const nextChar = next.text[0];
 
-                            if (prevChar && bracketPairs[prevChar] === nextChar) {
-                                dispatch(
-                                    state.tr.delete($from.pos - 1, $from.pos + 1)
-                                );
-
-                                return true;
+                                if (bracketPairs[prevChar] === nextChar) {
+                                    dispatch(state.tr.delete($from.pos - 1, $from.pos + 1));
+                                    return true;
+                                }
                             }
+
+                            return false;
                         }
 
                         return false;
