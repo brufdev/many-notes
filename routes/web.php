@@ -12,6 +12,7 @@ use App\Http\Controllers\FileController;
 use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\VaultController;
 use App\Http\Middleware\EnsureEmailIsConfigured;
 use App\Http\Middleware\EnsureRegistrationIsEnabled;
 use App\Http\Middleware\EnsureUserIsAdmin;
@@ -24,6 +25,7 @@ Route::middleware('auth')->group(function (): void {
 
     Route::prefix('vaults')->group(function (): void {
         Route::get('/', VaultIndex::class)->name('vaults.index');
+        Route::post('/', [VaultController::class, 'store'])->name('vaults.store');
         Route::get('/{vaultId}', VaultShow::class)->name('vaults.show');
     });
 

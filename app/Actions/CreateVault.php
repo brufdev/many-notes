@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
+use App\Events\VaultListUpdatedEvent;
 use App\Models\User;
 use App\Models\Vault;
 use Illuminate\Support\Facades\Storage;
@@ -37,8 +38,11 @@ final readonly class CreateVault
         $vault = $user->vaults()->create($attributes);
 
         // Save vault to disk
-        $vaultPath = new GetPathFromVault()->handle($vault);
+        $vaultPath = app(GetPathFromVault::class)->handle($vault);
         Storage::disk('local')->makeDirectory($vaultPath);
+
+        // Broadcast event
+        broadcast(new VaultListUpdatedEvent($user));
 
         return $vault;
     }
