@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
+use App\Events\VaultListUpdatedEvent;
 use App\Models\User;
 use App\Models\Vault;
 use Illuminate\Support\Facades\Storage;
@@ -15,8 +16,6 @@ final readonly class UpdateVault
      */
     public function handle(Vault $vault, array $attributes): void
     {
-        /** @var array{name: string}  $original */
-        $original = $vault->toArray();
         $vault->update($attributes);
 
         if (!$vault->wasChanged('name')) {
@@ -24,11 +23,18 @@ final readonly class UpdateVault
         }
 
         /** @var User $user */
-        $user = $vault->user()->first();
-        $relativePath = new GetPathFromUser()->handle($user);
+        $user = $vault->user;
+
+        /** @var string $previousName */
+        $previousName = $vault->getPrevious()['name'];
+
+        $relativePath = app(GetPathFromUser::class)->handle($user);
         Storage::disk('local')->move(
-            $relativePath . $original['name'],
+            $relativePath . $previousName,
             $relativePath . $vault->name,
         );
+
+        // Broadcast event
+        broadcast(new VaultListUpdatedEvent($user))->toOthers();
     }
 }

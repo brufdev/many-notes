@@ -26,6 +26,7 @@ Route::middleware('auth')->group(function (): void {
     Route::prefix('vaults')->group(function (): void {
         Route::get('/', VaultIndex::class)->name('vaults.index');
         Route::post('/', [VaultController::class, 'store'])->name('vaults.store');
+        Route::patch('/{vault}', [VaultController::class, 'update'])->name('vaults.update');
         Route::get('/{vaultId}', VaultShow::class)->name('vaults.show');
     });
 
