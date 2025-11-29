@@ -22,6 +22,7 @@ pest()->extend(TestCase::class)
     ->beforeEach(function (): void {
         Storage::fake('local');
         $this->freezeTime();
+        config()->set('settings.local_auth.enabled', true);
     })
     ->in('Browser', 'Feature', 'Unit');
 

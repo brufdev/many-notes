@@ -9,7 +9,6 @@ use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as SocialiteUser;
 
 beforeEach(function (): void {
-    config()->set('settings.local_auth.enabled', true);
     config()->set('services.github.client_id', str()->random(20));
     config()->set('services.github.client_secret', str()->random(40));
     config()->set('services.github.redirect', 'http://localhost/oauth/github/callback');

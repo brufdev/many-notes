@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 use Laravel\Socialite\Facades\Socialite;
 
-beforeEach(function (): void {
-    config()->set('settings.local_auth.enabled', true);
-});
-
 it('redirects to the provider url', function (): void {
     config()->set('services.github.client_id', str()->random(20));
     config()->set('services.github.client_secret', str()->random(40));

@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 use App\Models\User;
 
-beforeEach(function (): void {
-    config()->set('settings.local_auth.enabled', true);
-});
-
 it('returns a successful response', function (): void {
     $response = $this->get(route('login'));
 
@@ -64,7 +60,7 @@ it('logs out the user and redirects to the login page', function (): void {
 
     $this->actingAs($user);
 
-    $response = $this->post('/logout');
+    $response = $this->post(route('logout'));
 
     $this->assertGuest();
     $response->assertRedirect(route('login'));

@@ -5,11 +5,7 @@ declare(strict_types=1);
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-beforeEach(function (): void {
-    config()->set('settings.local_auth.enabled', true);
-});
-
-it('edits the password', function (): void {
+it('updates the password', function (): void {
     $password = 'password';
     $user = User::factory()->create([
         'password' => Hash::make($password),

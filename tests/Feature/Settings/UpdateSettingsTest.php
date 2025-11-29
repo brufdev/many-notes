@@ -6,7 +6,7 @@ use App\Enums\UserRole;
 use App\Models\Setting;
 use App\Models\User;
 
-it('edits the settings if the user is an admin', function (): void {
+it('updates the settings if the user is an admin', function (): void {
     $user = User::factory()->create([
         'role' => UserRole::ADMIN,
     ]);
@@ -24,7 +24,7 @@ it('edits the settings if the user is an admin', function (): void {
     $response->assertStatus(200);
 });
 
-it('does not edit the settings if the user is not an admin', function (): void {
+it('does not update the settings if the user is not an admin', function (): void {
     $user = User::factory()->create();
 
     $this->actingAs($user);
