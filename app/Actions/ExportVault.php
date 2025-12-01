@@ -22,13 +22,13 @@ final readonly class ExportVault
         $nodes = $vault->nodes()->whereNull('parent_id')->get();
 
         if ($nodes->count() === 0) {
-            throw new Exception(__('Your vault is empty'));
+            throw new Exception(__('Your vault is empty'), 422);
         }
 
         Storage::disk('local')->put($relativePath, '');
 
         if ($zip->open($path, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
-            throw new Exception(__('Something went wrong'));
+            throw new Exception(__('Something went wrong'), 500);
         }
 
         $this->exportNodes($zip, $nodes);
@@ -45,7 +45,7 @@ final readonly class ExportVault
         foreach ($nodes as $node) {
             $nodePath = mb_ltrim("$path/$node->name", '/');
             $nodePath .= $node->is_file ? ".$node->extension" : '';
-            $relativePath = new GetPathFromVaultNode()->handle($node);
+            $relativePath = app(GetPathFromVaultNode::class)->handle($node);
 
             if (!Storage::disk('local')->exists($relativePath)) {
                 throw new Exception(
@@ -53,6 +53,7 @@ final readonly class ExportVault
                         "%s missing on disk: {$nodePath}",
                         $node->is_file ? 'File' : 'Folder',
                     ),
+                    500,
                 );
             }
 
@@ -65,7 +66,7 @@ final readonly class ExportVault
             } elseif ($node->extension === 'md') {
                 $zip->addFromString($nodePath, (string) $node->content);
             } else {
-                $relativePath = new GetPathFromVaultNode()->handle($node);
+                $relativePath = app(GetPathFromVaultNode::class)->handle($node);
 
                 $zip->addFile(
                     Storage::disk('local')->path($relativePath),

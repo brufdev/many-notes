@@ -13,6 +13,7 @@ use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\VaultController;
+use App\Http\Controllers\VaultExportController;
 use App\Http\Middleware\EnsureEmailIsConfigured;
 use App\Http\Middleware\EnsureRegistrationIsEnabled;
 use App\Http\Middleware\EnsureUserIsAdmin;
@@ -28,6 +29,7 @@ Route::middleware('auth')->group(function (): void {
         Route::post('/', [VaultController::class, 'store'])->name('vaults.store');
         Route::patch('/{vault}', [VaultController::class, 'update'])->name('vaults.update');
         Route::get('/{vaultId}', VaultShow::class)->name('vaults.show');
+        Route::get('/{vault}/export', VaultExportController::class)->name('vaults.export');
     });
 
     Route::get('files/{vault}', [FileController::class, 'show'])->name('files.show');

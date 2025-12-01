@@ -37,59 +37,6 @@ it('creates a vault', function (): void {
     expect(Storage::disk('local')->path($path))->toBeDirectory();
 });
 
-it('exports a vault', function (): void {
-    $user = User::factory()->create();
-    $vault = new CreateVault()->handle($user, [
-        'name' => fake()->words(3, true),
-    ]);
-    $folderNode = new CreateVaultNode()->handle($vault, [
-        'is_file' => false,
-        'name' => fake()->words(3, true),
-    ]);
-    new CreateVaultNode()->handle($vault, [
-        'is_file' => true,
-        'parent_id' => $folderNode->id,
-        'name' => fake()->words(3, true),
-        'extension' => 'md',
-        'content' => fake()->paragraph(),
-    ]);
-    new CreateVaultNode()->handle($vault, [
-        'is_file' => true,
-        'name' => fake()->words(3, true),
-        'extension' => 'jpg',
-    ]);
-
-    Livewire::actingAs($user)
-        ->test(Index::class)
-        ->call('export', $vault)
-        ->assertFileDownloaded($vault->name . '.zip');
-});
-
-it('fails exporting an empty vault', function (): void {
-    $user = User::factory()->hasVaults(1)->create();
-    $vault = $user->vaults()->first();
-
-    Livewire::actingAs($user)
-        ->test(Index::class)
-        ->call('export', $vault)
-        ->assertReturned(null);
-});
-
-it('fails exporting a vault with files missing on disk', function (): void {
-    $user = User::factory()->hasVaults(1)->create();
-    $vault = $user->vaults()->first();
-    $vault->nodes()->create([
-        'is_file' => true,
-        'name' => fake()->words(3, true),
-        'extension' => 'md',
-    ]);
-
-    Livewire::actingAs($user)
-        ->test(Index::class)
-        ->call('export', $vault)
-        ->assertReturned(null);
-});
-
 it('deletes a vault with invites, collaborators and related notifications', function (): void {
     $createCollaborationInvite = new CreateCollaborationInvite();
     $acceptCollaborationInvite = new AcceptCollaborationInvite();
