@@ -8,7 +8,7 @@ import { login } from '@/routes';
 import { Form, Head } from '@inertiajs/vue3';
 
 defineProps<{
-    token?: string;
+    token: string;
 }>();
 </script>
 
@@ -22,6 +22,7 @@ defineProps<{
             class="flex flex-col gap-6"
             autocomplete="off"
             novalidate
+            disable-while-processing
         >
             <Input
                 name="email"
@@ -45,7 +46,7 @@ defineProps<{
                 :error="errors.password_confirmation"
                 required
             />
-            <Submit label="Send" :processing="processing" />
+            <Submit label="Send" full-width :processing="processing" />
         </Form>
 
         <div class="text-center text-sm">

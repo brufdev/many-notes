@@ -28,10 +28,11 @@ defineProps<{
         <Form
             v-slot="{ errors, processing }"
             v-bind="ForgotPasswordController.store.form()"
-            :reset-on-success="['email']"
             class="flex flex-col gap-6"
             autocomplete="off"
             novalidate
+            disable-while-processing
+            :reset-on-success="['email']"
         >
             <Input
                 name="email"
@@ -41,7 +42,7 @@ defineProps<{
                 required
                 autofocus
             />
-            <Submit label="Send" :processing="processing" />
+            <Submit label="Send" full-width :processing="processing" />
         </Form>
 
         <div class="text-center text-sm">

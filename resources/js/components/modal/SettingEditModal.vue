@@ -2,6 +2,7 @@
 import SettingController from '@/actions/App/Http/Controllers/SettingController';
 import CheckboxToggle from '@/components/form/CheckboxToggle.vue';
 import Submit from '@/components/form/Submit.vue';
+import SecondaryButton from '@/components/ui/SecondaryButton.vue';
 import { useModalManager } from '@/composables/useModalManager';
 import { useToast } from '@/composables/useToast';
 import { useSettingStore } from '@/stores/setting';
@@ -28,6 +29,7 @@ const handleSuccess = (page: Page<AppPageProps>) => {
             class="flex flex-col gap-6"
             autocomplete="off"
             novalidate
+            disable-while-processing
             @success="handleSuccess"
         >
             <CheckboxToggle
@@ -40,7 +42,10 @@ const handleSuccess = (page: Page<AppPageProps>) => {
                 :value="settingStore.auto_update_check ?? false"
                 label="Automatic update check"
             />
-            <Submit label="Save" :processing="processing" />
+            <div class="flex justify-end gap-2 pb-1">
+                <SecondaryButton @click="closeModal">Cancel</SecondaryButton>
+                <Submit label="Save" :processing="processing" />
+            </div>
         </Form>
     </div>
 </template>

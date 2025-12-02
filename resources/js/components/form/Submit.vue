@@ -10,7 +10,7 @@ defineProps<{
 </script>
 
 <template>
-    <PrimaryButton :full-width type="submit">
+    <PrimaryButton type="submit">
         <span :class="!fullWidth && processing ? 'opacity-0' : ''">{{ label }}</span>
 
         <span

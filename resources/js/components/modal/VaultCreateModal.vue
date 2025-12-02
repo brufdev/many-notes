@@ -2,6 +2,7 @@
 import VaultController from '@/actions/App/Http/Controllers/VaultController';
 import Input from '@/components/form/Input.vue';
 import Submit from '@/components/form/Submit.vue';
+import SecondaryButton from '@/components/ui/SecondaryButton.vue';
 import { useModalManager } from '@/composables/useModalManager';
 import { useToast } from '@/composables/useToast';
 import { Form } from '@inertiajs/vue3';
@@ -33,7 +34,10 @@ const handleSuccess = () => {
                 required
                 autofocus
             />
-            <Submit label="Create" :processing="processing" />
+            <div class="flex justify-end gap-2 pb-1">
+                <SecondaryButton @click="closeModal">Cancel</SecondaryButton>
+                <Submit label="Save" :processing="processing" />
+            </div>
         </Form>
     </div>
 </template>

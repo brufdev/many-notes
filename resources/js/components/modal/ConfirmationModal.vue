@@ -1,49 +1,40 @@
 <script setup lang="ts">
-import VaultController from '@/actions/App/Http/Controllers/VaultController';
-import Input from '@/components/form/Input.vue';
 import Submit from '@/components/form/Submit.vue';
-import SecondaryButton from '@/components/ui/SecondaryButton.vue';
 import { useModalManager } from '@/composables/useModalManager';
 import { useToast } from '@/composables/useToast';
+import { RouteFormDefinition } from '@/wayfinder';
 import { Form } from '@inertiajs/vue3';
+import SecondaryButton from '../ui/SecondaryButton.vue';
 
 const { closeModal } = useModalManager();
 const { createToast } = useToast();
 
 defineProps<{
-    id: number;
-    name: string;
+    routeForm: RouteFormDefinition<'post'>;
+    message: string;
 }>();
 
 const handleSuccess = () => {
     closeModal();
-    createToast('Vault updated', 'success');
+    createToast('Vault deleted', 'success');
 };
 </script>
 
 <template>
     <div>
         <Form
-            v-slot="{ errors, processing }"
-            v-bind="VaultController.update.form({ vault: id })"
-            class="flex flex-col gap-6"
+            v-slot="{ processing }"
+            v-bind="routeForm"
+            class="flex flex-col gap-6 inert:pointer-events-none"
             autocomplete="off"
             novalidate
             disable-while-processing
             @success="handleSuccess"
         >
-            <Input
-                name="name"
-                type="text"
-                :value="name"
-                placeholder="Name"
-                :error="errors.name"
-                required
-                autofocus
-            />
+            <p>{{ message }}</p>
             <div class="flex justify-end gap-2 pb-1">
                 <SecondaryButton @click="closeModal">Cancel</SecondaryButton>
-                <Submit label="Save" :processing="processing" />
+                <Submit label="Confirm" autofocus :processing="processing" />
             </div>
         </Form>
     </div>

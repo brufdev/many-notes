@@ -55,10 +55,11 @@ defineProps<{
         <Form
             v-slot="{ errors, processing }"
             v-bind="LoginController.store.form()"
-            :reset-on-success="['password']"
             class="flex flex-col gap-6"
             autocomplete="off"
             novalidate
+            disable-while-processing
+            :reset-on-success="['password']"
         >
             <Input
                 name="email"
@@ -76,7 +77,7 @@ defineProps<{
                 required
             />
             <Checkbox name="remember" label="Remember me" />
-            <Submit label="Sign in" :processing="processing" />
+            <Submit label="Sign in" full-width :processing="processing" />
         </Form>
 
         <div class="flex flex-col gap-2 text-center text-sm">

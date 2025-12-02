@@ -15,10 +15,11 @@ import { Form, Head } from '@inertiajs/vue3';
         <Form
             v-slot="{ errors, processing }"
             v-bind="RegisterController.store.form()"
-            :reset-on-success="['password', 'password_confirmation']"
             class="flex flex-col gap-4"
             autocomplete="off"
             novalidate
+            disable-while-processing
+            :reset-on-success="['password', 'password_confirmation']"
         >
             <Input name="name" type="text" label="Name" :error="errors.name" required autofocus />
             <Input name="email" type="email" label="Email" :error="errors.email" required />
@@ -36,7 +37,7 @@ import { Form, Head } from '@inertiajs/vue3';
                 :error="errors.password_confirmation"
                 required
             />
-            <Submit label="Register" :processing="processing" />
+            <Submit label="Register" full-width :processing="processing" />
         </Form>
 
         <div class="flex flex-col gap-2 text-center text-sm">

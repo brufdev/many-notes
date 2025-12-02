@@ -2,6 +2,7 @@
 import ProfileController from '@/actions/App/Http/Controllers/ProfileController';
 import Input from '@/components/form/Input.vue';
 import Submit from '@/components/form/Submit.vue';
+import SecondaryButton from '@/components/ui/SecondaryButton.vue';
 import { useModalManager } from '@/composables/useModalManager';
 import { useToast } from '@/composables/useToast';
 import { useSettingStore } from '@/stores/setting';
@@ -30,6 +31,7 @@ const handleSuccess = (page: Page<AppPageProps>) => {
             class="flex flex-col gap-6"
             autocomplete="off"
             novalidate
+            disable-while-processing
             @success="handleSuccess"
         >
             <Input
@@ -51,7 +53,10 @@ const handleSuccess = (page: Page<AppPageProps>) => {
                 :disabled="!settingStore.local_auth_enabled"
                 required
             />
-            <Submit v-if="settingStore.local_auth_enabled" label="Edit" :processing="processing" />
+            <div v-if="settingStore.local_auth_enabled" class="flex justify-end gap-2 pb-1">
+                <SecondaryButton @click="closeModal">Cancel</SecondaryButton>
+                <Submit label="Save" :processing="processing" />
+            </div>
         </Form>
     </div>
 </template>
