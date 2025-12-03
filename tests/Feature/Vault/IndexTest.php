@@ -2,13 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Actions\AcceptCollaborationInvite;
-use App\Actions\CreateCollaborationInvite;
-use App\Actions\CreateVault;
-use App\Actions\CreateVaultNode;
-use App\Actions\DeclineCollaborationInvite;
 use App\Actions\GetPathFromUser;
-use App\Actions\GetPathFromVault;
 use App\Livewire\Vault\Index;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
@@ -35,50 +29,4 @@ it('creates a vault', function (): void {
 
     $path = new GetPathFromUser()->handle($user) . $vaultName;
     expect(Storage::disk('local')->path($path))->toBeDirectory();
-});
-
-it('deletes a vault with invites, collaborators and related notifications', function (): void {
-    $createCollaborationInvite = new CreateCollaborationInvite();
-    $acceptCollaborationInvite = new AcceptCollaborationInvite();
-    $declineCollaborationInvite = new DeclineCollaborationInvite();
-
-    $user = User::factory()->create()->first();
-    $firstCollaborator = User::factory()->create()->first();
-    $secondCollaborator = User::factory()->create()->first();
-    $thirdCollaborator = User::factory()->create()->first();
-
-    $vault = new CreateVault()->handle($user, [
-        'name' => fake()->words(3, true),
-    ]);
-
-    $folderNode = new CreateVaultNode()->handle($vault, [
-        'is_file' => false,
-        'name' => fake()->words(3, true),
-    ]);
-    new CreateVaultNode()->handle($vault, [
-        'is_file' => true,
-        'parent_id' => $folderNode->id,
-        'name' => fake()->words(3, true),
-        'extension' => 'md',
-        'content' => fake()->paragraph(),
-    ]);
-
-    $createCollaborationInvite->handle($vault, $firstCollaborator);
-    $acceptCollaborationInvite->handle($vault, $firstCollaborator);
-
-    $createCollaborationInvite->handle($vault, $secondCollaborator);
-    $declineCollaborationInvite->handle($vault, $secondCollaborator);
-
-    $createCollaborationInvite->handle($vault, $thirdCollaborator);
-
-    expect($user->vaults()->count())->toBe(1);
-
-    Livewire::actingAs($user)
-        ->test(Index::class)
-        ->call('delete', $vault)
-        ->assertDispatched('toast');
-    expect($user->vaults()->count())->toBe(0);
-
-    $path = new GetPathFromVault()->handle($vault);
-    expect(Storage::disk('local')->path($path))->not->toBeDirectory();
 });

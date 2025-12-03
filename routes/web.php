@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/', VaultIndex::class)->name('vaults.index');
         Route::post('/', [VaultController::class, 'store'])->name('vaults.store');
         Route::patch('/{vault}', [VaultController::class, 'update'])->name('vaults.update');
+        Route::delete('/{vault}', [VaultController::class, 'destroy'])->name('vaults.destroy');
         Route::get('/{vaultId}', VaultShow::class)->name('vaults.show');
         Route::get('/{vault}/export', VaultExportController::class)->name('vaults.export');
     });

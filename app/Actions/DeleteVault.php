@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
+use App\Events\VaultDeletedEvent;
 use App\Models\User;
 use App\Models\Vault;
 use App\Notifications\CollaborationAccepted;
@@ -27,9 +28,11 @@ final readonly class DeleteVault
 
             // Delete notifications
             $notifications = DatabaseNotification::query()
-                ->where('type', CollaborationInvited::class)
-                ->orWhere('type', CollaborationAccepted::class)
-                ->orWhere('type', CollaborationDeclined::class)
+                ->whereIn('type', [
+                    CollaborationInvited::class,
+                    CollaborationAccepted::class,
+                    CollaborationDeclined::class,
+                ])
                 ->get();
 
             foreach ($notifications as $notification) {
@@ -38,7 +41,7 @@ final readonly class DeleteVault
                 }
             }
 
-            // Delete vault
+            // Delete vault from database
             $this->deleteFromDatabase($vault);
 
             DB::commit();
@@ -48,7 +51,11 @@ final readonly class DeleteVault
             throw new Exception(__('Something went wrong'));
         }
 
+        // Delete vault from disk
         $this->deleteFromDisk($vault);
+
+        // Broadcast event
+        broadcast(new VaultDeletedEvent($vault))->toOthers();
     }
 
     /**
@@ -56,7 +63,7 @@ final readonly class DeleteVault
      */
     private function deleteFromDatabase(Vault $vault): void
     {
-        $deleteVaultNode = new DeleteVaultNode();
+        $deleteVaultNode = app(DeleteVaultNode::class);
         $rootNodes = $vault->nodes()->whereNull('parent_id')->get();
 
         foreach ($rootNodes as $node) {
@@ -73,7 +80,7 @@ final readonly class DeleteVault
     {
         /** @var User $user */
         $user = $vault->user()->first();
-        $vaultPath = new GetPathFromUser()->handle($user) . $vault->name;
+        $vaultPath = app(GetPathFromUser::class)->handle($user) . $vault->name;
 
         if (!Storage::disk('local')->exists($vaultPath)) {
             return;
