@@ -9,6 +9,7 @@ use App\Models\Vault;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Unique;
+use Illuminate\Validation\ValidationException;
 
 final class UpdateVaultRequest extends FormRequest
 {
@@ -40,5 +41,12 @@ final class UpdateVaultRequest extends FormRequest
                     ->ignore($this->route('vault')),
             ],
         ];
+    }
+
+    protected function failedAuthorization(): void
+    {
+        throw ValidationException::withMessages([
+            'update' => __('Not allowed'),
+        ]);
     }
 }

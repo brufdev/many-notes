@@ -26,3 +26,20 @@ it('updates the vault', function (): void {
     $path = new GetPathFromUser()->handle($user) . $newName;
     expect(Storage::disk('local')->path($path))->toBeDirectory();
 });
+
+it('does not update a vault without permissions', function (): void {
+    $user = User::factory()->create();
+    $secondUser = User::factory()->hasVaults(1)->create();
+    $vault = $secondUser->vaults()->first();
+
+    $this->actingAs($user);
+
+    $response = $this->patch(
+        route('vaults.update', ['vault' => $vault->id]),
+        ['name' => fake()->words(3, true)],
+    );
+
+    $response->assertStatus(302);
+    $response->assertSessionHasErrors(['update']);
+    expect($secondUser->vaults()->first()->name)->toBe($vault->name);
+});

@@ -5,7 +5,8 @@ import Submit from '@/components/form/Submit.vue';
 import SecondaryButton from '@/components/ui/SecondaryButton.vue';
 import { useModalManager } from '@/composables/useModalManager';
 import { useToast } from '@/composables/useToast';
-import { Form } from '@inertiajs/vue3';
+import { Form, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 const { closeModal } = useModalManager();
 const { createToast } = useToast();
@@ -14,6 +15,17 @@ defineProps<{
     id: number;
     name: string;
 }>();
+
+const pageErrors = computed(() => usePage().props.errors);
+
+const handleError = () => {
+    if (!pageErrors.value.update) {
+        return;
+    }
+
+    closeModal();
+    createToast(pageErrors.value.update, 'error');
+};
 
 const handleSuccess = () => {
     closeModal();
@@ -30,6 +42,7 @@ const handleSuccess = () => {
             autocomplete="off"
             novalidate
             disable-while-processing
+            @error="handleError"
             @success="handleSuccess"
         >
             <Input
