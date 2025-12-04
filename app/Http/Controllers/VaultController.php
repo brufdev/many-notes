@@ -13,7 +13,7 @@ use App\Models\User;
 use App\Models\Vault;
 use Exception;
 use Illuminate\Container\Attributes\CurrentUser;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Validation\ValidationException;
 
 final readonly class VaultController
 {
@@ -33,10 +33,10 @@ final readonly class VaultController
         $updateVault->handle($vault, $data);
     }
 
-    public function destroy(#[CurrentUser] User $user, Vault $vault, DeleteVault $deleteVault): RedirectResponse
+    public function destroy(#[CurrentUser] User $user, Vault $vault, DeleteVault $deleteVault): void
     {
         if ($user->cannot('delete', $vault)) {
-            return back()->withErrors([
+            throw ValidationException::withMessages([
                 'delete' => __('Not allowed'),
             ]);
         }
@@ -44,11 +44,9 @@ final readonly class VaultController
         try {
             $deleteVault->handle($vault);
         } catch (Exception $e) {
-            return back()->withErrors([
+            throw ValidationException::withMessages([
                 'delete' => $e->getMessage(),
             ]);
         }
-
-        return back();
     }
 }
