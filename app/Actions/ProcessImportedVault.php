@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
+use App\Events\VaultListUpdatedEvent;
 use App\Models\User;
 use App\Services\VaultFile;
 use App\Services\VaultFiles\Types\Note;
@@ -14,9 +15,11 @@ final readonly class ProcessImportedVault
 {
     public function handle(User $user, string $fileName, string $filePath): void
     {
+        $createVaultNode = app(CreateVaultNode::class);
+
         $nodeIds = ['.' => null];
         $vaultName = pathinfo($fileName, PATHINFO_FILENAME);
-        $vault = new CreateVault()->handle($user, [
+        $vault = app(CreateVault::class)->handle($user, [
             'name' => $vaultName,
         ]);
 
@@ -64,7 +67,7 @@ final readonly class ProcessImportedVault
                 }
             }
 
-            $node = new CreateVaultNode()->handle($vault, $attributes, false);
+            $node = $createVaultNode->handle($vault, $attributes, false);
 
             if (!array_key_exists($entryDirName, $nodeIds)) {
                 $nodeIds[$entryDirName] = $node->id;
@@ -73,7 +76,9 @@ final readonly class ProcessImportedVault
 
         $zip->close();
 
-        new ProcessVaultLinks()->handle($vault);
-        new ProcessVaultTags()->handle($vault);
+        app(ProcessVaultLinks::class)->handle($vault);
+        app(ProcessVaultTags::class)->handle($vault);
+
+        broadcast(new VaultListUpdatedEvent($user))->toOthers();
     }
 }

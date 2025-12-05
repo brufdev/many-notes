@@ -26,4 +26,5 @@ export interface Metadata {
     latest_version: string
     github_url: string
     update_available: boolean
+    upload_max_filesize: string
 }

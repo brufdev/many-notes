@@ -14,6 +14,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\VaultController;
 use App\Http\Controllers\VaultExportController;
+use App\Http\Controllers\VaultImportController;
 use App\Http\Middleware\EnsureEmailIsConfigured;
 use App\Http\Middleware\EnsureRegistrationIsEnabled;
 use App\Http\Middleware\EnsureUserIsAdmin;
@@ -30,6 +31,7 @@ Route::middleware('auth')->group(function (): void {
         Route::patch('/{vault}', [VaultController::class, 'update'])->name('vaults.update');
         Route::delete('/{vault}', [VaultController::class, 'destroy'])->name('vaults.destroy');
         Route::get('/{vaultId}', VaultShow::class)->name('vaults.show');
+        Route::post('/import', VaultImportController::class)->name('vaults.import');
         Route::get('/{vault}/export', VaultExportController::class)->name('vaults.export');
     });
 
