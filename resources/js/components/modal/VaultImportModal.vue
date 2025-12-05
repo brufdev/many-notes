@@ -22,7 +22,7 @@ const handleSuccess = () => {
     <Form
         v-slot="{ errors, progress, submit }"
         v-bind="VaultImportController.form()"
-        class="flex flex-col gap-6"
+        class="flex flex-col gap-6 inert:pointer-events-none"
         autocomplete="off"
         novalidate
         disable-while-processing

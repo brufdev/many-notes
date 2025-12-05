@@ -34,30 +34,28 @@ const handleSuccess = () => {
 </script>
 
 <template>
-    <div>
-        <Form
-            v-slot="{ errors, processing }"
-            v-bind="VaultController.update.form({ vault: id })"
-            class="flex flex-col gap-6"
-            autocomplete="off"
-            novalidate
-            disable-while-processing
-            @error="handleError"
-            @success="handleSuccess"
-        >
-            <Input
-                name="name"
-                type="text"
-                :value="name"
-                placeholder="Name"
-                :error="errors.name"
-                required
-                autofocus
-            />
-            <div class="flex justify-end gap-2 pb-1">
-                <SecondaryButton @click="closeModal">Cancel</SecondaryButton>
-                <Submit label="Save" :processing="processing" />
-            </div>
-        </Form>
-    </div>
+    <Form
+        v-slot="{ errors, processing }"
+        v-bind="VaultController.update.form({ vault: id })"
+        class="flex flex-col gap-6 inert:pointer-events-none"
+        autocomplete="off"
+        novalidate
+        disable-while-processing
+        @error="handleError"
+        @success="handleSuccess"
+    >
+        <Input
+            name="name"
+            type="text"
+            :value="name"
+            placeholder="Name"
+            :error="errors.name"
+            required
+            autofocus
+        />
+        <div class="flex justify-end gap-2 py-1">
+            <SecondaryButton @click="closeModal">Cancel</SecondaryButton>
+            <Submit label="Save" :processing="processing" />
+        </div>
+    </Form>
 </template>

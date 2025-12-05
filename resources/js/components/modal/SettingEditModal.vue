@@ -22,30 +22,28 @@ const handleSuccess = (page: Page<AppPageProps>) => {
 </script>
 
 <template>
-    <div>
-        <Form
-            v-slot="{ processing }"
-            v-bind="SettingController.update.form()"
-            class="flex flex-col gap-6"
-            autocomplete="off"
-            novalidate
-            disable-while-processing
-            @success="handleSuccess"
-        >
-            <CheckboxToggle
-                name="registration"
-                :value="settingStore.registration ?? false"
-                label="Registration"
-            />
-            <CheckboxToggle
-                name="auto_update_check"
-                :value="settingStore.auto_update_check ?? false"
-                label="Automatic update check"
-            />
-            <div class="flex justify-end gap-2 pb-1">
-                <SecondaryButton @click="closeModal">Cancel</SecondaryButton>
-                <Submit label="Save" :processing="processing" />
-            </div>
-        </Form>
-    </div>
+    <Form
+        v-slot="{ processing }"
+        v-bind="SettingController.update.form()"
+        class="flex flex-col gap-6 inert:pointer-events-none"
+        autocomplete="off"
+        novalidate
+        disable-while-processing
+        @success="handleSuccess"
+    >
+        <CheckboxToggle
+            name="registration"
+            :value="settingStore.registration ?? false"
+            label="Registration"
+        />
+        <CheckboxToggle
+            name="auto_update_check"
+            :value="settingStore.auto_update_check ?? false"
+            label="Automatic update check"
+        />
+        <div class="flex justify-end gap-2 py-1">
+            <SecondaryButton @click="closeModal">Cancel</SecondaryButton>
+            <Submit label="Save" :processing="processing" />
+        </div>
+    </Form>
 </template>

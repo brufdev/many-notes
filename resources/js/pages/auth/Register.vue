@@ -15,7 +15,7 @@ import { Form, Head } from '@inertiajs/vue3';
         <Form
             v-slot="{ errors, processing }"
             v-bind="RegisterController.store.form()"
-            class="flex flex-col gap-4"
+            class="flex flex-col gap-6 inert:pointer-events-none"
             autocomplete="off"
             novalidate
             disable-while-processing

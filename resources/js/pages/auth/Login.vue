@@ -55,7 +55,7 @@ defineProps<{
         <Form
             v-slot="{ errors, processing }"
             v-bind="LoginController.store.form()"
-            class="flex flex-col gap-6"
+            class="flex flex-col gap-6 inert:pointer-events-none"
             autocomplete="off"
             novalidate
             disable-while-processing

@@ -71,10 +71,8 @@ const metadata = computed(() => props.app?.metadata);
                     label="Profile"
                     :icon="User"
                     @click="
-                        () => {
-                            closeMenu();
-                            openModal(ProfileEditModal, { title: 'Profile' });
-                        }
+                        closeMenu();
+                        openModal(ProfileEditModal, { title: 'Profile' });
                     "
                 />
 
@@ -83,10 +81,8 @@ const metadata = computed(() => props.app?.metadata);
                         label="Password"
                         :icon="Lock"
                         @click="
-                            () => {
-                                closeMenu();
-                                openModal(PasswordEditModal, { title: 'Password' });
-                            }
+                            closeMenu();
+                            openModal(PasswordEditModal, { title: 'Password' });
                         "
                     />
                 </template>
@@ -125,10 +121,8 @@ const metadata = computed(() => props.app?.metadata);
                     label="Settings"
                     :icon="Cog6Tooth"
                     @click="
-                        () => {
-                            closeMenu();
-                            openModal(SettingEditModal, { title: 'Settings' });
-                        }
+                        closeMenu();
+                        openModal(SettingEditModal, { title: 'Settings' });
                     "
                 />
 
@@ -138,10 +132,8 @@ const metadata = computed(() => props.app?.metadata);
                     label="Help"
                     :icon="MessageCircleQuestionMark"
                     @click="
-                        () => {
-                            closeMenu();
-                            openModal(HelpModal, { title: 'Help' });
-                        }
+                        closeMenu();
+                        openModal(HelpModal, { title: 'Help' });
                     "
                 />
 
@@ -149,10 +141,8 @@ const metadata = computed(() => props.app?.metadata);
                     label="About"
                     :icon="InformationCircle"
                     @click="
-                        () => {
-                            closeMenu();
-                            openModal(AboutModal, { title: 'About' });
-                        }
+                        closeMenu();
+                        openModal(AboutModal, { title: 'About' });
                     "
                 />
 

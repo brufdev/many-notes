@@ -17,42 +17,40 @@ const handleSuccess = () => {
 </script>
 
 <template>
-    <div>
-        <Form
-            v-slot="{ errors, processing }"
-            v-bind="PasswordController.update.form()"
-            class="flex flex-col gap-6"
-            autocomplete="off"
-            novalidate
-            disable-while-processing
-            @success="handleSuccess"
-        >
-            <Input
-                name="current_password"
-                type="password"
-                placeholder="Current password"
-                :error="errors.current_password"
-                required
-                autofocus
-            />
-            <Input
-                name="password"
-                type="password"
-                placeholder="New password"
-                :error="errors.password"
-                required
-            />
-            <Input
-                name="password_confirmation"
-                type="password"
-                placeholder="Confirm password"
-                :error="errors.password"
-                required
-            />
-            <div class="flex justify-end gap-2 pb-1">
-                <SecondaryButton @click="closeModal">Cancel</SecondaryButton>
-                <Submit label="Save" :processing="processing" />
-            </div>
-        </Form>
-    </div>
+    <Form
+        v-slot="{ errors, processing }"
+        v-bind="PasswordController.update.form()"
+        class="flex flex-col gap-6 inert:pointer-events-none"
+        autocomplete="off"
+        novalidate
+        disable-while-processing
+        @success="handleSuccess"
+    >
+        <Input
+            name="current_password"
+            type="password"
+            placeholder="Current password"
+            :error="errors.current_password"
+            required
+            autofocus
+        />
+        <Input
+            name="password"
+            type="password"
+            placeholder="New password"
+            :error="errors.password"
+            required
+        />
+        <Input
+            name="password_confirmation"
+            type="password"
+            placeholder="Confirm password"
+            :error="errors.password"
+            required
+        />
+        <div class="flex justify-end gap-2 py-1">
+            <SecondaryButton @click="closeModal">Cancel</SecondaryButton>
+            <Submit label="Save" :processing="processing" />
+        </div>
+    </Form>
 </template>

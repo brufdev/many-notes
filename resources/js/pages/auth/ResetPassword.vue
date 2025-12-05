@@ -19,7 +19,7 @@ defineProps<{
         <Form
             v-slot="{ errors, processing }"
             v-bind="ResetPasswordController.store.form({ token })"
-            class="flex flex-col gap-6"
+            class="flex flex-col gap-6 inert:pointer-events-none"
             autocomplete="off"
             novalidate
             disable-while-processing

@@ -30,22 +30,20 @@ const handleSuccess = () => {
 </script>
 
 <template>
-    <div>
-        <Form
-            v-slot="{ processing }"
-            v-bind="routeForm"
-            class="flex flex-col gap-6 inert:pointer-events-none"
-            autocomplete="off"
-            novalidate
-            disable-while-processing
-            @error="handleError"
-            @success="handleSuccess"
-        >
-            <p>{{ content }}</p>
-            <div class="flex justify-end gap-2 pb-1">
-                <SecondaryButton @click="closeModal">Cancel</SecondaryButton>
-                <Submit label="Confirm" autofocus :processing="processing" />
-            </div>
-        </Form>
-    </div>
+    <Form
+        v-slot="{ processing }"
+        v-bind="routeForm"
+        class="flex flex-col gap-6 inert:pointer-events-none"
+        autocomplete="off"
+        novalidate
+        disable-while-processing
+        @error="handleError"
+        @success="handleSuccess"
+    >
+        <p>{{ content }}</p>
+        <div class="flex justify-end gap-2 py-1">
+            <SecondaryButton @click="closeModal">Cancel</SecondaryButton>
+            <Submit label="Confirm" autofocus :processing="processing" />
+        </div>
+    </Form>
 </template>
