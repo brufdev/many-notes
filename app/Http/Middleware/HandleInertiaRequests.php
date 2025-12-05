@@ -43,6 +43,7 @@ final class HandleInertiaRequests extends Middleware
     #[Override]
     public function share(Request $request): array
     {
+        $user = $request->user();
         $isLocalAuthEnabled = app(IsLocalAuthEnabled::class);
         $setting = app(Setting::class);
         $appMetadata = app(AppMetadata::class);
@@ -50,11 +51,12 @@ final class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'app' => [
-                'user' => fn(): ?array => $request->user()
+                'user' => fn(): ?array => $user
                     ? [
-                        'name' => $request->user()->name,
-                        'email' => $request->user()->email,
-                        'role' => $request->user()->role->name,
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role' => $user->role->name,
                     ]
                     : null,
                 'settings' => fn(): array => [
@@ -67,6 +69,7 @@ final class HandleInertiaRequests extends Middleware
                     'latest_version' => $appMetadata->latestVersion(),
                     'github_url' => $appMetadata->githubUrl(),
                     'update_available' => $appMetadata->updateAvailable(),
+                    'upload_max_filesize' => ini_get('upload_max_filesize'),
                 ],
             ],
         ];
