@@ -43,11 +43,9 @@ function trapFocus(event: KeyboardEvent) {
             event.preventDefault();
             last.focus();
         }
-    } else {
-        if (active === last) {
-            event.preventDefault();
-            first.focus();
-        }
+    } else if (active === last || first === last) {
+        event.preventDefault();
+        first.focus();
     }
 }
 
@@ -95,7 +93,7 @@ watch(activeModal, async modal => {
 
                 <div
                     :class="[
-                        'fixed inset-0 z-50 flex justify-center py-5',
+                        'fixed inset-0 z-50 flex justify-center sm:py-5',
                         activeModal.props?.top ? 'items-start' : 'items-end sm:items-center',
                     ]"
                     @click.self="modalManager.closeModal"
