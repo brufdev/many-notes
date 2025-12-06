@@ -19,9 +19,11 @@ final readonly class ProcessImportedVault
 
         $nodeIds = ['.' => null];
         $vaultName = pathinfo($fileName, PATHINFO_FILENAME);
-        $vault = app(CreateVault::class)->handle($user, [
-            'name' => $vaultName,
-        ]);
+        $vault = app(CreateVault::class)->handle(
+            $user,
+            ['name' => $vaultName],
+            false,
+        );
 
         // Create vault nodes with valid zip files and folders
         $finfo = new finfo(FILEINFO_MIME_TYPE);
@@ -79,6 +81,7 @@ final readonly class ProcessImportedVault
         app(ProcessVaultLinks::class)->handle($vault);
         app(ProcessVaultTags::class)->handle($vault);
 
+        // Broadcast event
         broadcast(new VaultListUpdatedEvent($user))->toOthers();
     }
 }

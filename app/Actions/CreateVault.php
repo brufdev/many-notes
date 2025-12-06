@@ -14,7 +14,7 @@ final readonly class CreateVault
     /**
      * @param array{name: string} $attributes
      */
-    public function handle(User $user, array $attributes): Vault
+    public function handle(User $user, array $attributes, bool $broadcast = true): Vault
     {
         // Generate a new vault name if the current one already exists
         $vaultExists = $user->vaults()
@@ -42,7 +42,9 @@ final readonly class CreateVault
         Storage::disk('local')->makeDirectory($vaultPath);
 
         // Broadcast event
-        broadcast(new VaultListUpdatedEvent($user));
+        if ($broadcast) {
+            broadcast(new VaultListUpdatedEvent($user))->toOthers();
+        }
 
         return $vault;
     }

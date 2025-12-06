@@ -24,6 +24,7 @@ final readonly class UpdateVault
 
         /** @var User $user */
         $user = $vault->user;
+        $collaborators = $vault->collaborators()->get();
 
         /** @var string $previousName */
         $previousName = $vault->getPrevious()['name'];
@@ -34,7 +35,11 @@ final readonly class UpdateVault
             $relativePath . $vault->name,
         );
 
-        // Broadcast event
+        // Broadcast events
         broadcast(new VaultListUpdatedEvent($user))->toOthers();
+
+        foreach ($collaborators as $collaborator) {
+            broadcast(new VaultListUpdatedEvent($collaborator))->toOthers();
+        }
     }
 }

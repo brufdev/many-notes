@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Events\VaultDeletedEvent;
+use App\Events\VaultListUpdatedEvent;
 use App\Models\User;
 use App\Models\Vault;
 use App\Notifications\CollaborationAccepted;
@@ -20,6 +21,10 @@ final readonly class DeleteVault
 {
     public function handle(Vault $vault): void
     {
+        /** @var User $user */
+        $user = $vault->user;
+        $collaborators = $vault->collaborators()->get();
+
         try {
             DB::beginTransaction();
 
@@ -54,8 +59,14 @@ final readonly class DeleteVault
         // Delete vault from disk
         $this->deleteFromDisk($vault);
 
-        // Broadcast event
-        broadcast(new VaultDeletedEvent($vault))->toOthers();
+        // Broadcast events
+        broadcast(new VaultListUpdatedEvent($user))->toOthers();
+
+        foreach ($collaborators as $collaborator) {
+            broadcast(new VaultListUpdatedEvent($collaborator))->toOthers();
+        }
+
+        broadcast(new VaultDeletedEvent($vault))->toOthers(); // ?
     }
 
     /**
