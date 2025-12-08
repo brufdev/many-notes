@@ -16,7 +16,9 @@ final readonly class UpdateVaultNodeBacklinks
             return;
         }
 
-        $backlinks = $node->backlinks()->groupBy('source_id')->get();
+        $backlinks = $node->backlinks()
+            ->groupBy('id', 'vault_node_vault_node.destination_id', 'vault_node_vault_node.source_id')
+            ->get();
 
         if ($backlinks->count() === 0) {
             return;
