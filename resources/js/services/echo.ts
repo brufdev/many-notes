@@ -1,9 +1,6 @@
-import Echo from 'laravel-echo';
-import Pusher from 'pusher-js';
+import { configureEcho } from "@laravel/echo-vue";
 
-globalThis.Pusher = Pusher;
-
-globalThis.Echo = new Echo({
+configureEcho({
     broadcaster: 'reverb',
     key: import.meta.env.VITE_REVERB_APP_KEY,
     wsHost: globalThis.location.hostname,
