@@ -1,4 +1,4 @@
-import { configureEcho } from "@laravel/echo-vue";
+import { configureEcho } from '@laravel/echo-vue';
 
 configureEcho({
     broadcaster: 'reverb',
