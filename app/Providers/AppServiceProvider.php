@@ -8,6 +8,7 @@ use App\Models\Setting;
 use Carbon\CarbonImmutable;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Event;
@@ -42,6 +43,7 @@ final class AppServiceProvider extends ServiceProvider
     {
         $this->configureDates();
         $this->configureModels();
+        $this->configureResources();
         $this->configureVite();
         $this->configureAssetURL();
         $this->configureSocialite();
@@ -87,6 +89,14 @@ final class AppServiceProvider extends ServiceProvider
     {
         Model::unguard();
         Model::shouldBeStrict();
+    }
+
+    /**
+     * Configure the application's resources.
+     */
+    private function configureResources(): void
+    {
+        JsonResource::withoutWrapping();
     }
 
     /**
