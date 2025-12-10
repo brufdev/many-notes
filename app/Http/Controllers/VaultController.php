@@ -11,12 +11,26 @@ use App\Http\Requests\StoreVaultRequest;
 use App\Http\Requests\UpdateVaultRequest;
 use App\Models\User;
 use App\Models\Vault;
+use App\Queries\Vaults\VisibleVaultsQuery;
 use Exception;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
+use Inertia\Response;
 
 final readonly class VaultController
 {
+    public function index(#[CurrentUser] User $user, VisibleVaultsQuery $visibleVaultsQuery): Response
+    {
+        $user->update([
+            'last_visited_url' => route('vaults.index', absolute: false),
+        ]);
+
+        return Inertia::render('vault/Index', [
+            'visibleVaults' => $visibleVaultsQuery($user)->get(),
+        ]);
+    }
+
     public function store(StoreVaultRequest $request, #[CurrentUser] User $user, CreateVault $createVault): void
     {
         /** @var array{name: string} $data */

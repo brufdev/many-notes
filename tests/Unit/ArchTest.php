@@ -83,6 +83,7 @@ arch('models')
         'App\Models',
         'App\Notifications',
         'App\Observers',
+        'App\Queries',
         'App\Policies',
         'App\Providers',
         'App\Services',

@@ -18,7 +18,6 @@ use App\Http\Controllers\VaultImportController;
 use App\Http\Middleware\EnsureEmailIsConfigured;
 use App\Http\Middleware\EnsureRegistrationIsEnabled;
 use App\Http\Middleware\EnsureUserIsAdmin;
-use App\Livewire\Vault\Index as VaultIndex;
 use App\Livewire\Vault\Show as VaultShow;
 use Illuminate\Support\Facades\Route;
 
@@ -26,7 +25,7 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
 
     Route::prefix('vaults')->group(function (): void {
-        Route::get('/', VaultIndex::class)->name('vaults.index');
+        Route::get('/', [VaultController::class, 'index'])->name('vaults.index');
         Route::post('/', [VaultController::class, 'store'])->name('vaults.store');
         Route::patch('/{vault}', [VaultController::class, 'update'])->name('vaults.update');
         Route::delete('/{vault}', [VaultController::class, 'destroy'])->name('vaults.destroy');
