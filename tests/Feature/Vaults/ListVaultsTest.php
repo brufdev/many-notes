@@ -11,7 +11,7 @@ it('only lists the user vaults', function (): void {
     $this->actingAs($user);
 
     $this->get(route('vaults.index'))
-        ->assertInertia(fn (Assert $page) => $page
-            ->has('visibleVaults', 2)
+        ->assertInertia(
+            fn(Assert $page): Assert => $page->has('visibleVaults', 2)
         );
 });
