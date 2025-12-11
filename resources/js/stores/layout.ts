@@ -2,11 +2,11 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
 export const useLayoutStore = defineStore('layout', () => {
-    const appLoading = ref<boolean>(false);
+    const isAppLoading = ref<boolean>(false);
 
     function setAppLoading(value: boolean) {
-        appLoading.value = value;
+        isAppLoading.value = value;
     }
 
-    return { appLoading, setAppLoading };
+    return { isAppLoading, setAppLoading };
 });

@@ -23,7 +23,7 @@ const layoutStore = useLayoutStore();
         </main>
 
         <div
-            v-if="layoutStore.appLoading"
+            v-if="layoutStore.isAppLoading"
             class="bg-light-base-50 dark:bg-base-900 fixed inset-0 z-40 opacity-50"
         >
             <div class="flex h-full items-center justify-center">
