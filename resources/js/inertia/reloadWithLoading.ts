@@ -1,4 +1,4 @@
-import { useLoadingStore } from '@/stores/loading';
+import { useLayoutStore } from '@/stores/layout';
 import { router } from '@inertiajs/vue3';
 
 interface ReloadWithLoadingOptions {
@@ -6,11 +6,11 @@ interface ReloadWithLoadingOptions {
 }
 
 export function reloadWithLoading(options: ReloadWithLoadingOptions = {}) {
-    const loadingStore = useLoadingStore();
+    const layoutStore = useLayoutStore();
 
     router.reload({
         ...options,
-        onStart: () => loadingStore.setAppLoading(true),
-        onFinish: () => loadingStore.setAppLoading(false),
+        onStart: () => layoutStore.setAppLoading(true),
+        onFinish: () => layoutStore.setAppLoading(false),
     });
 }

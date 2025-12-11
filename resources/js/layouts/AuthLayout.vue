@@ -2,10 +2,10 @@
 import ModalManager from '@/components/modal/ModalManager.vue';
 import Toast from '@/components/toast/Toast.vue';
 import Spinner from '@/icons/Spinner.vue';
-import { useLoadingStore } from '@/stores/loading';
+import { useLayoutStore } from '@/stores/layout';
 import AppLayout from './AppLayout.vue';
 
-const loadingStore = useLoadingStore();
+const layoutStore = useLayoutStore();
 </script>
 
 <template>
@@ -23,7 +23,7 @@ const loadingStore = useLoadingStore();
         </main>
 
         <div
-            v-if="loadingStore.appLoading"
+            v-if="layoutStore.appLoading"
             class="bg-light-base-50 dark:bg-base-900 fixed inset-0 z-40 opacity-50"
         >
             <div class="flex h-full items-center justify-center">
