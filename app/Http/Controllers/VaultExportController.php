@@ -21,7 +21,7 @@ final readonly class VaultExportController
     ): StreamedResponse|JsonResponse {
         if ($user->cannot('view', $vault)) {
             return response()->json([
-                'message' => 'You are not authorized to access this resource',
+                'message' => 'Not allowed',
             ], 403);
         }
 
