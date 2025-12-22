@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Events\VaultListUpdatedEvent;
+use App\Events\VaultUpdatedEvent;
 use App\Models\User;
 use App\Models\Vault;
 use Illuminate\Support\Facades\Storage;
@@ -36,6 +37,7 @@ final readonly class UpdateVault
         );
 
         // Broadcast events
+        broadcast(new VaultUpdatedEvent($vault));
         broadcast(new VaultListUpdatedEvent($user))->toOthers();
 
         foreach ($collaborators as $collaborator) {
