@@ -66,7 +66,7 @@ final readonly class DeleteVault
             broadcast(new VaultListUpdatedEvent($collaborator))->toOthers();
         }
 
-        broadcast(new VaultDeletedEvent($vault))->toOthers(); // ?
+        broadcast(new VaultDeletedEvent($vault))->toOthers();
     }
 
     /**
