@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use App\Models\User;
 use App\Actions\CreateVault;
 use App\Actions\GetPathFromVault;
+use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 
 it('creates a vault folder', function (): void {
