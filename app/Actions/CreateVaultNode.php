@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
+use App\Events\VaultNodeCreatedEvent;
 use App\Models\Vault;
 use App\Models\VaultNode;
 use Illuminate\Support\Facades\Storage;
@@ -72,6 +73,8 @@ final readonly class CreateVaultNode
         } else {
             Storage::disk('local')->makeDirectory($nodePath);
         }
+
+        broadcast(new VaultNodeCreatedEvent($node));
 
         return $node;
     }

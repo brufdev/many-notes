@@ -87,6 +87,7 @@ arch('models')
         'App\Policies',
         'App\Providers',
         'App\Services',
+        'App\ViewModels',
         'Database\Factories',
         'Database\Seeders',
     ]);
