@@ -16,7 +16,7 @@ beforeEach(function (): void {
 
 it('successfully authenticates a registered user', function (): void {
     $user = User::factory()->create([
-        'last_visited_url' => route('vaults.show', ['vaultId' => 1], false),
+        'last_visited_url' => route('vaults.show', ['vault' => 1], false),
     ]);
     $abstractUser = Mockery::mock(SocialiteUser::class);
     $abstractUser->shouldReceive('getId')
@@ -31,7 +31,7 @@ it('successfully authenticates a registered user', function (): void {
 
     $response = $this->get(route('oauth.store', ['provider' => 'github']));
 
-    $response->assertRedirect(route('vaults.show', ['vaultId' => 1]));
+    $response->assertRedirect(route('vaults.show', ['vault' => 1]));
 });
 
 it('successfully authenticates an Azure user with mail instead of email', function (): void {

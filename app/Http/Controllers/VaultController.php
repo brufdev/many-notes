@@ -39,6 +39,11 @@ final readonly class VaultController
         $createVault->handle($user, $data);
     }
 
+    public function show(): void
+    {
+        //
+    }
+
     public function update(UpdateVaultRequest $request, Vault $vault, UpdateVault $updateVault): void
     {
         /** @var array{name: string} $data */

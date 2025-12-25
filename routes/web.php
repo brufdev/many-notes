@@ -19,18 +19,16 @@ use App\Http\Controllers\VaultNodeController;
 use App\Http\Middleware\EnsureEmailIsConfigured;
 use App\Http\Middleware\EnsureRegistrationIsEnabled;
 use App\Http\Middleware\EnsureUserIsAdmin;
-use App\Livewire\Vault\Show as VaultShow;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function (): void {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
 
+    Route::resource('vaults', VaultController::class)->only([
+        'index', 'store', 'show', 'update', 'destroy',
+    ]);
+
     Route::prefix('vaults')->group(function (): void {
-        Route::get('/', [VaultController::class, 'index'])->name('vaults.index');
-        Route::post('/', [VaultController::class, 'store'])->name('vaults.store');
-        Route::patch('/{vault}', [VaultController::class, 'update'])->name('vaults.update');
-        Route::delete('/{vault}', [VaultController::class, 'destroy'])->name('vaults.destroy');
-        Route::get('/{vaultId}', VaultShow::class)->name('vaults.show');
         Route::post('/import', VaultImportController::class)->name('vaults.import');
         Route::get('/{vault}/export', VaultExportController::class)->name('vaults.export');
     });

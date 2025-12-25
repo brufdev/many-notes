@@ -24,7 +24,7 @@ it('successfully authenticates a user for the first time', function (): void {
 
 it('successfully authenticates a user', function (): void {
     $user = User::factory()->create([
-        'last_visited_url' => route('vaults.show', ['vaultId' => 1], false),
+        'last_visited_url' => route('vaults.show', ['vault' => 1], false),
     ]);
 
     $response = $this->post(route('login'), [
@@ -33,7 +33,7 @@ it('successfully authenticates a user', function (): void {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('vaults.show', ['vaultId' => 1]));
+    $response->assertRedirect(route('vaults.show', ['vault' => 1]));
 });
 
 it('rate limits a user after 5 consecutive login tries', function (): void {
