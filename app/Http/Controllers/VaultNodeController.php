@@ -5,8 +5,16 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Actions\CreateVaultNode;
+use App\Actions\UpdateVaultNode;
 use App\Http\Requests\StoreVaultNodeRequest;
+use App\Http\Requests\UpdateVaultNodeRequest;
+use App\Models\User;
 use App\Models\Vault;
+use App\Models\VaultNode;
+use App\ViewModels\VaultTreeNodeViewModel;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Container\Attributes\CurrentUser;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 
 final readonly class VaultNodeController
@@ -36,5 +44,26 @@ final readonly class VaultNodeController
         }
 
         return redirect()->back();
+    }
+
+    public function update(
+        UpdateVaultNodeRequest $request,
+        Vault $vault,
+        VaultNode $node,
+        #[CurrentUser] User $user,
+        UpdateVaultNode $updateVaultNode,
+    ): JsonResponse {
+        if ($user->cannot('update', $vault)) {
+            throw new AuthorizationException(code: 403);
+        }
+
+        /** @var array{name: string} $data */
+        $data = $request->validated();
+
+        $node = $updateVaultNode->handle($node, $data);
+
+        return response()->json([
+            'node' => VaultTreeNodeViewModel::fromModel($node)->toArray(),
+        ]);
     }
 }

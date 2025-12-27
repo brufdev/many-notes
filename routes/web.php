@@ -34,7 +34,7 @@ Route::middleware('auth')->group(function (): void {
     });
 
     Route::resource('vaults.nodes', VaultNodeController::class)->only([
-        'store',
+        'store', 'update',
     ]);
 
     Route::get('files/{vault}', [FileController::class, 'show'])->name('files.show');
