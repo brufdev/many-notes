@@ -44,7 +44,7 @@ final readonly class VaultTreeNodeViewModel
             $type->value,
             $node->name,
             $node->extension,
-            $node->is_file && $node->children()->exists(),
+            !$node->is_file && $node->children()->exists(),
             $node->updated_at,
         );
     }
