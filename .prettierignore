@@ -5,7 +5,6 @@ storage/**
 resources/views/**
 resources/js/actions/**
 resources/js/routes/**
-resources/js/types/**
 resources/js/wayfinder/**
 **/*.js
 **/*.yml
