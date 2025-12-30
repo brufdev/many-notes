@@ -8,7 +8,7 @@ type AxiosSend<TForm> = <TResponse = unknown>(options: {
     data?: Partial<TForm>;
     axiosConfig?: AxiosRequestConfig;
     onSuccess?: (response: TResponse) => void;
-    onError?: (errors: Record<string, string[]>) => void;
+    onError?: (message: AxiosError) => void;
     onFinish?: () => void;
 }) => void;
 
@@ -49,8 +49,9 @@ export function useAxiosForm<TForm extends FormDataType<TForm>>(
                     const rawErrors = error.response.data?.errors ?? {};
                     const normalizedErrors = normalizeErrors(rawErrors);
                     form.setError(normalizedErrors as unknown as FormDataErrors<TForm>);
-                    onError?.(rawErrors);
                 }
+
+                onError?.(error);
             })
             .finally(() => {
                 form.processing = false;
