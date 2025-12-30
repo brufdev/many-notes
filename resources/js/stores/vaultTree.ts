@@ -52,58 +52,64 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
         sortTree();
     }
 
-    function activeTree(): VaultTreeState {
+    function getActiveVaultId(): number {
         if (activeVaultId.value === null) {
             throw new Error('No active vault');
         }
 
-        return treesByVaultId.value[activeVaultId.value];
+        return activeVaultId.value;
+    }
+
+    function getActiveTree(): VaultTreeState {
+        const activeVaultId = getActiveVaultId();
+
+        return treesByVaultId.value[activeVaultId];
     }
 
     function getSelectedFileId(): number | null {
-        return activeTree().selectedFileId ?? null;
+        return getActiveTree().selectedFileId ?? null;
     }
 
     function getNodeById(id: number): VaultNodeTreeItem | null {
-        return activeTree().nodesById[id] ?? null;
+        return getActiveTree().nodesById[id] ?? null;
     }
 
     function getChildren(parentId: number | null): number[] {
-        return activeTree().childrenByParentId[parentId ?? 0] || [];
+        return getActiveTree().childrenByParentId[parentId ?? 0] || [];
     }
 
     function isFolderExpanded(id: number): boolean {
-        return activeTree().expandedFolderIds.has(id) ?? false;
+        return getActiveTree().expandedFolderIds.has(id) ?? false;
     }
 
     function isFolderLoaded(id: number): boolean {
-        return activeTree().loadedFolderIds.has(id) ?? false;
+        return getActiveTree().loadedFolderIds.has(id) ?? false;
     }
 
     function isFolderLoading(id: number): boolean {
-        return activeTree().loadingNodeIds.has(id) ?? false;
+        return getActiveTree().loadingNodeIds.has(id) ?? false;
     }
 
     function startLoadingFolder(id: number): void {
-        activeTree().loadingNodeIds.add(id);
+        getActiveTree().loadingNodeIds.add(id);
     }
 
     function finishLoadingFolder(id: number): void {
-        activeTree().loadingNodeIds.delete(id);
+        getActiveTree().loadingNodeIds.delete(id);
     }
 
     function setLoadedFolder(id: number): void {
-        activeTree().loadedFolderIds.add(id);
+        getActiveTree().loadedFolderIds.add(id);
     }
 
     function setSelectedFileId(id: number | null): void {
-        const tree = activeTree();
+        const tree = getActiveTree();
 
         tree.selectedFileId = id;
     }
 
     function ensureNode(node: VaultNodeTreeItem): void {
-        const tree = activeTree();
+        const tree = getActiveTree();
         const key = node.parent_id ?? 0;
 
         tree.nodesById[node.id] = node;
@@ -118,7 +124,7 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
     }
 
     function setChildren(parentId: number | null, children: VaultNodeTreeItem[]): void {
-        const tree = activeTree();
+        const tree = getActiveTree();
         const key = parentId ?? 0;
 
         tree.childrenByParentId[key] = [];
@@ -132,7 +138,7 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
     }
 
     function setAncestors(ancestors: VaultNodeTreeItem[]): void {
-        const tree = activeTree();
+        const tree = getActiveTree();
 
         for (const ancestor of ancestors) {
             ensureNode(ancestor);
@@ -145,7 +151,7 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
     }
 
     function setAncestorsChildren(children: Record<number, VaultNodeTreeItem[]>): void {
-        const tree = activeTree();
+        const tree = getActiveTree();
 
         for (const [parentIdStr, childList] of Object.entries(children)) {
             const parentId = Number(parentIdStr);
@@ -157,7 +163,7 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
     }
 
     function expandFolder(id: number): void {
-        const tree = activeTree();
+        const tree = getActiveTree();
 
         if (!tree.expandedFolderIds.has(id)) {
             tree.expandedFolderIds.add(id);
@@ -165,13 +171,13 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
     }
 
     function collapseFolder(id: number): void {
-        const tree = activeTree();
+        const tree = getActiveTree();
 
         tree.expandedFolderIds.delete(id);
     }
 
     function expandParents(id: number): void {
-        const tree = activeTree();
+        const tree = getActiveTree();
 
         let current = tree.nodesById[id];
 
@@ -182,7 +188,7 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
     }
 
     function sortTree(): void {
-        const tree = activeTree();
+        const tree = getActiveTree();
 
         for (const parentId of Object.keys(tree.childrenByParentId)) {
             sortChildren(Number(parentId));
@@ -190,7 +196,7 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
     }
 
     function sortChildren(parentId: number): void {
-        const tree = activeTree();
+        const tree = getActiveTree();
 
         tree.childrenByParentId[parentId].sort((firstId, secondId) => {
             const firstNode = tree.nodesById[firstId];
@@ -218,7 +224,7 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
     }
 
     function handleNodeUpdated(node: VaultNodeTreeItem): void {
-        const tree = activeTree();
+        const tree = getActiveTree();
 
         if (node.parent_id !== null && !tree.loadedFolderIds.has(node.parent_id)) {
             return;
@@ -230,7 +236,7 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
     }
 
     return {
-        activeVaultId,
+        getActiveVaultId,
         initializeVaultTree,
         getSelectedFileId,
         getNodeById,
