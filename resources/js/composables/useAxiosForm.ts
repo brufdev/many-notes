@@ -8,7 +8,7 @@ type AxiosSend<TForm> = <TResponse = unknown>(options: {
     data?: Partial<TForm>;
     axiosConfig?: AxiosRequestConfig;
     onSuccess?: (response: TResponse) => void;
-    onError?: (message: AxiosError) => void;
+    onError?: (error: AxiosError) => void;
     onFinish?: () => void;
 }) => void;
 
