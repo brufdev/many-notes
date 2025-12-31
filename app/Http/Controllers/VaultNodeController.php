@@ -12,18 +12,21 @@ use App\Models\User;
 use App\Models\Vault;
 use App\Models\VaultNode;
 use App\ViewModels\VaultTreeNodeViewModel;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 
 final readonly class VaultNodeController
 {
     public function store(
         StoreVaultNodeRequest $request,
         Vault $vault,
+        #[CurrentUser] User $user,
         CreateVaultNode $createVaultNode,
-    ): RedirectResponse {
+    ): JsonResponse {
+        if ($user->cannot('update', $vault)) {
+            abort(403);
+        }
+
         /**
          * @var array{
          *   parent_id?: int|null,
@@ -36,14 +39,9 @@ final readonly class VaultNodeController
 
         $node = $createVaultNode->handle($vault, $data);
 
-        if ($node->is_file) {
-            return redirect()->route('vaults.show', [
-                'vault' => $vault->id,
-                'file' => $node->id,
-            ]);
-        }
-
-        return redirect()->back();
+        return response()->json([
+            'node' => VaultTreeNodeViewModel::fromModel($node)->toArray(),
+        ]);
     }
 
     public function update(
@@ -54,7 +52,7 @@ final readonly class VaultNodeController
         UpdateVaultNode $updateVaultNode,
     ): JsonResponse {
         if ($user->cannot('update', $vault)) {
-            throw new AuthorizationException(code: 403);
+            abort(403);
         }
 
         /** @var array{name: string} $data */

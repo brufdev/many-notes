@@ -27,7 +27,7 @@ it('creates a vault folder', function (): void {
         ],
     );
 
-    $response->assertStatus(302);
+    $response->assertStatus(200);
     expect($user->vaults()->count())->toBe(1);
     $path = new GetPathFromVault()->handle($vault) . $nodeName;
     expect(Storage::disk('local')->path($path))->toBeDirectory();
@@ -53,7 +53,7 @@ it('creates a vault file', function (): void {
         ],
     );
 
-    $response->assertStatus(302);
+    $response->assertStatus(200);
     expect($user->vaults()->count())->toBe(1);
     $path = new GetPathFromVault()->handle($vault) . $nodeName . '.md';
     expect(Storage::disk('local')->path($path))->toBeFile();

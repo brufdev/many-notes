@@ -74,7 +74,7 @@ final readonly class CreateVaultNode
             Storage::disk('local')->makeDirectory($nodePath);
         }
 
-        broadcast(new VaultNodeCreatedEvent($node));
+        broadcast(new VaultNodeCreatedEvent($node))->toOthers();
 
         return $node;
     }
