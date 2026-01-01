@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { store } from '@/actions/App/Http/Controllers/VaultNodeController';
-import Input from '@/components/form/Input.vue';
+import ModelInput from '@/components/form/ModelInput.vue';
 import Submit from '@/components/form/Submit.vue';
 import SecondaryButton from '@/components/ui/SecondaryButton.vue';
 import { useAxiosForm } from '@/composables/useAxiosForm';
@@ -64,7 +64,7 @@ const handleSubmit = () => {
         :inert="form.processing"
         @submit.prevent="handleSubmit"
     >
-        <Input
+        <ModelInput
             v-model="form.name"
             name="name"
             type="text"

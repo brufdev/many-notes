@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { update } from '@/actions/App/Http/Controllers/VaultNodeController';
-import Input from '@/components/form/Input.vue';
+import ModelInput from '@/components/form/ModelInput.vue';
 import Submit from '@/components/form/Submit.vue';
 import SecondaryButton from '@/components/ui/SecondaryButton.vue';
 import { useAxiosForm } from '@/composables/useAxiosForm';
@@ -11,7 +11,7 @@ import { VaultNodeTreeItem } from '@/types/vault';
 
 const { closeModal } = useModalManager();
 const { createToast } = useToast();
-const vaultTree = useVaultTreeStore();
+const vaultTreeStore = useVaultTreeStore();
 
 const props = defineProps<{
     id: number;
@@ -36,10 +36,10 @@ const handleSubmit = () => {
             createToast(message, 'error');
         },
         onSuccess: (response: { node: VaultNodeTreeItem }) => {
-            vaultTree.handleNodeUpdated(response.node);
             closeModal();
             const message = props.isFile ? 'File updated' : 'Folder updated';
             createToast(message, 'success');
+            vaultTreeStore.handleNodeUpdated(response.node);
         },
     });
 };
@@ -53,7 +53,7 @@ const handleSubmit = () => {
         :inert="form.processing"
         @submit.prevent="handleSubmit"
     >
-        <Input
+        <ModelInput
             v-model="form.name"
             name="name"
             type="text"

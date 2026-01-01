@@ -49,6 +49,8 @@ export function useAxiosForm<TForm extends FormDataType<TForm>>(
                     const rawErrors = error.response.data?.errors ?? {};
                     const normalizedErrors = normalizeErrors(rawErrors);
                     form.setError(normalizedErrors as unknown as FormDataErrors<TForm>);
+
+                    return;
                 }
 
                 onError?.(error);
