@@ -81,7 +81,7 @@ it('does not allow to edit the profile', function (): void {
 
     $this->actingAs($user);
 
-    $response = $this->post(route('profile.update'), [
+    $response = $this->patch(route('profile.update'), [
         'name' => $user->name,
         'email' => $user->email,
     ]);

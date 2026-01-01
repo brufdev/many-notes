@@ -11,7 +11,7 @@ it('updates the profile', function (): void {
 
     $this->actingAs($user);
 
-    $response = $this->post(route('profile.update'), [
+    $response = $this->patch(route('profile.update'), [
         'name' => $newName,
         'email' => $newEmail,
     ]);
