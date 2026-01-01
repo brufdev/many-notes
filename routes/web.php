@@ -40,7 +40,7 @@ Route::middleware('auth')->group(function (): void {
     Route::get('files/{vault}', [FileController::class, 'show'])->name('files.show');
 
     Route::patch('profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::post('password', [PasswordController::class, 'update'])->name('password.update');
+    Route::patch('password', [PasswordController::class, 'update'])->name('password.update');
 
     Route::middleware([EnsureUserIsAdmin::class])->group(function (): void {
         Route::post('settings', [SettingController::class, 'update'])->name('settings.update');

@@ -14,7 +14,7 @@ it('updates the password', function (): void {
 
     $this->actingAs($user);
 
-    $response = $this->post(route('password.update'), [
+    $response = $this->patch(route('password.update'), [
         'current_password' => $password,
         'password' => $newPassword,
         'password_confirmation' => $newPassword,
@@ -33,7 +33,7 @@ it('finds errors in the password', function (): void {
 
     $this->actingAs($user);
 
-    $response = $this->post(route('password.update'), [
+    $response = $this->patch(route('password.update'), [
         'current_password' => '',
         'password' => $newPassword,
         'password_confirmation' => $newPassword,
