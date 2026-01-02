@@ -1,49 +1,58 @@
 <script setup lang="ts">
-import SettingController from '@/actions/App/Http/Controllers/SettingController';
+import { update } from '@/actions/App/Http/Controllers/SettingController';
 import CheckboxToggle from '@/components/form/CheckboxToggle.vue';
 import Submit from '@/components/form/Submit.vue';
 import SecondaryButton from '@/components/ui/SecondaryButton.vue';
+import { useAxiosForm } from '@/composables/useAxiosForm';
 import { useModalManager } from '@/composables/useModalManager';
 import { useToast } from '@/composables/useToast';
 import { useSettingStore } from '@/stores/setting';
-import { AppPageProps } from '@/types';
-import type { Page } from '@inertiajs/core';
-import { Form } from '@inertiajs/vue3';
+import { AdminEditableSettings } from '@/types/settings';
 
 const { closeModal } = useModalManager();
 const { createToast } = useToast();
 const settingStore = useSettingStore();
 
-const handleSuccess = (page: Page<AppPageProps>) => {
-    settingStore.setSettings(page.props.app?.settings ?? null);
-    closeModal();
-    createToast('Settings updated', 'success');
+const form = useAxiosForm<AdminEditableSettings>({
+    registration: settingStore.registration ?? false,
+    auto_update_check: settingStore.auto_update_check ?? false,
+});
+
+const handleSubmit = () => {
+    form.send({
+        url: update.url(),
+        method: 'patch',
+        onError: error => {
+            closeModal();
+            const message = error.response?.statusText ?? 'Something went wrong';
+            createToast(message, 'error');
+        },
+        onSuccess: (response: { settings: AdminEditableSettings }) => {
+            closeModal();
+            createToast('Settings updated', 'success');
+            settingStore.setSettings(response.settings);
+        },
+    });
 };
 </script>
 
 <template>
-    <Form
-        v-slot="{ processing }"
-        v-bind="SettingController.update.form()"
+    <form
         class="flex flex-col gap-6 inert:pointer-events-none"
         autocomplete="off"
         novalidate
-        disable-while-processing
-        @success="handleSuccess"
+        :inert="form.processing"
+        @submit.prevent="handleSubmit"
     >
+        <CheckboxToggle v-model="form.registration" name="registration" label="Registration" />
         <CheckboxToggle
-            name="registration"
-            :value="settingStore.registration ?? false"
-            label="Registration"
-        />
-        <CheckboxToggle
+            v-model="form.auto_update_check"
             name="auto_update_check"
-            :value="settingStore.auto_update_check ?? false"
             label="Automatic update check"
         />
         <div class="flex justify-end gap-2 py-1">
             <SecondaryButton @click="closeModal">Cancel</SecondaryButton>
-            <Submit label="Save" :processing="processing" />
+            <Submit label="Save" :processing="form.processing" />
         </div>
-    </Form>
+    </form>
 </template>

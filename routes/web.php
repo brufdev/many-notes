@@ -43,7 +43,7 @@ Route::middleware('auth')->group(function (): void {
     Route::patch('password', [PasswordController::class, 'update'])->name('password.update');
 
     Route::middleware([EnsureUserIsAdmin::class])->group(function (): void {
-        Route::post('settings', [SettingController::class, 'update'])->name('settings.update');
+        Route::patch('settings', [SettingController::class, 'update'])->name('settings.update');
     });
 
     Route::post('logout', [LoginController::class, 'destroy'])->name('logout');

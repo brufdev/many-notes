@@ -14,7 +14,7 @@ it('updates the settings if the user is an admin', function (): void {
 
     $this->actingAs($user);
 
-    $response = $this->post(route('settings.update'), [
+    $response = $this->patch(route('settings.update'), [
         'registration' => false,
         'auto_update_check' => false,
     ]);
@@ -29,7 +29,7 @@ it('does not update the settings if the user is not an admin', function (): void
 
     $this->actingAs($user);
 
-    $response = $this->post(route('settings.update'), [
+    $response = $this->patch(route('settings.update'), [
         'registration' => true,
         'auto_update_check' => true,
     ]);

@@ -1,3 +1,5 @@
+import { Settings } from './settings';
+
 export interface AppPageProps {
     app?: {
         user?: User;
@@ -13,12 +15,6 @@ export interface User {
     name: string;
     email: string;
     role: string;
-}
-
-export interface Settings {
-    local_auth_enabled: boolean;
-    registration: boolean;
-    auto_update_check: boolean;
 }
 
 export interface Metadata {
