@@ -19,7 +19,7 @@ final class VaultNodeUpdatedEvent implements ShouldBroadcastNow
      * Create a new event instance.
      */
     public function __construct(
-        private VaultNode $node
+        private VaultNode $node,
     ) {
         //
     }
