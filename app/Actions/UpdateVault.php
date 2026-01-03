@@ -15,12 +15,12 @@ final readonly class UpdateVault
     /**
      * @param array{name?: string, templates_node_id?: int|null} $attributes
      */
-    public function handle(Vault $vault, array $attributes): void
+    public function handle(Vault $vault, array $attributes): Vault
     {
         $vault->update($attributes);
 
         if (!$vault->wasChanged('name')) {
-            return;
+            return $vault;
         }
 
         /** @var User $user */
@@ -43,5 +43,7 @@ final readonly class UpdateVault
         foreach ($collaborators as $collaborator) {
             broadcast(new VaultListUpdatedEvent($collaborator))->toOthers();
         }
+
+        return $vault;
     }
 }
