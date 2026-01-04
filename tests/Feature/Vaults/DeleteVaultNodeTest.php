@@ -2,14 +2,9 @@
 
 declare(strict_types=1);
 
-use App\Actions\AcceptCollaborationInvite;
-use App\Actions\CreateCollaborationInvite;
 use App\Actions\CreateVault;
 use App\Actions\CreateVaultNode;
-use App\Actions\DeclineCollaborationInvite;
-use App\Actions\GetPathFromVault;
 use App\Models\User;
-use Illuminate\Support\Facades\Storage;
 
 it('deletes a file', function (): void {
     $user = User::factory()->create();
@@ -66,7 +61,7 @@ it('deletes a folder and its children', function (): void {
 });
 
 it('does not delete a file without permissions', function (): void {
-    list($user1, $user2) = User::factory(2)->create();
+    [$user1, $user2] = User::factory(2)->create();
     $vault = new CreateVault()->handle($user1, [
         'name' => fake()->words(3, true),
     ]);
@@ -81,7 +76,8 @@ it('does not delete a file without permissions', function (): void {
         route('vaults.nodes.destroy', [
             'vault' => $vault->id,
             'node' => $file->id,
-        ]));
+        ]),
+    );
 
     $response->assertStatus(403);
     expect($vault->nodes()->count())->toBe(1);
