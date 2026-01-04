@@ -253,6 +253,41 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
         sortChildren(node.parent_id ?? 0);
     }
 
+    function handleNodesDeleted(nodeIds: number[]): void {
+        if (nodeIds.length === 0) {
+            return;
+        }
+
+        const tree = getActiveTree();
+        const rootNodeDeleted = tree.nodesById[nodeIds[0]];
+
+        if (!rootNodeDeleted) {
+            return;
+        }
+
+        const key = rootNodeDeleted.parent_id ?? 0;
+        const siblings = tree.childrenByParentId[key];
+
+        if (siblings) {
+            tree.childrenByParentId[key] = siblings.filter(id => id !== rootNodeDeleted.id);
+        }
+
+        for (const nodeId of nodeIds) {
+            const node = tree.nodesById[nodeId];
+
+            if (!node) {
+                continue;
+            }
+
+            tree.expandedFolderIds.delete(nodeId);
+            tree.loadedFolderIds.delete(nodeId);
+            tree.loadingNodeIds.delete(nodeId);
+
+            delete tree.childrenByParentId[nodeId];
+            delete tree.nodesById[nodeId];
+        }
+    }
+
     return {
         getActiveVaultId,
         initializeVaultTree,
@@ -276,5 +311,6 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
         handleFileOpened,
         handleNodeCreated,
         handleNodeUpdated,
+        handleNodesDeleted,
     };
 });

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Actions\CreateVaultNode;
+use App\Actions\DeleteVaultNode;
 use App\Actions\UpdateVaultNode;
 use App\Http\Requests\StoreVaultNodeRequest;
 use App\Http\Requests\UpdateVaultNodeRequest;
@@ -12,6 +13,7 @@ use App\Models\User;
 use App\Models\Vault;
 use App\Models\VaultNode;
 use App\ViewModels\VaultTreeNodeViewModel;
+use Exception;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 
@@ -62,6 +64,27 @@ final readonly class VaultNodeController
 
         return response()->json([
             'node' => VaultTreeNodeViewModel::fromModel($node)->toArray(),
+        ]);
+    }
+
+    public function destroy(
+        #[CurrentUser] User $user,
+        Vault $vault,
+        VaultNode $node,
+        DeleteVaultNode $deleteVaultNode,
+    ): JsonResponse {
+        if ($user->cannot('delete', $node)) {
+            abort(403);
+        }
+
+        try {
+            $deletedNodeIds = $deleteVaultNode->handle($node);
+        } catch (Exception $e) {
+            abort(500, $e->getMessage());
+        }
+
+        return response()->json([
+            'nodeIds' => $deletedNodeIds,
         ]);
     }
 }

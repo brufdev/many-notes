@@ -15,11 +15,7 @@ export function useVaultTreeActions() {
     const vaultTreeStore = useVaultTreeStore();
 
     function openFile(fileId: number): void {
-        const url = show.url({
-            vault: vaultTreeStore.getActiveVaultId(),
-        });
-
-        router.visit(url, {
+        router.visit(show.url({ vault: vaultTreeStore.getActiveVaultId() }), {
             method: 'get',
             data: {
                 file: fileId,
@@ -64,8 +60,19 @@ export function useVaultTreeActions() {
             });
     }
 
+    function handleNodesDeleted(nodeIds: number[]): void {
+        vaultTreeStore.handleNodesDeleted(nodeIds);
+
+        const selectedFileId = vaultTreeStore.getSelectedFileId();
+
+        if (selectedFileId !== null && nodeIds.includes(selectedFileId)) {
+            router.replace({ url: show.url({ vault: vaultTreeStore.getActiveVaultId() }) });
+        }
+    }
+
     return {
         openFile,
         setTemplateFolder,
+        handleNodesDeleted,
     };
 }

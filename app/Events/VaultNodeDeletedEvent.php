@@ -7,7 +7,7 @@ namespace App\Events;
 use App\Models\VaultNode;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 
 final class VaultNodeDeletedEvent implements ShouldBroadcastNow
@@ -16,9 +16,12 @@ final class VaultNodeDeletedEvent implements ShouldBroadcastNow
 
     /**
      * Create a new event instance.
+     *
+     * @param array<int> $nodeIds
      */
     public function __construct(
-        private VaultNode $node
+        private VaultNode $node,
+        private array $nodeIds,
     ) {
         //
     }
@@ -31,7 +34,17 @@ final class VaultNodeDeletedEvent implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new PresenceChannel('VaultNode.' . $this->node->id),
+            new PrivateChannel('Vault.' . $this->node->vault_id),
+        ];
+    }
+
+    /**
+     * @return array<string, array<int>>
+     */
+    public function broadcastWith(): array
+    {
+        return [
+            'nodeIds' => $this->nodeIds,
         ];
     }
 }

@@ -262,11 +262,11 @@ final class Show extends Component
         $this->authorize('delete', $node);
 
         try {
-            $deletedNodes = new DeleteVaultNode()->handle($node);
+            $deletedNodeIds = new DeleteVaultNode()->handle($node);
             $openFileDeleted = !is_null(
                 array_find(
-                    $deletedNodes,
-                    fn(VaultNode $node): bool => $node->id === $this->selectedFileId,
+                    $deletedNodeIds,
+                    fn(int $nodeId): bool => $nodeId === $this->selectedFileId,
                 )
             );
 

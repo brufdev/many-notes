@@ -14,14 +14,14 @@ use Throwable;
 final readonly class DeleteVaultNode
 {
     /**
-     * @return array<int, VaultNode>
+     * @return array<int>
      */
     public function handle(VaultNode $node, bool $deleteFromDisk = true): array
     {
         try {
             DB::beginTransaction();
 
-            $deletedNodes = $this->deleteFromDatabase($node);
+            $deletedNodeIds = $this->deleteFromDatabase($node);
 
             DB::commit();
         } catch (Throwable) {
@@ -34,24 +34,26 @@ final readonly class DeleteVaultNode
             $this->deleteFromDisk($node);
         }
 
-        return $deletedNodes;
+        broadcast(new VaultNodeDeletedEvent($node, $deletedNodeIds))->toOthers();
+
+        return $deletedNodeIds;
     }
 
     /**
      * Delete node from the database.
      *
-     * @return array<int, VaultNode>
+     * @return array<int>
      */
     private function deleteFromDatabase(VaultNode $node): array
     {
-        $deletedNodes = [$node];
+        $deletedNodeIds = [$node->id];
 
         if (!$node->is_file) {
             foreach ($node->children()->get() as $child) {
-                $deletedNodes = array_merge(
-                    $deletedNodes,
-                    $this->deleteFromDatabase($child),
-                );
+                $deletedNodeIds = [
+                    ...$deletedNodeIds,
+                    ...$this->deleteFromDatabase($child),
+                ];
             }
         }
 
@@ -60,11 +62,7 @@ final readonly class DeleteVaultNode
         $node->tags()->detach();
         $node->delete();
 
-        if ($node->is_file) {
-            broadcast(new VaultNodeDeletedEvent($node))->toOthers();
-        }
-
-        return $deletedNodes;
+        return $deletedNodeIds;
     }
 
     /**
