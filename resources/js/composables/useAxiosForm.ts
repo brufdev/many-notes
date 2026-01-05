@@ -12,6 +12,47 @@ type AxiosSend<TForm> = <TResponse = unknown>(options: {
     onFinish?: () => void;
 }) => void;
 
+function hasFiles(value: unknown): boolean {
+    if (value instanceof File || value instanceof Blob) {
+        return true;
+    }
+
+    if (Array.isArray(value)) {
+        return value.some(hasFiles);
+    }
+
+    if (typeof value === 'object' && value !== null) {
+        return Object.values(value).some(hasFiles);
+    }
+
+    return false;
+}
+
+function toFormData(
+    data: Record<string, unknown>,
+    formData = new FormData(),
+    parentKey?: string
+): FormData {
+    for (const key in data) {
+        const value = data[key];
+        const fullKey = parentKey ? `${parentKey}[${key}]` : key;
+
+        if (value instanceof File || value instanceof Blob) {
+            formData.append(fullKey, value);
+        } else if (Array.isArray(value)) {
+            value.forEach((v, index) => toFormData({ [index]: v }, formData, fullKey));
+        } else if (value !== null && typeof value === 'object') {
+            toFormData(value as Record<string, unknown>, formData, fullKey);
+        } else if (value === null) {
+            formData.append(fullKey, '');
+        } else if (value !== undefined) {
+            formData.append(fullKey, String(value));
+        }
+    }
+
+    return formData;
+}
+
 function normalizeErrors(errors: Record<string, string[]>): Record<string, string> {
     const result: Record<string, string> = {};
 
@@ -30,6 +71,10 @@ export function useAxiosForm<TForm extends FormDataType<TForm>>(
     const send: AxiosSend<TForm> = options => {
         const { url, method, data, axiosConfig, onSuccess, onError, onFinish } = options;
 
+        const payload = data ?? form.data();
+        const isMultipart = hasFiles(payload);
+        const requestData = isMultipart ? toFormData(payload as Record<string, unknown>) : payload;
+
         form.processing = true;
         form.clearErrors();
         form.recentlySuccessful = false;
@@ -37,7 +82,7 @@ export function useAxiosForm<TForm extends FormDataType<TForm>>(
         axios({
             method,
             url,
-            data: data ?? form.data(),
+            data: requestData,
             ...axiosConfig,
         })
             .then(response => {
