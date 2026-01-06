@@ -13,6 +13,4 @@ export interface VaultNode {
 export type VaultNodeTreeItem = Pick<
     VaultNode,
     'id' | 'parent_id' | 'type' | 'name' | 'extension'
-> & {
-    has_children: boolean;
-};
+>;

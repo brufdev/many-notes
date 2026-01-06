@@ -21,7 +21,6 @@ final readonly class VaultTreeNodeViewModel
         public string $type,
         public string $name,
         public ?string $extension,
-        public bool $has_children,
         public ?CarbonImmutable $updated_at,
     ) {
         //
@@ -44,7 +43,6 @@ final readonly class VaultTreeNodeViewModel
             $type->value,
             $node->name,
             $node->extension,
-            !$node->is_file && $node->children()->exists(),
             $node->updated_at,
         );
     }
@@ -60,8 +58,7 @@ final readonly class VaultTreeNodeViewModel
             'type' => $this->type,
             'name' => $this->name,
             'extension' => $this->extension,
-            'has_children' => $this->has_children,
-            'updated_at' => $this->updated_at, // ->getTimestamp()
+            'updated_at' => $this->updated_at,
         ];
     }
 }

@@ -226,14 +226,8 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
     function handleNodeCreated(node: VaultNodeTreeItem): void {
         const tree = getActiveTree();
 
-        if (node.parent_id !== null) {
-            if (node.parent_id in tree.nodesById) {
-                tree.nodesById[node.parent_id].has_children = true;
-            }
-
-            if (!tree.loadedFolderIds.has(node.parent_id)) {
-                return;
-            }
+        if (node.parent_id !== null && !tree.loadedFolderIds.has(node.parent_id)) {
+            return;
         }
 
         ensureNode(node);
