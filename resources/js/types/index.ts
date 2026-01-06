@@ -23,4 +23,6 @@ export interface Metadata {
     github_url: string;
     update_available: boolean;
     upload_max_filesize: string;
+    upload_max_filesize_bytes: number;
+    upload_allowed_extensions: string;
 }

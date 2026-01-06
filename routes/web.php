@@ -16,6 +16,7 @@ use App\Http\Controllers\VaultController;
 use App\Http\Controllers\VaultExportController;
 use App\Http\Controllers\VaultImportController;
 use App\Http\Controllers\VaultNodeController;
+use App\Http\Controllers\VaultNodeImportController;
 use App\Http\Controllers\VaultTemplatesNodeController;
 use App\Http\Middleware\EnsureEmailIsConfigured;
 use App\Http\Middleware\EnsureRegistrationIsEnabled;
@@ -32,6 +33,8 @@ Route::middleware('auth')->group(function (): void {
     Route::prefix('vaults')->group(function (): void {
         Route::post('/import', VaultImportController::class)->name('vaults.import');
         Route::get('/{vault}/export', VaultExportController::class)->name('vaults.export');
+
+        Route::post('/{vault}/import', VaultNodeImportController::class)->name('vaults.nodes.import');
 
         Route::patch('/{vault}/templates-node', VaultTemplatesNodeController::class)
             ->name('vaults.templates-node');

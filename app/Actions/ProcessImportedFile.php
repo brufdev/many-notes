@@ -12,10 +12,13 @@ use Illuminate\Support\Facades\Storage;
 
 final readonly class ProcessImportedFile
 {
-    public function handle(Vault $vault, VaultNode $parent, string $fileName, string $filePath): void
+    public function handle(Vault $vault, ?VaultNode $parent, string $fileName, string $filePath): VaultNode
     {
+        $createVaultNode = app(CreateVaultNode::class);
+        $getPathFromVaultNode = app(GetPathFromVaultNode::class);
+
         $attributes = [
-            'parent_id' => $parent->id,
+            'parent_id' => $parent?->id,
             'is_file' => true,
         ];
         $pathInfo = pathinfo($fileName);
@@ -28,14 +31,16 @@ final readonly class ProcessImportedFile
             $attributes['content'] = (string) file_get_contents($filePath);
         }
 
-        $node = new CreateVaultNode()->handle($vault, $attributes);
+        $node = $createVaultNode->handle($vault, $attributes);
 
         if ($node->extension !== 'md') {
-            $relativePath = new GetPathFromVaultNode()->handle($node);
+            $relativePath = $getPathFromVaultNode->handle($node);
             $pathInfo = pathinfo($relativePath);
             $savePath = $pathInfo['dirname'] ?? '';
             $saveName = $pathInfo['basename'];
             Storage::putFileAs($savePath, new File($filePath), $saveName);
         }
+
+        return $node;
     }
 }
