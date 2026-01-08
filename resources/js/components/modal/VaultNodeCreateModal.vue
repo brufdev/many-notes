@@ -46,7 +46,7 @@ const handleSubmit = () => {
             closeModal();
             const message = props.isFile ? 'File created' : 'Folder created';
             createToast(message, 'success');
-            vaultTreeStore.handleNodeCreated(response.node);
+            vaultTreeStore.handleNodeSaved(response.node);
 
             if (props.isFile) {
                 vaultTreeActions.openFile(response.node.id);

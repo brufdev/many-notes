@@ -223,19 +223,7 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
         setAncestorsChildren(ancestorsChildren);
     }
 
-    function handleNodeCreated(node: VaultNodeTreeItem): void {
-        const tree = getActiveTree();
-
-        if (node.parent_id !== null && !tree.loadedFolderIds.has(node.parent_id)) {
-            return;
-        }
-
-        ensureNode(node);
-
-        sortChildren(node.parent_id ?? 0);
-    }
-
-    function handleNodeUpdated(node: VaultNodeTreeItem): void {
+    function handleNodeSaved(node: VaultNodeTreeItem): void {
         const tree = getActiveTree();
 
         if (node.parent_id !== null && !tree.loadedFolderIds.has(node.parent_id)) {
@@ -303,8 +291,7 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
         expandParents,
         sortChildren,
         handleFileOpened,
-        handleNodeCreated,
-        handleNodeUpdated,
+        handleNodeSaved,
         handleNodesDeleted,
     };
 });

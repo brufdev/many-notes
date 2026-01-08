@@ -39,7 +39,7 @@ const handleSubmit = () => {
             closeModal();
             const message = props.isFile ? 'File updated' : 'Folder updated';
             createToast(message, 'success');
-            vaultTreeStore.handleNodeUpdated(response.node);
+            vaultTreeStore.handleNodeSaved(response.node);
         },
     });
 };
