@@ -15,6 +15,7 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\VaultController;
 use App\Http\Controllers\VaultExportController;
 use App\Http\Controllers\VaultImportController;
+use App\Http\Controllers\VaultNodeChildrenController;
 use App\Http\Controllers\VaultNodeController;
 use App\Http\Controllers\VaultNodeImportController;
 use App\Http\Controllers\VaultTemplatesNodeController;
@@ -43,6 +44,12 @@ Route::middleware('auth')->group(function (): void {
     Route::resource('vaults.nodes', VaultNodeController::class)->only([
         'store', 'update', 'destroy',
     ]);
+
+    Route::prefix('vaults/{vault}/nodes/{node}')->group(function (): void {
+        Route::get('children', VaultNodeChildrenController::class)
+            ->scopeBindings()
+            ->name('vaults.nodes.children');
+    });
 
     Route::get('files/{vault}', [FileController::class, 'show'])->name('files.show');
 

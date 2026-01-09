@@ -1,4 +1,5 @@
 import { show, templatesNode } from '@/routes/vaults';
+import { children } from '@/routes/vaults/nodes';
 import { useVaultStore } from '@/stores/vault';
 import { useVaultTreeStore } from '@/stores/vaultTree';
 import { Vault } from '@/types/vault';
@@ -30,6 +31,35 @@ export function useVaultTreeActions() {
                 );
             },
         });
+    }
+
+    function fetchChildren(
+        parentId: number | null,
+        onSuccess?: (response: AxiosResponse) => void,
+        onError?: (error: AxiosError) => void
+    ): void {
+        const key = parentId ?? 0;
+        const url = children.url({ vault: vaultTreeStore.getActiveVaultId(), node: key });
+
+        if (vaultTreeStore.isFolderLoading(key)) {
+            return;
+        }
+
+        vaultTreeStore.startLoadingFolder(key);
+
+        axios({
+            url: url,
+            method: 'get',
+        })
+            .then((response: AxiosResponse) => {
+                onSuccess?.(response);
+            })
+            .catch((error: AxiosError) => {
+                onError?.(error);
+            })
+            .finally(() => {
+                vaultTreeStore.finishLoadingFolder(key);
+            });
     }
 
     function setTemplateFolder(nodeId: number): void {
@@ -72,6 +102,7 @@ export function useVaultTreeActions() {
 
     return {
         openFile,
+        fetchChildren,
         setTemplateFolder,
         handleNodesDeleted,
     };
