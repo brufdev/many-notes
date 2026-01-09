@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use App\Models\User;
 use App\Actions\CreateVault;
 use App\Actions\CreateVaultNode;
+use App\Models\User;
 
 it('lists the children of a folder', function (): void {
     $user = User::factory()->create();
