@@ -18,6 +18,7 @@ use App\Http\Controllers\VaultImportController;
 use App\Http\Controllers\VaultNodeChildrenController;
 use App\Http\Controllers\VaultNodeController;
 use App\Http\Controllers\VaultNodeImportController;
+use App\Http\Controllers\VaultNodeMoveController;
 use App\Http\Controllers\VaultTemplatesNodeController;
 use App\Http\Middleware\EnsureEmailIsConfigured;
 use App\Http\Middleware\EnsureRegistrationIsEnabled;
@@ -49,6 +50,10 @@ Route::middleware('auth')->group(function (): void {
         Route::get('children', VaultNodeChildrenController::class)
             ->scopeBindings()
             ->name('vaults.nodes.children');
+
+        Route::patch('move', VaultNodeMoveController::class)
+            ->scopeBindings()
+            ->name('vaults.nodes.move');
     });
 
     Route::get('files/{vault}', [FileController::class, 'show'])->name('files.show');

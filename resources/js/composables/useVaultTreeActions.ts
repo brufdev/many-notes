@@ -1,5 +1,5 @@
 import { show, templatesNode } from '@/routes/vaults';
-import { children } from '@/routes/vaults/nodes';
+import { children, move } from '@/routes/vaults/nodes';
 import { useVaultStore } from '@/stores/vault';
 import { useVaultTreeStore } from '@/stores/vaultTree';
 import { Vault } from '@/types/vault';
@@ -62,6 +62,43 @@ export function useVaultTreeActions() {
             });
     }
 
+    function moveNode(nodeId: number, newParentId: number | null): void {
+        const node = vaultTreeStore.getNodeById(nodeId);
+
+        if (!node) {
+            createToast('Something went wrong', 'error');
+
+            return;
+        }
+
+        if (node.parent_id === newParentId) {
+            return;
+        }
+
+        const oldParentId = node.parent_id;
+        const url = move.url({
+            vault: vaultTreeStore.getActiveVaultId(),
+            node: nodeId,
+        });
+
+        axios({
+            url: url,
+            method: 'patch',
+            data: {
+                parent_id: newParentId,
+            },
+        })
+            .then(() => {
+                const message = node.type === 'folder' ? 'Folder moved' : 'File moved';
+                createToast(message, 'success');
+                handleNodeMoved(nodeId, oldParentId, newParentId);
+            })
+            .catch((error: AxiosError) => {
+                createToast(error.response?.statusText ?? 'Something went wrong', 'error');
+            })
+            .finally(() => {});
+    }
+
     function setTemplateFolder(nodeId: number): void {
         const url = templatesNode.url({ vault: vaultTreeStore.getActiveVaultId() });
 
@@ -100,10 +137,37 @@ export function useVaultTreeActions() {
         }
     }
 
+    function handleNodeMoved(
+        nodeId: number,
+        oldParentId: number | null,
+        newParentId: number | null
+    ): void {
+        const selectedFileId = vaultTreeStore.getSelectedFileId();
+
+        vaultTreeStore.handleNodeMoved(nodeId, oldParentId, newParentId);
+
+        if (
+            selectedFileId !== null &&
+            newParentId !== null &&
+            vaultTreeStore.isNodeInSubtree(selectedFileId, nodeId) &&
+            !vaultTreeStore.isFolderLoaded(newParentId)
+        ) {
+            router.reload({
+                only: ['ancestors', 'ancestorsChildren'],
+                onSuccess: () => {
+                    vaultTreeStore.setAncestors(page.props.ancestors ?? []);
+                    vaultTreeStore.setAncestorsChildren(page.props.ancestorsChildren ?? {});
+                },
+            });
+        }
+    }
+
     return {
         openFile,
         fetchChildren,
+        moveNode,
         setTemplateFolder,
         handleNodesDeleted,
+        handleNodeMoved,
     };
 }

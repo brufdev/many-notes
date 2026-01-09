@@ -270,6 +270,35 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
         }
     }
 
+    function handleNodeMoved(
+        nodeId: number,
+        oldParentId: number | null,
+        newParentId: number | null
+    ): void {
+        const tree = getActiveTree();
+        const node = getNodeById(nodeId);
+
+        if (!node) {
+            return;
+        }
+
+        const oldParentIdValue = oldParentId ?? 0;
+        const newParentIdValue = newParentId ?? 0;
+        const siblings = tree.childrenByParentId[oldParentIdValue];
+
+        if (siblings) {
+            tree.childrenByParentId[oldParentIdValue] = siblings.filter(id => id !== nodeId);
+        }
+
+        node.parent_id = newParentId;
+
+        if (newParentId === null || isFolderLoaded(newParentIdValue)) {
+            ensureNode(node);
+
+            sortChildren(newParentIdValue);
+        }
+    }
+
     return {
         getActiveVaultId,
         initializeVaultTree,
@@ -293,5 +322,6 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
         handleFileOpened,
         handleNodeSaved,
         handleNodesDeleted,
+        handleNodeMoved,
     };
 });
