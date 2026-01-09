@@ -97,7 +97,7 @@ const handleSubmit = () => {
             createToast(`${response.files.length} ${message}`, 'success');
 
             for (const file of response.files) {
-                vaultTreeStore.handleNodeCreated(file);
+                vaultTreeStore.handleNodeSaved(file);
             }
         },
     });
