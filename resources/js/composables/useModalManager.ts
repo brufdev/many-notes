@@ -1,23 +1,27 @@
-import { Component, markRaw, shallowRef } from 'vue';
+import { Component, computed, markRaw, ref } from 'vue';
 
 interface ModalEntry {
     component: Component;
     props?: Record<string, unknown>;
 }
 
-const activeModal = shallowRef<ModalEntry | null>(null);
+const modalStack = ref<ModalEntry[]>([]);
 
 export function useModalManager() {
     function openModal(component: Component, props?: Record<string, unknown>) {
-        activeModal.value = {
+        modalStack.value.push({
             component: markRaw(component),
             props,
-        };
+        });
     }
 
     function closeModal() {
-        activeModal.value = null;
+        modalStack.value.pop();
     }
 
-    return { activeModal, openModal, closeModal };
+    const activeModal = computed(() => {
+        return modalStack.value.at(-1) ?? null;
+    });
+
+    return { modalStack, activeModal, openModal, closeModal };
 }

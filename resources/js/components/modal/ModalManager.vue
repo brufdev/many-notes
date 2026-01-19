@@ -2,10 +2,9 @@
 import BaseButton from '@/components/ui/BaseButton.vue';
 import { useModalManager } from '@/composables/useModalManager';
 import XMark from '@/icons/XMark.vue';
-import { computed, nextTick, ref, watch } from 'vue';
+import { nextTick, ref, watch } from 'vue';
 
-const modalManager = useModalManager();
-const activeModal = computed(() => modalManager.activeModal.value);
+const { activeModal, closeModal } = useModalManager();
 const modalContainer = ref<HTMLElement | null>(null);
 
 function trapFocus(event: KeyboardEvent) {
@@ -51,7 +50,7 @@ function trapFocus(event: KeyboardEvent) {
 
 function handleKeyDown(event: KeyboardEvent) {
     if (event.key === 'Escape') {
-        modalManager.closeModal();
+        closeModal();
     } else if (event.key === 'Tab') {
         trapFocus(event);
     }
@@ -96,7 +95,7 @@ watch(activeModal, async modal => {
                         'fixed inset-0 z-50 flex justify-center sm:py-5',
                         activeModal.props?.top ? 'items-start' : 'items-end sm:items-center',
                     ]"
-                    @click.self="modalManager.closeModal"
+                    @click.self="closeModal"
                 >
                     <div
                         ref="modalContainer"
@@ -109,11 +108,7 @@ watch(activeModal, async modal => {
                             <h3 class="text-lg">
                                 {{ activeModal.props?.title }}
                             </h3>
-                            <BaseButton
-                                class="px-1"
-                                aria-label="Close"
-                                @click="modalManager.closeModal"
-                            >
+                            <BaseButton class="px-1" aria-label="Close" @click="closeModal">
                                 <XMark class="h-5 w-5" aria-hidden="true" />
                             </BaseButton>
                         </div>
@@ -121,7 +116,7 @@ watch(activeModal, async modal => {
                             <component
                                 :is="activeModal.component"
                                 v-bind="activeModal.props"
-                                @close="modalManager.closeModal"
+                                @close="closeModal"
                             />
                         </div>
                     </div>
