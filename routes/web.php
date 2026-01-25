@@ -26,34 +26,34 @@ use App\Http\Middleware\EnsureUserIsAdmin;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function (): void {
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
+    Route::get('', [DashboardController::class, 'index'])->name('dashboard.index');
 
-    Route::resource('vaults', VaultController::class)->only([
-        'index', 'store', 'show', 'update', 'destroy',
-    ]);
+    Route::prefix('vaults')->name('vaults.')->group(function (): void {
+        Route::get('', [VaultController::class, 'index'])->name('index');
+        Route::post('', [VaultController::class, 'store'])->name('store');
 
-    Route::prefix('vaults')->group(function (): void {
-        Route::post('/import', VaultImportController::class)->name('vaults.import');
-        Route::get('/{vault}/export', VaultExportController::class)->name('vaults.export');
+        Route::prefix('{vault}')->group(function (): void {
+            Route::get('', [VaultController::class, 'show'])->name('show');
+            Route::patch('', [VaultController::class, 'update'])->name('update');
+            Route::delete('', [VaultController::class, 'destroy'])->name('destroy');
+            Route::get('export', VaultExportController::class)->name('export');
+            Route::patch('templates-node', VaultTemplatesNodeController::class)->name('templates-node');
+        });
 
-        Route::post('/{vault}/import', VaultNodeImportController::class)->name('vaults.nodes.import');
-
-        Route::patch('/{vault}/templates-node', VaultTemplatesNodeController::class)
-            ->name('vaults.templates-node');
+        Route::post('import', VaultImportController::class)->name('import');
     });
 
-    Route::resource('vaults.nodes', VaultNodeController::class)->only([
-        'store', 'update', 'destroy',
-    ]);
+    Route::prefix('vaults/{vault}')->name('vaults.nodes.')->group(function (): void {
+        Route::post('nodes', [VaultNodeController::class, 'store'])->name('store');
 
-    Route::prefix('vaults/{vault}/nodes/{node}')->group(function (): void {
-        Route::get('children', VaultNodeChildrenController::class)
-            ->scopeBindings()
-            ->name('vaults.nodes.children');
+        Route::prefix('nodes/{node}')->group(function (): void {
+            Route::patch('', [VaultNodeController::class, 'update'])->name('update');
+            Route::delete('', [VaultNodeController::class, 'destroy'])->name('destroy');
+            Route::get('children', VaultNodeChildrenController::class)->name('children');
+            Route::patch('move', VaultNodeMoveController::class)->name('move');
+        })->scopeBindings();
 
-        Route::patch('move', VaultNodeMoveController::class)
-            ->scopeBindings()
-            ->name('vaults.nodes.move');
+        Route::post('import', VaultNodeImportController::class)->name('import');
     });
 
     Route::get('files/{vault}', [FileController::class, 'show'])->name('files.show');
