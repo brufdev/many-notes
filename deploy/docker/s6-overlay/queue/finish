@@ -1,0 +1,2 @@
+#!/command/execlineb -P
+echo "Queue process exited with status $1"
