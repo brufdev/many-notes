@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Models\User;
 use App\Models\Vault;
 
-test('to array', function (): void {
+it('has valid schema', function (): void {
     $user = User::factory()->create()->refresh();
 
     expect(array_keys($user->toArray()))

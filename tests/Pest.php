@@ -24,7 +24,7 @@ pest()->extend(TestCase::class)
         $this->freezeTime();
         config()->set('settings.local_auth.enabled', true);
     })
-    ->in('Browser', 'Feature', 'Unit');
+    ->in('Browser', 'Feature', 'Integration');
 
 /*
 |--------------------------------------------------------------------------

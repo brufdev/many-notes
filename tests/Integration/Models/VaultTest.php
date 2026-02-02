@@ -6,7 +6,7 @@ use App\Models\User;
 use App\Models\Vault;
 use App\Models\VaultNode;
 
-test('to array', function (): void {
+it('has valid schema', function (): void {
     $vault = Vault::factory()->create()->refresh();
 
     expect(array_keys($vault->toArray()))
