@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Scout\Searchable;
+use Override;
 use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
 
 final class VaultNode extends Model
@@ -86,6 +87,7 @@ final class VaultNode extends Model
     }
 
     /** @return array<string, string> */
+    #[Override]
     protected function casts(): array
     {
         return [

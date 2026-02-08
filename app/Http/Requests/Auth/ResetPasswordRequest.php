@@ -6,6 +6,7 @@ namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
+use Override;
 
 final class ResetPasswordRequest extends FormRequest
 {
@@ -32,6 +33,7 @@ final class ResetPasswordRequest extends FormRequest
         ];
     }
 
+    #[Override]
     protected function prepareForValidation(): void
     {
         $this->merge([

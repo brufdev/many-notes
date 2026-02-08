@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Override;
 
 /**
  * @property UserRole $role
@@ -34,7 +35,11 @@ final class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        return $this->isSuperAdmin() || $this->role === UserRole::ADMIN;
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        return $this->role === UserRole::ADMIN;
     }
 
     /** @return HasMany<SocialAccount, $this> */
@@ -56,6 +61,7 @@ final class User extends Authenticatable
     }
 
     /** @return array<string, string> */
+    #[Override]
     protected function casts(): array
     {
         return [

@@ -56,7 +56,7 @@ it('updates the user name and email when local authentication is disabled', func
 });
 
 it('ignores disabled local authentication if post_logout_redirect_uri is missing', function (): void {
-    config()->set('services.github.post_logout_redirect_uri', null);
+    config()->set('services.github.post_logout_redirect_uri');
 
     $response = $this->get(route('login'));
 
