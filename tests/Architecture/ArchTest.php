@@ -24,7 +24,6 @@ arch('avoid mutation')
         'App\Http\Requests',
         'App\Http\Resources',
         'App\Jobs',
-        'App\Livewire',
         'App\Models',
         'App\Notifications',
         'App\Providers',
@@ -42,7 +41,6 @@ arch('avoid inheritance')
         'App\Http\Requests',
         'App\Http\Resources',
         'App\Jobs',
-        'App\Livewire',
         'App\Models',
         'App\Notifications',
         'App\Providers',
@@ -52,10 +50,7 @@ arch('avoid inheritance')
 arch('avoid open for extension')
     ->expect('App')
     ->classes()
-    ->toBeFinal()
-    ->ignoring([
-        'App\Livewire',
-    ]);
+    ->toBeFinal();
 
 arch('avoid abstraction')
     ->expect('App')
@@ -81,7 +76,6 @@ arch('models')
         'App\Events',
         'App\Http',
         'App\Jobs',
-        'App\Livewire',
         'App\Models',
         'App\Notifications',
         'App\Observers',

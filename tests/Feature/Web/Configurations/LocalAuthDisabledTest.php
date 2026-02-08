@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 use App\Actions\GetAvailableOAuthProviders;
 use App\Enums\OAuthProvider;
-use App\Livewire\Layout\UserMenu;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Contracts\Provider;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as SocialiteUser;
-use Livewire\Livewire;
 
 beforeEach(function (): void {
     config()->set('settings.local_auth.enabled', false);
@@ -87,23 +84,6 @@ it('does not allow to edit the profile', function (): void {
     ]);
 
     $response->assertStatus(403);
-});
-
-it('does not allow to edit the password', function (): void {
-    $password = Hash::make('password');
-    $user = User::factory()->create([
-        'password' => $password,
-    ]);
-    expect($user->password)->toBe($password);
-
-    Livewire::actingAs($user)
-        ->test(UserMenu::class)
-        ->set('passwordForm.current_password', 'password')
-        ->set('passwordForm.password', 'newpassword')
-        ->set('passwordForm.password_confirmation', 'newpassword')
-        ->call('editPassword');
-
-    expect($user->refresh()->password)->toBe($password);
 });
 
 it('logouts the user and redirects to the post_logout_redirect_uri', function (): void {
