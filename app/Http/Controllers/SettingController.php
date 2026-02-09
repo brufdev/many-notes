@@ -13,8 +13,11 @@ final readonly class SettingController
 {
     public function update(Request $request, Setting $setting): JsonResponse
     {
-        $setting->registration = $request->boolean('registration');
-        $setting->auto_update_check = $request->boolean('auto_update_check');
+        $setting->update([
+            'registration' => $request->boolean('registration'),
+            'auto_update_check' => $request->boolean('auto_update_check'),
+        ]);
+
         $setting->save();
 
         return response()->json([

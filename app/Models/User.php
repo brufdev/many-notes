@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\UserRole;
+use Carbon\CarbonImmutable;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,7 +16,19 @@ use Illuminate\Notifications\Notifiable;
 use Override;
 
 /**
- * @property UserRole $role
+ * @property-read int $id
+ * @property-read string $name
+ * @property-read string $email
+ * @property-read CarbonImmutable|null $email_verified_at
+ * @property-read string $password
+ * @property-read string|null $remember_token
+ * @property-read CarbonImmutable $created_at
+ * @property-read CarbonImmutable $updated_at
+ * @property-read string|null $last_visited_url
+ * @property-read UserRole $role
+ * @property-read Collection<int, SocialAccount> $socialAccounts
+ * @property-read Collection<int, Vault> $vaults
+ * @property-read Collection<int, VaultCollaborator> $collaborations
  */
 final class User extends Authenticatable
 {
@@ -60,7 +74,6 @@ final class User extends Authenticatable
         return $this->belongsToMany(Vault::class)->withPivot('accepted');
     }
 
-    /** @return array<string, string> */
     #[Override]
     protected function casts(): array
     {

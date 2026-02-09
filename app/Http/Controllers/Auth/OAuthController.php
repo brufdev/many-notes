@@ -118,8 +118,11 @@ final readonly class OAuthController
         $user = $socialAccount->user;
 
         if (!$isLocalAuthEnabled->handle()) {
-            $user->name = $userName;
-            $user->email = $userEmail;
+            $user->update([
+                'name' => $userName,
+                'email' => $userEmail,
+            ]);
+
             $user->save();
         }
 

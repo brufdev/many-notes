@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Carbon\CarbonImmutable;
 use Database\Factories\VaultNodeFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,6 +16,22 @@ use Laravel\Scout\Searchable;
 use Override;
 use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
 
+/**
+ * @property-read int $id
+ * @property-read int $vault_id
+ * @property-read int $parent_id
+ * @property-read bool $is_file
+ * @property-read string $name
+ * @property-read string $extension
+ * @property-read string|null $content
+ * @property-read CarbonImmutable $created_at
+ * @property-read CarbonImmutable $updated_at
+ * @property-read Vault $vault
+ * @property-read Collection<int, VaultNode> $childs
+ * @property-read Collection<int, VaultNode> $links
+ * @property-read Collection<int, VaultNode> $backlinks
+ * @property-read Collection<int, Tag> $tags
+ */
 final class VaultNode extends Model
 {
     /** @use HasFactory<VaultNodeFactory> */
@@ -69,15 +86,12 @@ final class VaultNode extends Model
     /** @return array<string, mixed> */
     public function toSearchableArray(): array
     {
-        /** @var CarbonImmutable $updatedAt */
-        $updatedAt = $this->updated_at;
-
         return [
             'id' => (string) $this->id,
             'vault_id' => (string) $this->vault_id,
             'name' => $this->name,
             'content' => (string) $this->content,
-            'updated_at' => $updatedAt->timestamp,
+            'updated_at' => $this->updated_at->timestamp,
         ];
     }
 
@@ -86,7 +100,6 @@ final class VaultNode extends Model
         return (bool) $this->is_file;
     }
 
-    /** @return array<string, string> */
     #[Override]
     protected function casts(): array
     {

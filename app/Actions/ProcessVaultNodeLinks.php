@@ -28,7 +28,7 @@ final readonly class ProcessVaultNodeLinks
             \)                                 # Match closing parenthesis ")"
             /xi
         REGEX;
-        preg_match_all($pattern, $node->content, $matches, PREG_OFFSET_CAPTURE);
+        preg_match_all($pattern, (string) $node->content, $matches, PREG_OFFSET_CAPTURE);
 
         if ($matches[1] === []) {
             return;
