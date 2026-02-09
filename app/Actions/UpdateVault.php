@@ -6,7 +6,6 @@ namespace App\Actions;
 
 use App\Events\VaultListUpdatedEvent;
 use App\Events\VaultUpdatedEvent;
-use App\Models\User;
 use App\Models\Vault;
 use Illuminate\Support\Facades\Storage;
 
@@ -23,14 +22,12 @@ final readonly class UpdateVault
             return $vault;
         }
 
-        /** @var User $user */
-        $user = $vault->user;
         $collaborators = $vault->collaborators()->get();
 
         /** @var string $previousName */
         $previousName = $vault->getPrevious()['name'];
 
-        $relativePath = app(GetPathFromUser::class)->handle($user);
+        $relativePath = app(GetPathFromUser::class)->handle($vault->user);
         Storage::disk('local')->move(
             $relativePath . $previousName,
             $relativePath . $vault->name,
@@ -38,7 +35,7 @@ final readonly class UpdateVault
 
         // Broadcast events
         broadcast(new VaultUpdatedEvent($vault));
-        broadcast(new VaultListUpdatedEvent($user))->toOthers();
+        broadcast(new VaultListUpdatedEvent($vault->user))->toOthers();
 
         foreach ($collaborators as $collaborator) {
             broadcast(new VaultListUpdatedEvent($collaborator))->toOthers();

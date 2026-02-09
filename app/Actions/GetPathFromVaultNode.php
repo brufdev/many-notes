@@ -4,18 +4,13 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
-use App\Models\User;
-use App\Models\Vault;
 use App\Models\VaultNode;
 
 final readonly class GetPathFromVaultNode
 {
     public function handle(VaultNode $node, bool $includeSelf = true): string
     {
-        /** @var Vault $vault */
-        $vault = $node->load(['vault', 'parent'])->vault;
-        /** @var User $user */
-        $user = $vault->user()->first();
+        $vault = $node->loadMissing(['vault', 'parent'])->vault;
         $relativePath = '';
 
         if ($node->parent) {
@@ -30,7 +25,7 @@ final readonly class GetPathFromVaultNode
 
         $path = sprintf(
             'private/vaults/%u/%s/%s',
-            $user->id,
+            $vault->user->id,
             $vault->name,
             $relativePath,
         );

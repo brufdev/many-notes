@@ -6,7 +6,6 @@ namespace App\Actions;
 
 use App\Events\VaultDeletedEvent;
 use App\Events\VaultListUpdatedEvent;
-use App\Models\User;
 use App\Models\Vault;
 use App\Notifications\CollaborationAccepted;
 use App\Notifications\CollaborationDeclined;
@@ -21,8 +20,6 @@ final readonly class DeleteVault
 {
     public function handle(Vault $vault): void
     {
-        /** @var User $user */
-        $user = $vault->user;
         $collaborators = $vault->collaborators()->get();
 
         try {
@@ -60,7 +57,7 @@ final readonly class DeleteVault
         $this->deleteFromDisk($vault);
 
         // Broadcast events
-        broadcast(new VaultListUpdatedEvent($user))->toOthers();
+        broadcast(new VaultListUpdatedEvent($vault->user))->toOthers();
 
         foreach ($collaborators as $collaborator) {
             broadcast(new VaultListUpdatedEvent($collaborator))->toOthers();
@@ -89,9 +86,7 @@ final readonly class DeleteVault
      */
     private function deleteFromDisk(Vault $vault): void
     {
-        /** @var User $user */
-        $user = $vault->user()->first();
-        $vaultPath = app(GetPathFromUser::class)->handle($user) . $vault->name;
+        $vaultPath = app(GetPathFromUser::class)->handle($vault->user) . $vault->name;
 
         if (!Storage::disk('local')->exists($vaultPath)) {
             return;
