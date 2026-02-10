@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
@@ -57,6 +58,9 @@ Route::middleware('auth')->group(function (): void {
     });
 
     Route::get('files/{vault}', [FileController::class, 'show'])->name('files.show');
+
+    Route::delete('notifications/{notification}', [NotificationController::class, 'destroy'])
+        ->name('notifications.destroy');
 
     Route::patch('profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('password', [PasswordController::class, 'update'])->name('password.update');
