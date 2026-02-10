@@ -3,9 +3,30 @@ import ModalManager from '@/components/modal/ModalManager.vue';
 import Toast from '@/components/toast/Toast.vue';
 import Spinner from '@/icons/Spinner.vue';
 import { useLayoutStore } from '@/stores/layout';
+import { useNotificationStore } from '@/stores/notification';
+import { AppNotification, AppPageProps } from '@/types';
+import { usePage } from '@inertiajs/vue3';
+import { useEcho, useEchoNotification } from '@laravel/echo-vue';
+import { computed } from 'vue';
 import AppLayout from './AppLayout.vue';
 
+const page = usePage<AppPageProps>();
 const layoutStore = useLayoutStore();
+const notificationStore = useNotificationStore();
+
+const userId = computed(() => page.props.app?.user?.id ?? 0);
+
+useEchoNotification<{ data: AppNotification }>(`User.${userId.value}`, ({ data }) => {
+    notificationStore.addNotification(data);
+});
+
+useEcho<{ data: { notification_id: string } }>(
+    `User.${userId.value}`,
+    'NotificationDeletedEvent',
+    ({ data }) => {
+        notificationStore.removeNotification(data.notification_id);
+    }
+);
 </script>
 
 <template>

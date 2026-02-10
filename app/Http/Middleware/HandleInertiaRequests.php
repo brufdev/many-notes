@@ -8,6 +8,7 @@ use App\Actions\IsLocalAuthEnabled;
 use App\Models\Setting;
 use App\Services\VaultFile;
 use App\Support\AppMetadata;
+use App\ViewModels\NotificationViewModelResolver;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Override;
@@ -75,6 +76,13 @@ final class HandleInertiaRequests extends Middleware
                     'upload_max_filesize_bytes' => ini_parse_quantity($uploadMaxFilesize),
                     'upload_allowed_extensions' => implode(',', VaultFile::extensions(true)),
                 ],
+                'notifications' => fn(): ?array => $user
+                    ? $user->notifications()
+                        ->latest()
+                        ->get()
+                        ->map(NotificationViewModelResolver::resolve(...))
+                        ->toArray()
+                    : null,
             ],
         ];
     }

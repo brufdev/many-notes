@@ -5,6 +5,7 @@ export interface AppPageProps {
         user?: User;
         settings?: Settings;
         metadata?: Metadata;
+        notifications?: AppNotification[];
     };
 
     [key: string]: any;
@@ -25,4 +26,10 @@ export interface Metadata {
     upload_max_filesize: string;
     upload_max_filesize_bytes: number;
     upload_allowed_extensions: string;
+}
+
+export interface AppNotification<T = Record<string, unknown>> {
+    id: string;
+    type: string;
+    data: T;
 }

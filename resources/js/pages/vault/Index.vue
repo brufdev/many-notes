@@ -2,6 +2,7 @@
 import VaultController from '@/actions/App/Http/Controllers/VaultController';
 import Menu from '@/components/menu/Menu.vue';
 import MenuItem from '@/components/menu/MenuItem.vue';
+import NotificationMenu from '@/components/menu/NotificationMenu.vue';
 import UserMenu from '@/components/menu/UserMenu.vue';
 import ConfirmationModal from '@/components/modal/ConfirmationModal.vue';
 import VaultCreateModal from '@/components/modal/VaultCreateModal.vue';
@@ -80,6 +81,8 @@ useEcho(`User.${userId.value}`, 'VaultListUpdatedEvent', () => {
             <div class="flex items-center gap-3"></div>
 
             <div class="flex items-center gap-3">
+                <NotificationMenu />
+
                 <UserMenu />
             </div>
         </template>

@@ -74,6 +74,11 @@ final class User extends Authenticatable
         return $this->belongsToMany(Vault::class)->withPivot('accepted');
     }
 
+    public function receivesBroadcastNotificationsOn(): string
+    {
+        return 'User.' . $this->id;
+    }
+
     #[Override]
     protected function casts(): array
     {
