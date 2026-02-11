@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use App\Actions\AcceptCollaborationInvite;
-use App\Actions\CreateCollaborationInvite;
 use App\Actions\CreateVault;
+use App\Actions\CreateVaultCollaboration;
 use App\Actions\CreateVaultNode;
 use App\Actions\DeclineCollaborationInvite;
 use App\Actions\GetPathFromVault;
@@ -12,7 +12,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 
 it('deletes a vault with invites, collaborators and related notifications', function (): void {
-    $createCollaborationInvite = new CreateCollaborationInvite();
+    $createVaultCollaboration = new CreateVaultCollaboration();
     $acceptCollaborationInvite = new AcceptCollaborationInvite();
     $declineCollaborationInvite = new DeclineCollaborationInvite();
 
@@ -35,11 +35,11 @@ it('deletes a vault with invites, collaborators and related notifications', func
         'content' => fake()->paragraph(),
     ]);
 
-    $createCollaborationInvite->handle($vault, $collaborators->get(0));
+    $createVaultCollaboration->handle($vault, $collaborators->get(0));
     $acceptCollaborationInvite->handle($vault, $collaborators->get(0));
-    $createCollaborationInvite->handle($vault, $collaborators->get(1));
+    $createVaultCollaboration->handle($vault, $collaborators->get(1));
     $declineCollaborationInvite->handle($vault, $collaborators->get(1));
-    $createCollaborationInvite->handle($vault, $collaborators->get(2));
+    $createVaultCollaboration->handle($vault, $collaborators->get(2));
 
     expect($user->vaults()->count())->toBe(1);
 

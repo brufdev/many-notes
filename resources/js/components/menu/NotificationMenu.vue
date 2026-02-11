@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Menu from '@/components/menu/Menu.vue';
+import VaultCollaborationInvitationReceived from '@/components/notification/VaultCollaborationInvitationReceived.vue';
 import Bell from '@/icons/Bell.vue';
 import { useNotificationStore } from '@/stores/notification';
 import { type Component } from 'vue';
@@ -7,6 +8,7 @@ import { type Component } from 'vue';
 const notificationStore = useNotificationStore();
 
 const notificationComponents: Record<string, Component> = {
+    VaultCollaborationInvitationReceived: VaultCollaborationInvitationReceived,
 };
 </script>
 
