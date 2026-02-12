@@ -13,6 +13,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\VaultCollaborationAcceptController;
 use App\Http\Controllers\VaultCollaborationController;
 use App\Http\Controllers\VaultController;
 use App\Http\Controllers\VaultExportController;
@@ -60,6 +61,7 @@ Route::middleware('auth')->group(function (): void {
 
     Route::prefix('vaults/{vault}/collaborations')->name('vaults.collaborations.')->group(function (): void {
         Route::post('', [VaultCollaborationController::class, 'store'])->name('store');
+        Route::post('accept', VaultCollaborationAcceptController::class)->name('accept');
     });
 
     Route::get('files/{vault}', [FileController::class, 'show'])->name('files.show');

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Actions\AcceptCollaborationInvite;
+use App\Actions\AcceptVaultCollaboration;
 use App\Actions\CreateVault;
 use App\Actions\CreateVaultCollaboration;
 use App\Actions\CreateVaultNode;
@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 
 it('deletes a vault with invites, collaborators and related notifications', function (): void {
     $createVaultCollaboration = new CreateVaultCollaboration();
-    $acceptCollaborationInvite = new AcceptCollaborationInvite();
+    $acceptVaultCollaboration = new AcceptVaultCollaboration();
     $declineCollaborationInvite = new DeclineCollaborationInvite();
 
     $user = User::factory()->create()->first();
@@ -36,7 +36,7 @@ it('deletes a vault with invites, collaborators and related notifications', func
     ]);
 
     $createVaultCollaboration->handle($vault, $collaborators->get(0));
-    $acceptCollaborationInvite->handle($vault, $collaborators->get(0));
+    $acceptVaultCollaboration->handle($vault, $collaborators->get(0));
     $createVaultCollaboration->handle($vault, $collaborators->get(1));
     $declineCollaborationInvite->handle($vault, $collaborators->get(1));
     $createVaultCollaboration->handle($vault, $collaborators->get(2));
