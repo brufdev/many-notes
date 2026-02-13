@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Menu from '@/components/menu/Menu.vue';
 import VaultCollaborationAccepted from '@/components/notification/VaultCollaborationAccepted.vue';
+import VaultCollaborationDeclined from '@/components/notification/VaultCollaborationDeclined.vue';
 import VaultCollaborationInvitationReceived from '@/components/notification/VaultCollaborationInvitationReceived.vue';
 import Bell from '@/icons/Bell.vue';
 import { useNotificationStore } from '@/stores/notification';
@@ -11,6 +12,7 @@ const notificationStore = useNotificationStore();
 const notificationComponents: Record<string, Component> = {
     VaultCollaborationInvitationReceived: VaultCollaborationInvitationReceived,
     VaultCollaborationAccepted: VaultCollaborationAccepted,
+    VaultCollaborationDeclined: VaultCollaborationDeclined,
 };
 </script>
 

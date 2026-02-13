@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import VaultCollaborationAcceptController from '@/actions/App/Http/Controllers/VaultCollaborationAcceptController';
+import VaultCollaborationDeclineController from '@/actions/App/Http/Controllers/VaultCollaborationDeclineController';
 import SecondarySubmit from '@/components/form/SecondarySubmit.vue';
 import Submit from '@/components/form/Submit.vue';
 import { useAxiosForm } from '@/composables/useAxiosForm';
@@ -42,6 +43,22 @@ const handleAcceptSubmit = () => {
 };
 
 const handleDeclineSubmit = () => {
+    declineForm.send({
+        url: VaultCollaborationDeclineController.url({
+            vault: Number(props.notification.data.vault_id),
+        }),
+        method: 'post',
+        onError: error => {
+            closeModal();
+            const message = error.response?.statusText ?? 'Something went wrong';
+            createToast(message, 'error');
+        },
+        onSuccess: () => {
+            removeNotification(props.notification.id);
+            closeModal();
+            createToast('Collaboration declined', 'success');
+        },
+    });
 };
 </script>
 
