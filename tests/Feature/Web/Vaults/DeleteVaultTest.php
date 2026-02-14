@@ -6,7 +6,7 @@ use App\Actions\AcceptVaultCollaboration;
 use App\Actions\CreateVault;
 use App\Actions\CreateVaultCollaboration;
 use App\Actions\CreateVaultNode;
-use App\Actions\DeclineCollaborationInvite;
+use App\Actions\DeclineVaultCollaboration;
 use App\Actions\GetPathFromVault;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Storage;
 it('deletes a vault with invites, collaborators and related notifications', function (): void {
     $createVaultCollaboration = new CreateVaultCollaboration();
     $acceptVaultCollaboration = new AcceptVaultCollaboration();
-    $declineCollaborationInvite = new DeclineCollaborationInvite();
+    $declineVaultCollaboration = new DeclineVaultCollaboration();
 
     $user = User::factory()->create()->first();
     $collaborators = User::factory(3)->create();
@@ -38,7 +38,7 @@ it('deletes a vault with invites, collaborators and related notifications', func
     $createVaultCollaboration->handle($vault, $collaborators->get(0));
     $acceptVaultCollaboration->handle($vault, $collaborators->get(0));
     $createVaultCollaboration->handle($vault, $collaborators->get(1));
-    $declineCollaborationInvite->handle($vault, $collaborators->get(1));
+    $declineVaultCollaboration->handle($vault, $collaborators->get(1));
     $createVaultCollaboration->handle($vault, $collaborators->get(2));
 
     expect($user->vaults()->count())->toBe(1);
