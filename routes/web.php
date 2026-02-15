@@ -62,6 +62,7 @@ Route::middleware('auth')->group(function (): void {
 
     Route::prefix('vaults/{vault}/collaborations')->name('vaults.collaborations.')->group(function (): void {
         Route::post('', [VaultCollaborationController::class, 'store'])->name('store');
+        Route::delete('{user}', [VaultCollaborationController::class, 'destroy'])->name('destroy');
         Route::post('accept', VaultCollaborationAcceptController::class)->name('accept');
         Route::post('decline', VaultCollaborationDeclineController::class)->name('decline');
     });

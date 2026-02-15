@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Actions\CreateVaultCollaboration;
+use App\Actions\DeleteVaultCollaboration;
 use App\Http\Requests\StoreVaultCollaborationRequest;
 use App\Models\User;
 use App\Models\Vault;
@@ -55,5 +56,22 @@ final readonly class VaultCollaborationController
                 'data' => VaultCollaboratorViewModel::fromModel($collaborator)->toArray(),
             ]);
         }
+    }
+
+    public function destroy(
+        Vault $vault,
+        User $user,
+        #[CurrentUser] User $currentUser,
+        DeleteVaultCollaboration $deleteVaultCollaboration,
+    ): JsonResponse {
+        abort_unless($currentUser->id === $vault->user->id || $currentUser->id === $user->id, 403);
+
+        $collaborator = $vault->collaborators()
+            ->wherePivot('user_id', $user->id)
+            ->firstOrFail();
+
+        $deleteVaultCollaboration->handle($vault, $collaborator);
+
+        return response()->json();
     }
 }
