@@ -11,12 +11,13 @@ use Illuminate\Support\Facades\Storage;
 
 final readonly class UpdateVault
 {
-    /**
-     * @param array{name?: string, templates_node_id?: int|null} $attributes
-     */
+    /** @param array{name?: string, templates_node_id?: int|null} $attributes */
     public function handle(Vault $vault, array $attributes): Vault
     {
         $vault->update($attributes);
+
+        // Broadcast events
+        broadcast(new VaultUpdatedEvent($vault))->toOthers();
 
         if (!$vault->wasChanged('name')) {
             return $vault;
@@ -33,8 +34,6 @@ final readonly class UpdateVault
             $relativePath . $vault->name,
         );
 
-        // Broadcast events
-        broadcast(new VaultUpdatedEvent($vault));
         broadcast(new VaultListUpdatedEvent($vault->user))->toOthers();
 
         foreach ($collaborators as $collaborator) {

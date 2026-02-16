@@ -16,9 +16,9 @@ export const useVaultStore = defineStore('vault', () => {
         collaborators.value = vault?.collaborators ?? [];
     }
 
-    function updateVault(payload: VaultUpdated): void {
-        name.value = payload.vault.name;
-        templates_node_id.value = payload.vault.templates_node_id;
+    function updateVault(data: VaultUpdated): void {
+        name.value = data.name;
+        templates_node_id.value = data.templates_node_id;
     }
 
     function addCollaborator(collaborator: VaultCollaborator): void {

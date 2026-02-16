@@ -12,8 +12,10 @@ use App\Http\Requests\UpdateVaultRequest;
 use App\Models\User;
 use App\Models\Vault;
 use App\Queries\Vaults\VisibleVaultsQuery;
+use App\ViewModels\VaultUpdateViewModel;
 use Exception;
 use Illuminate\Container\Attributes\CurrentUser;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -44,12 +46,16 @@ final readonly class VaultController
         //
     }
 
-    public function update(UpdateVaultRequest $request, Vault $vault, UpdateVault $updateVault): void
+    public function update(UpdateVaultRequest $request, Vault $vault, UpdateVault $updateVault): JsonResponse
     {
         /** @var array{name: string} $data */
         $data = $request->validated();
 
-        $updateVault->handle($vault, $data);
+        $vault = $updateVault->handle($vault, $data);
+
+        return response()->json([
+            'data' => VaultUpdateViewModel::fromModel($vault)->toArray(),
+        ]);
     }
 
     public function destroy(#[CurrentUser] User $user, Vault $vault, DeleteVault $deleteVault): void

@@ -1,61 +1,66 @@
 <script setup lang="ts">
-import VaultController from '@/actions/App/Http/Controllers/VaultController';
-import Input from '@/components/form/Input.vue';
+import { update } from '@/actions/App/Http/Controllers/VaultController';
+import ModelInput from '@/components/form/ModelInput.vue';
 import Submit from '@/components/form/Submit.vue';
 import SecondaryButton from '@/components/ui/SecondaryButton.vue';
+import { useAxiosForm } from '@/composables/useAxiosForm';
 import { useModalManager } from '@/composables/useModalManager';
 import { useToast } from '@/composables/useToast';
-import { Form, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { VaultUpdated } from '@/types/vault.events';
 
 const { closeModal } = useModalManager();
 const { createToast } = useToast();
 
-defineProps<{
+const props = defineProps<{
     id: number;
     name: string;
+    onSuccess?: (vault: VaultUpdated) => void;
 }>();
 
-const pageErrors = computed(() => usePage().props.errors);
+const form = useAxiosForm<{ name: string }>({
+    name: props.name,
+});
 
-const handleError = () => {
-    if (!pageErrors.value.update) {
-        return;
-    }
+const url = update.url({ vault: props.id });
 
-    closeModal();
-    createToast(pageErrors.value.update, 'error');
-};
-
-const handleSuccess = () => {
-    closeModal();
-    createToast('Vault updated', 'success');
+const handleSubmit = () => {
+    form.send({
+        url: url,
+        method: 'patch',
+        onError: error => {
+            closeModal();
+            const message = error.response?.statusText ?? 'Something went wrong';
+            createToast(message, 'error');
+        },
+        onSuccess: (response: { data: VaultUpdated }) => {
+            closeModal();
+            createToast('Vault updated', 'success');
+            props.onSuccess?.(response.data);
+        },
+    });
 };
 </script>
 
 <template>
-    <Form
-        v-slot="{ errors, processing }"
-        v-bind="VaultController.update.form({ vault: id })"
+    <form
         class="flex flex-col gap-6 inert:pointer-events-none"
         autocomplete="off"
         novalidate
-        disable-while-processing
-        @error="handleError"
-        @success="handleSuccess"
+        :inert="form.processing"
+        @submit.prevent="handleSubmit"
     >
-        <Input
+        <ModelInput
+            v-model="form.name"
             name="name"
             type="text"
-            :value="name"
             placeholder="Name"
-            :error="errors.name"
+            :error="form.errors.name"
             required
             autofocus
         />
         <div class="flex justify-end gap-2 py-1">
             <SecondaryButton @click="closeModal">Cancel</SecondaryButton>
-            <Submit label="Save" :processing="processing" />
+            <Submit label="Save" :processing="form.processing" />
         </div>
-    </Form>
+    </form>
 </template>

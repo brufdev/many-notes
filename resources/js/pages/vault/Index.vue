@@ -22,20 +22,13 @@ import { reloadWithLoading } from '@/inertia/reloadWithLoading';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { exportMethod } from '@/routes/vaults';
 import { AppPageProps } from '@/types';
+import { VaultListItem } from '@/types/vault';
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { useEcho } from '@laravel/echo-vue';
 import { computed, watch } from 'vue';
 
-interface Vault {
-    id: number;
-    name: string;
-    accepted_collaborators_count: number;
-    created_by: number;
-    updated_at: string;
-}
-
 defineProps<{
-    visibleVaults: Vault[];
+    visibleVaults: VaultListItem[];
 }>();
 
 const page = usePage<AppPageProps>();
@@ -165,6 +158,11 @@ useEcho(`User.${userId.value}`, 'VaultListUpdatedEvent', () => {
                                                             title: 'Edit vault',
                                                             id: vault.id,
                                                             name: vault.name,
+                                                            onSuccess: () => {
+                                                                reloadWithLoading({
+                                                                    only: ['visibleVaults'],
+                                                                });
+                                                            },
                                                         });
                                                     "
                                                 />
