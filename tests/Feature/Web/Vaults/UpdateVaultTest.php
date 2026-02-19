@@ -2,44 +2,130 @@
 
 declare(strict_types=1);
 
-use App\Actions\CreateVault;
-use App\Actions\GetPathFromUser;
 use App\Models\User;
-use Illuminate\Support\Facades\Storage;
+use App\Models\Vault;
+use App\Models\VaultNode;
 
-it('updates the vault', function (): void {
-    $user = User::factory()->create()->first();
-    $vault = new CreateVault()->handle($user, [
+it('allows a user to update his vault', function (): void {
+    $user = User::factory()->create();
+
+    $vault = Vault::factory()->for($user)->create();
+
+    $folder = VaultNode::factory()->for($vault)->create();
+
+    $payload = [
         'name' => fake()->words(3, true),
-    ]);
-    $newName = fake()->words(3, true);
+        'templates_node_id' => $folder->id,
+    ];
 
-    $this->actingAs($user);
+    $response = $this
+        ->actingAs($user)
+        ->patch(
+            route('vaults.update', ['vault' => $vault->id]),
+            $payload,
+        );
 
-    $response = $this->patch(
-        route('vaults.update', ['vault' => $vault->id]),
-        ['name' => $newName],
-    );
-
-    $response->assertStatus(200);
-    expect($user->vaults()->first()->name)->toBe($newName);
-    $path = new GetPathFromUser()->handle($user) . $newName;
-    expect(Storage::disk('local')->path($path))->toBeDirectory();
+    $response
+        ->assertOk()
+        ->assertJsonStructure([
+            'data' => [
+                'name',
+                'templates_node_id',
+            ],
+        ])
+        ->assertJsonPath('data.name', $payload['name'])
+        ->assertJsonPath('data.templates_node_id', $payload['templates_node_id']);
 });
 
-it('does not update a vault without permissions', function (): void {
+it('forbids users without permission from updating a vault', function (): void {
+    [$user1, $user2] = User::factory(2)->create();
+
+    $vault = Vault::factory()->for($user1)->create();
+
+    $payload = [
+        'name' => fake()->words(3, true),
+    ];
+
+    $response = $this
+        ->actingAs($user2)
+        ->patch(
+            route('vaults.update', ['vault' => $vault->id]),
+            $payload,
+        );
+
+    $response
+        ->assertForbidden();
+});
+
+it('does not allow to set a folder from a different vault as template node', function (): void {
     $user = User::factory()->create();
-    $secondUser = User::factory()->hasVaults(1)->create();
-    $vault = $secondUser->vaults()->first();
 
-    $this->actingAs($user);
+    [$vault1, $vault2] = Vault::factory(2)->for($user)->create();
 
-    $response = $this->patch(
-        route('vaults.update', ['vault' => $vault->id]),
-        ['name' => fake()->words(3, true)],
-    );
+    $folder = VaultNode::factory()->for($vault2)->create();
 
-    $response->assertStatus(302);
-    $response->assertSessionHasErrors(['update']);
-    expect($secondUser->vaults()->first()->name)->toBe($vault->name);
+    $payload = [
+        'templates_node_id' => $folder->id,
+    ];
+
+    $response = $this
+        ->actingAs($user)
+        ->patch(
+            route('vaults.update', ['vault' => $vault1->id]),
+            $payload,
+        );
+
+    $response
+        ->assertRedirect()
+        ->assertSessionHasErrors([
+            'templates_node_id' => 'The selected templates node id is invalid.',
+        ]);
+});
+
+it('does not allow renaming a vault to an existing name', function (): void {
+    $user = User::factory()->create();
+
+    [$vault1, $vault2] = Vault::factory(2)->for($user)->create();
+
+    $payload = [
+        'name' => $vault2->name,
+    ];
+
+    $response = $this
+        ->actingAs($user)
+        ->patch(
+            route('vaults.update', ['vault' => $vault1->id]),
+            $payload,
+        );
+
+    $response
+        ->assertRedirect()
+        ->assertSessionHasErrors([
+            'name' => 'The name has already been taken.',
+        ]);
+});
+
+it('does not allow setting a file as template node', function (): void {
+    $user = User::factory()->hasVaults(1)->create();
+
+    $vault = Vault::factory()->for($user)->create();
+
+    $file = VaultNode::factory()->for($vault)->file()->create();
+
+    $payload = [
+        'templates_node_id' => $file->id,
+    ];
+
+    $response = $this
+        ->actingAs($user)
+        ->patch(
+            route('vaults.update', ['vault' => $vault->id]),
+            $payload,
+        );
+
+    $response
+        ->assertRedirect()
+        ->assertSessionHasErrors([
+            'templates_node_id' => 'The selected templates node id is invalid.',
+        ]);
 });

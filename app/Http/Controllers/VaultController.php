@@ -46,9 +46,15 @@ final readonly class VaultController
         //
     }
 
-    public function update(UpdateVaultRequest $request, Vault $vault, UpdateVault $updateVault): JsonResponse
-    {
-        /** @var array{name: string} $data */
+    public function update(
+        UpdateVaultRequest $request,
+        Vault $vault,
+        #[CurrentUser] User $currentUser,
+        UpdateVault $updateVault,
+    ): JsonResponse {
+        abort_unless($currentUser->can('update', $vault), 403);
+
+        /** @var array{name?: string, templates_node_id?: int} $data */
         $data = $request->validated();
 
         $vault = $updateVault->handle($vault, $data);

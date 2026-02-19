@@ -1,8 +1,7 @@
-import { show, templatesNode } from '@/routes/vaults';
+import { show, update } from '@/routes/vaults';
 import { children, move } from '@/routes/vaults/nodes';
 import { useVaultStore } from '@/stores/vault';
 import { useVaultTreeStore } from '@/stores/vaultTree';
-import { Vault } from '@/types/vault';
 import { VaultShowPageProps } from '@/types/vault.pages';
 import { router, usePage } from '@inertiajs/vue3';
 import { AxiosError, AxiosResponse } from 'axios';
@@ -100,7 +99,7 @@ export function useVaultTreeActions() {
     }
 
     function setTemplateFolder(nodeId: number): void {
-        const url = templatesNode.url({ vault: vaultTreeStore.getActiveVaultId() });
+        const url = update.url({ vault: vaultTreeStore.getActiveVaultId() });
 
         if (vaultTreeStore.isFolderLoading(nodeId)) {
             return;
@@ -115,9 +114,9 @@ export function useVaultTreeActions() {
                 templates_node_id: nodeId,
             },
         })
-            .then((response: AxiosResponse<{ vault: Vault }>) => {
+            .then((response: AxiosResponse) => {
                 createToast('Template folder updated', 'success');
-                vaultStore.setVault(response.data.vault);
+                vaultStore.updateVault(response.data.data);
             })
             .catch((error: AxiosError) => {
                 createToast(error.response?.statusText ?? 'Something went wrong', 'error');

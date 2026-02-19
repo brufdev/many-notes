@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Models\Vault;
+use App\Models\VaultNode;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\VaultNode>
- */
+/** @extends Factory<VaultNode> */
 final class VaultNodeFactory extends Factory
 {
     /**
@@ -22,10 +21,19 @@ final class VaultNodeFactory extends Factory
         return [
             'vault_id' => Vault::factory(),
             'parent_id' => null,
-            'is_file' => true,
+            'is_file' => false,
             'name' => fake()->words(3, true),
+            'extension' => null,
+            'content' => null,
+        ];
+    }
+
+    public function file(): Factory
+    {
+        return $this->state(fn(array $attributes): array => [
+            'is_file' => true,
             'extension' => 'md',
             'content' => fake()->paragraph(),
-        ];
+        ]);
     }
 }

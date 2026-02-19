@@ -8,30 +8,20 @@ use App\Models\User;
 use App\Models\Vault;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Unique;
-use Illuminate\Validation\ValidationException;
 
 final class UpdateVaultRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        /** @var User $user */
-        $user = $this->user();
-
-        return $user->can('update', $this->route('vault'));
-    }
-
-    /**
-     * @return array<string, array<int, string|Unique>>
-     */
+    /** @return array<string, array<int, mixed>> */
     public function rules(): array
     {
         /** @var User $user */
         $user = $this->user();
 
+        /** @var Vault $vault */
+        $vault = $this->route('vault');
+
         return [
             'name' => [
-                'required',
                 'string',
                 'max:255',
                 // One or more allowed characters, not starting with a dot or space
@@ -40,13 +30,12 @@ final class UpdateVaultRequest extends FormRequest
                     ->where('created_by', $user->id)
                     ->ignore($this->route('vault')),
             ],
+            'templates_node_id' => [
+                'integer',
+                Rule::exists('vault_nodes', 'id')
+                    ->where('vault_id', $vault->id)
+                    ->where('is_file', 0),
+            ],
         ];
-    }
-
-    protected function failedAuthorization(): void
-    {
-        throw ValidationException::withMessages([
-            'update' => __('Not allowed'),
-        ]);
     }
 }

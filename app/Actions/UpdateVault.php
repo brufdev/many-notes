@@ -14,6 +14,13 @@ final readonly class UpdateVault
     /** @param array{name?: string, templates_node_id?: int|null} $attributes */
     public function handle(Vault $vault, array $attributes): Vault
     {
+        if (
+            isset($attributes['templates_node_id'])
+            && $attributes['templates_node_id'] === $vault->templates_node_id
+        ) {
+            $attributes['templates_node_id'] = null;
+        }
+
         $vault->update($attributes);
 
         // Broadcast events

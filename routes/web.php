@@ -23,7 +23,6 @@ use App\Http\Controllers\VaultNodeChildrenController;
 use App\Http\Controllers\VaultNodeController;
 use App\Http\Controllers\VaultNodeImportController;
 use App\Http\Controllers\VaultNodeMoveController;
-use App\Http\Controllers\VaultTemplatesNodeController;
 use App\Http\Middleware\EnsureEmailIsConfigured;
 use App\Http\Middleware\EnsureRegistrationIsEnabled;
 use App\Http\Middleware\EnsureUserIsAdmin;
@@ -41,7 +40,6 @@ Route::middleware('auth')->group(function (): void {
             Route::patch('', [VaultController::class, 'update'])->name('update');
             Route::delete('', [VaultController::class, 'destroy'])->name('destroy');
             Route::get('export', VaultExportController::class)->name('export');
-            Route::patch('templates-node', VaultTemplatesNodeController::class)->name('templates-node');
         });
 
         Route::post('import', VaultImportController::class)->name('import');
