@@ -90,6 +90,38 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
         return getActiveTree().loadingNodeIds.has(id) ?? false;
     }
 
+    function isNodeInSubtree(nodeId: number, rootNodeId: number): boolean {
+        if (rootNodeId === nodeId) {
+            return true;
+        }
+
+        const tree = getActiveTree();
+
+        if (!tree.loadedFolderIds.has(rootNodeId)) {
+            return false;
+        }
+
+        const stack: number[] = [...(tree.childrenByParentId[rootNodeId] ?? [])];
+
+        while (stack.length > 0) {
+            const currentId = stack.pop()!;
+
+            if (currentId === nodeId) {
+                return true;
+            }
+
+            if (tree.loadedFolderIds.has(currentId)) {
+                const children = tree.childrenByParentId[currentId];
+
+                if (children) {
+                    stack.push(...children);
+                }
+            }
+        }
+
+        return false;
+    }
+
     function startLoadingFolder(id: number): void {
         getActiveTree().loadingNodeIds.add(id);
     }
@@ -308,6 +340,7 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
         isFolderExpanded,
         isFolderLoaded,
         isFolderLoading,
+        isNodeInSubtree,
         startLoadingFolder,
         finishLoadingFolder,
         setLoadedFolder,
