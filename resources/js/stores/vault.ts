@@ -25,10 +25,23 @@ export const useVaultStore = defineStore('vault', () => {
         collaborators.value.push(collaborator);
     }
 
+    function updateCollaborator(collaborator: VaultCollaborator): void {
+        const index = collaborators.value.findIndex(c => c.id === collaborator.id);
+
+        if (index === -1) {
+            addCollaborator(collaborator);
+
+            return;
+        }
+
+        collaborators.value[index] = {
+            ...collaborators.value[index],
+            ...collaborator,
+        };
+    }
+
     function removeCollaborator(userId: number): void {
-        collaborators.value = collaborators.value.filter(
-            collaborator => collaborator.id !== userId
-        );
+        collaborators.value = collaborators.value.filter(c => c.id !== userId);
     }
 
     return {
@@ -39,6 +52,7 @@ export const useVaultStore = defineStore('vault', () => {
         setVault,
         updateVault,
         addCollaborator,
+        updateCollaborator,
         removeCollaborator,
     };
 });
