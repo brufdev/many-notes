@@ -6,29 +6,15 @@ namespace App\Actions;
 
 use App\Events\VaultNodeDeletedEvent;
 use App\Models\VaultNode;
-use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Throwable;
 
 final readonly class DeleteVaultNode
 {
-    /**
-     * @return array<int>
-     */
+    /** @return array<int> */
     public function handle(VaultNode $node, bool $deleteFromDisk = true): array
     {
-        try {
-            DB::beginTransaction();
-
-            $deletedNodeIds = $this->deleteFromDatabase($node);
-
-            DB::commit();
-        } catch (Throwable) {
-            DB::rollBack();
-
-            throw new Exception(__('Something went wrong'));
-        }
+        $deletedNodeIds = DB::transaction(fn(): array => $this->deleteFromDatabase($node));
 
         if ($deleteFromDisk) {
             $this->deleteFromDisk($node);
@@ -39,11 +25,7 @@ final readonly class DeleteVaultNode
         return $deletedNodeIds;
     }
 
-    /**
-     * Delete node from the database.
-     *
-     * @return array<int>
-     */
+    /** @return array<int> */
     private function deleteFromDatabase(VaultNode $node): array
     {
         $deletedNodeIds = [$node->id];
@@ -65,12 +47,9 @@ final readonly class DeleteVaultNode
         return $deletedNodeIds;
     }
 
-    /**
-     * Delete node from the disk.
-     */
     private function deleteFromDisk(VaultNode $node): void
     {
-        $nodePath = new GetPathFromVaultNode()->handle($node);
+        $nodePath = app(GetPathFromVaultNode::class)->handle($node);
 
         if (!Storage::disk('local')->exists($nodePath)) {
             return;

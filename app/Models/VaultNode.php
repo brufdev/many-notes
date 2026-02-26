@@ -23,6 +23,7 @@ use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
  * @property-read bool $is_file
  * @property-read string $name
  * @property-read string $extension
+ * @property-read string $full_path
  * @property-read string|null $content
  * @property-read CarbonImmutable $created_at
  * @property-read CarbonImmutable $updated_at
@@ -68,6 +69,11 @@ final class VaultNode extends Model
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, null, 'vault_node_id', 'tag_id');
+    }
+
+    public function fullPath(): string
+    {
+        return (string) $this->ancestorsAndSelf()->orderBy('depth')->first()?->full_path;
     }
 
     /** @return list<array{name: string, column: string, separator: string, reverse: bool}> */

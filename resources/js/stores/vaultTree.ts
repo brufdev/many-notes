@@ -1,10 +1,10 @@
-import { VaultNodeTreeItem } from '@/types/vault';
+import { VaultNode } from '@/types/vault';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
 type VaultTreeState = {
     selectedFileId: number | null;
-    nodesById: Record<number, VaultNodeTreeItem>;
+    nodesById: Record<number, VaultNode>;
     childrenByParentId: Record<number, number[]>;
     expandedFolderIds: Set<number>;
     loadedFolderIds: Set<number>;
@@ -30,9 +30,9 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
     function initializeVaultTree(
         vaultId: number,
         selectedFileId: number | null,
-        rootNodes: VaultNodeTreeItem[],
-        ancestors?: VaultNodeTreeItem[],
-        ancestorsChildren?: Record<number, VaultNodeTreeItem[]>
+        rootNodes: VaultNode[],
+        ancestors?: VaultNode[],
+        ancestorsChildren?: Record<number, VaultNode[]>
     ): void {
         activeVaultId.value = vaultId;
 
@@ -70,7 +70,7 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
         return getActiveTree().selectedFileId ?? null;
     }
 
-    function getNodeById(id: number): VaultNodeTreeItem | null {
+    function getNodeById(id: number): VaultNode | null {
         return getActiveTree().nodesById[id] ?? null;
     }
 
@@ -140,7 +140,7 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
         tree.selectedFileId = id;
     }
 
-    function ensureNode(node: VaultNodeTreeItem): void {
+    function ensureNode(node: VaultNode): void {
         const tree = getActiveTree();
         const key = node.parent_id ?? 0;
 
@@ -155,7 +155,7 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
         }
     }
 
-    function setChildren(parentId: number | null, children: VaultNodeTreeItem[]): void {
+    function setChildren(parentId: number | null, children: VaultNode[]): void {
         const tree = getActiveTree();
         const key = parentId ?? 0;
 
@@ -169,7 +169,7 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
         sortChildren(key);
     }
 
-    function setAncestors(ancestors: VaultNodeTreeItem[]): void {
+    function setAncestors(ancestors: VaultNode[]): void {
         const tree = getActiveTree();
 
         for (const ancestor of ancestors) {
@@ -182,7 +182,7 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
         }
     }
 
-    function setAncestorsChildren(children: Record<number, VaultNodeTreeItem[]>): void {
+    function setAncestorsChildren(children: Record<number, VaultNode[]>): void {
         const tree = getActiveTree();
 
         for (const [parentIdStr, childList] of Object.entries(children)) {
@@ -234,11 +234,8 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
             const firstNode = tree.nodesById[firstId];
             const secondNode = tree.nodesById[secondId];
 
-            const firstNodeIsFolder = firstNode.type === 'folder';
-            const secondNodeIsFolder = secondNode.type === 'folder';
-
-            if (firstNodeIsFolder !== secondNodeIsFolder) {
-                return firstNodeIsFolder ? -1 : 1;
+            if (firstNode.is_file !== secondNode.is_file) {
+                return firstNode.is_file ? 1 : -1;
             }
 
             return firstNode.name.localeCompare(secondNode.name);
@@ -247,15 +244,15 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
 
     function handleFileOpened(
         fileId: number,
-        ancestors: VaultNodeTreeItem[],
-        ancestorsChildren: Record<number, VaultNodeTreeItem[]>
+        ancestors: VaultNode[],
+        ancestorsChildren: Record<number, VaultNode[]>
     ): void {
         setSelectedFileId(fileId);
         setAncestors(ancestors);
         setAncestorsChildren(ancestorsChildren);
     }
 
-    function handleNodeSaved(node: VaultNodeTreeItem): void {
+    function handleNodeSaved(node: VaultNode): void {
         const tree = getActiveTree();
 
         if (node.parent_id !== null && !tree.loadedFolderIds.has(node.parent_id)) {

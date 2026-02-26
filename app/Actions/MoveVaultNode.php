@@ -17,7 +17,7 @@ final readonly class MoveVaultNode
     public function handle(VaultNode $node, array $attributes): VaultNode
     {
         $oldParentId = $node->parent_id;
-        $updatedNode = app(UpdateVaultNode::class)->handle($node, $attributes, false);
+        $updatedNode = app(UpdateVaultNode::class)->handle($node, $attributes);
 
         broadcast(new VaultNodeMovedEvent($updatedNode, $oldParentId))->toOthers();
 

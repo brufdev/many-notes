@@ -18,7 +18,7 @@ export interface VaultCollaborator extends VaultUser {
 
 export type VaultListItem = Vault & {
     accepted_collaborators_count: number;
-}
+};
 
 export interface RecentVaultFile {
     id: number;
@@ -29,13 +29,13 @@ export interface RecentVaultFile {
 
 export interface VaultNode {
     id: number;
-    vault_id: number;
     parent_id: number | null;
+    is_file: boolean;
     type: 'audio' | 'folder' | 'image' | 'note' | 'pdf' | 'video';
     name: string;
     extension: string | null;
+    full_path: string;
     content: string | null;
-    created_at: string;
     updated_at: string;
 }
 

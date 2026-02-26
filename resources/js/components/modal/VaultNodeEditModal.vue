@@ -7,7 +7,7 @@ import { useAxiosForm } from '@/composables/useAxiosForm';
 import { useModalManager } from '@/composables/useModalManager';
 import { useToast } from '@/composables/useToast';
 import { useVaultTreeStore } from '@/stores/vaultTree';
-import { VaultNodeTreeItem } from '@/types/vault';
+import { VaultNode } from '@/types/vault';
 
 const { closeModal } = useModalManager();
 const { createToast } = useToast();
@@ -35,11 +35,11 @@ const handleSubmit = () => {
             const message = error.response?.statusText ?? 'Something went wrong';
             createToast(message, 'error');
         },
-        onSuccess: (response: { node: VaultNodeTreeItem }) => {
+        onSuccess: (response: { data: VaultNode }) => {
             closeModal();
             const message = props.isFile ? 'File updated' : 'Folder updated';
             createToast(message, 'success');
-            vaultTreeStore.handleNodeSaved(response.node);
+            vaultTreeStore.handleNodeSaved(response.data);
         },
     });
 };

@@ -61,12 +61,12 @@ final readonly class CreateVaultNode
         ]);
 
         // Save node to disk
-        $nodePath = new GetPathFromVaultNode()->handle($node);
+        $nodePath = app(GetPathFromVaultNode::class)->handle($node);
 
         if ($node->is_file) {
             if ($node->extension === 'md' && $processLinksAndTags) {
-                new ProcessVaultNodeLinks()->handle($node);
-                new ProcessVaultNodeTags()->handle($node);
+                app(ProcessVaultNodeLinks::class)->handle($node);
+                app(ProcessVaultNodeTags::class)->handle($node);
             }
 
             Storage::disk('local')->put($nodePath, $attributes['content'] ?? '');

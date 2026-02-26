@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Events;
 
 use App\Models\VaultNode;
-use App\ViewModels\VaultTreeNodeViewModel;
+use App\ViewModels\VaultNodeViewModel;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -15,20 +15,13 @@ final class VaultNodeCreatedEvent implements ShouldBroadcastNow
 {
     use InteractsWithSockets;
 
-    /**
-     * Create a new event instance.
-     */
     public function __construct(
         private VaultNode $node,
     ) {
         //
     }
 
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return array<int, Channel>
-     */
+    /** @return array<int, Channel> */
     public function broadcastOn(): array
     {
         return [
@@ -36,13 +29,11 @@ final class VaultNodeCreatedEvent implements ShouldBroadcastNow
         ];
     }
 
-    /**
-     * @return array<string, array<string, mixed>>
-     */
+    /** @return array<string, array<string, mixed>> */
     public function broadcastWith(): array
     {
         return [
-            'node' => VaultTreeNodeViewModel::fromModel($this->node)->toArray(),
+            'data' => VaultNodeViewModel::fromModel($this->node)->toArray(),
         ];
     }
 }

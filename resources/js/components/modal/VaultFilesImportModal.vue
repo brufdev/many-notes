@@ -5,7 +5,7 @@ import { useModalManager } from '@/composables/useModalManager';
 import { useToast } from '@/composables/useToast';
 import { useVaultTreeStore } from '@/stores/vaultTree';
 import { AppPageProps } from '@/types';
-import { VaultNodeTreeItem } from '@/types/vault';
+import { VaultNode } from '@/types/vault';
 import { usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
@@ -84,7 +84,7 @@ const handleSubmit = () => {
             const message = error.response?.statusText ?? 'Something went wrong';
             createToast(message, 'error');
         },
-        onSuccess: (response: { files: VaultNodeTreeItem[] }) => {
+        onSuccess: (response: { files: VaultNode[] }) => {
             closeModal();
 
             if (response.files.length === 0) {

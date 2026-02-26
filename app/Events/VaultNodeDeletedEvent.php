@@ -14,11 +14,7 @@ final class VaultNodeDeletedEvent implements ShouldBroadcastNow
 {
     use InteractsWithSockets;
 
-    /**
-     * Create a new event instance.
-     *
-     * @param array<int> $nodeIds
-     */
+    /** @param array<int> $nodeIds */
     public function __construct(
         private VaultNode $node,
         private array $nodeIds,
@@ -26,11 +22,7 @@ final class VaultNodeDeletedEvent implements ShouldBroadcastNow
         //
     }
 
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return array<int, Channel>
-     */
+    /** @return array<int, Channel> */
     public function broadcastOn(): array
     {
         return [
@@ -38,13 +30,13 @@ final class VaultNodeDeletedEvent implements ShouldBroadcastNow
         ];
     }
 
-    /**
-     * @return array<string, array<int>>
-     */
+    /** @return array<string, array<string, array<int>>> */
     public function broadcastWith(): array
     {
         return [
-            'nodeIds' => $this->nodeIds,
+            'data' => [
+                'deleted_ids' => $this->nodeIds,
+            ],
         ];
     }
 }

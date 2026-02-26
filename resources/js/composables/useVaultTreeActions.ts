@@ -88,7 +88,7 @@ export function useVaultTreeActions() {
             },
         })
             .then(() => {
-                const message = node.type === 'folder' ? 'Folder moved' : 'File moved';
+                const message = node.is_file ? 'File moved' : 'Folder moved';
                 createToast(message, 'success');
                 handleNodeMoved(nodeId, oldParentId, newParentId);
             })
@@ -126,13 +126,21 @@ export function useVaultTreeActions() {
             });
     }
 
-    function handleNodesDeleted(nodeIds: number[]): void {
+    function handleNodesDeleted(nodeIds: number[], showToast = true): void {
         vaultTreeStore.handleNodesDeleted(nodeIds);
 
         const selectedFileId = vaultTreeStore.getSelectedFileId();
 
         if (selectedFileId !== null && nodeIds.includes(selectedFileId)) {
-            router.replace({ url: show.url({ vault: vaultTreeStore.getActiveVaultId() }) });
+            router.visit(show.url({ vault: vaultTreeStore.getActiveVaultId() }), {
+                replace: true,
+                fresh: true,
+                onSuccess: () => {
+                    if (showToast) {
+                        createToast('File deleted', 'warning');
+                    }
+                },
+            });
         }
     }
 

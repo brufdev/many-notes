@@ -7,7 +7,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Vault;
 use App\Models\VaultNode;
-use App\ViewModels\VaultTreeNodeViewModel;
+use App\ViewModels\VaultNodeViewModel;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 
@@ -20,7 +20,7 @@ final readonly class VaultNodeChildrenController
         }
 
         $children = $node->children
-            ->map(fn(VaultNode $node): array => VaultTreeNodeViewModel::fromModel($node)->toArray());
+            ->map(fn(VaultNode $node): array => VaultNodeViewModel::fromModel($node)->toArray());
 
         return response()->json([
             'children' => $children,

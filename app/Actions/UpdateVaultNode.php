@@ -18,22 +18,18 @@ final readonly class UpdateVaultNode
      *   content?: string|null,
      * } $attributes
      */
-    public function handle(VaultNode $node, array $attributes, bool $broadcast = false): VaultNode
+    public function handle(VaultNode $node, array $attributes): VaultNode
     {
-        $originalPath = new GetPathFromVaultNode()->handle($node);
+        $originalPath = app(GetPathFromVaultNode::class)->handle($node);
         $originalLinkPath = '';
+
         $isNameAttributeChanged = array_key_exists('name', $attributes)
             && $attributes['name'] !== $node->name;
         $isParentIdAttributeChanged = array_key_exists('parent_id', $attributes)
             && $attributes['parent_id'] !== $node->parent_id;
 
         if ($isNameAttributeChanged || $isParentIdAttributeChanged) {
-            /**
-             * @var string $originalLinkPath
-             *
-             * @phpstan-ignore-next-line larastan.noUnnecessaryCollectionCall
-             */
-            $originalLinkPath = $node->ancestorsAndSelf()->get()->last()->full_path;
+            $originalLinkPath = $node->fullPath();
         }
 
         // Save node to database
@@ -47,21 +43,19 @@ final readonly class UpdateVaultNode
         $node->refresh();
 
         if ($node->is_file && $node->extension === 'md' && $node->wasChanged(['content'])) {
-            new ProcessVaultNodeLinks()->handle($node);
-            new ProcessVaultNodeTags()->handle($node);
+            app(ProcessVaultNodeLinks::class)->handle($node);
+            app(ProcessVaultNodeTags::class)->handle($node);
         }
 
         if ($node->wasChanged(['name', 'parent_id'])) {
             // Rename node on disk
-            $path = new GetPathFromVaultNode()->handle($node);
+            $path = app(GetPathFromVaultNode::class)->handle($node);
             Storage::disk('local')->move($originalPath, $path);
 
             // Update all backlinks
-            new UpdateVaultNodeBacklinks()->handle($node, $originalLinkPath);
-        }
+            app(UpdateVaultNodeBacklinks::class)->handle($node, $originalLinkPath);
 
-        // Broadcast event
-        if ($broadcast) {
+            // Broadcast events
             broadcast(new VaultNodeUpdatedEvent($node))->toOthers();
         }
 

@@ -12,7 +12,7 @@ use App\Http\Requests\UpdateVaultNodeRequest;
 use App\Models\User;
 use App\Models\Vault;
 use App\Models\VaultNode;
-use App\ViewModels\VaultTreeNodeViewModel;
+use App\ViewModels\VaultNodeViewModel;
 use Exception;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
@@ -25,9 +25,7 @@ final readonly class VaultNodeController
         #[CurrentUser] User $user,
         CreateVaultNode $createVaultNode,
     ): JsonResponse {
-        if ($user->cannot('update', $vault)) {
-            abort(403);
-        }
+        abort_unless($user->can('update', $vault), 403);
 
         /**
          * @var array{
@@ -42,7 +40,7 @@ final readonly class VaultNodeController
         $node = $createVaultNode->handle($vault, $data);
 
         return response()->json([
-            'node' => VaultTreeNodeViewModel::fromModel($node)->toArray(),
+            'data' => VaultNodeViewModel::fromModel($node)->toArray(),
         ]);
     }
 
@@ -53,9 +51,7 @@ final readonly class VaultNodeController
         #[CurrentUser] User $user,
         UpdateVaultNode $updateVaultNode,
     ): JsonResponse {
-        if ($user->cannot('update', $vault)) {
-            abort(403);
-        }
+        abort_unless($user->can('update', $vault), 403);
 
         /** @var array{name: string} $data */
         $data = $request->validated();
@@ -63,7 +59,7 @@ final readonly class VaultNodeController
         $node = $updateVaultNode->handle($node, $data);
 
         return response()->json([
-            'node' => VaultTreeNodeViewModel::fromModel($node)->toArray(),
+            'data' => VaultNodeViewModel::fromModel($node)->toArray(),
         ]);
     }
 
@@ -73,9 +69,7 @@ final readonly class VaultNodeController
         VaultNode $node,
         DeleteVaultNode $deleteVaultNode,
     ): JsonResponse {
-        if ($user->cannot('delete', $node)) {
-            abort(403);
-        }
+        abort_unless($user->can('delete', $node), 403);
 
         try {
             $deletedNodeIds = $deleteVaultNode->handle($node);
@@ -84,7 +78,9 @@ final readonly class VaultNodeController
         }
 
         return response()->json([
-            'nodeIds' => $deletedNodeIds,
+            'data' => [
+                'deleted_ids' => $deletedNodeIds,
+            ],
         ]);
     }
 }

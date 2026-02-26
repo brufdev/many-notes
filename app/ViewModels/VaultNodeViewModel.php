@@ -13,14 +13,17 @@ use App\Services\VaultFiles\Types\Pdf;
 use App\Services\VaultFiles\Types\Video;
 use Carbon\CarbonImmutable;
 
-final readonly class VaultTreeNodeViewModel
+final readonly class VaultNodeViewModel
 {
     public function __construct(
         public int $id,
         public ?int $parent_id,
+        public bool $is_file,
         public string $type,
         public string $name,
         public ?string $extension,
+        public string $full_path,
+        public ?string $content,
         public ?CarbonImmutable $updated_at,
     ) {
         //
@@ -37,27 +40,34 @@ final readonly class VaultTreeNodeViewModel
             default => VaultNodeType::FOLDER,
         };
 
+        $extension = $node->extension ? ".{$node->extension}" : '';
+        $fullPath = "/{$node->fullPath()}{$extension}";
+
         return new self(
             $node->id,
             $node->parent_id,
+            $node->is_file,
             $type->value,
             $node->name,
             $node->extension,
+            $fullPath,
+            $node->content,
             $node->updated_at,
         );
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public function toArray(): array
     {
         return [
             'id' => $this->id,
             'parent_id' => $this->parent_id,
+            'is_file' => $this->is_file,
             'type' => $this->type,
             'name' => $this->name,
             'extension' => $this->extension,
+            'full_path' => $this->full_path,
+            'content' => $this->content,
             'updated_at' => $this->updated_at,
         ];
     }

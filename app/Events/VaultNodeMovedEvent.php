@@ -14,9 +14,6 @@ final class VaultNodeMovedEvent implements ShouldBroadcastNow
 {
     use InteractsWithSockets;
 
-    /**
-     * Create a new event instance.
-     */
     public function __construct(
         private VaultNode $node,
         private ?int $oldParentId,
@@ -24,11 +21,7 @@ final class VaultNodeMovedEvent implements ShouldBroadcastNow
         //
     }
 
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return array<int, Channel>
-     */
+    /** @return array<int, Channel> */
     public function broadcastOn(): array
     {
         return [
@@ -36,15 +29,15 @@ final class VaultNodeMovedEvent implements ShouldBroadcastNow
         ];
     }
 
-    /**
-     * @return array<string, int|null>
-     */
+    /** @return array<string, array<string, int|null>> */
     public function broadcastWith(): array
     {
         return [
-            'id' => $this->node->id,
-            'old_parent_id' => $this->oldParentId,
-            'new_parent_id' => $this->node->parent_id,
+            'data' => [
+                'id' => $this->node->id,
+                'old_parent_id' => $this->oldParentId,
+                'new_parent_id' => $this->node->parent_id,
+            ],
         ];
     }
 }

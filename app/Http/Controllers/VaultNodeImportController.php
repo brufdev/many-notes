@@ -9,7 +9,7 @@ use App\Http\Requests\ImportVaultNodeRequest;
 use App\Models\User;
 use App\Models\Vault;
 use App\Services\VaultFile;
-use App\ViewModels\VaultTreeNodeViewModel;
+use App\ViewModels\VaultNodeViewModel;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
@@ -55,7 +55,7 @@ final readonly class VaultNodeImportController
             $filePath = $file->getRealPath();
             $node = $processImportedFile->handle($vault, $parent, $fileName, $filePath);
 
-            $importedFiles[] = VaultTreeNodeViewModel::fromModel($node)->toArray();
+            $importedFiles[] = VaultNodeViewModel::fromModel($node)->toArray();
         }
 
         return response()->json([
