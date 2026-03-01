@@ -21,6 +21,10 @@ export const useVaultStore = defineStore('vault', () => {
         templates_node_id.value = data.templates_node_id;
     }
 
+    function isTemplateFolder(nodeId: number): boolean {
+        return templates_node_id.value === nodeId;
+    }
+
     function addCollaborator(collaborator: VaultCollaborator): void {
         collaborators.value.push(collaborator);
     }
@@ -51,6 +55,7 @@ export const useVaultStore = defineStore('vault', () => {
         collaborators,
         setVault,
         updateVault,
+        isTemplateFolder,
         addCollaborator,
         updateCollaborator,
         removeCollaborator,
