@@ -3,11 +3,12 @@ import { Link } from '@inertiajs/vue3';
 import { computed, type Component } from 'vue';
 
 const props = defineProps<{
-    label?: string;
     href?: string;
     method?: string;
     icon?: Component;
     iconClass?: string;
+    label?: string;
+    labelClass?: string;
     disabled?: boolean;
 }>();
 
@@ -24,8 +25,8 @@ const isLink = computed(() => !!props.href);
         :disabled="disabled"
     >
         <template v-if="label">
-            <component :is="icon" v-if="icon" :class="`h-4 w-4 ${iconClass}`"></component>
-            <span>{{ label }}</span>
+            <component :is="icon" v-if="icon" :class="`h-4 w-4 ${iconClass ?? ''}`"></component>
+            <span :class="`${labelClass ?? ''}`">{{ label }}</span>
         </template>
 
         <slot v-else />
