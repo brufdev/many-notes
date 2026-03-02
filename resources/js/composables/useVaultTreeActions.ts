@@ -1,5 +1,6 @@
 import { show, update } from '@/routes/vaults';
 import { children, move } from '@/routes/vaults/nodes';
+import { useLayoutStore } from '@/stores/layout';
 import { useVaultStore } from '@/stores/vault';
 import { useVaultTreeStore } from '@/stores/vaultTree';
 import { VaultShowPageProps } from '@/types/vault.pages';
@@ -11,6 +12,7 @@ const page = usePage<VaultShowPageProps>();
 const { createToast } = useToast();
 
 export function useVaultTreeActions() {
+    const layoutStore = useLayoutStore();
     const vaultStore = useVaultStore();
     const vaultTreeStore = useVaultTreeStore();
 
@@ -74,6 +76,8 @@ export function useVaultTreeActions() {
             return;
         }
 
+        layoutStore.setTreeViewLoading(true);
+
         const oldParentId = node.parent_id;
         const url = move.url({
             vault: vaultTreeStore.getActiveVaultId(),
@@ -95,7 +99,9 @@ export function useVaultTreeActions() {
             .catch((error: AxiosError) => {
                 createToast(error.response?.statusText ?? 'Something went wrong', 'error');
             })
-            .finally(() => {});
+            .finally(() => {
+                layoutStore.setTreeViewLoading(false);
+            });
     }
 
     function setTemplateFolder(nodeId: number): void {
@@ -105,7 +111,7 @@ export function useVaultTreeActions() {
             return;
         }
 
-        vaultTreeStore.startLoadingFolder(nodeId);
+        layoutStore.setTreeViewLoading(true);
 
         axios({
             url: url,
@@ -122,7 +128,7 @@ export function useVaultTreeActions() {
                 createToast(error.response?.statusText ?? 'Something went wrong', 'error');
             })
             .finally(() => {
-                vaultTreeStore.finishLoadingFolder(nodeId);
+                layoutStore.setTreeViewLoading(false);
             });
     }
 
