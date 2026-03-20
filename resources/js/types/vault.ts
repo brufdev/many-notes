@@ -40,3 +40,8 @@ export interface VaultNode {
 }
 
 export type VaultNodeTreeItem = Pick<VaultNode, 'id' | 'parent_id' | 'type' | 'name' | 'extension'>;
+
+export type VaultFileSearch = Pick<
+    VaultNode,
+    'id' | 'type' | 'name' | 'extension' | 'content' | 'updated_at'
+>;

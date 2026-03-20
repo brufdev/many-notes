@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\VaultNodeType;
+use App\Services\VaultFiles\Types\Audio;
+use App\Services\VaultFiles\Types\Image;
+use App\Services\VaultFiles\Types\Note;
+use App\Services\VaultFiles\Types\Pdf;
+use App\Services\VaultFiles\Types\Video;
 use Carbon\CarbonImmutable;
 use Database\Factories\VaultNodeFactory;
 use Illuminate\Database\Eloquent\Collection;
@@ -69,6 +75,18 @@ final class VaultNode extends Model
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, null, 'vault_node_id', 'tag_id');
+    }
+
+    public function type(): VaultNodeType
+    {
+        return match (true) {
+            in_array($this->extension, Audio::extensions()) => VaultNodeType::AUDIO,
+            in_array($this->extension, Note::extensions()) => VaultNodeType::NOTE,
+            in_array($this->extension, Image::extensions()) => VaultNodeType::IMAGE,
+            in_array($this->extension, Pdf::extensions()) => VaultNodeType::PDF,
+            in_array($this->extension, Video::extensions()) => VaultNodeType::VIDEO,
+            default => VaultNodeType::FOLDER,
+        };
     }
 
     public function fullPath(): string
