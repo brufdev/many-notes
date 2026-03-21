@@ -18,12 +18,12 @@ use App\Http\Controllers\VaultCollaborationController;
 use App\Http\Controllers\VaultCollaborationDeclineController;
 use App\Http\Controllers\VaultController;
 use App\Http\Controllers\VaultExportController;
-use App\Http\Controllers\VaultFileSearchController;
 use App\Http\Controllers\VaultImportController;
 use App\Http\Controllers\VaultNodeChildrenController;
 use App\Http\Controllers\VaultNodeController;
 use App\Http\Controllers\VaultNodeImportController;
 use App\Http\Controllers\VaultNodeMoveController;
+use App\Http\Controllers\VaultSearchController;
 use App\Http\Middleware\EnsureEmailIsConfigured;
 use App\Http\Middleware\EnsureRegistrationIsEnabled;
 use App\Http\Middleware\EnsureUserIsAdmin;
@@ -66,7 +66,7 @@ Route::middleware('auth')->group(function (): void {
         Route::post('decline', VaultCollaborationDeclineController::class)->name('decline');
     });
 
-    Route::get('vaults/{vault}/search', VaultFileSearchController::class)->name('vaults.search');
+    Route::get('vaults/{vault}/search', VaultSearchController::class)->name('vaults.search');
 
     Route::get('files/{vault}', [FileController::class, 'show'])->name('files.show');
 

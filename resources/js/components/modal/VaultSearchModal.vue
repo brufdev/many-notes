@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import VaultFileSearchController from '@/actions/App/Http/Controllers/VaultFileSearchController';
+import VaultSearchController from '@/actions/App/Http/Controllers/VaultSearchController';
 import ModelInput from '@/components/form/ModelInput.vue';
 import VaultFileIcon from '@/components/ui/VaultFileIcon.vue';
 import { useAxiosForm } from '@/composables/useAxiosForm';
 import { useModalManager } from '@/composables/useModalManager';
 import { useToast } from '@/composables/useToast';
-import { useVaultFileSearch } from '@/composables/useVaultFileSearch';
+import { useVaultSearch } from '@/composables/useVaultSearch';
 import { useVaultStore } from '@/stores/vault';
-import { VaultFileSearch } from '@/types/vault';
+import { VaultSearchFile } from '@/types/vault';
 import { formatElapsedTime } from '@/utils/time';
 import { computed, ref } from 'vue';
 
@@ -19,12 +19,12 @@ const props = defineProps<{
     onSelect: (fileId: number) => void;
 }>();
 
-const files = ref<VaultFileSearch[]>([]);
+const files = ref<VaultSearchFile[]>([]);
 const isLoading = ref(false);
 const fileCount = computed(() => files.value.length);
 
 const form = useAxiosForm({});
-const url = VaultFileSearchController.url({ vault: vaultStore.id! });
+const url = VaultSearchController.url({ vault: vaultStore.id! });
 
 function handleSubmit() {
     if (!search.value) {
@@ -36,7 +36,7 @@ function handleSubmit() {
 
     isLoading.value = true;
 
-    form.send<{ data: { files: VaultFileSearch[] } }>({
+    form.send<{ data: { files: VaultSearchFile[] } }>({
         url: url,
         method: 'get',
         axiosConfig: {
@@ -66,7 +66,7 @@ const {
     selectFile,
     selectPreviousFile,
     selectNextFile,
-} = useVaultFileSearch(handleSubmit, fileCount);
+} = useVaultSearch(handleSubmit, fileCount);
 
 function openFile() {
     if (files.value.length === 0) {

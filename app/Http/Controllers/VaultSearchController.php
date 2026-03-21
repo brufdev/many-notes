@@ -11,7 +11,7 @@ use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-final readonly class VaultFileSearchController
+final readonly class VaultSearchController
 {
     public function __invoke(
         Request $request,

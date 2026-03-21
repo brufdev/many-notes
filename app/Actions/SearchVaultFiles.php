@@ -6,8 +6,8 @@ namespace App\Actions;
 
 use App\Models\Vault;
 use App\Models\VaultNode;
-use App\ViewModels\VaultFileSearchHitModel;
-use App\ViewModels\VaultFileSearchViewModel;
+use App\ViewModels\VaultSearchHitModel;
+use App\ViewModels\VaultSearchViewModel;
 use Illuminate\Database\Eloquent\Builder;
 
 final readonly class SearchVaultFiles
@@ -68,9 +68,9 @@ final readonly class SearchVaultFiles
                 /** @var VaultNode $node */
                 $node = $nodes->get($id);
 
-                $hitModel = VaultFileSearchHitModel::fromRaw($hit, $node);
+                $hitModel = VaultSearchHitModel::fromRaw($hit, $node);
 
-                return VaultFileSearchViewModel::fromTextSearch($hitModel)->toArray();
+                return VaultSearchViewModel::fromTextSearch($hitModel)->toArray();
             })
             ->values()
             ->all();
@@ -89,7 +89,7 @@ final readonly class SearchVaultFiles
             ->get();
 
         foreach ($files as $file) {
-            $results[] = VaultFileSearchViewModel::fromTagSearch($file)->toArray();
+            $results[] = VaultSearchViewModel::fromTagSearch($file)->toArray();
         }
 
         return $results;

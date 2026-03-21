@@ -8,7 +8,7 @@ use App\Enums\VaultNodeType;
 use App\Models\VaultNode;
 use Carbon\CarbonImmutable;
 
-final readonly class VaultFileSearchHitModel
+final readonly class VaultSearchHitModel
 {
     public function __construct(
         public int $id,

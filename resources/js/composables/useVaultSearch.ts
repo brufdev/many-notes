@@ -10,7 +10,7 @@ function isFileVisible(containerHeight: number, elementTop: number, elementBotto
     );
 }
 
-export function useVaultFileSearch(onSearch: (search: string) => void, fileCount: Ref<number>) {
+export function useVaultSearch(onSearch: (search: string) => void, fileCount: Ref<number>) {
     const search = ref('');
     const hasSearched = ref(false);
     const selectedFile = ref(0);
