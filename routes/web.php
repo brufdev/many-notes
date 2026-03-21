@@ -17,6 +17,7 @@ use App\Http\Controllers\VaultCollaborationAcceptController;
 use App\Http\Controllers\VaultCollaborationController;
 use App\Http\Controllers\VaultCollaborationDeclineController;
 use App\Http\Controllers\VaultController;
+use App\Http\Controllers\VaultEditorSearchController;
 use App\Http\Controllers\VaultExportController;
 use App\Http\Controllers\VaultImportController;
 use App\Http\Controllers\VaultNodeChildrenController;
@@ -67,6 +68,10 @@ Route::middleware('auth')->group(function (): void {
     });
 
     Route::get('vaults/{vault}/search', VaultSearchController::class)->name('vaults.search');
+
+    Route::prefix('vaults/{vault}/editor')->name('vaults.editor.')->group(function (): void {
+        Route::get('search', VaultEditorSearchController::class)->name('search');
+    });
 
     Route::get('files/{vault}', [FileController::class, 'show'])->name('files.show');
 

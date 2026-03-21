@@ -45,3 +45,12 @@ export type VaultSearchFile = Pick<
     VaultNode,
     'id' | 'type' | 'name' | 'extension' | 'content' | 'updated_at'
 >;
+
+export type VaultEditorSearchFile = Pick<
+    VaultNode,
+    'id' | 'type' | 'name' | 'extension' | 'updated_at'
+> & {
+    dir_name: string;
+    full_path: string;
+    full_path_encoded: string;
+};
