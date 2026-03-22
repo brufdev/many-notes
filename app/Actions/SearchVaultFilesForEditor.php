@@ -7,17 +7,15 @@ namespace App\Actions;
 use App\Models\Vault;
 use App\Models\VaultNode;
 use App\Services\VaultFiles\Types\Image;
-use App\ViewModels\VaultEditorSearchViewModel;
 use Illuminate\Database\Eloquent\Builder;
+use Staudenmeir\LaravelAdjacencyList\Eloquent\Collection;
 
 final readonly class SearchVaultFilesForEditor
 {
-    /** @return array<int, array<string, mixed>> */
-    public function handle(Vault $vault, string $search, string $searchType): array
+    /** @return Collection<int, VaultNode> */
+    public function handle(Vault $vault, string $search, string $searchType): Collection
     {
-        $results = [];
-
-        $files = VaultNode::query()
+        return VaultNode::query()
             ->where('vault_id', $vault->id)
             ->where('is_file', true)
             ->when($searchType === 'image', function (Builder $query): void {
@@ -28,11 +26,5 @@ final readonly class SearchVaultFilesForEditor
             })
             ->orderByDesc('updated_at')
             ->get();
-
-        foreach ($files as $file) {
-            $results[] = VaultEditorSearchViewModel::fromModel($file)->toArray();
-        }
-
-        return $results;
     }
 }
