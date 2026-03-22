@@ -12,24 +12,34 @@ final readonly class VaultSearchViewModel
 {
     public function __construct(
         public int $id,
-        public ?VaultNodeType $type,
+        public string $type,
         public string $name,
-        public ?string $content,
-        public ?string $extension,
-        public ?CarbonImmutable $updated_at,
+        public string $content,
+        public string $extension,
+        public CarbonImmutable $updated_at,
     ) {
         //
     }
 
-    public static function fromTextSearch(VaultSearchHitModel $hit): self
+    /**
+     * @param array{
+     *   id: string,
+     *   type: VaultNodeType,
+     *   name: string,
+     *   content: string,
+     *   extension: string,
+     *   updated_at: string
+     * } $hit
+     */
+    public static function fromTextSearch(array $hit): self
     {
         return new self(
-            $hit->id,
-            $hit->type,
-            self::encodeText($hit->name_highlight ?? $hit->name),
-            self::encodeText($hit->content_highlight ?? $hit->content),
-            $hit->extension,
-            CarbonImmutable::parse($hit->updated_at),
+            (int) $hit['id'],
+            $hit['type']->value,
+            self::encodeText($hit['name']),
+            self::encodeText($hit['content']),
+            $hit['extension'],
+            CarbonImmutable::parse($hit['updated_at']),
         );
     }
 
@@ -37,25 +47,12 @@ final readonly class VaultSearchViewModel
     {
         return new self(
             $node->id,
-            $node->type(),
+            $node->type()->value,
             self::encodeText($node->name),
             '',
             $node->extension,
             $node->updated_at,
         );
-    }
-
-    /** @return array<string, mixed> */
-    public function toArray(): array
-    {
-        return [
-            'id' => $this->id,
-            'type' => $this->type->value ?? '',
-            'name' => $this->name,
-            'content' => $this->content,
-            'extension' => $this->extension ?? '',
-            'updated_at' => $this->updated_at,
-        ];
     }
 
     private static function encodeText(string $text): string
