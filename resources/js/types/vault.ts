@@ -54,3 +54,10 @@ export type VaultEditorSearchFile = Pick<
     full_path: string;
     full_path_encoded: string;
 };
+
+export type VaultEditorTemplateFile = Pick<
+    VaultNode,
+    'id' | 'type' | 'name' | 'extension' | 'updated_at'
+> & {
+    full_path: string;
+};
