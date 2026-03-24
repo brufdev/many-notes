@@ -25,7 +25,7 @@ use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
 /**
  * @property-read int $id
  * @property-read int $vault_id
- * @property-read int $parent_id
+ * @property-read int|null $parent_id
  * @property-read bool $is_file
  * @property-read string $name
  * @property-read string $extension
@@ -75,6 +75,16 @@ final class VaultNode extends Model
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, null, 'vault_node_id', 'tag_id');
+    }
+
+    public function isTemplate(): bool
+    {
+        return $this->vault->templates_node_id !== null
+            && $this->parent_id !== null
+            && $this->is_file === true
+            && $this->extension === 'md'
+            /** @phpstan-ignore-next-line larastan.noUnnecessaryCollectionCall */
+            && $this->ancestors()->get()->contains($this->vault->templates_node_id);
     }
 
     public function type(): VaultNodeType

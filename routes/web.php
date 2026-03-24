@@ -17,6 +17,7 @@ use App\Http\Controllers\VaultCollaborationAcceptController;
 use App\Http\Controllers\VaultCollaborationController;
 use App\Http\Controllers\VaultCollaborationDeclineController;
 use App\Http\Controllers\VaultController;
+use App\Http\Controllers\VaultEditorApplyTemplateController;
 use App\Http\Controllers\VaultEditorSearchController;
 use App\Http\Controllers\VaultExportController;
 use App\Http\Controllers\VaultImportController;
@@ -71,6 +72,7 @@ Route::middleware('auth')->group(function (): void {
 
     Route::prefix('vaults/{vault}/editor')->name('vaults.editor.')->group(function (): void {
         Route::get('search', VaultEditorSearchController::class)->name('search');
+        Route::post('templates/{template}/apply', VaultEditorApplyTemplateController::class)->name('templates.apply');
     });
 
     Route::get('files/{vault}', [FileController::class, 'show'])->name('files.show');
