@@ -2,7 +2,7 @@
 import BaseButton from '@/components/ui/BaseButton.vue';
 import { useModalManager } from '@/composables/useModalManager';
 import XMark from '@/icons/XMark.vue';
-import { nextTick, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 
 const { activeModal, closeModal } = useModalManager();
 const modalContainer = ref<HTMLElement | null>(null);
@@ -74,6 +74,14 @@ async function handleFocus() {
     }
 }
 
+const filteredProps = computed(() => {
+    if (!activeModal.value?.props) return {};
+
+    const { title: _title, top: _top, ...rest } = activeModal.value.props;
+
+    return rest;
+});
+
 watch(activeModal, async modal => {
     if (modal) {
         document.addEventListener('keydown', handleKeyDown);
@@ -115,7 +123,7 @@ watch(activeModal, async modal => {
                         <div class="overflow-y-auto px-6">
                             <component
                                 :is="activeModal.component"
-                                v-bind="activeModal.props"
+                                v-bind="filteredProps"
                                 @close="closeModal"
                             />
                         </div>
