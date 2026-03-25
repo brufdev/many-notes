@@ -5,6 +5,7 @@ type MenuType = 'dropdown' | 'hover';
 
 const props = defineProps<{
     type: MenuType;
+    disabled?: boolean;
 }>();
 
 const { triggerRef, menuRef, isOpen, position, closeMenu, toggleMenu } = useMenu();
@@ -18,7 +19,7 @@ function handleClick() {
 }
 
 function handleHover() {
-    if (props.type === 'hover') {
+    if (props.type === 'hover' && !props.disabled) {
         toggleMenu();
     }
 }
@@ -32,7 +33,7 @@ function handleHover() {
         @mouseenter="handleHover"
         @mouseleave="handleHover"
     >
-        <div class="cursor-pointer select-none">
+        <div :class="['select-none', !disabled && 'cursor-pointer']">
             <slot name="trigger" />
 
             <Teleport to="body" :disabled="props.type === 'hover'">
