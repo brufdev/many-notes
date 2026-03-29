@@ -5,7 +5,7 @@ import Submit from '@/components/form/Submit.vue';
 import Tab from '@/components/tabs/Tab.vue';
 import TabPanel from '@/components/tabs/TabPanel.vue';
 import Tabs from '@/components/tabs/Tabs.vue';
-import VaultFileIcon from '@/components/ui/VaultFileIcon.vue';
+import VaultFileIcon from '@/components/vault/VaultFileIcon.vue';
 import { useAxiosForm } from '@/composables/useAxiosForm';
 import { useModalManager } from '@/composables/useModalManager';
 import { useToast } from '@/composables/useToast';

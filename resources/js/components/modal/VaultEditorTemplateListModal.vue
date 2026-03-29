@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import VaultFileIcon from '@/components/ui/VaultFileIcon.vue';
+import VaultFileIcon from '@/components/vault/VaultFileIcon.vue';
 import { useModalManager } from '@/composables/useModalManager';
 import { useVaultSearch } from '@/composables/useVaultSearch';
 import { useVaultTemplateStore } from '@/stores/vaultTemplate';

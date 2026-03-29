@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import VaultSearchController from '@/actions/App/Http/Controllers/VaultSearchController';
 import ModelInput from '@/components/form/ModelInput.vue';
-import VaultFileIcon from '@/components/ui/VaultFileIcon.vue';
+import VaultFileIcon from '@/components/vault/VaultFileIcon.vue';
 import { useAxiosForm } from '@/composables/useAxiosForm';
 import { useModalManager } from '@/composables/useModalManager';
 import { useToast } from '@/composables/useToast';
