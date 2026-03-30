@@ -3,7 +3,7 @@ import VaultFileIcon from '@/components/vault/VaultFileIcon.vue';
 import { useModalManager } from '@/composables/useModalManager';
 import { useVaultSearch } from '@/composables/useVaultSearch';
 import { useVaultTemplateStore } from '@/stores/vaultTemplate';
-import { formatElapsedTime } from '@/utils/time';
+import { formatElapsedTime, formatExtendedDate } from '@/utils/time';
 import { storeToRefs } from 'pinia';
 import { computed, onMounted, onUnmounted } from 'vue';
 
@@ -91,7 +91,7 @@ onUnmounted(() => {
                         @click="insertFile"
                     >
                         <span class="flex w-full items-center justify-between">
-                            <div
+                            <span
                                 class="flex min-w-0 flex-1 items-center gap-2 py-1"
                                 :title="file.name"
                             >
@@ -101,8 +101,11 @@ onUnmounted(() => {
                                 <span class="truncate">
                                     {{ file.name }}
                                 </span>
-                            </div>
-                            <span class="text-light-base-700 dark:text-base-400 pl-2 text-xs">
+                            </span>
+                            <span
+                                class="text-light-base-700 dark:text-base-400 pl-2 text-xs"
+                                :title="formatExtendedDate(file.updated_at)"
+                            >
                                 {{ formatElapsedTime(file.updated_at) }}
                             </span>
                         </span>

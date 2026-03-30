@@ -8,7 +8,7 @@ import { useToast } from '@/composables/useToast';
 import { useVaultSearch } from '@/composables/useVaultSearch';
 import { useVaultStore } from '@/stores/vault';
 import { VaultSearchFile } from '@/types/vault';
-import { formatElapsedTime } from '@/utils/time';
+import { formatElapsedTime, formatExtendedDate } from '@/utils/time';
 import { computed, ref } from 'vue';
 
 const { closeModal } = useModalManager();
@@ -116,7 +116,7 @@ function openFile() {
                         @click="openFile"
                     >
                         <span class="flex w-full items-center justify-between">
-                            <div
+                            <span
                                 class="flex min-w-0 flex-1 items-center gap-2 py-1"
                                 :title="file.name"
                             >
@@ -125,11 +125,13 @@ function openFile() {
                                 </span>
                                 <!-- eslint-disable-next-line vue/no-v-html -->
                                 <span class="truncate" v-html="file.name"></span>
-                            </div>
+                            </span>
                             <span
                                 class="text-light-base-700 dark:text-base-400 pl-2 text-xs"
-                                v-text="formatElapsedTime(file.updated_at)"
-                            ></span>
+                                :title="formatExtendedDate(file.updated_at)"
+                            >
+                                {{ formatElapsedTime(file.updated_at) }}
+                            </span>
                         </span>
                         <!-- eslint-disable vue/no-v-html -->
                         <span

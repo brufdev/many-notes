@@ -40,3 +40,17 @@ export function formatElapsedTime(input: string | Date): string {
 
     return `${years}y`;
 }
+
+export function formatExtendedDate(input: string | Date): string {
+    const date = typeof input === 'string' ? new Date(input) : input;
+
+    return date.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+        timeZoneName: 'shortOffset',
+    });
+}
