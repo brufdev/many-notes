@@ -9,6 +9,7 @@ use App\Http\Requests\MoveVaultNodeRequest;
 use App\Models\User;
 use App\Models\Vault;
 use App\Models\VaultNode;
+use App\ViewModels\VaultNodeViewModel;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 
@@ -43,8 +44,10 @@ final readonly class VaultNodeMoveController
             }
         }
 
-        app(MoveVaultNode::class)->handle($node, $data);
+        $updatedNode = app(MoveVaultNode::class)->handle($node, $data);
 
-        return response()->json();
+        return response()->json([
+            'data' => VaultNodeViewModel::fromModel($updatedNode)->toArray(),
+        ]);
     }
 }

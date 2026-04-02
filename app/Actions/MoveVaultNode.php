@@ -9,11 +9,7 @@ use App\Models\VaultNode;
 
 final readonly class MoveVaultNode
 {
-    /**
-     * @param array{
-     *   parent_id: int|null,
-     * } $attributes
-     */
+    /** @param array{ parent_id: int|null } $attributes */
     public function handle(VaultNode $node, array $attributes): VaultNode
     {
         $oldParentId = $node->parent_id;
@@ -21,6 +17,6 @@ final readonly class MoveVaultNode
 
         broadcast(new VaultNodeMovedEvent($updatedNode, $oldParentId))->toOthers();
 
-        return $node;
+        return $updatedNode;
     }
 }
