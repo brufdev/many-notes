@@ -6,14 +6,14 @@ import SecondaryButton from '@/components/ui/SecondaryButton.vue';
 import { useAxiosForm } from '@/composables/useAxiosForm';
 import { useModalManager } from '@/composables/useModalManager';
 import { useToast } from '@/composables/useToast';
-import { useVaultTreeActions } from '@/composables/useVaultTreeActions';
+import { useVaultActions } from '@/composables/useVaultActions';
 import { useVaultTreeStore } from '@/stores/vaultTree';
 import { VaultNode } from '@/types/vault';
 
+const vaultTreeStore = useVaultTreeStore();
 const { closeModal } = useModalManager();
 const { createToast } = useToast();
-const vaultTreeStore = useVaultTreeStore();
-const vaultTreeActions = useVaultTreeActions();
+const vaultActions = useVaultActions();
 
 const props = defineProps<{
     vaultId: number;
@@ -49,7 +49,7 @@ const handleSubmit = () => {
             vaultTreeStore.handleNodeSaved(response.data);
 
             if (props.isFile) {
-                vaultTreeActions.openFile(response.data.id);
+                vaultActions.openFile(response.data.id);
             }
         },
     });

@@ -1,5 +1,5 @@
 import { show, update } from '@/routes/vaults';
-import { children, move } from '@/routes/vaults/nodes';
+import { children } from '@/routes/vaults/nodes';
 import { useLayoutStore } from '@/stores/layout';
 import { useVaultStore } from '@/stores/vault';
 import { useVaultTreeStore } from '@/stores/vaultTree';
@@ -15,24 +15,6 @@ export function useVaultTreeActions() {
     const layoutStore = useLayoutStore();
     const vaultStore = useVaultStore();
     const vaultTreeStore = useVaultTreeStore();
-
-    function openFile(fileId: number): void {
-        router.visit(show.url({ vault: vaultTreeStore.getActiveVaultId() }), {
-            method: 'get',
-            data: {
-                file: fileId,
-            },
-            preserveState: true,
-            only: ['openedFile', 'ancestors', 'ancestorsChildren'],
-            onSuccess: () => {
-                vaultTreeStore.handleFileOpened(
-                    fileId,
-                    page.props.ancestors ?? [],
-                    page.props.ancestorsChildren ?? {}
-                );
-            },
-        });
-    }
 
     function fetchChildren(
         parentId: number | null,
@@ -60,47 +42,6 @@ export function useVaultTreeActions() {
             })
             .finally(() => {
                 vaultTreeStore.finishLoadingFolder(key);
-            });
-    }
-
-    function moveNode(nodeId: number, newParentId: number | null): void {
-        const node = vaultTreeStore.getNodeById(nodeId);
-
-        if (!node) {
-            createToast('Something went wrong', 'error');
-
-            return;
-        }
-
-        if (node.parent_id === newParentId) {
-            return;
-        }
-
-        layoutStore.setTreeViewLoading(true);
-
-        const oldParentId = node.parent_id;
-        const url = move.url({
-            vault: vaultTreeStore.getActiveVaultId(),
-            node: nodeId,
-        });
-
-        axios({
-            url: url,
-            method: 'patch',
-            data: {
-                parent_id: newParentId,
-            },
-        })
-            .then(() => {
-                const message = node.is_file ? 'File moved' : 'Folder moved';
-                createToast(message, 'success');
-                handleNodeMoved(nodeId, oldParentId, newParentId);
-            })
-            .catch((error: AxiosError) => {
-                createToast(error.response?.statusText ?? 'Something went wrong', 'error');
-            })
-            .finally(() => {
-                layoutStore.setTreeViewLoading(false);
             });
     }
 
@@ -176,9 +117,7 @@ export function useVaultTreeActions() {
     }
 
     return {
-        openFile,
         fetchChildren,
-        moveNode,
         setTemplateFolder,
         handleNodesDeleted,
         handleNodeMoved,
