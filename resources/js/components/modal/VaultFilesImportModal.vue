@@ -3,16 +3,18 @@ import VaultNodeImportController from '@/actions/App/Http/Controllers/VaultNodeI
 import { useAxiosForm } from '@/composables/useAxiosForm';
 import { useModalManager } from '@/composables/useModalManager';
 import { useToast } from '@/composables/useToast';
+import { useVaultRecentFileStore } from '@/stores/vaultRecentFile';
 import { useVaultTreeStore } from '@/stores/vaultTree';
 import { AppPageProps } from '@/types';
 import { VaultNode } from '@/types/vault';
 import { usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
+const vaultRecentFileStore = useVaultRecentFileStore();
+const vaultTreeStore = useVaultTreeStore();
 const page = usePage<AppPageProps>();
 const { closeModal } = useModalManager();
 const { createToast } = useToast();
-const vaultTreeStore = useVaultTreeStore();
 
 const props = defineProps<{
     vaultId: number;
@@ -97,6 +99,7 @@ const handleSubmit = () => {
             createToast(`${response.files.length} ${message}`, 'success');
 
             for (const file of response.files) {
+                vaultRecentFileStore.upsertRecentFile(file);
                 vaultTreeStore.handleNodeSaved(file);
             }
         },

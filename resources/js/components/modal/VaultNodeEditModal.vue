@@ -6,12 +6,14 @@ import SecondaryButton from '@/components/ui/SecondaryButton.vue';
 import { useAxiosForm } from '@/composables/useAxiosForm';
 import { useModalManager } from '@/composables/useModalManager';
 import { useToast } from '@/composables/useToast';
+import { useVaultRecentFileStore } from '@/stores/vaultRecentFile';
 import { useVaultTreeStore } from '@/stores/vaultTree';
 import { VaultNode } from '@/types/vault';
 
+const vaultRecentFileStore = useVaultRecentFileStore();
+const vaultTreeStore = useVaultTreeStore();
 const { closeModal } = useModalManager();
 const { createToast } = useToast();
-const vaultTreeStore = useVaultTreeStore();
 
 const props = defineProps<{
     id: number;
@@ -39,6 +41,8 @@ const handleSubmit = () => {
             closeModal();
             const message = props.isFile ? 'File updated' : 'Folder updated';
             createToast(message, 'success');
+
+            vaultRecentFileStore.upsertRecentFile(response.data);
             vaultTreeStore.handleNodeSaved(response.data);
         },
     });

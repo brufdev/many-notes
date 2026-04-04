@@ -2,6 +2,7 @@ import { show } from '@/routes/vaults';
 import { move } from '@/routes/vaults/nodes';
 import { useLayoutStore } from '@/stores/layout';
 import { useVaultStore } from '@/stores/vault';
+import { useVaultRecentFileStore } from '@/stores/vaultRecentFile';
 import { useVaultTreeStore } from '@/stores/vaultTree';
 import { VaultNode } from '@/types/vault';
 import { VaultShowPageProps } from '@/types/vault.pages';
@@ -17,6 +18,7 @@ export function useVaultActions() {
     const layoutStore = useLayoutStore();
     const vaultStore = useVaultStore();
     const vaultTreeStore = useVaultTreeStore();
+    const vaultRecentFileStore = useVaultRecentFileStore();
     const vaultTreeActions = useVaultTreeActions();
 
     function openFile(fileId: number): void {
@@ -89,6 +91,7 @@ export function useVaultActions() {
                 createToast(message, 'success');
 
                 vaultTreeActions.handleNodeMoved(nodeId, oldParentId, newParentId);
+                vaultRecentFileStore.upsertRecentFile(response.data.data);
             })
             .catch((error: AxiosError) => {
                 createToast(error.response?.statusText ?? 'Something went wrong', 'error');

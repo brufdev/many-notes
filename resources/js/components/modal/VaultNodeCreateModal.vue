@@ -7,9 +7,11 @@ import { useAxiosForm } from '@/composables/useAxiosForm';
 import { useModalManager } from '@/composables/useModalManager';
 import { useToast } from '@/composables/useToast';
 import { useVaultActions } from '@/composables/useVaultActions';
+import { useVaultRecentFileStore } from '@/stores/vaultRecentFile';
 import { useVaultTreeStore } from '@/stores/vaultTree';
 import { VaultNode } from '@/types/vault';
 
+const vaultRecentFileStore = useVaultRecentFileStore();
 const vaultTreeStore = useVaultTreeStore();
 const { closeModal } = useModalManager();
 const { createToast } = useToast();
@@ -46,6 +48,8 @@ const handleSubmit = () => {
             closeModal();
             const message = props.isFile ? 'File created' : 'Folder created';
             createToast(message, 'success');
+
+            vaultRecentFileStore.upsertRecentFile(response.data);
             vaultTreeStore.handleNodeSaved(response.data);
 
             if (props.isFile) {
