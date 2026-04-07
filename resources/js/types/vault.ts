@@ -41,6 +41,10 @@ export interface VaultNode {
 
 export type VaultNodeTreeItem = Pick<VaultNode, 'id' | 'parent_id' | 'type' | 'name' | 'extension'>;
 
+export type VaultLink = Pick<VaultNode, 'id' | 'type' | 'name' | 'full_path'> & {
+    total: number;
+};
+
 export type VaultTag = Pick<VaultNode, 'id' | 'name'> & {
     total: number;
 };
