@@ -9,13 +9,14 @@ import { useVaultSearch } from '@/composables/useVaultSearch';
 import { useVaultStore } from '@/stores/vault';
 import { VaultSearchFile } from '@/types/vault';
 import { formatElapsedTime, formatExtendedDate } from '@/utils/time';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 const { closeModal } = useModalManager();
 const { createToast } = useToast();
 const vaultStore = useVaultStore();
 
 const props = defineProps<{
+    initialSearch?: string;
     onSelect: (fileId: number) => void;
 }>();
 
@@ -57,6 +58,16 @@ function handleSubmit() {
     });
 }
 
+function openFile() {
+    if (files.value.length === 0) {
+        return;
+    }
+
+    props.onSelect(files.value[selectedFile.value].id);
+
+    closeModal();
+}
+
 const {
     search,
     hasSearched,
@@ -68,15 +79,9 @@ const {
     selectNextFile,
 } = useVaultSearch(handleSubmit, fileCount);
 
-function openFile() {
-    if (files.value.length === 0) {
-        return;
-    }
-
-    props.onSelect(files.value[selectedFile.value].id);
-
-    closeModal();
-}
+onMounted(() => {
+    search.value = props.initialSearch ?? '';
+});
 </script>
 
 <template>
