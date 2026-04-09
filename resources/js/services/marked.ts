@@ -1,10 +1,10 @@
-import { marked } from 'marked';
+import { marked, type Tokens } from 'marked';
 import { angleBracketLink } from './marked/extension-angle-bracket-link';
 import { hashtag } from './marked/extension-hashtag';
 
 const renderer = new marked.Renderer();
 
-renderer.link = function({ href, raw, text, title }) {
+renderer.link = function ({ href, raw, text, title }: Tokens.Link): string {
     // Skip autolinking URLs/emails in plain Markdown text
     if (raw === text) {
         return text;
@@ -16,14 +16,14 @@ renderer.link = function({ href, raw, text, title }) {
     return `<a href="${href}"${classAttr}${titleAttr}>${text}</a>`;
 };
 
-renderer.list = function(token) {
-    const ordered = token.ordered;
-    const taskList = token.items[0]?.task === true;
-    const start = token.start;
+renderer.list = function (token: Tokens.List): string {
+    const { ordered, items, start } = token;
+    const taskList = items[0]?.task === true;
     const type = ordered ? 'ol' : 'ul';
+
     let body = '';
 
-    for (const item of token.items) {
+    for (const item of items) {
         body += this.listitem(item);
     }
 
@@ -38,7 +38,7 @@ renderer.list = function(token) {
     return `<${type}${startAttr}>\n${body}</${type}>\n`;
 };
 
-renderer.listitem = function(item) {
+renderer.listitem = function (item: Tokens.ListItem): string {
     let itemAttr = '';
 
     if (item.task) {
@@ -47,12 +47,13 @@ renderer.listitem = function(item) {
 
         if (item.loose) {
             const firstToken = item.tokens[0];
-            const hasParagraphWithText = firstToken?.type === 'paragraph'
-                && firstToken.tokens?.length > 0
-                && firstToken.tokens[0].type === 'text';
+            const hasParagraphWithText =
+                firstToken?.type === 'paragraph' &&
+                (firstToken as Tokens.Paragraph).tokens?.length > 0 &&
+                (firstToken as Tokens.Paragraph).tokens[0].type === 'text';
 
             if (hasParagraphWithText) {
-                firstToken.tokens[0].escaped = true;
+                ((firstToken as Tokens.Paragraph).tokens[0] as Tokens.Text).escaped = true;
             } else {
                 // Prepend empty text token
                 item.tokens.unshift({
@@ -60,31 +61,28 @@ renderer.listitem = function(item) {
                     raw: '',
                     text: '',
                     escaped: true,
-                });
+                } satisfies Tokens.Text);
             }
         }
     }
 
-    const itemBody = this.parser.parse(item.tokens, !!item.loose);
+    const itemBody = this.parser.parse(item.tokens);
 
     return `<li${itemAttr}>${itemBody}</li>\n`;
 };
 
-renderer.code = function({ text, lang }) {
+renderer.code = function ({ text, lang }: Tokens.Code): string {
     const langClass = lang ? ` class="language-${lang}"` : '';
 
     return `<pre><code${langClass}>${text}</code></pre>`;
 };
 
-renderer.codespan = function({ text }) {
+renderer.codespan = function ({ text }: Tokens.Codespan): string {
     return `<code>${text}</code>`;
 };
 
 marked.use({
-    extensions: [
-        angleBracketLink,
-        hashtag,
-    ],
+    extensions: [angleBracketLink, hashtag],
 });
 
-export const markedService = marked.setOptions({ renderer: renderer });
+export const markedService = marked.setOptions({ renderer });
