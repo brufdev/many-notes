@@ -53,7 +53,7 @@ final readonly class VaultNodeController
     ): JsonResponse {
         abort_unless($user->can('update', $vault), 403);
 
-        /** @var array{name: string} $data */
+        /** @var array{name?: string, content?: string} $data */
         $data = $request->validated();
 
         $node = $updateVaultNode->handle($node, $data);

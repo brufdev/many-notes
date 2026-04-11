@@ -1,15 +1,17 @@
-import { Plugin, TextSelection } from '@tiptap/pm/state';
 import { Extension } from '@tiptap/core';
+import { Plugin, TextSelection } from '@tiptap/pm/state';
 
-const bracketPairs = {
+const bracketPairs: Record<string, string> = {
     '<': '>',
     '«': '»',
     '(': ')',
     '[': ']',
     '{': '}',
-    '"': '"',
-    "'": "'",
+    '"': '\u201d',
+    "'": '\u2019',
 };
+
+const closingChars = new Set(Object.values(bracketPairs));
 
 export const SmartBracket = Extension.create({
     name: 'smartBracket',
@@ -18,7 +20,7 @@ export const SmartBracket = Extension.create({
         return [
             new Plugin({
                 props: {
-                    handleTextInput: (view, from, to, text) => {
+                    handleTextInput(view, from, to, text) {
                         if (!(text in bracketPairs)) {
                             return false;
                         }
@@ -52,8 +54,8 @@ export const SmartBracket = Extension.create({
 
                         // Calculate cursor position
                         const mappedFrom = tr.mapping.map(from);
-                        const mapped = tr.doc.resolve(mappedFrom);
-                        const finalPos = mapped.parent.isTextblock
+                        const resolved = tr.doc.resolve(mappedFrom);
+                        const finalPos = resolved.parent.isTextblock
                             ? mappedFrom + 1
                             : mappedFrom + 2;
                         tr.setSelection(TextSelection.create(tr.doc, finalPos));
@@ -61,6 +63,7 @@ export const SmartBracket = Extension.create({
 
                         return true;
                     },
+
                     handleKeyDown(view, event) {
                         const { state, dispatch } = view;
                         const { selection } = state;
@@ -74,7 +77,7 @@ export const SmartBracket = Extension.create({
                         const prev = $from.nodeBefore;
 
                         // Skip over closing chars
-                        if (Object.values(bracketPairs).includes(event.key)) {
+                        if (closingChars.has(event.key)) {
                             const nextChar = next?.text?.[0];
 
                             if (nextChar === event.key) {
@@ -83,6 +86,7 @@ export const SmartBracket = Extension.create({
                                         TextSelection.create(state.doc, $from.pos + 1)
                                     )
                                 );
+
                                 return true;
                             }
 
@@ -91,18 +95,13 @@ export const SmartBracket = Extension.create({
 
                         // Delete bracket pair when cursor between opening and closing chars
                         if (event.key === 'Backspace') {
-                            if (
-                                prev &&
-                                next &&
-                                prev.isText &&
-                                next.isText &&
-                                $from.parent.isTextblock
-                            ) {
-                                const prevChar = prev.text.slice(-1);
-                                const nextChar = next.text[0];
+                            if (prev?.isText && next?.isText && $from.parent.isTextblock) {
+                                const prevChar = prev.text!.slice(-1);
+                                const nextChar = next.text![0];
 
                                 if (bracketPairs[prevChar] === nextChar) {
                                     dispatch(state.tr.delete($from.pos - 1, $from.pos + 1));
+
                                     return true;
                                 }
                             }
@@ -111,7 +110,7 @@ export const SmartBracket = Extension.create({
                         }
 
                         return false;
-                    }
+                    },
                 },
             }),
         ];

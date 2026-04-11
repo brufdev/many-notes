@@ -2,15 +2,13 @@ import { Mark, mergeAttributes } from '@tiptap/core';
 
 export const Hashtag = Mark.create({
     name: 'hashtag',
-    inline: true,
-    group: 'inline',
-    selectable: false,
     inclusive: true,
+
     addAttributes() {
         return {
             escaped: {
                 default: false,
-                parseHTML: el => el.getAttribute('data-escaped') === 'true',
+                parseHTML: element => element.dataset.escaped === 'true',
                 renderHTML: attrs => ({
                     'data-hashtag': 'true',
                     'data-escaped': attrs.escaped ? 'true' : 'false',
@@ -18,6 +16,7 @@ export const Hashtag = Mark.create({
             },
         };
     },
+
     parseHTML() {
         return [
             {
@@ -25,7 +24,8 @@ export const Hashtag = Mark.create({
             },
         ];
     },
-    renderHTML({ node, HTMLAttributes }) {
-        return ['span', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes), 0];
+
+    renderHTML({ HTMLAttributes }) {
+        return ['span', mergeAttributes(HTMLAttributes), 0];
     },
 });

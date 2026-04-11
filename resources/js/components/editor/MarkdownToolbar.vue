@@ -4,6 +4,7 @@ import Menu from '@/components/menu/Menu.vue';
 import VaultEditorSearchFileModal from '@/components/modal/VaultEditorSearchModal.vue';
 import VaultEditorTemplateListModal from '@/components/modal/VaultEditorTemplateListModal.vue';
 import { useAxiosForm } from '@/composables/useAxiosForm';
+import { useEditor } from '@/composables/useEditor';
 import { useModalManager } from '@/composables/useModalManager';
 import { useTiptapPreferences } from '@/composables/useTiptapPreferences';
 import { useToast } from '@/composables/useToast';
@@ -45,7 +46,6 @@ import Template from '@/icons/Template.vue';
 import Text from '@/icons/Text.vue';
 import Undo from '@/icons/Undo.vue';
 import { useLayoutStore } from '@/stores/layout';
-import type { Editor } from '@tiptap/vue-3';
 import { computed, inject, type ShallowRef } from 'vue';
 import MarkdownToolbarButton from './MarkdownToolbarButton.vue';
 import MarkdownToolbarItemDivider from './MarkdownToolbarItemDivider.vue';
@@ -62,7 +62,8 @@ const { createToast } = useToast();
 const { isEditMode, isEditingMarkdown, toggleEditMode, toggleEditingMarkdown } =
     useTiptapPreferences();
 
-const editor = inject<ShallowRef<Editor | null>>('noteEditor');
+const editorContext = inject<ShallowRef<ReturnType<typeof useEditor> | null>>('editorContext');
+const editor = computed(() => editorContext?.value?.editor?.value ?? null);
 
 const isToolbarLocked = computed(() => !isEditMode.value || isEditingMarkdown.value);
 

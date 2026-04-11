@@ -1,13 +1,15 @@
-import TableCell from '@tiptap/extension-table-cell';
+import { TableHeader } from '@tiptap/extension-table';
 
-export const CustomTableCell = TableCell.extend({
+type Align = 'left' | 'center' | 'right' | null;
+
+export const CustomTableHeader = TableHeader.extend({
     addAttributes() {
         return {
             ...this.parent?.(),
             align: {
-                default: null,
-                parseHTML: element => element.getAttribute('align'),
-                renderHTML: attributes => {
+                default: null as Align,
+                parseHTML: (element: HTMLElement): Align => element.getAttribute('align') as Align,
+                renderHTML: (attributes: { align: Align }) => {
                     if (!attributes.align) {
                         return {};
                     }
