@@ -40,7 +40,7 @@ final readonly class VaultNodeController
         $node = $createVaultNode->handle($vault, $data);
 
         return response()->json([
-            'data' => VaultNodeViewModel::fromModel($node)->toArray(),
+            'data' => VaultNodeViewModel::fromModel($node),
         ]);
     }
 
@@ -59,7 +59,7 @@ final readonly class VaultNodeController
         $node = $updateVaultNode->handle($node, $data);
 
         return response()->json([
-            'data' => VaultNodeViewModel::fromModel($node)->toArray(),
+            'data' => VaultNodeViewModel::fromModel($node),
         ]);
     }
 

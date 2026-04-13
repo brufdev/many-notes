@@ -20,7 +20,7 @@ final readonly class VaultNodeChildrenController
         }
 
         $children = $node->children
-            ->map(fn(VaultNode $node): array => VaultNodeViewModel::fromModel($node)->toArray());
+            ->map(fn(VaultNode $node): VaultNodeViewModel => VaultNodeViewModel::fromModel($node));
 
         return response()->json([
             'children' => $children,

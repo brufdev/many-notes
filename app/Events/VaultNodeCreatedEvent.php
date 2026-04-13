@@ -29,11 +29,11 @@ final class VaultNodeCreatedEvent implements ShouldBroadcastNow
         ];
     }
 
-    /** @return array<string, array<string, mixed>> */
+    /** @return array<string, VaultNodeViewModel> */
     public function broadcastWith(): array
     {
         return [
-            'data' => VaultNodeViewModel::fromModel($this->node)->toArray(),
+            'data' => VaultNodeViewModel::fromModel($this->node),
         ];
     }
 }

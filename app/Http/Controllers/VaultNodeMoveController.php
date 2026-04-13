@@ -47,7 +47,7 @@ final readonly class VaultNodeMoveController
         $updatedNode = app(MoveVaultNode::class)->handle($node, $data);
 
         return response()->json([
-            'data' => VaultNodeViewModel::fromModel($updatedNode)->toArray(),
+            'data' => VaultNodeViewModel::fromModel($updatedNode),
         ]);
     }
 }

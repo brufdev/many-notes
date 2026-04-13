@@ -55,7 +55,7 @@ final readonly class VaultNodeImportController
             $filePath = $file->getRealPath();
             $node = $processImportedFile->handle($vault, $parent, $fileName, $filePath);
 
-            $importedFiles[] = VaultNodeViewModel::fromModel($node)->toArray();
+            $importedFiles[] = VaultNodeViewModel::fromModel($node);
         }
 
         return response()->json([
