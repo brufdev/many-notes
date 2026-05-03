@@ -62,19 +62,22 @@ final class VaultNode extends Model
     /** @return BelongsToMany<VaultNode, $this> */
     public function links(): BelongsToMany
     {
-        return $this->belongsToMany(self::class, null, 'source_id', 'destination_id');
+        return $this->belongsToMany(self::class, null, 'source_id', 'destination_id')
+            ->withPivot('position');
     }
 
     /** @return BelongsToMany<VaultNode, $this> */
     public function backlinks(): BelongsToMany
     {
-        return $this->belongsToMany(self::class, null, 'destination_id', 'source_id');
+        return $this->belongsToMany(self::class, null, 'destination_id', 'source_id')
+            ->withPivot('position');
     }
 
     /** @return BelongsToMany<Tag, $this> */
     public function tags(): BelongsToMany
     {
-        return $this->belongsToMany(Tag::class, null, 'vault_node_id', 'tag_id');
+        return $this->belongsToMany(Tag::class, null, 'vault_node_id', 'tag_id')
+            ->withPivot('position');
     }
 
     public function isTemplate(): bool

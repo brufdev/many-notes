@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Events\VaultNodeUpdatedEvent;
+use App\Events\VaultOpenedFileDataUpdatedEvent;
+use App\Events\VaultTagListUpdatedEvent;
 use App\Models\VaultNode;
 use App\Services\VaultFiles\Types\Note;
 use Illuminate\Support\Facades\Storage;
@@ -43,8 +45,23 @@ final readonly class UpdateVaultNode
         $node->refresh();
 
         if ($node->is_file && $node->extension === 'md' && $node->wasChanged(['content'])) {
+            $previousLinks = $this->getLinks($node);
             app(ProcessVaultNodeLinks::class)->handle($node);
+            $newLinks = $this->getLinks($node);
+
+            $previousTags = $this->getTags($node);
             app(ProcessVaultNodeTags::class)->handle($node);
+            $newTags = $this->getTags($node);
+
+            if ($previousLinks !== $newLinks || $previousTags !== $newTags) {
+                // Broadcast events
+                broadcast(new VaultOpenedFileDataUpdatedEvent($node));
+            }
+
+            if ($previousTags !== $newTags) {
+                // Broadcast events
+                broadcast(new VaultTagListUpdatedEvent($node->vault));
+            }
         }
 
         if ($node->wasChanged(['name', 'parent_id'])) {
@@ -54,11 +71,40 @@ final readonly class UpdateVaultNode
 
             // Update all backlinks
             app(UpdateVaultNodeBacklinks::class)->handle($node, $originalLinkPath);
-
-            // Broadcast events
-            broadcast(new VaultNodeUpdatedEvent($node))->toOthers();
         }
 
+        if ($node->wasChanged(['name'])) {
+            $backlinks = $node->backlinks()->get();
+
+            // Broadcast events
+            foreach ($backlinks as $backlink) {
+                broadcast(new VaultOpenedFileDataUpdatedEvent($backlink))->toOthers();
+            }
+        }
+
+        // Broadcast events
+        broadcast(new VaultNodeUpdatedEvent($node))->toOthers();
+
         return $node;
+    }
+
+    /** @return array<mixed> */
+    private function getLinks(VaultNode $node): array
+    {
+        return $node
+            ->links()
+            ->get()
+            ->pluck('pivot.destination_id', 'pivot.position')
+            ->toArray();
+    }
+
+    /** @return array<mixed> */
+    private function getTags(VaultNode $node): array
+    {
+        return $node
+            ->tags()
+            ->get()
+            ->pluck('pivot.tag_id', 'pivot.position')
+            ->toArray();
     }
 }
