@@ -3,6 +3,7 @@ import { children } from '@/routes/vaults/nodes';
 import { useLayoutStore } from '@/stores/layout';
 import { useVaultStore } from '@/stores/vault';
 import { useVaultTreeStore } from '@/stores/vaultTree';
+import { VaultNode } from '@/types/vault';
 import { VaultShowPageProps } from '@/types/vault.pages';
 import { router, usePage } from '@inertiajs/vue3';
 import { AxiosError, AxiosResponse } from 'axios';
@@ -91,26 +92,27 @@ export function useVaultTreeActions() {
         }
     }
 
-    function handleNodeMoved(
-        nodeId: number,
-        oldParentId: number | null,
-        newParentId: number | null
-    ): void {
+    function handleNodeUpdated(node: VaultNode): void {
+        const previousNodeData = vaultTreeStore.getNodeById(node.id);
         const selectedFileId = vaultTreeStore.getSelectedFileId();
 
-        vaultTreeStore.handleNodeMoved(nodeId, oldParentId, newParentId);
+        vaultTreeStore.handleNodeSaved(node);
 
         if (
             selectedFileId !== null &&
-            newParentId !== null &&
-            vaultTreeStore.isNodeInSubtree(selectedFileId, nodeId) &&
-            !vaultTreeStore.isFolderLoaded(newParentId)
+            node.parent_id !== null &&
+            previousNodeData !== null &&
+            previousNodeData.parent_id !== node.parent_id &&
+            vaultTreeStore.isNodeInSubtree(selectedFileId, node.id) &&
+            !vaultTreeStore.isFolderLoaded(node.parent_id)
         ) {
             router.reload({
-                only: ['ancestors', 'ancestorsChildren'],
+                only: ['openedFile'],
                 onSuccess: () => {
-                    vaultTreeStore.setAncestors(page.props.ancestors ?? []);
-                    vaultTreeStore.setAncestorsChildren(page.props.ancestorsChildren ?? {});
+                    vaultTreeStore.setAncestors(page.props.openedFile?.ancestors ?? []);
+                    vaultTreeStore.setAncestorsChildren(
+                        page.props.openedFile?.ancestorsChildren ?? {}
+                    );
                 },
             });
         }
@@ -120,6 +122,6 @@ export function useVaultTreeActions() {
         fetchChildren,
         setTemplateFolder,
         handleNodesDeleted,
-        handleNodeMoved,
+        handleNodeUpdated,
     };
 }
