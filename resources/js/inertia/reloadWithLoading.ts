@@ -1,7 +1,7 @@
 import { useLayoutStore } from '@/stores/layout';
 import { router } from '@inertiajs/vue3';
 
-interface ReloadWithLoadingOptions {
+export interface ReloadWithLoadingOptions {
     only?: string[];
 }
 
