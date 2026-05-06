@@ -29,17 +29,30 @@ export interface RecentVaultFile {
 
 export interface VaultNode {
     id: number;
+    vault_id: number;
     parent_id: number | null;
     is_file: boolean;
     type: 'audio' | 'folder' | 'image' | 'note' | 'pdf' | 'video';
     name: string;
     extension: string | null;
     full_path: string;
+    url: string;
     content: string | null;
     updated_at: string;
 }
 
-export type VaultNodeTreeItem = Pick<VaultNode, 'id' | 'parent_id' | 'type' | 'name' | 'extension'>;
+export type VaultNodeTreeItem = Pick<
+    VaultNode,
+    | 'id'
+    | 'vault_id'
+    | 'parent_id'
+    | 'is_file'
+    | 'type'
+    | 'name'
+    | 'extension'
+    | 'full_path'
+    | 'url'
+>;
 
 export type VaultLink = Pick<VaultNode, 'id' | 'type' | 'name' | 'full_path'> & {
     total: number;
@@ -48,6 +61,22 @@ export type VaultLink = Pick<VaultNode, 'id' | 'type' | 'name' | 'full_path'> & 
 export type VaultTag = Pick<VaultNode, 'id' | 'name'> & {
     total: number;
 };
+
+export type VaultOpenedFile = VaultOpenedFileData & VaultOpenedFileTreeData;
+
+export interface VaultOpenedFileData {
+    file: VaultNode;
+    links: VaultLink[];
+    backlinks: VaultLink[];
+    tags: VaultTag[];
+}
+
+export interface VaultOpenedFileTreeData {
+    ancestors: VaultNodeTreeItem[];
+    ancestorsChildren: Record<number, VaultNodeTreeItem[]>;
+    siblings: VaultNodeTreeItem[];
+    children: VaultNodeTreeItem[];
+}
 
 export type VaultSearchFile = Pick<
     VaultNode,
