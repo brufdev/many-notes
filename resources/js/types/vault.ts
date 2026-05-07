@@ -54,6 +54,11 @@ export type VaultNodeTreeItem = Pick<
     | 'url'
 >;
 
+export type VaultNodeTreeDropIndicator = {
+    type: 'inside' | 'after' | 'root';
+    targetId: number;
+} | null;
+
 export type VaultLink = Pick<VaultNode, 'id' | 'type' | 'name' | 'full_path'> & {
     total: number;
 };

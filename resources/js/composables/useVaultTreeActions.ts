@@ -17,13 +17,40 @@ export function useVaultTreeActions() {
     const vaultStore = useVaultStore();
     const vaultTreeStore = useVaultTreeStore();
 
+    function toggleFolder(nodeId: number): void {
+        const node = vaultTreeStore.getNodeById(nodeId);
+
+        if (!node || node.is_file) {
+            return;
+        }
+
+        if (vaultTreeStore.isFolderExpanded(nodeId)) {
+            vaultTreeStore.collapseFolder(nodeId);
+        } else if (vaultTreeStore.isFolderLoaded(nodeId)) {
+            vaultTreeStore.expandFolder(nodeId);
+        } else {
+            fetchChildren(
+                nodeId,
+                response => {
+                    vaultTreeStore.setChildren(nodeId, response.data.children ?? []);
+                    vaultTreeStore.sortChildren(nodeId);
+                    vaultTreeStore.expandFolder(nodeId);
+                    vaultTreeStore.setLoadedFolder(nodeId);
+                },
+                error => {
+                    createToast(error.response?.statusText ?? 'Something went wrong', 'error');
+                }
+            );
+        }
+    }
+
     function fetchChildren(
         parentId: number | null,
         onSuccess?: (response: AxiosResponse) => void,
         onError?: (error: AxiosError) => void
     ): void {
         const key = parentId ?? 0;
-        const url = children.url({ vault: vaultTreeStore.getActiveVaultId(), node: key });
+        const url = children.url({ vault: page.props.vault.id, node: key });
 
         if (vaultTreeStore.isFolderLoading(key)) {
             return;
@@ -47,7 +74,7 @@ export function useVaultTreeActions() {
     }
 
     function setTemplateFolder(nodeId: number): void {
-        const url = update.url({ vault: vaultTreeStore.getActiveVaultId() });
+        const url = update.url({ vault: page.props.vault.id });
 
         if (vaultTreeStore.isFolderLoading(nodeId)) {
             return;
@@ -80,7 +107,7 @@ export function useVaultTreeActions() {
         const selectedFileId = vaultTreeStore.getSelectedFileId();
 
         if (selectedFileId !== null && nodeIds.includes(selectedFileId)) {
-            router.visit(show.url({ vault: vaultTreeStore.getActiveVaultId() }), {
+            router.visit(show.url({ vault: page.props.vault.id }), {
                 replace: true,
                 fresh: true,
                 onSuccess: () => {
@@ -119,6 +146,7 @@ export function useVaultTreeActions() {
     }
 
     return {
+        toggleFolder,
         fetchChildren,
         setTemplateFolder,
         handleNodesDeleted,
