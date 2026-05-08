@@ -11,15 +11,19 @@ type VaultTreeState = {
     loadingNodeIds: Set<number>;
 };
 
-export const useVaultTreeStore = defineStore('vaultTree', () => {
-    const tree = ref<VaultTreeState>({
+function createVaultTreeState(): VaultTreeState {
+    return {
         selectedFileId: null,
         nodesById: {},
         childrenByParentId: {},
         expandedFolderIds: new Set(),
         loadedFolderIds: new Set(),
         loadingNodeIds: new Set(),
-    });
+    };
+}
+
+export const useVaultTreeStore = defineStore('vaultTree', () => {
+    const tree = ref<VaultTreeState>(createVaultTreeState());
 
     function initializeVaultTree(
         selectedFileId: number | null,
@@ -27,6 +31,7 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
         ancestors?: VaultNodeTreeItem[],
         ancestorsChildren?: Record<number, VaultNodeTreeItem[]>
     ): void {
+        tree.value = createVaultTreeState();
         setSelectedFileId(selectedFileId);
         setChildren(null, rootNodes);
         setAncestors(ancestors ?? []);
