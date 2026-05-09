@@ -3,6 +3,7 @@ import { router } from '@inertiajs/vue3';
 
 export interface ReloadWithLoadingOptions {
     only?: string[];
+    onSuccess?: () => void;
 }
 
 export function reloadWithLoading(options: ReloadWithLoadingOptions = {}) {

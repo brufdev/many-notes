@@ -6,16 +6,24 @@ namespace App\Http\Controllers;
 
 use App\Actions\CreateVault;
 use App\Actions\DeleteVault;
+use App\Actions\GetVaultNodeFromPath;
+use App\Actions\ResolveTwoPaths;
 use App\Actions\UpdateVault;
 use App\Http\Requests\StoreVaultRequest;
 use App\Http\Requests\UpdateVaultRequest;
 use App\Models\User;
 use App\Models\Vault;
 use App\Queries\Vaults\VisibleVaultsQuery;
+use App\ViewModels\VaultDataViewModel;
+use App\ViewModels\VaultNodeViewModel;
+use App\ViewModels\VaultOpenedFileDataViewModel;
+use App\ViewModels\VaultOpenedFileTreeDataViewModel;
 use App\ViewModels\VaultUpdateViewModel;
+use App\ViewModels\VaultViewModel;
 use Exception;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -41,9 +49,46 @@ final readonly class VaultController
         $createVault->handle($user, $data);
     }
 
-    public function show(): void
-    {
-        //
+    public function show(
+        Request $request,
+        Vault $vault,
+        #[CurrentUser] User $user,
+    ): Response {
+        abort_unless($user->can('view', $vault), 403);
+
+        $data = [
+            'vault' => VaultViewModel::fromModel($vault),
+            ...(array) VaultDataViewModel::fromModel($vault),
+        ];
+
+        $file = $request->query('file');
+        $path = $request->query('path');
+
+        if (is_string($file)) {
+            $file = $vault
+                ->nodes()
+                ->where('id', $file)
+                ->where('is_file', true)
+                ->firstOrFail();
+
+            if (is_string($path)) {
+                $resolvedPath = app(ResolveTwoPaths::class)->handle($file->fullPath(), $path);
+                $file = app(GetVaultNodeFromPath::class)->handle($vault->id, $resolvedPath);
+
+                abort_unless($file !== null, 404);
+            }
+
+            $data = [
+                ...$data,
+                'openedFile' => [
+                    'file' => VaultNodeViewModel::fromModel($file),
+                    ...(array) VaultOpenedFileDataViewModel::fromModel($file),
+                    ...(array) VaultOpenedFileTreeDataViewModel::fromModel($vault, $file),
+                ],
+            ];
+        }
+
+        return Inertia::render('vault/Show', $data);
     }
 
     public function update(
@@ -64,7 +109,7 @@ final readonly class VaultController
         ]);
     }
 
-    public function destroy(#[CurrentUser] User $user, Vault $vault, DeleteVault $deleteVault): void
+    public function destroy(Vault $vault, #[CurrentUser] User $user, DeleteVault $deleteVault): void
     {
         if ($user->cannot('delete', $vault)) {
             throw ValidationException::withMessages([

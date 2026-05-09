@@ -160,12 +160,15 @@ export function useEditor(options: SetupEditorOptions) {
         });
     });
 
-    function setContent(content: string) {
+    function setContent(content: string, triggerUpdate: boolean = true) {
         isSavingEnabled = false;
 
         const html = markedService.parse(encodeText(content));
         editor.value?.commands.setContent(html);
-        options.onUpdate(content);
+
+        if (triggerUpdate) {
+            options.onUpdate(content);
+        }
 
         isSavingEnabled = true;
     }
