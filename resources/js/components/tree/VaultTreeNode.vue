@@ -64,10 +64,10 @@ const el = ref<HTMLElement | null>(null);
 const vaultTreeDragAndDrop = inject<{
     draggingNodeId: Ref<number | null>;
     dropIndicator: Ref<VaultNodeTreeDropIndicator | null>;
-    onDragStart: (id: number) => void;
+    onDragStart: (event: DragEvent, id: number) => void;
     onDragEnd: () => void;
     onDragLeave: (node: VaultNodeTreeItem) => void;
-    onDragOverNode: (node: VaultNodeTreeItem, event: DragEvent) => void;
+    onDragOverNode: (event: DragEvent, node: VaultNodeTreeItem) => void;
     onDrop: (event: DragEvent) => void;
 }>('vaultTreeDragAndDrop')!;
 
@@ -91,9 +91,9 @@ const isValidDropAfter = computed(() => {
         ref="el"
         class="relative"
         draggable="true"
-        @dragstart.stop="vaultTreeDragAndDrop.onDragStart(node.id)"
+        @dragstart.stop="vaultTreeDragAndDrop.onDragStart($event, node.id)"
         @dragend="vaultTreeDragAndDrop.onDragEnd()"
-        @dragover.prevent="vaultTreeDragAndDrop.onDragOverNode(node, $event)"
+        @dragover.prevent="vaultTreeDragAndDrop.onDragOverNode($event, node)"
         @drop="vaultTreeDragAndDrop.onDrop"
     >
         <div
@@ -247,6 +247,7 @@ const isValidDropAfter = computed(() => {
             :depth="depth + 1"
             :expanded="isExpanded"
         />
+        <!-- TODO: REMOVE :expanded="isExpanded" ???-->
         <div
             v-if="isValidDropAfter"
             class="border-light-base-400 dark:border-base-700 absolute right-0 bottom-0 left-0 border"

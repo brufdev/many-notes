@@ -7,6 +7,7 @@ import { CustomTableColumnAlign } from '@/services/tiptap/extension-custom-table
 import { CustomTableHeader } from '@/services/tiptap/extension-custom-table-header';
 import { Hashtag } from '@/services/tiptap/extension-hashtag';
 import { SmartBracket } from '@/services/tiptap/extension-smart-bracket';
+import { VaultFileDrop } from '@/services/tiptap/extension-vault-file-drop';
 import { turndownService } from '@/services/turndown';
 import { Editor } from '@tiptap/core';
 import { Table, TableRow } from '@tiptap/extension-table';
@@ -122,6 +123,7 @@ export function useEditor(options: SetupEditorOptions) {
                     },
                 }),
                 CustomTableColumnAlign,
+                VaultFileDrop,
             ],
             content: content,
             editable: options.isEditMode.value,

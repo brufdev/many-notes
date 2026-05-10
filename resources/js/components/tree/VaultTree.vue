@@ -56,15 +56,28 @@ function canDrop(draggedId: number, target: VaultNode): boolean {
     return true;
 }
 
-function onDragStart(nodeId: number): void {
+function onDragStart(event: DragEvent, nodeId: number): void {
+    if (!event.dataTransfer) {
+        return;
+    }
+
     draggingNodeId.value = nodeId;
+
+    const node = vaultTreeStore.getNodeById(nodeId);
+
+    if (node !== null && node.is_file) {
+        event.dataTransfer.setData(
+            'application/vault-file',
+            JSON.stringify({ name: node.name, url: node.full_path })
+        );
+    }
 }
 
 function onDragEnd(): void {
     draggingNodeId.value = null;
 }
 
-function onDragOverNode(node: VaultNode, event: DragEvent): void {
+function onDragOverNode(event: DragEvent, node: VaultNode): void {
     if (!event.dataTransfer) {
         return;
     }
