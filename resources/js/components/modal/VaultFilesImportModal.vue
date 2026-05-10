@@ -8,7 +8,7 @@ import { useVaultTreeStore } from '@/stores/vaultTree';
 import { AppPageProps } from '@/types';
 import { VaultNode } from '@/types/vault';
 import { usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 const vaultRecentFileStore = useVaultRecentFileStore();
 const vaultTreeStore = useVaultTreeStore();
@@ -19,6 +19,7 @@ const { createToast } = useToast();
 const props = defineProps<{
     vaultId: number;
     parentId: number | null;
+    dropEvent: DragEvent | null;
 }>();
 
 const uploadMaxFilesize = computed(() => page.props.app?.metadata?.upload_max_filesize ?? '0');
@@ -105,6 +106,12 @@ const handleSubmit = () => {
         },
     });
 };
+
+onMounted(() => {
+    if (props.dropEvent) {
+        drop(props.dropEvent);
+    }
+});
 </script>
 
 <template>

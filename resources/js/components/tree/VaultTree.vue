@@ -24,7 +24,7 @@ import { usePage } from '@inertiajs/vue3';
 import { computed, provide, ref } from 'vue';
 import VaultTreeNode from './VaultTreeNode.vue';
 
-defineProps<{
+const props = defineProps<{
     vaultId: number;
 }>();
 
@@ -105,6 +105,12 @@ function onDrop(event: DragEvent): void {
     dropIndicator.value = null;
 
     if (!node) {
+        openModal(VaultFilesImportModal, {
+            vaultId: props.vaultId,
+            parentId,
+            dropEvent: event,
+        });
+
         return;
     }
 
