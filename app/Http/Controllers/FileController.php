@@ -7,26 +7,28 @@ namespace App\Http\Controllers;
 use App\Actions\GetPathFromVaultNode;
 use App\Actions\GetVaultNodeFromPath;
 use App\Actions\ResolveTwoPaths;
+use App\Models\User;
 use App\Models\Vault;
 use App\Models\VaultNode;
 use App\Services\VaultFiles\Types\Note;
+use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 final readonly class FileController
 {
-    /**
-     * Show the file for a given user.
-     */
-    public function show(Vault $vault, Request $request): BinaryFileResponse
-    {
-        Gate::authorize('view', $request->vault);
+    public function show(
+        Request $request,
+        Vault $vault,
+        #[CurrentUser] User $user,
+        ResolveTwoPaths $resolveTwoPaths,
+        GetVaultNodeFromPath $getVaultNodeFromPath,
+        GetPathFromVaultNode $getPathFromVaultNode,
+    ): BinaryFileResponse {
+        abort_unless($user->can('view', $vault), 403);
 
-        if (!$request->has('path')) {
-            abort(404);
-        }
+        abort_unless($request->has('path'), 404);
 
         /** @var string $path */
         $path = $request->path;
@@ -41,20 +43,16 @@ final readonly class FileController
              * @phpstan-ignore-next-line larastan.noUnnecessaryCollectionCall
              */
             $currentPath = $node->ancestorsAndSelf()->get()->last()->full_path;
-            $path = new ResolveTwoPaths()->handle($currentPath, $path);
+            $path = $resolveTwoPaths->handle($currentPath, $path);
         }
 
-        $node = new GetVaultNodeFromPath()->handle($vault->id, $path);
+        $node = $getVaultNodeFromPath->handle($vault->id, $path);
 
-        if (!$node instanceof VaultNode) {
-            abort(404);
-        }
+        abort_unless($node instanceof VaultNode, 404);
 
-        if (in_array($node->extension, Note::extensions())) {
-            abort(403);
-        }
+        abort_if(in_array($node->extension, Note::extensions()), 403);
 
-        $relativePath = new GetPathFromVaultNode()->handle($node);
+        $relativePath = $getPathFromVaultNode->handle($node);
         $absolutePath = Storage::disk('local')->path($relativePath);
 
         return response()->file($absolutePath);
