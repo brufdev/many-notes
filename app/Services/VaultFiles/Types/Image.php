@@ -13,11 +13,17 @@ final class Image implements VaultFileType
 
     private static function extensionsList(): array
     {
-        return ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif'];
     }
 
     private static function mimeTypesList(): array
     {
-        return ['image/'];
+        return [
+            'image/jpeg', // jpg, jpeg
+            'image/png',  // png
+            'image/gif',  // gif
+            'image/webp', // webp
+            'image/avif', // avif
+        ];
     }
 }

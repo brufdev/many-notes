@@ -19,7 +19,7 @@ it('imports files and saves them to both the database and the disk', function ()
         'name' => fake()->words(3, true),
     ]);
     $content = fake()->paragraph();
-    $uploadFile1 = UploadedFile::fake()->createWithContent('note.md', $content);
+    $uploadFile1 = UploadedFile::fake()->createWithContent('note.md', $content)->mimeType('text/plain');
     $uploadFile2 = UploadedFile::fake()->create('document.pdf', 1, 'application/pdf');
 
     $this->actingAs($user);
@@ -56,7 +56,7 @@ it('handles name collisions when importing a file with an existing name', functi
         'extension' => 'md',
         'content' => fake()->paragraph(),
     ]);
-    $uploadFile = UploadedFile::fake()->create($file->name . '.md');
+    $uploadFile = UploadedFile::fake()->create($file->name . '.md')->mimeType('text/plain');
 
     $this->actingAs($user);
 
@@ -97,7 +97,7 @@ it('handles name collisions when importing a file with a name existing in multip
         'extension' => 'md',
         'content' => fake()->paragraph(),
     ]);
-    $uploadFile = UploadedFile::fake()->create($nodeName . '.md');
+    $uploadFile = UploadedFile::fake()->create($nodeName . '.md')->mimeType('text/plain');
 
     $this->actingAs($user);
 
@@ -135,7 +135,9 @@ it('creates links when importing a markdown file', function (): void {
         'extension' => 'md',
         'content' => fake()->paragraph(),
     ]);
-    $uploadFile = UploadedFile::fake()->createWithContent('note.md', '[link](/' . $nodeName . '.md)');
+    $uploadFile = UploadedFile::fake()
+        ->createWithContent('note.md', '[link](/' . $nodeName . '.md)')
+        ->mimeType('text/plain');
 
     $this->actingAs($user);
 
@@ -157,7 +159,7 @@ it('creates tags when importing a markdown file', function (): void {
         'name' => fake()->words(3, true),
     ]);
     $content = '#tag1 ' . fake()->paragraph() . ' #tag2';
-    $uploadFile = UploadedFile::fake()->createWithContent('note.md', $content);
+    $uploadFile = UploadedFile::fake()->createWithContent('note.md', $content)->mimeType('text/plain');
 
     $this->actingAs($user);
 

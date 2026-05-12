@@ -13,11 +13,17 @@ final class Video implements VaultFileType
 
     private static function extensionsList(): array
     {
-        return ['mp4', 'avi'];
+        return ['mp4', 'm4v', 'mov', 'webm', 'mkv'];
     }
 
     private static function mimeTypesList(): array
     {
-        return ['video/'];
+        return [
+            'video/mp4',        // mp4, m4v
+            'video/x-m4v',      // m4v
+            'video/quicktime',  // mov
+            'video/webm',       // webm
+            'video/x-matroska', // mkv
+        ];
     }
 }

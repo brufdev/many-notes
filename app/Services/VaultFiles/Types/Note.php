@@ -18,6 +18,8 @@ final class Note implements VaultFileType
 
     private static function mimeTypesList(): array
     {
-        return ['text/'];
+        return [
+            'text/plain', // md, txt
+        ];
     }
 }

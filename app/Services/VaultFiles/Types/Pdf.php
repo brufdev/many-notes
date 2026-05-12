@@ -13,11 +13,13 @@ final class Pdf implements VaultFileType
 
     private static function extensionsList(): array
     {
-        return ['pdf', 'txt'];
+        return ['pdf'];
     }
 
     private static function mimeTypesList(): array
     {
-        return ['application/pdf'];
+        return [
+            'application/pdf', // pdf
+        ];
     }
 }

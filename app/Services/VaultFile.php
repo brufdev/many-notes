@@ -22,11 +22,7 @@ final class VaultFile
         Video::class,
     ];
 
-    /**
-     * Get the extensions for the supported vault files, with or without the dot.
-     *
-     * @return list<string>
-     */
+    /** @return list<string> */
     public static function extensions(bool $withDots = false): array
     {
         $all = [];
@@ -40,9 +36,6 @@ final class VaultFile
         return $all;
     }
 
-    /**
-     * Validate if the extension and mimetype correspond to a supported vault file.
-     */
     public static function validate(string $extension, string $mimeType): bool
     {
         return array_any(
