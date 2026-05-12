@@ -19,11 +19,7 @@ final readonly class ProcessImportedVault
 
         $nodeIds = ['.' => null];
         $vaultName = pathinfo($fileName, PATHINFO_FILENAME);
-        $vault = app(CreateVault::class)->handle(
-            $user,
-            ['name' => $vaultName],
-            false,
-        );
+        $vault = app(CreateVault::class)->handle($user, ['name' => $vaultName], false);
 
         // Create vault nodes with valid zip files and folders
         $finfo = new finfo(FILEINFO_MIME_TYPE);
@@ -34,6 +30,14 @@ final readonly class ProcessImportedVault
             $entryName = $zip->getNameIndex($i);
 
             if (!$entryName) {
+                continue;
+            }
+
+            // Reject any entry containing path traversal sequences
+            $normalizedEntry = str_replace('\\', '/', $entryName);
+            $pieces = explode('/', $normalizedEntry);
+
+            if (in_array('..', $pieces)) {
                 continue;
             }
 
