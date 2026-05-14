@@ -69,8 +69,12 @@ final readonly class SearchVaultFilesByText
                 $results[] = [
                     'id' => $hit['document']['id'],
                     'type' => $node->type(),
-                    'name' => $hit['highlight']['name']['snippet'] ?? $hit['document']['name'],
-                    'content' => $hit['highlight']['content']['snippet'] ?? $hit['document']['content'],
+                    'name' => isset($hit['highlight']['name'])
+                        ? $hit['highlight']['name']['snippet']
+                        : $hit['document']['name'],
+                    'content' => isset($hit['highlight']['content'])
+                        ? $hit['highlight']['content']['snippet']
+                        : $hit['document']['content'],
                     'extension' => $node->extension ?? '',
                     'updated_at' => $hit['document']['updated_at'],
                 ];
