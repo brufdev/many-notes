@@ -5,16 +5,20 @@ import Submit from '@/components/form/Submit.vue';
 import SecondaryButton from '@/components/ui/SecondaryButton.vue';
 import { useAxiosForm } from '@/composables/useAxiosForm';
 import { useModalManager } from '@/composables/useModalManager';
+import { useScreenSize } from '@/composables/useScreenSize';
 import { useToast } from '@/composables/useToast';
 import { useVaultActions } from '@/composables/useVaultActions';
+import { useLayoutStore } from '@/stores/layout';
 import { useVaultRecentFileStore } from '@/stores/vaultRecentFile';
 import { useVaultTreeStore } from '@/stores/vaultTree';
 import { VaultNode } from '@/types/vault';
 
+const layoutStore = useLayoutStore();
 const vaultRecentFileStore = useVaultRecentFileStore();
 const vaultTreeStore = useVaultTreeStore();
 const { closeModal } = useModalManager();
 const { createToast } = useToast();
+const { isSmallScreen } = useScreenSize();
 const vaultActions = useVaultActions();
 
 const props = defineProps<{
@@ -48,6 +52,10 @@ const handleSubmit = () => {
             closeModal();
             const message = props.isFile ? 'File created' : 'Folder created';
             createToast(message, 'success');
+
+            if (isSmallScreen) {
+                layoutStore.closePanels();
+            }
 
             vaultRecentFileStore.upsertRecentFile(response.data);
             vaultTreeStore.handleNodeSaved(response.data);
