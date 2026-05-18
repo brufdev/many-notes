@@ -23,8 +23,8 @@ const getIcon = (type: string) => {
 </script>
 
 <template>
-    <div class="fixed right-4 bottom-4 z-50 z-[99] w-full max-w-xs">
-        <TransitionGroup name="toast" tag="div" class="flex flex-col gap-2">
+    <div class="fixed right-0 bottom-4 z-50 z-[99] w-full max-w-xs">
+        <TransitionGroup name="toast" tag="div" class="mx-4 flex flex-col gap-2">
             <div
                 v-for="toast in toasts"
                 :key="toast.id"
