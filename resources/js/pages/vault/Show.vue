@@ -305,6 +305,7 @@ useEcho<{ data: { user_id: number } }>(
                     :key="vaultFileKey"
                     :node="openedFile.file"
                     @close="vaultActions.closeFile"
+                    @renamed="openedFile.file.name = $event"
                 >
                     <template v-if="openedFile.file.type === 'note'" #toolbar>
                         <MarkdownToolbar :vault-id="props.vault.id" :node-id="openedFile.file.id" />

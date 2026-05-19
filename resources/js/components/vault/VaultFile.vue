@@ -9,13 +9,14 @@ import XMark from '@/icons/XMark.vue';
 import { useLayoutStore } from '@/stores/layout';
 import { useVaultTreeStore } from '@/stores/vaultTree';
 import { VaultNode } from '@/types/vault';
-import { ref, useSlots } from 'vue';
+import { ref, useSlots, watch } from 'vue';
 
 interface VaultFileProps {
     node: VaultNode;
 }
 
 const props = defineProps<VaultFileProps>();
+const emit = defineEmits<{ renamed: [name: string] }>();
 
 const slots = useSlots();
 const layoutStore = useLayoutStore();
@@ -24,7 +25,7 @@ const vaultActions = useVaultActions();
 const form = useAxiosForm({});
 const { createToast } = useToast();
 
-const fileNameRef = ref<HTMLInputElement | null>(null);
+const fileName = ref(props.node.name);
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -50,8 +51,10 @@ function rename(name: string): void {
             onError: error => {
                 const message = error.response?.statusText ?? 'Something went wrong';
                 createToast(message, 'error');
+                fileName.value = props.node.name;
             },
             onSuccess: (response: { data: VaultNode }) => {
+                emit('renamed', fileName.value);
                 vaultTreeStore.handleNodeSaved(response.data);
             },
             onFinish: () => {
@@ -60,6 +63,13 @@ function rename(name: string): void {
         });
     }, 1000);
 }
+
+watch(
+    () => props.node.name,
+    value => {
+        fileName.value = value;
+    }
+);
 </script>
 
 <template>
@@ -67,13 +77,12 @@ function rename(name: string): void {
         <div class="z-[15] flex flex-col p-4 print:hidden" :class="slots.toolbar ? 'gap-3' : ''">
             <div class="flex items-center justify-between gap-2">
                 <input
-                    ref="fileNameRef"
+                    v-model="fileName"
                     class="flex flex-grow border-0 bg-transparent p-0 px-1 text-lg font-semibold focus:ring-0 focus:outline-none"
                     type="text"
-                    :value="node.name"
                     spellcheck="false"
                     autocomplete="off"
-                    @input="rename(fileNameRef?.value ?? '')"
+                    @input="rename(fileName)"
                 />
                 <div class="flex items-center gap-3">
                     <VaultFileUpdatingSpinner />
