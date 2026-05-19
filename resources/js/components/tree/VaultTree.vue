@@ -43,6 +43,12 @@ const dropIndicator = ref<VaultNodeTreeDropIndicator>(null);
 const isValidDropAfter = computed(() => dropIndicator.value?.type === 'root');
 
 function canDrop(draggedId: number, target: VaultNode): boolean {
+    const node = vaultTreeStore.getNodeById(draggedId);
+
+    if (node === null || node.id === target.id) {
+        return false;
+    }
+
     let parentId = target.parent_id;
 
     while (parentId) {
