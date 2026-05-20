@@ -57,6 +57,7 @@ environment:
   - POCKETID_CLIENT_SECRET=CLIENT_SECRET # change secret
   - POCKETID_REDIRECT_URI=http://localhost/oauth/pocketid/callback # change domain
   - POCKETID_BASE_URL=http://your-pocketid-url # change url
+  - POCKETID_USE_PKCE=false # set to true if you want to use PKCE (optional configuration)
 ```
 
 ## Zitadel
