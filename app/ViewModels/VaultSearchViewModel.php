@@ -16,6 +16,7 @@ final readonly class VaultSearchViewModel
         public string $name,
         public string $content,
         public string $extension,
+        public string $full_path,
         public CarbonImmutable $updated_at,
     ) {
         //
@@ -28,6 +29,7 @@ final readonly class VaultSearchViewModel
      *   name: string,
      *   content: string,
      *   extension: string,
+     *   full_path: string,
      *   updated_at: string
      * } $hit
      */
@@ -39,18 +41,23 @@ final readonly class VaultSearchViewModel
             self::encodeText($hit['name']),
             self::encodeText($hit['content']),
             $hit['extension'],
+            $hit['full_path'],
             CarbonImmutable::parse($hit['updated_at']),
         );
     }
 
     public static function fromTagSearch(VaultNode $node): self
     {
+        $extension = $node->extension ? ".{$node->extension}" : '';
+        $fullPath = "/{$node->fullPath()}{$extension}";
+
         return new self(
             $node->id,
             $node->type()->value,
             self::encodeText($node->name),
             '',
             $node->extension,
+            $fullPath,
             $node->updated_at,
         );
     }

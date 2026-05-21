@@ -85,7 +85,7 @@ export interface VaultOpenedFileTreeData {
 
 export type VaultSearchFile = Pick<
     VaultNode,
-    'id' | 'type' | 'name' | 'extension' | 'content' | 'updated_at'
+    'id' | 'type' | 'name' | 'extension' | 'full_path' | 'content' | 'updated_at'
 >;
 
 export type VaultEditorSearchFile = Pick<

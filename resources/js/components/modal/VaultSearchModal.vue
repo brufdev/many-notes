@@ -123,7 +123,7 @@ onMounted(() => {
                         <span class="flex w-full items-center justify-between">
                             <span
                                 class="flex min-w-0 flex-1 items-center gap-2 py-1"
-                                :title="file.name"
+                                :title="file.full_path"
                             >
                                 <span class="flex shrink-0 items-center justify-center gap-2">
                                     <VaultFileIcon :file="file" />

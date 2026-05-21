@@ -45,12 +45,11 @@ export function formatExtendedDate(input: string | Date): string {
     const date = typeof input === 'string' ? new Date(input) : input;
 
     return date.toLocaleString('en-US', {
+        hour12: false,
+        year: 'numeric',
         month: 'short',
         day: 'numeric',
-        year: 'numeric',
-        hour: 'numeric',
+        hour: '2-digit',
         minute: '2-digit',
-        hour12: true,
-        timeZoneName: 'shortOffset',
     });
 }

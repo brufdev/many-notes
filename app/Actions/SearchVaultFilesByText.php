@@ -18,6 +18,7 @@ final readonly class SearchVaultFilesByText
      *     name: string,
      *     content: string,
      *     extension: string,
+     *     full_path: string,
      *     updated_at: string
      *   }
      * >
@@ -62,23 +63,29 @@ final readonly class SearchVaultFilesByText
         $results = [];
 
         foreach ($rawResults['hits'] as $hit) {
-            if ($nodes->has($hit['document']['id'])) {
-                /** @var VaultNode $node */
-                $node = $nodes->get($hit['document']['id']);
-
-                $results[] = [
-                    'id' => $hit['document']['id'],
-                    'type' => $node->type(),
-                    'name' => isset($hit['highlight']['name'])
-                        ? $hit['highlight']['name']['snippet']
-                        : $hit['document']['name'],
-                    'content' => isset($hit['highlight']['content'])
-                        ? $hit['highlight']['content']['snippet']
-                        : $hit['document']['content'],
-                    'extension' => $node->extension ?? '',
-                    'updated_at' => $hit['document']['updated_at'],
-                ];
+            if (!$nodes->has($hit['document']['id'])) {
+                continue;
             }
+
+            /** @var VaultNode $node */
+            $node = $nodes->get($hit['document']['id']);
+
+            $extension = $node->extension ? ".{$node->extension}" : '';
+            $fullPath = "/{$node->fullPath()}{$extension}";
+
+            $results[] = [
+                'id' => $hit['document']['id'],
+                'type' => $node->type(),
+                'name' => isset($hit['highlight']['name'])
+                    ? $hit['highlight']['name']['snippet']
+                    : $hit['document']['name'],
+                'content' => isset($hit['highlight']['content'])
+                    ? $hit['highlight']['content']['snippet']
+                    : $hit['document']['content'],
+                'extension' => $node->extension ?? '',
+                'full_path' => $fullPath,
+                'updated_at' => $hit['document']['updated_at'],
+            ];
         }
 
         return $results;
