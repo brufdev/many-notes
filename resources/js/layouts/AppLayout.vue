@@ -2,7 +2,7 @@
 import { onMounted, onUnmounted } from 'vue';
 
 onMounted(() => {
-    document.querySelector('#app')?.classList.add('flex', 'flex-col', 'h-dvh');
+    document.querySelector('#app')?.classList.add('flex', 'flex-col', 'h-dvh', 'print:h-auto');
 
     globalThis.addEventListener('dragover', prevent);
     globalThis.addEventListener('drop', prevent);

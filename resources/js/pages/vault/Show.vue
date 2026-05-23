@@ -278,7 +278,7 @@ useEcho<{ data: { user_id: number } }>(
         </Transition>
 
         <aside
-            class="bg-light-base-200 dark:bg-base-800 absolute top-0 bottom-0 left-0 z-30 w-[80%] max-w-[300px] overflow-y-auto rounded-r transition-all duration-300 ease-in-out lg:static lg:max-w-[300px]"
+            class="bg-light-base-200 dark:bg-base-800 absolute top-0 bottom-0 left-0 z-30 w-[80%] max-w-[300px] overflow-y-auto rounded-r transition-all duration-300 ease-in-out lg:static lg:max-w-[300px] print:hidden"
             :class="{
                 '-translate-x-full': isSmallScreen && !isLeftPanelOpen,
                 'translate-x-0': isSmallScreen && isLeftPanelOpen,
@@ -382,7 +382,7 @@ useEcho<{ data: { user_id: number } }>(
         </section>
 
         <aside
-            class="bg-light-base-200 dark:bg-base-800 absolute top-0 right-0 bottom-0 z-30 w-[80%] max-w-[300px] overflow-y-auto rounded-l transition-all duration-300 ease-in-out lg:static lg:max-w-[300px]"
+            class="bg-light-base-200 dark:bg-base-800 absolute top-0 right-0 bottom-0 z-30 w-[80%] max-w-[300px] overflow-y-auto rounded-l transition-all duration-300 ease-in-out lg:static lg:max-w-[300px] print:hidden"
             :class="{
                 'translate-x-full': isSmallScreen && !isRightPanelOpen,
                 'translate-x-0': isSmallScreen && isRightPanelOpen,

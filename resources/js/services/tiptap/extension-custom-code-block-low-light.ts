@@ -21,7 +21,8 @@ export const CustomCodeBlockLowlight = CodeBlockLowlight.extend({
                 'justify-between',
                 'mb-2',
                 'text-light-base-700',
-                'dark:text-base-200'
+                'dark:text-base-200',
+                'print:hidden'
             );
 
             const languageSpan = document.createElement('span');
