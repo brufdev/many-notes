@@ -7,6 +7,7 @@ import VaultFilesImportModal from '@/components/modal/VaultFilesImportModal.vue'
 import VaultNodeCreateModal from '@/components/modal/VaultNodeCreateModal.vue';
 import VaultNodeEditModal from '@/components/modal/VaultNodeEditModal.vue';
 import { useModalManager } from '@/composables/useModalManager';
+import { useScreenSize } from '@/composables/useScreenSize';
 import { useVaultActions } from '@/composables/useVaultActions';
 import { useVaultTreeActions } from '@/composables/useVaultTreeActions';
 import ArrowUpTray from '@/icons/ArrowUpTray.vue';
@@ -23,6 +24,7 @@ import FolderPlus from '@/icons/FolderPlus.vue';
 import PencilSquare from '@/icons/PencilSquare.vue';
 import Spinner from '@/icons/Spinner.vue';
 import Trash from '@/icons/Trash.vue';
+import { useLayoutStore } from '@/stores/layout';
 import { useVaultStore } from '@/stores/vault';
 import { useVaultTreeStore } from '@/stores/vaultTree';
 import { VaultNodeTreeDropIndicator, VaultNodeTreeItem } from '@/types/vault';
@@ -31,13 +33,16 @@ import { usePage } from '@inertiajs/vue3';
 import { computed, inject, ref, Ref } from 'vue';
 import VaultTreeChildren from './VaultTreeChildren.vue';
 
-const page = usePage<VaultShowPageProps>();
-
-const props = defineProps<{
+interface VaultTreeNodeProps {
     nodeId: number;
     depth: number;
-}>();
+}
 
+const props = defineProps<VaultTreeNodeProps>();
+
+const page = usePage<VaultShowPageProps>();
+const layoutStore = useLayoutStore();
+const { isSmallScreen } = useScreenSize();
 const { openModal } = useModalManager();
 const vaultStore = useVaultStore();
 const vaultTreeStore = useVaultTreeStore();
@@ -58,6 +63,18 @@ const isTemplateFolder = computed(() => vaultStore.isTemplateFolder(props.nodeId
 const isExpanded = computed(() => vaultTreeStore.isFolderExpanded(props.nodeId));
 const isSelected = computed(() => vaultTreeStore.getSelectedFileId() === props.nodeId);
 const isLoading = computed(() => vaultTreeStore.isFolderLoading(props.nodeId));
+
+function handleClick() {
+    if (node.value.is_file) {
+        if (isSmallScreen) {
+            layoutStore.closePanels();
+        }
+
+        vaultActions.openFile(node.value.id);
+    } else {
+        vaultTreeActions.toggleFolder(node.value.id);
+    }
+}
 
 const el = ref<HTMLElement | null>(null);
 
@@ -108,11 +125,7 @@ const isValidDropAfter = computed(() => {
             <div
                 class="flex min-w-0 flex-1 items-center gap-2 py-1"
                 :title="node.name"
-                @click="
-                    node.is_file
-                        ? vaultActions.openFile(node.id)
-                        : vaultTreeActions.toggleFolder(node.id)
-                "
+                @click="handleClick"
             >
                 <span class="flex shrink-0 items-center justify-center gap-2">
                     <template v-if="!node.is_file">
@@ -247,7 +260,6 @@ const isValidDropAfter = computed(() => {
             :depth="depth + 1"
             :expanded="isExpanded"
         />
-        <!-- TODO: REMOVE :expanded="isExpanded" ???-->
         <div
             v-if="isValidDropAfter"
             class="border-light-base-400 dark:border-base-700 absolute right-0 bottom-0 left-0 border"
