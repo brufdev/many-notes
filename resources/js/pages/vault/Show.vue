@@ -178,7 +178,8 @@ useEcho<{ data: VaultNode }>(`Vault.${props.vault.id}`, 'VaultNodeUpdatedEvent',
             payload.data.type === 'note' &&
             openedFile.value?.file.content !== payload.data.content
         ) {
-            editorContext.value?.setContent(payload.data.content ?? '', false);
+            openedFile.value.file.content = payload.data.content;
+            editorContext.value?.setContent(payload.data.content ?? '');
         }
     }
 });
@@ -305,7 +306,7 @@ useEcho<{ data: { user_id: number } }>(
                     :key="vaultFileKey"
                     :node="openedFile.file"
                     @close="vaultActions.closeFile"
-                    @renamed="openedFile.file.name = $event"
+                    @name-updated="openedFile.file.name = $event"
                 >
                     <template v-if="openedFile.file.type === 'note'" #toolbar>
                         <MarkdownToolbar :vault-id="props.vault.id" :node-id="openedFile.file.id" />
@@ -314,6 +315,7 @@ useEcho<{ data: { user_id: number } }>(
                         :is="fileComponents[openedFile.file.type]"
                         v-if="openedFile.file.type !== 'folder'"
                         :node="openedFile.file"
+                        @content-updated="openedFile.file.content = $event"
                     />
                 </VaultFile>
                 <div v-else class="flex h-full w-full flex-col">

@@ -30,7 +30,7 @@ interface SetupEditorOptions {
 
 export function useEditor(options: SetupEditorOptions) {
     const editor = shallowRef<Editor | null>(null);
-    let isSavingEnabled = false;
+    let isSyncing: boolean = true;
 
     const prepareTiptapHTML = (html: string) => {
         return (
@@ -139,46 +139,69 @@ export function useEditor(options: SetupEditorOptions) {
                     props.editor.commands.deleteNode('paragraph');
                 }
 
-                isSavingEnabled = true;
+                isSyncing = false;
 
-                if (options.markdownElement.value) {
-                    options.markdownElement.value.textContent = options.content;
-                }
+                setMarkdownContent(options.content);
             },
             onUpdate() {
-                if (!isSavingEnabled) {
+                if (isSyncing) {
                     return;
                 }
 
+                isSyncing = true;
+
                 const html = prepareTiptapHTML(editor.value?.getHTML() ?? '');
                 const markdown = turndownService.turndown(html);
+                setMarkdownContent(markdown);
 
-                if (options.markdownElement.value) {
-                    options.markdownElement.value.textContent = markdown;
-                }
+                isSyncing = false;
 
                 options.onUpdate(markdown);
             },
         });
     });
 
-    function setContent(content: string, triggerUpdate: boolean = true) {
-        isSavingEnabled = false;
-
-        const html = markedService.parse(encodeText(content));
+    function setTiptapContent(html: string) {
         editor.value?.commands.setContent(html);
+    }
 
-        if (triggerUpdate) {
-            options.onUpdate(content);
+    function setMarkdownContent(markdown: string) {
+        if (options.markdownElement.value) {
+            options.markdownElement.value.textContent = markdown;
+        }
+    }
+
+    async function setContent(markdown: string) {
+        isSyncing = true;
+
+        const html = await markedService.parse(encodeText(markdown));
+        setTiptapContent(html);
+        setMarkdownContent(markdown);
+
+        isSyncing = false;
+    }
+
+    async function onMarkdownChanged(markdown: string) {
+        if (isSyncing) {
+            return;
         }
 
-        isSavingEnabled = true;
+        isSyncing = true;
+
+        const html = await markedService.parse(encodeText(markdown));
+        setTiptapContent(html);
+
+        isSyncing = false;
+
+        options.onUpdate(markdown);
     }
 
     watch(options.isEditMode, value => {
-        isSavingEnabled = false;
+        isSyncing = true;
+
         editor.value?.setEditable(value);
-        isSavingEnabled = true;
+
+        isSyncing = false;
     });
 
     onUnmounted(() => {
@@ -189,5 +212,6 @@ export function useEditor(options: SetupEditorOptions) {
     return {
         editor,
         setContent,
+        onMarkdownChanged,
     };
 }

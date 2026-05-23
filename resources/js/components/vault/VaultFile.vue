@@ -15,8 +15,12 @@ interface VaultFileProps {
     node: VaultNode;
 }
 
+interface VaultFileEmits {
+    nameUpdated: [name: string];
+}
+
 const props = defineProps<VaultFileProps>();
-const emit = defineEmits<{ renamed: [name: string] }>();
+const emit = defineEmits<VaultFileEmits>();
 
 const slots = useSlots();
 const layoutStore = useLayoutStore();
@@ -54,7 +58,7 @@ function rename(name: string): void {
                 fileName.value = props.node.name;
             },
             onSuccess: (response: { data: VaultNode }) => {
-                emit('renamed', fileName.value);
+                emit('nameUpdated', fileName.value);
                 vaultTreeStore.handleNodeSaved(response.data);
             },
             onFinish: () => {

@@ -9,9 +9,16 @@ import { useLayoutStore } from '@/stores/layout';
 import { VaultNode } from '@/types/vault';
 import { inject, onMounted, ref, ShallowRef } from 'vue';
 
-const props = defineProps<{
+interface VaultFileNodeProps {
     node: VaultNode;
-}>();
+}
+
+interface VaultFileNodeEmits {
+    contentUpdated: [content: string];
+}
+
+const props = defineProps<VaultFileNodeProps>();
+const emit = defineEmits<VaultFileNodeEmits>();
 
 const layoutStore = useLayoutStore();
 const { createToast } = useToast();
@@ -30,7 +37,7 @@ const noteMarkdownRef = ref<HTMLElement | null>(null);
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
-const { editor, setContent } = useEditor({
+const { editor, setContent, onMarkdownChanged } = useEditor({
     vaultId: String(props.node.vault_id),
     element: noteEditorRef,
     markdownElement: noteMarkdownRef,
@@ -58,6 +65,11 @@ const { editor, setContent } = useEditor({
                 onError: error => {
                     const message = error.response?.statusText ?? 'Something went wrong';
                     createToast(message, 'error');
+                    emit('contentUpdated', props.node.content ?? '');
+                    editorContext.value?.setContent(props.node.content ?? '');
+                },
+                onSuccess: (response: { data: VaultNode }) => {
+                    emit('contentUpdated', response.data.content ?? '');
                 },
                 onFinish: () => {
                     layoutStore.setVaultNodeUpdating(false);
@@ -69,7 +81,7 @@ const { editor, setContent } = useEditor({
 });
 
 onMounted(() => {
-    editorContext.value = { editor, setContent };
+    editorContext.value = { editor, setContent, onMarkdownChanged };
 });
 </script>
 
@@ -88,7 +100,7 @@ onMounted(() => {
             :class="isEditingMarkdown ? '' : 'hidden'"
             :contenteditable="isEditMode ? 'plaintext-only' : 'false'"
             spellcheck="false"
-            @input="editorContext?.setContent(noteMarkdownRef?.textContent ?? '')"
+            @input="editorContext?.onMarkdownChanged(noteMarkdownRef?.textContent ?? '')"
         />
     </div>
 </template>
