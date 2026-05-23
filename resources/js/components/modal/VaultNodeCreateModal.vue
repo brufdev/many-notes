@@ -53,7 +53,7 @@ const handleSubmit = () => {
             const message = props.isFile ? 'File created' : 'Folder created';
             createToast(message, 'success');
 
-            if (isSmallScreen) {
+            if (isSmallScreen.value) {
                 layoutStore.closePanels();
             }
 

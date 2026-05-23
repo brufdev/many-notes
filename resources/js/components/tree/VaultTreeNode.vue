@@ -66,7 +66,7 @@ const isLoading = computed(() => vaultTreeStore.isFolderLoading(props.nodeId));
 
 function handleClick() {
     if (node.value.is_file) {
-        if (isSmallScreen) {
+        if (isSmallScreen.value) {
             layoutStore.closePanels();
         }
 
@@ -75,8 +75,6 @@ function handleClick() {
         vaultTreeActions.toggleFolder(node.value.id);
     }
 }
-
-const el = ref<HTMLElement | null>(null);
 
 const vaultTreeDragAndDrop = inject<{
     draggingNodeId: Ref<number | null>;
@@ -105,7 +103,6 @@ const isValidDropAfter = computed(() => {
 
 <template>
     <div
-        ref="el"
         class="relative"
         draggable="true"
         @dragstart.stop="vaultTreeDragAndDrop.onDragStart($event, node.id)"

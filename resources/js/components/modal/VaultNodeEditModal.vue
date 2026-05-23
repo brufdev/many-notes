@@ -46,7 +46,7 @@ const handleSubmit = () => {
             const message = props.isFile ? 'File updated' : 'Folder updated';
             createToast(message, 'success');
 
-            if (isSmallScreen) {
+            if (isSmallScreen.value) {
                 layoutStore.closePanels();
             }
 
