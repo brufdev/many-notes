@@ -8,7 +8,6 @@ const bracketPairs: Record<string, string> = {
     '[': ']',
     '{': '}',
     '"': '\u201d',
-    "'": '\u2019',
 };
 
 const closingChars = new Set(Object.values(bracketPairs));
