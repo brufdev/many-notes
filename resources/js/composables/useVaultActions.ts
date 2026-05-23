@@ -64,6 +64,8 @@ export function useVaultActions() {
             return;
         }
 
+        layoutStore.setAppLoading(true);
+
         router.visit(show.url({ vault: vaultStore.id }), {
             method: 'get',
             data: {
@@ -77,6 +79,9 @@ export function useVaultActions() {
                     page.props.ancestors ?? [],
                     page.props.ancestorsChildren ?? {}
                 );
+            },
+            onFinish: () => {
+                layoutStore.setAppLoading(false);
             },
         });
     }
@@ -109,12 +114,17 @@ export function useVaultActions() {
             return;
         }
 
+        layoutStore.setAppLoading(true);
+
         router.visit(show.url({ vault: vaultStore.id }), {
             method: 'get',
             preserveState: true,
             only: ['openedFile'],
             onSuccess: () => {
                 vaultTreeStore.setSelectedFileId(null);
+            },
+            onFinish: () => {
+                layoutStore.setAppLoading(false);
             },
         });
     }
