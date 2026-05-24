@@ -35,8 +35,8 @@ import AccordionItem from '@/components/accordion/AccordionItem.vue';
                         vault, not just those exported from Many Notes, although only files with
                         valid extensions will be imported. To import a vault, simply upload a zip
                         file containing your files and folders. You may upload text files (md, txt,
-                        pdf), images (jpg, jpeg, png, gif, webp), videos (mp4, avi), and audio files
-                        (mp3, flac).
+                        pdf), images (jpg, jpeg, png, gif, webp, avif), videos (mp4, m4v, mov, webm,
+                        mkv), and audio files (mp3, flac, m4a, aac, wav, ogg, opus).
                     </p>
                     <p>
                         <span class="font-semibold">Exporting vaults</span>: The export feature
@@ -59,10 +59,6 @@ import AccordionItem from '@/components/accordion/AccordionItem.vue';
                         You can create multiple levels of folders, import files, select a template
                         folder, and rename, move, or delete files and folders.
                     </p>
-                    <p>
-                        To open the context menu, right-click on a file or folder if you're on a
-                        desktop, or long press it if you're on a mobile device.
-                    </p>
                 </div>
             </template>
         </AccordionItem>
@@ -72,8 +68,8 @@ import AccordionItem from '@/components/accordion/AccordionItem.vue';
                 <div class="flex flex-col gap-3 pt-3">
                     <p>
                         To use templates, first choose a folder in the tree view where you want to
-                        keep your template notes. Right-click on that folder and select "Template
-                        Folder" to mark it for your templates.
+                        keep your template notes. Open the context menu on that folder and select
+                        "Template Folder" to mark it for your templates.
                     </p>
                     <p>
                         Notes created in this special folder will automatically be seen as
