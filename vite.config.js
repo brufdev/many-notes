@@ -4,7 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from 'vite-plugin-pwa';
 import vue from '@vitejs/plugin-vue';
 import { wayfinder } from "@laravel/vite-plugin-wayfinder";
-import path from 'path';
+import path from 'node:path';
 
 export default defineConfig({
     plugins: [

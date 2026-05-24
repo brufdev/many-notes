@@ -123,13 +123,11 @@ useEcho(`User.${userId.value}`, 'VaultListUpdatedEvent', () => {
                                     :href="'/vaults/' + vault.id"
                                     :title="vault.name"
                                 >
-                                    <span
-                                        class="flex-grow overflow-hidden text-ellipsis whitespace-nowrap"
-                                    >
+                                    <span class="flex-grow truncate">
                                         {{ vault.name }}
                                     </span>
                                     <span
-                                        class="text-light-base-700 dark:text-base-200 overflow-hidden text-xs text-ellipsis whitespace-nowrap"
+                                        class="text-light-base-700 dark:text-base-200 truncate text-xs"
                                     >
                                         Updated on {{ formatDate(vault.updated_at) }}
                                     </span>

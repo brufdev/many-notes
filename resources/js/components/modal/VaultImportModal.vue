@@ -51,7 +51,7 @@ const handleSubmit = () => {
             const message = error.response?.statusText ?? 'Something went wrong';
             createToast(message, 'error');
         },
-        onSuccess: response => {
+        onSuccess: () => {
             closeModal();
             createToast('Vault imported', 'success');
             router.reload({ only: ['visibleVaults'] });

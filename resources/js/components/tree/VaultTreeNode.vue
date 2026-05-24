@@ -30,7 +30,7 @@ import { useVaultTreeStore } from '@/stores/vaultTree';
 import { VaultNodeTreeDropIndicator, VaultNodeTreeItem } from '@/types/vault';
 import { VaultShowPageProps } from '@/types/vault.pages';
 import { usePage } from '@inertiajs/vue3';
-import { computed, inject, ref, Ref } from 'vue';
+import { computed, inject, Ref } from 'vue';
 import VaultTreeChildren from './VaultTreeChildren.vue';
 
 interface VaultTreeNodeProps {
