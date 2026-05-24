@@ -71,4 +71,4 @@ jobs:
           php artisan key:generate
 
       - name: Run linters, static analysis, and tests
-        run: composer test
+        run: composer ci
