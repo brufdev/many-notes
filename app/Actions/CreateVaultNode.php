@@ -20,8 +20,12 @@ final readonly class CreateVaultNode
      *   content?: string|null
      * } $attributes
      */
-    public function handle(Vault $vault, array $attributes, bool $processLinksAndTags = true): VaultNode
-    {
+    public function handle(
+        Vault $vault,
+        array $attributes,
+        bool $processLinksAndTags = true,
+        bool $broadcast = true,
+    ): VaultNode {
         $attributes['parent_id'] ??= null;
         $attributes['extension'] ??= null;
         $attributes['content'] ??= null;
@@ -74,7 +78,9 @@ final readonly class CreateVaultNode
             Storage::disk('local')->makeDirectory($nodePath);
         }
 
-        broadcast(new VaultNodeCreatedEvent($node))->toOthers();
+        if ($broadcast) {
+            broadcast(new VaultNodeCreatedEvent($node))->toOthers();
+        }
 
         return $node;
     }
