@@ -239,7 +239,7 @@ const isValidDropAfter = computed(() => {
                                         ? 'File deleted'
                                         : 'Folder deleted',
                                     onSuccess: (response: { data: { deleted_ids: number[] } }) => {
-                                        vaultTreeActions.handleNodesDeleted(
+                                        vaultActions.handleNodesDeleted(
                                             response.data.deleted_ids,
                                             false
                                         );

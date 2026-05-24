@@ -196,8 +196,7 @@ useEcho<{ data: { deleted_ids: number[] } }>(
     `Vault.${props.vault.id}`,
     'VaultNodeDeletedEvent',
     payload => {
-        vaultTreeActions.handleNodesDeleted(payload.data.deleted_ids);
-        router.reload({ only: ['recentFiles'] });
+        vaultActions.handleNodesDeleted(payload.data.deleted_ids);
     }
 );
 

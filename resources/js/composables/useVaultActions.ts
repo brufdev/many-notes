@@ -171,10 +171,32 @@ export function useVaultActions() {
             });
     }
 
+    function handleNodesDeleted(nodeIds: number[], showToast = true): void {
+        const selectedFileId = page.props.openedFile?.file.id;
+        vaultTreeActions.handleNodesDeleted(nodeIds);
+
+        if (selectedFileId === undefined || !nodeIds.includes(selectedFileId)) {
+            router.reload({ only: ['recentFiles'] });
+
+            return;
+        }
+
+        router.visit(show.url({ vault: page.props.vault.id }), {
+            replace: true,
+            fresh: true,
+            onSuccess: () => {
+                if (showToast) {
+                    createToast('File deleted', 'warning');
+                }
+            },
+        });
+    }
+
     return {
         openFile,
         openFilePath,
         closeFile,
         moveNode,
+        handleNodesDeleted,
     };
 }

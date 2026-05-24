@@ -1,4 +1,4 @@
-import { show, update } from '@/routes/vaults';
+import { update } from '@/routes/vaults';
 import { children } from '@/routes/vaults/nodes';
 import { useLayoutStore } from '@/stores/layout';
 import { useVaultStore } from '@/stores/vault';
@@ -101,24 +101,6 @@ export function useVaultTreeActions() {
             });
     }
 
-    function handleNodesDeleted(nodeIds: number[], showToast = true): void {
-        vaultTreeStore.handleNodesDeleted(nodeIds);
-
-        const selectedFileId = vaultTreeStore.getSelectedFileId();
-
-        if (selectedFileId !== null && nodeIds.includes(selectedFileId)) {
-            router.visit(show.url({ vault: page.props.vault.id }), {
-                replace: true,
-                fresh: true,
-                onSuccess: () => {
-                    if (showToast) {
-                        createToast('File deleted', 'warning');
-                    }
-                },
-            });
-        }
-    }
-
     function handleNodeUpdated(node: VaultNode): void {
         const previousNodeData = vaultTreeStore.getNodeById(node.id);
         const selectedFileId = vaultTreeStore.getSelectedFileId();
@@ -145,11 +127,15 @@ export function useVaultTreeActions() {
         }
     }
 
+    function handleNodesDeleted(nodeIds: number[]): void {
+        vaultTreeStore.handleNodesDeleted(nodeIds);
+    }
+
     return {
         toggleFolder,
         fetchChildren,
         setTemplateFolder,
-        handleNodesDeleted,
         handleNodeUpdated,
+        handleNodesDeleted,
     };
 }
