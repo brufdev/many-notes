@@ -35,7 +35,13 @@ final readonly class GetVaultOpenedFileData
         return $file
             ->links()
             ->select(DB::raw('vault_nodes.*, count(*) as total'))
-            ->groupBy('id', 'name', 'vault_node_vault_node.source_id', 'vault_node_vault_node.destination_id')
+            ->groupBy(
+                'id',
+                'name',
+                'vault_node_vault_node.source_id',
+                'vault_node_vault_node.destination_id',
+                'vault_node_vault_node.position',
+            )
             ->get();
     }
 
@@ -46,7 +52,13 @@ final readonly class GetVaultOpenedFileData
         return $file
             ->backlinks()
             ->select(DB::raw('vault_nodes.*, count(*) as total'))
-            ->groupBy('id', 'name', 'vault_node_vault_node.destination_id', 'vault_node_vault_node.source_id')
+            ->groupBy(
+                'id',
+                'name',
+                'vault_node_vault_node.destination_id',
+                'vault_node_vault_node.source_id',
+                'vault_node_vault_node.position',
+            )
             ->get();
     }
 
@@ -57,7 +69,13 @@ final readonly class GetVaultOpenedFileData
         return $file
             ->tags()
             ->select(DB::raw('tags.*, count(*) as total'))
-            ->groupBy('tags.id', 'tags.name', 'tag_vault_node.vault_node_id', 'tag_vault_node.tag_id')
+            ->groupBy(
+                'tags.id',
+                'tags.name',
+                'tag_vault_node.vault_node_id',
+                'tag_vault_node.tag_id',
+                'vault_node_vault_node.position',
+            )
             ->orderBy('tags.name')
             ->get();
     }
