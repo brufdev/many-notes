@@ -74,7 +74,7 @@ final readonly class GetVaultOpenedFileData
                 'tags.name',
                 'tag_vault_node.vault_node_id',
                 'tag_vault_node.tag_id',
-                'vault_node_vault_node.position',
+                'tag_vault_node.position',
             )
             ->orderBy('tags.name')
             ->get();
