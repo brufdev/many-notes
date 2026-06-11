@@ -99,7 +99,7 @@ export function useVaultActions() {
             return;
         }
 
-        const resolvedPath = resolvePaths(recentFile.full_path, path);
+        const resolvedPath = resolvePaths(decodeURIComponent(recentFile.full_path), decodeURIComponent(path));
         const file = vaultOpenedFileStore.links.find(l => l.full_path === resolvedPath);
 
         if (!file) {
