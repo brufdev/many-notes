@@ -9,6 +9,7 @@ import ProfileEditModal from '@/components/modal/ProfileEditModal.vue';
 import SettingEditModal from '@/components/modal/SettingEditModal.vue';
 import { useModalManager } from '@/composables/useModalManager';
 import { useTheme } from '@/composables/useTheme';
+import { useTiptapPreferences } from '@/composables/useTiptapPreferences';
 import ArrowUpTray from '@/icons/ArrowUpTray.vue';
 import CircleStack from '@/icons/CircleStack.vue';
 import Cog6Tooth from '@/icons/Cog6Tooth.vue';
@@ -16,6 +17,7 @@ import InformationCircle from '@/icons/InformationCircle.vue';
 import Lock from '@/icons/Lock.vue';
 import MessageCircleQuestionMark from '@/icons/MessageCircleQuestionMark.vue';
 import Moon from '@/icons/Moon.vue';
+import Spellcheck from '@/icons/Spellcheck.vue';
 import User from '@/icons/User.vue';
 import { logout } from '@/routes/index';
 import { index } from '@/routes/vaults';
@@ -30,6 +32,7 @@ const { isDark, toggleTheme } = useTheme();
 const { openModal } = useModalManager();
 const settingStore = useSettingStore();
 const userStore = useUserStore();
+const { isSpellcheckEnabled, toggleSpellcheck } = useTiptapPreferences();
 
 const user = computed(() => props.app?.user);
 const metadata = computed(() => props.app?.metadata);
@@ -107,6 +110,32 @@ const metadata = computed(() => props.app?.metadata);
                                 class="absolute h-4.5 w-4.5 transform rounded-full border border-gray-300 bg-white transition-all"
                                 :class="
                                     isDark
+                                        ? 'translate-x-5 border-white rtl:-translate-x-5'
+                                        : 'translate-x-0 rtl:translate-x-0 dark:border-gray-600'
+                                "
+                            ></span>
+                        </span>
+                    </span>
+                </MenuItem>
+
+                <MenuItem @click="toggleSpellcheck">
+                    <span class="flex w-full items-center justify-between">
+                        <span class="flex items-center gap-2">
+                            <Spellcheck class="h-4 w-4" />
+                            Spellcheck
+                        </span>
+                        <span
+                            class="relative inline-flex h-5 w-10 items-center rounded-full transition-colors"
+                            :class="
+                                isSpellcheckEnabled
+                                    ? 'bg-primary-300 dark:bg-primary-600'
+                                    : 'bg-gray-200 dark:bg-gray-700'
+                            "
+                        >
+                            <span
+                                class="absolute h-4.5 w-4.5 transform rounded-full border border-gray-300 bg-white transition-all"
+                                :class="
+                                    isSpellcheckEnabled
                                         ? 'translate-x-5 border-white rtl:-translate-x-5'
                                         : 'translate-x-0 rtl:translate-x-0 dark:border-gray-600'
                                 "

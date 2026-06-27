@@ -23,7 +23,7 @@ const emit = defineEmits<VaultFileNodeEmits>();
 const layoutStore = useLayoutStore();
 const { createToast } = useToast();
 const vaultActions = useVaultActions();
-const { isEditMode, isEditingMarkdown } = useTiptapPreferences();
+const { isEditMode, isEditingMarkdown, isSpellcheckEnabled } = useTiptapPreferences();
 const form = useAxiosForm({});
 
 const editorContext = inject<ShallowRef<ReturnType<typeof useEditor> | null>>('editorContext');
@@ -91,7 +91,7 @@ onMounted(() => {
             ref="noteEditorRef"
             class="h-full w-full px-4"
             :class="isEditingMarkdown ? 'hidden' : ''"
-            spellcheck="false"
+            :spellcheck="isSpellcheckEnabled"
         ></div>
 
         <div
@@ -99,7 +99,7 @@ onMounted(() => {
             class="h-full w-full px-4 whitespace-pre-wrap focus:outline-none"
             :class="isEditingMarkdown ? '' : 'hidden'"
             :contenteditable="isEditMode ? 'plaintext-only' : 'false'"
-            spellcheck="false"
+            :spellcheck="isSpellcheckEnabled"
             @input="editorContext?.onMarkdownChanged(noteMarkdownRef?.textContent ?? '')"
         />
     </div>
