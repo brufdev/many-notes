@@ -26,6 +26,6 @@ final readonly class VisibleVaultsQuery
                     $query->where('accepted', true);
                 },
             ])
-            ->orderBy('updated_at', 'DESC');
+            ->orderBy('updated_at', 'desc');
     }
 }

@@ -46,13 +46,14 @@ it('rate limits a user after 5 consecutive login tries', function (): void {
         ]);
     }
 
-    $this->post(route('login'), [
+    $response = $this->post(route('login'), [
         'email' => $email,
         'password' => 'password',
     ]);
 
-    $errors = session('errors')->get('email');
-    expect($errors[0])->toBe('Too many login attempts. Please try again in 60 seconds.');
+    $response->assertSessionHasErrors([
+        'email' => 'Too many login attempts. Please try again in 60 seconds.',
+    ]);
 });
 
 it('logs out the user and redirects to the login page', function (): void {
