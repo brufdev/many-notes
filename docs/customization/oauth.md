@@ -1,3 +1,15 @@
+## Auth0
+
+To enable Auth0 OAuth, add:
+
+```yaml
+environment:
+  - AUTH0_CLIENT_ID=CLIENT_ID # change id
+  - AUTH0_CLIENT_SECRET=CLIENT_SECRET # change secret
+  - AUTH0_REDIRECT_URI=http://localhost/oauth/auth0/callback # change domain
+  - AUTH0_BASE_URL=http://your-auth0-url # change url
+```
+
 ## Authelia
 
 To enable Authelia OAuth, add:

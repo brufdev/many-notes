@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Override;
+use SocialiteProviders\Auth0\Provider as Auth0Provider;
 use SocialiteProviders\Authelia\Provider as AutheliaProvider;
 use SocialiteProviders\Authentik\Provider as AuthentikProvider;
 use SocialiteProviders\Azure\Provider as AzureProvider;
@@ -123,6 +124,9 @@ final class AppServiceProvider extends ServiceProvider
      */
     private function configureSocialite(): void
     {
+        Event::listen(function (SocialiteWasCalled $event): void {
+            $event->extendSocialite('auth0', Auth0Provider::class);
+        });
         Event::listen(function (SocialiteWasCalled $event): void {
             $event->extendSocialite('authelia', AutheliaProvider::class);
         });
