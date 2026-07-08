@@ -14,6 +14,7 @@ use App\Models\SocialAccount;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -54,7 +55,7 @@ final readonly class OAuthController
         OAuthRequest $request,
         CreateUser $createUser,
         IsLocalAuthEnabled $isLocalAuthEnabled,
-    ): RedirectResponse {
+    ): Redirector|RedirectResponse {
         try {
             $provider = $request->safe()->string('provider')->value();
             $socialProvider = Socialite::driver($provider);
@@ -132,6 +133,6 @@ final readonly class OAuthController
             ? $user->last_visited_url
             : route('vaults.index', absolute: false);
 
-        return redirect()->intended($redirectUrl);
+        return redirect($redirectUrl);
     }
 }

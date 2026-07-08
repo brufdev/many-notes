@@ -35,7 +35,7 @@ final readonly class LoginController
             try {
                 $url = Socialite::driver($providers[0]['value'])->redirect()->getTargetUrl();
 
-                return redirect()->intended($url);
+                return Inertia::location($url);
             } catch (Throwable) {
                 abort(404);
             }
@@ -69,7 +69,7 @@ final readonly class LoginController
         Request $request,
         IsLocalAuthEnabled $isLocalAuthEnabled,
         GetOAuthPostLogoutRedirectUri $getOAuthPostLogoutRedirectUri,
-    ): RedirectResponse {
+    ): RedirectResponse|SymfonyResponse {
         if (!$isLocalAuthEnabled->handle()) {
             $postLogoutRedirectUri = $getOAuthPostLogoutRedirectUri->handle();
         } else {
@@ -80,6 +80,10 @@ final readonly class LoginController
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
+        if (str_starts_with($postLogoutRedirectUri, 'http')) {
+            return Inertia::location($postLogoutRedirectUri);
+        }
 
         return redirect($postLogoutRedirectUri);
     }
