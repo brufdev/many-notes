@@ -13,6 +13,7 @@ use App\Http\Requests\StoreVaultRequest;
 use App\Http\Requests\UpdateVaultRequest;
 use App\Models\User;
 use App\Models\Vault;
+use App\Models\VaultNode;
 use App\Queries\Vaults\VisibleVaultsQuery;
 use App\ViewModels\VaultDataViewModel;
 use App\ViewModels\VaultNodeViewModel;
@@ -87,6 +88,13 @@ final readonly class VaultController
                 ],
             ];
         }
+
+        $currentUrl = route('vaults.show', ['vault' => $vault->id], false)
+            . ($file instanceof VaultNode ? '?file=' . $file->id : '');
+
+        $user->update([
+            'last_visited_url' => $currentUrl,
+        ]);
 
         return Inertia::render('vault/Show', $data);
     }
