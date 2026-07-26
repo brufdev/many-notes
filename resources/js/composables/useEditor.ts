@@ -33,27 +33,24 @@ export function useEditor(options: SetupEditorOptions) {
     let isSyncing: boolean = true;
 
     const prepareTiptapHTML = (html: string) => {
-        return (
-            html
-                // Prepare plain text code
-                .replace(
-                    /<code\s+([^>]*?)class="language-plaintext"([^>]*?)>/g,
-                    (match, before, after) => {
-                        return `<code${before}${after}>`;
-                    }
-                )
-                // Prepare links
-                .replace(/<a\s+([^>]*?)data-href([^>]*?)>/g, (match, before, after) => {
-                    return `<a ${before}href${after}>`;
-                })
-                // Prepare task lists
-                .replace(
-                    /<li([^>]*)>\s*(?:<label[^>]*>)\s*(<input type="checkbox"[^>]*>)(?:<span><\/span><\/label>)(?:<div>)?(?:<p>)?(.*?)(?:<\/p>)?(?:<\/div>)?<\/li>/gs,
-                    (match, liAttributes, input, content) => {
-                        return `<li${liAttributes}">${input}${content}</li>`;
-                    }
-                )
-        );
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+
+        // Prepare plain text code
+        doc.querySelectorAll('code.language-plaintext').forEach(element => {
+            element.classList.remove('language-plaintext');
+
+            if (element.classList.length === 0) {
+                element.removeAttribute('class');
+            }
+        });
+
+        // Prepare links
+        doc.querySelectorAll<HTMLAnchorElement>('a[data-href]').forEach(element => {
+            element.setAttribute('href', element.dataset.href ?? '');
+            delete element.dataset.href;
+        });
+
+        return doc.body.innerHTML;
     };
 
     const encodeText = (text: string) => {

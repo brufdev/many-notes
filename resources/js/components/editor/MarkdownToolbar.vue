@@ -24,12 +24,14 @@ import Heading5 from '@/icons/Heading5.vue';
 import Heading6 from '@/icons/Heading6.vue';
 import HorizontalRule from '@/icons/HorizontalRule.vue';
 import Image from '@/icons/Image.vue';
+import Indent from '@/icons/Indent.vue';
 import Italic from '@/icons/Italic.vue';
 import Link from '@/icons/Link.vue';
 import List from '@/icons/List.vue';
 import ListOrdered from '@/icons/ListOrdered.vue';
 import ListTodo from '@/icons/ListTodo.vue';
 import Markdown from '@/icons/Markdown.vue';
+import Outdent from '@/icons/Outdent.vue';
 import PencilOff from '@/icons/PencilOff.vue';
 import Pilcrow from '@/icons/Pilcrow.vue';
 import Print from '@/icons/Print.vue';
@@ -117,6 +119,22 @@ function toggleOrderedList(): void {
 
 function toggleTaskList(): void {
     editor?.value?.chain().focus().toggleTaskList().run();
+}
+
+function indentList(): void {
+    if (editor?.value?.can().sinkListItem('listItem')) {
+        editor?.value?.chain().focus().sinkListItem('listItem').run();
+    } else if (editor?.value?.can().sinkListItem('taskItem')) {
+        editor?.value?.chain().focus().sinkListItem('taskItem').run();
+    }
+}
+
+function outdentList(): void {
+    if (editor?.value?.can().liftListItem('listItem')) {
+        editor?.value?.chain().focus().liftListItem('listItem').run();
+    } else if (editor?.value?.can().liftListItem('taskItem')) {
+        editor?.value?.chain().focus().liftListItem('taskItem').run();
+    }
 }
 
 function openSearchFileModal(): void {
@@ -366,6 +384,14 @@ function print(): void {
                             :icon="ListTodo"
                             title="Task list"
                             @click="toggleTaskList"
+                        />
+                    </div>
+                    <div class="flex">
+                        <MarkdownToolbarSubButton :icon="Indent" title="Indent" @click="indentList" />
+                        <MarkdownToolbarSubButton
+                            :icon="Outdent"
+                            title="Outdent"
+                            @click="outdentList"
                         />
                     </div>
                 </Menu>

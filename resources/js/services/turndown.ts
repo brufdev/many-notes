@@ -1,9 +1,4 @@
-import {
-    highlightedCodeBlock,
-    strikethrough,
-    tables,
-    taskListItems,
-} from '@guyplusplus/turndown-plugin-gfm';
+import { highlightedCodeBlock, strikethrough, tables } from '@guyplusplus/turndown-plugin-gfm';
 import TurndownService from 'turndown';
 
 TurndownService.prototype.escape = (string: string): string => string;
@@ -16,15 +11,11 @@ export const turndownService = new TurndownService({
     emDelimiter: '*',
     linkReferenceStyle: 'shortcut',
 })
-    .use([highlightedCodeBlock, strikethrough, tables, taskListItems])
+    .use([highlightedCodeBlock, strikethrough, tables])
     .addRule('listItem', {
         filter: 'li',
         replacement(content: string, node: Node, options: TurndownService.Options): string {
             const element = node as HTMLLIElement;
-            content = content
-                .replace(/^\n+/, '') // Remove leading newlines
-                .replace(/\n+$/, '\n') // Replace trailing newlines with just a single one
-                .replace(/\n/gm, '\n    '); // Indent
 
             let prefix = (options.bulletListMarker ?? '-') + ' ';
             const parent = element.parentNode as HTMLElement | null;
@@ -36,12 +27,17 @@ export const turndownService = new TurndownService({
                 prefix = (start ? Number(start) + index : index + 1) + '. ';
             }
 
-            const isTaskList = content.startsWith('[ ]') || content.startsWith('[x]');
+            const indent = ' '.repeat(prefix.length);
 
-            // Remove lines containing only whitespaces
-            if (!isTaskList) {
-                content = content.replace(/^\s+$\n?/gm, '');
+            if (element.dataset.type === 'taskItem') {
+                prefix += element.dataset.checked === 'true' ? '[x] ' : '[ ] ';
             }
+
+            content = content
+                .replace(/^\n+/, '') // Remove leading newlines
+                .replace(/\n+$/, '\n') // Replace trailing newlines with just one
+                .replace(/\n/gm, '\n' + indent) // Indent nested content
+                .replace(/^[^\S\n]+$\n?/gm, ''); // Remove lines containing only whitespaces
 
             return prefix + content + (element.nextSibling && !content.endsWith('\n') ? '\n' : '');
         },

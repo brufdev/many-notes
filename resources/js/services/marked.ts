@@ -1,4 +1,4 @@
-import { marked, type Tokens } from 'marked';
+import { marked, type Token, type Tokens } from 'marked';
 import { angleBracketLink } from './marked/extension-angle-bracket-link';
 import { hashtag } from './marked/extension-hashtag';
 
@@ -83,6 +83,22 @@ renderer.codespan = function ({ text }: Tokens.Codespan): string {
 
 marked.use({
     extensions: [angleBracketLink, hashtag],
+    walkTokens(token: Token): void {
+        if (token.type !== 'list_item' || token.task) {
+            return;
+        }
+
+        const match = /^\s*[-*+]\s+\[([ xX])\]\s*$/.exec(token.raw);
+
+        if (!match) {
+            return;
+        }
+
+        token.task = true;
+        token.checked = match[1].toLowerCase() === 'x';
+        token.text = '';
+        token.tokens = [];
+    },
 });
 
 export const markedService = marked.setOptions({ renderer });
