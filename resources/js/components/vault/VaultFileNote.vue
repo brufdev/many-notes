@@ -89,14 +89,14 @@ onMounted(() => {
     <div class="flex h-full w-full flex-col">
         <div
             ref="noteEditorRef"
-            class="h-full w-full px-4"
+            class="h-full px-4"
             :class="isEditingMarkdown ? 'hidden' : ''"
             :spellcheck="isSpellcheckEnabled"
         ></div>
 
         <div
             ref="noteMarkdownRef"
-            class="h-full w-full px-4 whitespace-pre-wrap focus:outline-none"
+            class="h-full px-4 break-words whitespace-break-spaces focus:outline-none"
             :class="isEditingMarkdown ? '' : 'hidden'"
             :contenteditable="isEditMode ? 'plaintext-only' : 'false'"
             :spellcheck="isSpellcheckEnabled"
