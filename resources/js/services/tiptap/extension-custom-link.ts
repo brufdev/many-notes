@@ -1,3 +1,4 @@
+import { isValidEmail, isValidUrl } from '@/utils/link';
 import { InputRule, mergeAttributes } from '@tiptap/core';
 import Link from '@tiptap/extension-link';
 import type { MarkType } from '@tiptap/pm/model';
@@ -12,8 +13,8 @@ const angleBracketLinkRule = (type: MarkType): InputRule => {
         find: /<([^>\s]+)>$/,
         handler: ({ range, match, commands }) => {
             const value = match[1];
-            const isEmail = /^[^>\s]+@[^>\s]+\.[^>\s]+$/.test(value);
-            const isUrl = /^https?:\/\/[^>]+$/.test(value);
+            const isEmail = isValidEmail(value);
+            const isUrl = isValidUrl(value);
 
             if (!isEmail && !isUrl) {
                 return;
@@ -91,7 +92,7 @@ export const CustomLink = Link.extend<CustomLinkOptions>({
         const href = HTMLAttributes['href'] as string | undefined;
 
         if (href) {
-            if (/^[^>]+@[^>]+\.[^>]+$/.test(href)) {
+            if (isValidEmail(href)) {
                 // Email links
                 HTMLAttributes['target'] = '_self';
             } else if (!href.startsWith('http')) {

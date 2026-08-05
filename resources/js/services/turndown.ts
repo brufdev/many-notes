@@ -84,14 +84,12 @@ export const turndownService = new TurndownService({
                 cleanHref = href;
             }
 
-            cleanHref = cleanHref.replace(/^mailto:/, '');
-
             if (autoLink) {
-                return cleanHref;
+                return cleanHref.replace(/^mailto:/, '');
             }
 
             if (angleBracketLink) {
-                return `<${cleanHref}>`;
+                return `<${cleanHref.replace(/^mailto:/, '')}>`;
             }
 
             return `[${content}](${cleanHref}${titlePart})`;
