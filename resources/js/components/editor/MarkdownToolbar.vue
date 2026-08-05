@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import VaultEditorApplyTemplateController from '@/actions/App/Http/Controllers/VaultEditorApplyTemplateController';
 import Menu from '@/components/menu/Menu.vue';
+import NoteShareModal from '@/components/modal/NoteShareModal.vue';
 import VaultEditorSearchFileModal from '@/components/modal/VaultEditorSearchModal.vue';
 import VaultEditorTemplateListModal from '@/components/modal/VaultEditorTemplateListModal.vue';
 import { useAxiosForm } from '@/composables/useAxiosForm';
@@ -35,6 +36,7 @@ import Pilcrow from '@/icons/Pilcrow.vue';
 import Print from '@/icons/Print.vue';
 import Quote from '@/icons/Quote.vue';
 import Redo from '@/icons/Redo.vue';
+import Share from '@/icons/Share.vue';
 import Strike from '@/icons/Strike.vue';
 import TableAdd from '@/icons/TableAdd.vue';
 import TableAddColumn from '@/icons/TableAddColumn.vue';
@@ -54,6 +56,11 @@ import MarkdownToolbarSubButton from './MarkdownToolbarSubButton.vue';
 const props = defineProps<{
     vaultId: number;
     nodeId: number;
+    shareUrl: string | null;
+}>();
+
+const emit = defineEmits<{
+    'share-updated': [url: string | null];
 }>();
 
 const { openModal } = useModalManager();
@@ -228,6 +235,16 @@ function setTableColumnAlignment(alignment: 'left' | 'center' | 'right'): void {
 
 function print(): void {
     globalThis.print();
+}
+
+function openShareModal(): void {
+    openModal(NoteShareModal, {
+        title: 'Share note',
+        vaultId: props.vaultId,
+        nodeId: props.nodeId,
+        shareUrl: props.shareUrl,
+        onUpdate: (url: string | null) => emit('share-updated', url),
+    });
 }
 </script>
 
@@ -502,6 +519,17 @@ function print(): void {
                 @click="toggleEditMode"
             />
             <MarkdownToolbarButton title="Print" :icon="Print" @click="print" />
+            <MarkdownToolbarButton
+                title="Share"
+                :icon="Share"
+                :toggle="true"
+                :class="
+                    shareUrl
+                        ? 'bg-primary-400 dark:bg-primary-500 text-light-base-50! dark:text-light-base-50!'
+                        : ''
+                "
+                @click="openShareModal"
+            />
         </div>
     </div>
 </template>

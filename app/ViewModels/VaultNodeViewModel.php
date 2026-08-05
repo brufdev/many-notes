@@ -21,6 +21,7 @@ final readonly class VaultNodeViewModel
         public string $full_path,
         public string $url,
         public ?string $content,
+        public ?string $share_url,
         public ?CarbonImmutable $updated_at,
     ) {
         //
@@ -31,6 +32,9 @@ final readonly class VaultNodeViewModel
         $extension = $node->extension ? ".{$node->extension}" : '';
         $fullPath = "/{$node->fullPath()}{$extension}";
         $url = $node->is_file ? app(GetUrlFromVaultNode::class)->handle($node) : '';
+        $shareUrl = $node->relationLoaded('share') && $node->share !== null
+            ? route('share.show', ['share' => $node->share->token])
+            : null;
 
         return new self(
             $node->id,
@@ -43,6 +47,7 @@ final readonly class VaultNodeViewModel
             $fullPath,
             $url,
             $node->content,
+            $shareUrl,
             $node->updated_at,
         );
     }

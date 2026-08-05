@@ -24,4 +24,19 @@ final readonly class VaultNodePolicy
                 ->wherePivot('accepted', true)
                 ->exists();
     }
+
+    /**
+     * Determine whether the user can create or revoke a public share link for the model.
+     */
+    public function share(User $user, VaultNode $node): bool
+    {
+        /** @var Vault $vault */
+        $vault = $node->vault;
+
+        return $user->id === $vault->created_by ||
+            $vault->collaborators()
+                ->wherePivot('user_id', $user->id)
+                ->wherePivot('accepted', true)
+                ->exists();
+    }
 }

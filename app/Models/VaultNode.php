@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Laravel\Scout\Searchable;
 use Override;
 use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
@@ -38,6 +39,7 @@ use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
  * @property-read Collection<int, VaultNode> $links
  * @property-read Collection<int, VaultNode> $backlinks
  * @property-read Collection<int, Tag> $tags
+ * @property-read VaultNodeShare|null $share
  */
 final class VaultNode extends Model
 {
@@ -78,6 +80,12 @@ final class VaultNode extends Model
     {
         return $this->belongsToMany(Tag::class, null, 'vault_node_id', 'tag_id')
             ->withPivot('position');
+    }
+
+    /** @return HasOne<VaultNodeShare, $this> */
+    public function share(): HasOne
+    {
+        return $this->hasOne(VaultNodeShare::class);
     }
 
     public function isTemplate(): bool

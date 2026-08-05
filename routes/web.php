@@ -13,6 +13,8 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\ShareController;
+use App\Http\Controllers\ShareFileController;
 use App\Http\Controllers\VaultCollaborationAcceptController;
 use App\Http\Controllers\VaultCollaborationController;
 use App\Http\Controllers\VaultCollaborationDeclineController;
@@ -25,6 +27,7 @@ use App\Http\Controllers\VaultNodeChildrenController;
 use App\Http\Controllers\VaultNodeController;
 use App\Http\Controllers\VaultNodeImportController;
 use App\Http\Controllers\VaultNodeMoveController;
+use App\Http\Controllers\VaultNodeShareController;
 use App\Http\Controllers\VaultSearchController;
 use App\Http\Middleware\EnsureEmailIsConfigured;
 use App\Http\Middleware\EnsureRegistrationIsEnabled;
@@ -56,6 +59,8 @@ Route::middleware('auth')->group(function (): void {
             Route::delete('', [VaultNodeController::class, 'destroy'])->name('destroy');
             Route::get('children', VaultNodeChildrenController::class)->name('children');
             Route::patch('move', VaultNodeMoveController::class)->name('move');
+            Route::post('share', [VaultNodeShareController::class, 'store'])->name('share.store');
+            Route::delete('share', [VaultNodeShareController::class, 'destroy'])->name('share.destroy');
         })->scopeBindings();
 
         Route::post('import', VaultNodeImportController::class)->name('import');
@@ -111,4 +116,10 @@ Route::middleware(['guest', 'throttle'])->group(function (): void {
         Route::get('{provider}', [OAuthController::class, 'create'])->name('oauth');
         Route::get('{provider}/callback', [OAuthController::class, 'store'])->name('oauth.store');
     });
+});
+
+// Public, unauthenticated read-only note links
+Route::middleware('throttle')->prefix('share')->name('share.')->group(function (): void {
+    Route::get('{share:token}', [ShareController::class, 'show'])->name('show');
+    Route::get('{share:token}/files', [ShareFileController::class, 'show'])->name('files');
 });

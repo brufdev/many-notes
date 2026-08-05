@@ -38,6 +38,7 @@ export interface VaultNode {
     full_path: string;
     url: string;
     content: string | null;
+    share_url: string | null;
     updated_at: string;
 }
 
