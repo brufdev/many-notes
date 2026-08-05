@@ -308,7 +308,12 @@ useEcho<{ data: { user_id: number } }>(
                     @name-updated="openedFile.file.name = $event"
                 >
                     <template v-if="openedFile.file.type === 'note'" #toolbar>
-                        <MarkdownToolbar :vault-id="props.vault.id" :node-id="openedFile.file.id" />
+                        <MarkdownToolbar
+                            :vault-id="props.vault.id"
+                            :node-id="openedFile.file.id"
+                            :share-url="openedFile.file.share_url"
+                            @share-updated="openedFile.file.share_url = $event"
+                        />
                     </template>
                     <component
                         :is="fileComponents[openedFile.file.type]"

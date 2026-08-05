@@ -78,6 +78,8 @@ final readonly class VaultController
                 abort_unless($file !== null, 404);
             }
 
+            $file->load('share');
+
             $data = [
                 ...$data,
                 'openedFile' => [

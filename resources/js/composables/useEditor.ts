@@ -26,6 +26,7 @@ interface SetupEditorOptions {
     isEditMode: Readonly<Ref<boolean>>;
     onUpdate: (markdown: string) => void;
     openFilePath: (path: string) => void;
+    imageBaseUrl?: string;
 }
 
 export function useEditor(options: SetupEditorOptions) {
@@ -101,6 +102,7 @@ export function useEditor(options: SetupEditorOptions) {
                 }),
                 CustomImage.configure({
                     vaultId: options.vaultId,
+                    baseUrl: options.imageBaseUrl ?? null,
                 }),
                 CustomLink.configure({
                     autolink: false,
