@@ -9,6 +9,7 @@ export const CustomImage = Image.extend<CustomImageOptions>({
     addOptions() {
         return {
             ...this.parent!(),
+            inline: true,
             vaultId: null,
         };
     },

@@ -129,13 +129,7 @@ export function useEditor(options: SetupEditorOptions) {
                     class: 'h-full !max-w-none flow-root focus:outline-none prose dark:prose-invert',
                 },
             },
-            onCreate(props) {
-                const firstNode = props.editor.state.doc.firstChild;
-
-                if (firstNode?.type.name === 'paragraph' && firstNode.content.size === 0) {
-                    props.editor.commands.deleteNode('paragraph');
-                }
-
+            onCreate() {
                 isSyncing = false;
 
                 setMarkdownContent(options.content);

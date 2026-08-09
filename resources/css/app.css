@@ -108,6 +108,10 @@
             margin-bottom: 2em !important;
         }
 
+        img + br.ProseMirror-trailingBreak {
+            display: none;
+        }
+
         blockquote {
             p {
                 &:first-of-type::before,
