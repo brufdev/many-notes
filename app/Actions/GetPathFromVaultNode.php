@@ -24,7 +24,7 @@ final readonly class GetPathFromVaultNode
         }
 
         $path = sprintf(
-            'private/vaults/%u/%s/%s',
+            'vaults/%u/%s/%s',
             $vault->user->id,
             $vault->name,
             $relativePath,

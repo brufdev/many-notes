@@ -10,6 +10,6 @@ final readonly class GetPathFromUser
 {
     public function handle(User $user): string
     {
-        return sprintf('private/vaults/%u/', $user->id);
+        return sprintf('vaults/%u/', $user->id);
     }
 }

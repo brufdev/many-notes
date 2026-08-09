@@ -12,6 +12,6 @@ final readonly class GetPathFromVault
     {
         $vault->loadMissing('user');
 
-        return sprintf('private/vaults/%u/%s/', $vault->user->id, $vault->name);
+        return sprintf('vaults/%u/%s/', $vault->user->id, $vault->name);
     }
 }
