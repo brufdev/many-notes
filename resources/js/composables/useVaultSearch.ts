@@ -64,8 +64,6 @@ export function useVaultSearch(onSearch: (search: string) => void, fileCount: Re
             return;
         }
 
-        const fileRect = fileElement.getBoundingClientRect();
-
         if (selectedFile.value === 0) {
             scrollContainer.scroll({ top: 0, behavior: 'smooth' });
 
@@ -79,15 +77,20 @@ export function useVaultSearch(onSearch: (search: string) => void, fileCount: Re
             return;
         }
 
-        if (isFileVisible(scrollContainer.clientHeight, fileRect.top, fileRect.bottom)) {
+        const containerTop = scrollContainer.getBoundingClientRect().top;
+        const fileRect = fileElement.getBoundingClientRect();
+        const elementTop = fileRect.top - containerTop;
+        const elementBottom = fileRect.bottom - containerTop;
+
+        if (isFileVisible(scrollContainer.clientHeight, elementTop, elementBottom)) {
             return;
         }
 
-        if (fileRect.top < 0) {
-            const top = scrollContainer.scrollTop + fileRect.top;
+        if (elementTop < 0) {
+            const top = scrollContainer.scrollTop + elementTop;
             scrollContainer.scroll({ top: top, behavior: 'smooth' });
         } else {
-            const top = scrollContainer.scrollTop + fileRect.bottom - scrollContainer.clientHeight;
+            const top = scrollContainer.scrollTop + elementBottom - scrollContainer.clientHeight;
             scrollContainer.scroll({ top: top, behavior: 'smooth' });
         }
     }

@@ -65,75 +65,87 @@ const { isEditMode, isEditingMarkdown, toggleEditMode, toggleEditingMarkdown } =
     useTiptapPreferences();
 
 const editorContext = inject<ShallowRef<ReturnType<typeof useEditor> | null>>('editorContext');
-const editor = computed(() => editorContext?.value?.editor?.value ?? null);
+const editor = computed(() => editorContext?.value?.editor.value ?? null);
 
 const isToolbarLocked = computed(() => !isEditMode.value || isEditingMarkdown.value);
 
 function undo(): void {
-    editor?.value?.chain().focus().undo().run();
+    editor.value?.chain().focus().undo().run();
 }
 
 function redo(): void {
-    editor?.value?.chain().focus().redo().run();
+    editor.value?.chain().focus().redo().run();
 }
 
 function toggleHeading(level: 1 | 2 | 3 | 4 | 5 | 6): void {
-    editor?.value?.chain().focus().toggleHeading({ level: level }).run();
+    editor.value?.chain().focus().toggleHeading({ level: level }).run();
 }
 
 function setParagraph(): void {
-    editor?.value?.chain().focus().setParagraph().run();
+    editor.value?.chain().focus().setParagraph().run();
 }
 
 function toggleBlockquote(): void {
-    editor?.value?.chain().focus().toggleBlockquote().run();
+    editor.value?.chain().focus().toggleBlockquote().run();
 }
 
 function toggleCodeBlock(): void {
-    editor?.value?.chain().focus().toggleCodeBlock().run();
+    editor.value?.chain().focus().toggleCodeBlock().run();
 }
 
 function toggleBold(): void {
-    editor?.value?.chain().focus().toggleBold().run();
+    editor.value?.chain().focus().toggleBold().run();
 }
 
 function toggleItalic(): void {
-    editor?.value?.chain().focus().toggleItalic().run();
+    editor.value?.chain().focus().toggleItalic().run();
 }
 
 function toggleStrike(): void {
-    editor?.value?.chain().focus().toggleStrike().run();
+    editor.value?.chain().focus().toggleStrike().run();
 }
 
 function toggleCode(): void {
-    editor?.value?.chain().focus().toggleCode().run();
+    editor.value?.chain().focus().toggleCode().run();
 }
 
 function toggleBulletList(): void {
-    editor?.value?.chain().focus().toggleBulletList().run();
+    editor.value?.chain().focus().toggleBulletList().run();
 }
 
 function toggleOrderedList(): void {
-    editor?.value?.chain().focus().toggleOrderedList().run();
+    editor.value?.chain().focus().toggleOrderedList().run();
 }
 
 function toggleTaskList(): void {
-    editor?.value?.chain().focus().toggleTaskList().run();
+    editor.value?.chain().focus().toggleTaskList().run();
 }
 
 function indentList(): void {
-    if (editor?.value?.can().sinkListItem('listItem')) {
-        editor?.value?.chain().focus().sinkListItem('listItem').run();
-    } else if (editor?.value?.can().sinkListItem('taskItem')) {
-        editor?.value?.chain().focus().sinkListItem('taskItem').run();
+    const instance = editor.value;
+
+    if (!instance) {
+        return;
+    }
+
+    if (instance.can().sinkListItem('listItem')) {
+        instance.chain().focus().sinkListItem('listItem').run();
+    } else if (instance.can().sinkListItem('taskItem')) {
+        instance.chain().focus().sinkListItem('taskItem').run();
     }
 }
 
 function outdentList(): void {
-    if (editor?.value?.can().liftListItem('listItem')) {
-        editor?.value?.chain().focus().liftListItem('listItem').run();
-    } else if (editor?.value?.can().liftListItem('taskItem')) {
-        editor?.value?.chain().focus().liftListItem('taskItem').run();
+    const instance = editor.value;
+
+    if (!instance) {
+        return;
+    }
+
+    if (instance.can().liftListItem('listItem')) {
+        instance.chain().focus().liftListItem('listItem').run();
+    } else if (instance.can().liftListItem('taskItem')) {
+        instance.chain().focus().liftListItem('taskItem').run();
     }
 }
 
@@ -141,19 +153,39 @@ function openSearchFileModal(): void {
     openModal(VaultEditorSearchFileModal, {
         title: 'Insert link',
         top: true,
-        initialUrl: editor?.value?.getAttributes('link').href ?? '',
-        onSelect: (url: string) => toggleLink(url),
+        initialUrl: editor.value?.getAttributes('link').href ?? '',
+        onSelect: (url: string, name: string) => toggleLink(url, name),
     });
 }
 
-function toggleLink(url: string): void {
+function toggleLink(url: string, name: string): void {
+    const instance = editor.value;
+
+    if (!instance) {
+        return;
+    }
+
     if (url === '') {
-        editor?.value?.chain().focus().extendMarkRange('link').unsetLink().run();
+        instance.chain().focus().extendMarkRange('link').unsetLink().run();
 
         return;
     }
 
-    editor?.value?.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+    const isEmptySelection = instance.state.selection.empty;
+
+    if (isEmptySelection && !instance.isActive('link')) {
+        const content = {
+            type: 'text',
+            text: name || url,
+            marks: [{ type: 'link', attrs: { href: url } }],
+        };
+
+        instance.chain().focus().insertContent(content).run();
+
+        return;
+    }
+
+    instance.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
 }
 
 function openSearchImageModal(): void {
@@ -161,17 +193,31 @@ function openSearchImageModal(): void {
         title: 'Insert image',
         top: true,
         searchType: 'image',
-        initialUrl: editor?.value?.getAttributes('image').src ?? '',
-        onSelect: (url: string) => setImage(url),
+        initialUrl: editor.value?.getAttributes('image').src ?? '',
+        onSelect: (url: string, name: string) => setImage(url, name),
     });
 }
 
-function setImage(url: string): void {
-    editor?.value?.chain().focus().setImage({ src: url, alt: '', title: '' }).run();
+function setImage(url: string, name: string): void {
+    const instance = editor.value;
+
+    if (!instance) {
+        return;
+    }
+
+    if (url === '') {
+        return;
+    }
+
+    const { from, to } = instance.state.selection;
+    const selectedText = instance.state.doc.textBetween(from, to, ' ');
+    const options = { src: url, alt: selectedText || name, title: '' };
+
+    instance.chain().focus().setImage(options).run();
 }
 
 function setHorizontalRule(): void {
-    editor?.value?.chain().focus().setHorizontalRule().run();
+    editor.value?.chain().focus().setHorizontalRule().run();
 }
 
 function openTemplateListModal(): void {
@@ -209,39 +255,39 @@ function applyTemplateToVaultNode(templateId: number): void {
 }
 
 function insertTable(): void {
-    editor?.value?.chain().focus().insertTable().run();
+    editor.value?.chain().focus().insertTable().run();
 }
 
 function deleteTable(): void {
-    editor?.value?.chain().focus().deleteTable().run();
+    editor.value?.chain().focus().deleteTable().run();
 }
 
 function addColumnBefore(): void {
-    editor?.value?.chain().focus().addColumnBefore().run();
+    editor.value?.chain().focus().addColumnBefore().run();
 }
 
 function addColumnAfter(): void {
-    editor?.value?.chain().focus().addColumnAfter().run();
+    editor.value?.chain().focus().addColumnAfter().run();
 }
 
 function deleteColumn(): void {
-    editor?.value?.chain().focus().deleteColumn().run();
+    editor.value?.chain().focus().deleteColumn().run();
 }
 
 function addRowBefore(): void {
-    editor?.value?.chain().focus().addRowBefore().run();
+    editor.value?.chain().focus().addRowBefore().run();
 }
 
 function addRowAfter(): void {
-    editor?.value?.chain().focus().addRowAfter().run();
+    editor.value?.chain().focus().addRowAfter().run();
 }
 
 function deleteRow(): void {
-    editor?.value?.chain().focus().deleteRow().run();
+    editor.value?.chain().focus().deleteRow().run();
 }
 
 function setTableColumnAlignment(alignment: 'left' | 'center' | 'right'): void {
-    editor?.value?.chain().focus().setTableColumnAlignment(alignment).run();
+    editor.value?.chain().focus().setTableColumnAlignment(alignment).run();
 }
 
 function print(): void {
@@ -387,7 +433,11 @@ function print(): void {
                         />
                     </div>
                     <div class="flex">
-                        <MarkdownToolbarSubButton :icon="Indent" title="Indent" @click="indentList" />
+                        <MarkdownToolbarSubButton
+                            :icon="Indent"
+                            title="Indent"
+                            @click="indentList"
+                        />
                         <MarkdownToolbarSubButton
                             :icon="Outdent"
                             title="Outdent"

@@ -1,22 +1,19 @@
 <script setup lang="ts">
 import VaultEditorSearchController from '@/actions/App/Http/Controllers/VaultEditorSearchController';
 import ModelInput from '@/components/form/ModelInput.vue';
-import Submit from '@/components/form/Submit.vue';
-import Tab from '@/components/tabs/Tab.vue';
-import TabPanel from '@/components/tabs/TabPanel.vue';
-import Tabs from '@/components/tabs/Tabs.vue';
 import VaultFileIcon from '@/components/vault/VaultFileIcon.vue';
 import { useAxiosForm } from '@/composables/useAxiosForm';
 import { useModalManager } from '@/composables/useModalManager';
 import { useToast } from '@/composables/useToast';
 import { useVaultSearch } from '@/composables/useVaultSearch';
+import Link from '@/icons/Link.vue';
 import { useVaultStore } from '@/stores/vault';
 import { VaultEditorSearchFile } from '@/types/vault';
+import { isValidEmail, isValidUrl } from '@/utils/link';
 import { formatElapsedTime, formatExtendedDate } from '@/utils/time';
 import { computed, onMounted, ref } from 'vue';
 
 type SearchType = 'all' | 'image';
-type TabType = 'internal' | 'external';
 
 const { closeModal } = useModalManager();
 const { createToast } = useToast();
@@ -25,22 +22,91 @@ const vaultStore = useVaultStore();
 const props = defineProps<{
     searchType?: SearchType;
     initialUrl?: string;
-    onSelect: (path: string) => void;
+    onSelect: (url: string, name: string) => void;
 }>();
-
-const activeTab = ref<TabType>('internal');
 
 const files = ref<VaultEditorSearchFile[]>([]);
 const isLoading = ref(false);
-const fileCount = computed(() => files.value.length);
+const resultsQuery = ref<string | null>(null);
+const optionCount = computed(() => files.value.length + (hasTypedOption.value ? 1 : 0));
 
+const {
+    search,
+    selectedFile,
+    listRef,
+    scrollContainerRef,
+    selectFile,
+    selectPreviousFile,
+    selectNextFile,
+} = useVaultSearch(() => runSearch(), optionCount);
+
+const searchUrl = VaultEditorSearchController.url({ vault: vaultStore.id! });
 const form = useAxiosForm({});
-const url = VaultEditorSearchController.url({ vault: vaultStore.id! });
 
-const handleSubmit = () => {
-    if (!search.value) {
-        hasSearched.value = false;
+const trimmedSearch = computed(() => search.value.trim());
+const resultsMatchSearch = computed(() => resultsQuery.value === trimmedSearch.value);
+
+const isMailtoOption = computed(
+    () => props.searchType !== 'image' && isValidEmail(trimmedSearch.value)
+);
+
+const skipVaultSearch = computed(() => isValidUrl(trimmedSearch.value) || isMailtoOption.value);
+
+const hasTypedOption = computed(
+    () => trimmedSearch.value !== '' && (resultsMatchSearch.value || files.value.length > 0)
+);
+
+const hint = computed(() =>
+    props.searchType === 'image'
+        ? 'Start typing to search images in this vault. You can also type an external image URL.'
+        : 'Start typing to search files in this vault. You can also type an external URL or an email address.'
+);
+
+const typedOptionLabel = computed(() => {
+    if (isMailtoOption.value) {
+        return 'Email address';
+    }
+
+    if (isValidUrl(trimmedSearch.value)) {
+        return props.searchType === 'image' ? 'External image' : 'External link';
+    }
+
+    return props.searchType === 'image' ? 'Internal image' : 'Internal link';
+});
+
+onMounted(() => {
+    const initialUrl = props.initialUrl ?? '';
+
+    if (isValidUrl(initialUrl)) {
+        search.value = initialUrl;
+
+        return;
+    }
+
+    if (initialUrl.startsWith('mailto:')) {
+        search.value = initialUrl.slice('mailto:'.length);
+
+        return;
+    }
+
+    if (initialUrl) {
+        let filename = initialUrl.split(/[/\\]/).pop() ?? '';
+        const lastDotIndex = filename.lastIndexOf('.');
+
+        if (lastDotIndex > 0) {
+            filename = filename.substring(0, lastDotIndex);
+        }
+
+        search.value = filename.replaceAll('%20', ' ');
+    }
+});
+
+function runSearch() {
+    const query = trimmedSearch.value;
+
+    if (query === '' || skipVaultSearch.value) {
         files.value = [];
+        resultsQuery.value = query;
 
         return;
     }
@@ -48,11 +114,11 @@ const handleSubmit = () => {
     isLoading.value = true;
 
     form.send<{ data: { files: VaultEditorSearchFile[] } }>({
-        url: url,
+        url: searchUrl,
         method: 'get',
         axiosConfig: {
             params: {
-                search: search.value,
+                search: query,
                 searchType: props.searchType,
             },
         },
@@ -65,193 +131,152 @@ const handleSubmit = () => {
         },
         onFinish: () => {
             isLoading.value = false;
+            resultsQuery.value = query;
         },
     });
-};
+}
 
-const {
-    search,
-    hasSearched,
-    selectedFile,
-    listRef,
-    scrollContainerRef,
-    selectFile,
-    selectPreviousFile,
-    selectNextFile,
-} = useVaultSearch(handleSubmit, fileCount);
-
-const externalUrl = ref('');
-const externalUrlError = ref(false);
-
-onMounted(() => {
-    const url = props.initialUrl ?? '';
-
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-        externalUrl.value = url;
-        activeTab.value = 'external';
-
-        return;
-    }
-
-    if (url) {
-        let filename = url.split(/[/\\]/).pop() ?? '';
-        const lastDotIndex = filename.lastIndexOf('.');
-
-        if (lastDotIndex > 0) {
-            filename = filename.substring(0, lastDotIndex);
-        }
-
-        search.value = filename.replaceAll('%20', ' ');
-    }
-
-    activeTab.value = 'internal';
-});
-
-function insertFile() {
-    if (search.value === '') {
-        props.onSelect('');
+function confirmSelection() {
+    if (trimmedSearch.value === '') {
+        props.onSelect('', '');
         closeModal();
 
         return;
     }
 
-    if (files.value.length === 0) {
+    if (!hasTypedOption.value) {
         return;
     }
 
-    const id = files.value[selectedFile.value].id;
-    const file = files.value.find(f => f.id === id);
+    if (selectedFile.value >= files.value.length) {
+        insertTypedOption();
+
+        return;
+    }
+
+    insertFile(selectedFile.value);
+}
+
+function insertFile(index: number) {
+    const file = files.value[index];
 
     if (!file) {
         return;
     }
 
-    props.onSelect(file.full_path_encoded);
+    props.onSelect(file.full_path_encoded, file.name);
     closeModal();
 }
 
-function insertUrl() {
-    const url = externalUrl.value.trim();
-    externalUrlError.value = url !== '' && !validateUrl(url);
+function insertTypedOption() {
+    const value = trimmedSearch.value;
 
-    if (!externalUrlError.value) {
-        props.onSelect(url);
-        closeModal();
-    }
-}
+    props.onSelect(
+        isMailtoOption.value ? `mailto:${value}` : value,
+        isMailtoOption.value ? value : ''
+    );
 
-function validateUrl(url: string): boolean {
-    try {
-        const obj = new URL(url);
-        return obj.protocol === 'http:' || obj.protocol === 'https:';
-    } catch {
-        return false;
-    }
+    closeModal();
 }
 </script>
 
 <template>
     <div ref="scrollContainerRef">
-        <Tabs v-model="activeTab">
-            <div class="flex gap-2 overflow-x-auto" role="tablist" aria-label="tab options">
-                <Tab name="internal">Internal</Tab>
-                <Tab name="external">External</Tab>
-            </div>
-            <TabPanel name="internal">
-                <div class="py-4">
-                    <ModelInput
-                        v-model="search"
-                        name="search"
-                        type="text"
-                        placeholder="Search"
-                        autocomplete="off"
-                        autofocus
-                        @keydown.up.prevent.stop="selectPreviousFile"
-                        @keydown.down.prevent.stop="selectNextFile"
-                        @keydown.enter.prevent.stop="insertFile"
-                    />
-                    <div class="mt-4">
-                        <div
-                            v-if="files.length > 0"
-                            ref="listRef"
-                            class="flex flex-col gap-2"
-                            :class="[isLoading ? 'opacity-50' : '']"
+        <div class="py-4">
+            <ModelInput
+                v-model="search"
+                name="search"
+                type="text"
+                placeholder="Search"
+                autocomplete="off"
+                autofocus
+                @keydown.up.prevent.stop="selectPreviousFile"
+                @keydown.down.prevent.stop="selectNextFile"
+                @keydown.enter.prevent.stop="confirmSelection"
+            />
+            <div class="mt-4">
+                <p v-if="trimmedSearch === ''" class="text-sm">
+                    {{ hint }}
+                </p>
+                <p v-else-if="!hasTypedOption" class="text-sm">Searching...</p>
+                <div v-else ref="listRef" class="flex flex-col gap-2">
+                    <div
+                        v-for="(file, index) in files"
+                        :key="file.id"
+                        class="rounded-lg p-2"
+                        :class="[
+                            selectedFile === index
+                                ? 'bg-light-base-300 dark:bg-base-800 text-light-base-950 dark:text-base-50'
+                                : 'text-light-base-700 dark:text-base-200',
+                            isLoading ? 'opacity-50' : '',
+                        ]"
+                        @mouseenter="selectFile(index)"
+                    >
+                        <button
+                            class="flex w-full flex-col gap-2 py-1 text-left"
+                            type="button"
+                            @click="insertFile(index)"
                         >
-                            <div
-                                v-for="(file, index) in files"
-                                :key="file.id"
-                                class="rounded-lg p-2"
-                                :class="
-                                    selectedFile === index
-                                        ? 'bg-light-base-300 dark:bg-base-800 text-light-base-950 dark:text-base-50'
-                                        : 'text-light-base-700 dark:text-base-200'
-                                "
-                                @mouseenter="selectFile(index)"
-                            >
-                                <button
-                                    class="flex w-full flex-col gap-2 py-1 text-left"
-                                    type="button"
-                                    @click="insertFile"
+                            <span class="flex w-full items-center justify-between">
+                                <span
+                                    class="flex min-w-0 flex-1 items-center gap-2 py-1"
+                                    :title="file.name"
                                 >
-                                    <span class="flex w-full items-center justify-between">
-                                        <span
-                                            class="flex min-w-0 flex-1 items-center gap-2 py-1"
-                                            :title="file.name"
-                                        >
-                                            <span
-                                                class="flex shrink-0 items-center justify-center gap-2"
-                                            >
-                                                <VaultFileIcon :file="file" />
-                                            </span>
-                                            <span class="truncate">
-                                                {{ file.name }}
-                                            </span>
-                                        </span>
-                                        <span
-                                            class="text-light-base-700 dark:text-base-400 pl-2 text-xs"
-                                            :title="formatExtendedDate(file.updated_at)"
-                                        >
-                                            {{ formatElapsedTime(file.updated_at) }}
-                                        </span>
+                                    <span class="flex shrink-0 items-center justify-center gap-2">
+                                        <VaultFileIcon :file="file" />
                                     </span>
-                                    <span
-                                        class="text-light-base-700 dark:text-base-200 truncate text-xs"
-                                        :title="file.full_path"
-                                    >
-                                        {{ file.full_path }}
+                                    <span class="truncate">
+                                        {{ file.name }}
                                     </span>
-                                </button>
-                            </div>
-                        </div>
-                        <p v-else-if="hasSearched && !isLoading">No results found</p>
+                                </span>
+                                <span
+                                    class="text-light-base-700 dark:text-base-400 pl-2 text-xs"
+                                    :title="formatExtendedDate(file.updated_at)"
+                                >
+                                    {{ formatElapsedTime(file.updated_at) }}
+                                </span>
+                            </span>
+                            <span
+                                class="text-light-base-700 dark:text-base-200 truncate text-xs"
+                                :title="file.full_path"
+                            >
+                                {{ file.full_path }}
+                            </span>
+                        </button>
+                    </div>
+                    <div
+                        v-if="hasTypedOption"
+                        class="rounded-lg p-2"
+                        :class="
+                            selectedFile === files.length
+                                ? 'bg-light-base-300 dark:bg-base-800 text-light-base-950 dark:text-base-50'
+                                : 'text-light-base-700 dark:text-base-200'
+                        "
+                        @mouseenter="selectFile(files.length)"
+                    >
+                        <button
+                            class="flex w-full flex-col gap-2 py-1 text-left"
+                            type="button"
+                            @click="insertTypedOption"
+                        >
+                            <span
+                                class="flex w-full min-w-0 items-center gap-2 py-1"
+                                :title="trimmedSearch"
+                            >
+                                <span class="flex shrink-0 items-center justify-center gap-2">
+                                    <Link class="h-4 w-4 opacity-70" />
+                                </span>
+                                <span class="truncate">
+                                    {{ trimmedSearch }}
+                                </span>
+                            </span>
+                            <span class="text-light-base-700 dark:text-base-200 truncate text-xs">
+                                {{ typedOptionLabel }}
+                            </span>
+                        </button>
                     </div>
                 </div>
-            </TabPanel>
-            <TabPanel name="external">
-                <div class="py-4">
-                    <ModelInput
-                        v-model="externalUrl"
-                        name="search"
-                        type="text"
-                        placeholder="Type URL"
-                        autocomplete="off"
-                        autofocus
-                        @keydown.enter.prevent.stop="insertUrl"
-                    />
-                    <p
-                        class="mt-2 text-xs"
-                        :class="
-                            externalUrlError ? 'text-error-500' : 'text-gray-500 dark:text-gray-400'
-                        "
-                    >
-                        URLs must start with http(s)://
-                    </p>
-                </div>
-
-                <div class="flex justify-end">
-                    <Submit label="Save" :processing="false" @click="insertUrl" />
-                </div>
-            </TabPanel>
-        </Tabs>
+            </div>
+        </div>
     </div>
 </template>
