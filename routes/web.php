@@ -51,12 +51,12 @@ Route::middleware('auth')->group(function (): void {
     Route::prefix('vaults/{vault}')->name('vaults.nodes.')->group(function (): void {
         Route::post('nodes', [VaultNodeController::class, 'store'])->name('store');
 
-        Route::prefix('nodes/{node}')->group(function (): void {
+        Route::prefix('nodes/{node}')->scopeBindings()->group(function (): void {
             Route::patch('', [VaultNodeController::class, 'update'])->name('update');
             Route::delete('', [VaultNodeController::class, 'destroy'])->name('destroy');
             Route::get('children', VaultNodeChildrenController::class)->name('children');
             Route::patch('move', VaultNodeMoveController::class)->name('move');
-        })->scopeBindings();
+        });
 
         Route::post('import', VaultNodeImportController::class)->name('import');
     });
