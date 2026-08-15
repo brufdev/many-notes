@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Models\VaultNode;
+use Illuminate\Support\Facades\DB;
 
 final readonly class UpdateVaultNodeBacklinks
 {
@@ -16,11 +17,15 @@ final readonly class UpdateVaultNodeBacklinks
             return;
         }
 
-        $backlinks = $node->backlinks()
-            ->groupBy('id', 'vault_node_vault_node.destination_id', 'vault_node_vault_node.source_id')
+        $destinationNodes = DB::table('vault_node_vault_node')
+            ->select('source_id')
+            ->where('destination_id', $node->id);
+
+        $backlinks = VaultNode::query()
+            ->whereIn('id', $destinationNodes)
             ->get();
 
-        if ($backlinks->count() === 0) {
+        if ($backlinks->isEmpty()) {
             return;
         }
 
@@ -54,7 +59,7 @@ final readonly class UpdateVaultNodeBacklinks
                 (string) $backlink->content,
             );
 
-            new UpdateVaultNode()->handle($backlink, ['content' => $content]);
+            app(UpdateVaultNode::class)->handle($backlink, ['content' => $content]);
         }
     }
 

@@ -8,7 +8,6 @@ use App\Models\Tag;
 use App\Models\Vault;
 use App\Models\VaultNode;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
-use Illuminate\Support\Facades\DB;
 use Staudenmeir\LaravelAdjacencyList\Eloquent\Collection;
 
 final readonly class GetVaultPageData
@@ -66,12 +65,6 @@ final readonly class GetVaultPageData
     /** @return EloquentCollection<int, Tag&object{total: int}> */
     private function getTags(Vault $vault): EloquentCollection
     {
-        /** @var EloquentCollection<int, Tag&object{total: int}> */
-        return $vault
-            ->tags()
-            ->select(DB::raw('tags.*, count(*) AS total'))
-            ->groupBy('tags.id', 'tags.name', 'vault_nodes.vault_id')
-            ->orderBy('tags.name')
-            ->get();
+        return app(GetVaultTags::class)->handle($vault);
     }
 }
