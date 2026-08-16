@@ -1,4 +1,4 @@
-import { Settings } from '@/types/settings';
+import { AdminEditableSettings, Settings } from '@/types/settings';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
@@ -13,5 +13,10 @@ export const useSettingStore = defineStore('setting', () => {
         auto_update_check.value = settings?.auto_update_check ?? null;
     }
 
-    return { local_auth_enabled, registration, auto_update_check, setSettings };
+    function updateSettings(settings: AdminEditableSettings) {
+        registration.value = settings.registration;
+        auto_update_check.value = settings.auto_update_check;
+    }
+
+    return { local_auth_enabled, registration, auto_update_check, setSettings, updateSettings };
 });

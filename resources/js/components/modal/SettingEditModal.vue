@@ -30,7 +30,7 @@ const handleSubmit = () => {
         onSuccess: (response: { settings: AdminEditableSettings }) => {
             closeModal();
             createToast('Settings updated', 'success');
-            settingStore.setSettings(response.settings);
+            settingStore.updateSettings(response.settings);
         },
     });
 };
