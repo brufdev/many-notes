@@ -1,20 +1,15 @@
 <script setup lang="ts">
-import VaultNodeImportController from '@/actions/App/Http/Controllers/VaultNodeImportController';
-import { useAxiosForm } from '@/composables/useAxiosForm';
 import { useModalManager } from '@/composables/useModalManager';
 import { useToast } from '@/composables/useToast';
-import { useVaultRecentFileStore } from '@/stores/vaultRecentFile';
-import { useVaultTreeStore } from '@/stores/vaultTree';
+import { useVaultFileUpload } from '@/composables/useVaultFileUpload';
 import { AppPageProps } from '@/types';
-import { VaultNode } from '@/types/vault';
 import { usePage } from '@inertiajs/vue3';
 import { computed, onMounted, ref } from 'vue';
 
-const vaultRecentFileStore = useVaultRecentFileStore();
-const vaultTreeStore = useVaultTreeStore();
 const page = usePage<AppPageProps>();
 const { closeModal } = useModalManager();
 const { createToast } = useToast();
+const { form, filterValidFiles, importFiles } = useVaultFileUpload();
 
 const props = defineProps<{
     vaultId: number;
@@ -23,22 +18,11 @@ const props = defineProps<{
 }>();
 
 const uploadMaxFilesize = computed(() => page.props.app?.metadata?.upload_max_filesize ?? '0');
-const uploadMaxFilesizeBytes = computed(
-    () => page.props.app?.metadata?.upload_max_filesize_bytes ?? 0
-);
 const uploadAllowedExtensions = computed(
     () => page.props.app?.metadata?.upload_allowed_extensions ?? ''
 );
 
 const fileUpload = ref<HTMLInputElement | null>(null);
-
-const form = useAxiosForm<{
-    parent_id: number | null;
-    files: File[];
-}>({
-    parent_id: props.parentId,
-    files: [],
-});
 
 const drop = (event: DragEvent) => {
     if (!fileUpload.value || !event.dataTransfer) {
@@ -50,58 +34,25 @@ const drop = (event: DragEvent) => {
 };
 
 const handleSubmit = () => {
-    if (!fileUpload.value || !fileUpload.value.files) {
+    if (!fileUpload.value?.files) {
         return;
     }
 
-    const dataTransfer = new DataTransfer();
+    const files = filterValidFiles(Array.from(fileUpload.value.files));
 
-    for (const file of Array.from(fileUpload.value.files)) {
-        const extension = file.name.split('.').pop()?.toLowerCase();
-        const allowedExtensions = uploadAllowedExtensions.value
-            .split(',')
-            .map(ext => ext.replaceAll('.', ''));
-        const invalidExtension = !extension || !allowedExtensions.includes(extension);
-        const invalidSize = file.size > uploadMaxFilesizeBytes.value;
-
-        if (invalidExtension || invalidSize) {
-            continue;
-        }
-
-        dataTransfer.items.add(file);
-    }
-
-    if (dataTransfer.files.length === 0) {
+    if (files.length === 0) {
         createToast('No valid files to import', 'error');
 
         return;
     }
 
-    form.files = Array.from(dataTransfer.files);
-
-    form.send({
-        url: VaultNodeImportController.url({ vault: props.vaultId }),
-        method: 'post',
-        onError: error => {
-            closeModal();
-            const message = error.response?.statusText ?? 'Something went wrong';
-            createToast(message, 'error');
-        },
-        onSuccess: (response: { files: VaultNode[] }) => {
-            closeModal();
-
-            if (response.files.length === 0) {
-                createToast('No files were imported', 'error');
-
-                return;
-            }
-
-            const message = response.files.length === 1 ? 'file imported' : 'files imported';
-            createToast(`${response.files.length} ${message}`, 'success');
-
-            for (const file of response.files) {
-                vaultRecentFileStore.upsertRecentFile(file);
-                vaultTreeStore.handleNodeSaved(file);
+    importFiles({
+        vaultId: props.vaultId,
+        parentId: props.parentId,
+        files: files,
+        onFinish: () => {
+            if (!form.hasErrors) {
+                closeModal();
             }
         },
     });

@@ -1,5 +1,5 @@
+import { insertInlineNodes } from '@/services/tiptap/utils';
 import { Extension } from '@tiptap/core';
-import { Fragment } from '@tiptap/pm/model';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 
 interface VaultFileDragPayload {
@@ -34,32 +34,14 @@ export const VaultFileDrop = Extension.create({
                             return true;
                         }
 
-                        const { schema, tr } = view.state;
+                        const { schema } = view.state;
                         const linkMark = schema.marks.link?.create({ href: url });
 
                         if (!linkMark) {
                             return true;
                         }
 
-                        const resolved = view.state.doc.resolve(position.pos);
-                        const prefix =
-                            resolved.nodeBefore?.isText && !resolved.nodeBefore?.text?.endsWith(' ')
-                                ? [schema.text(' ')]
-                                : [];
-                        const suffix =
-                            resolved.nodeAfter?.isText && !resolved.nodeAfter?.text?.startsWith(' ')
-                                ? [schema.text(' ')]
-                                : [];
-
-                        tr.insert(
-                            position.pos,
-                            Fragment.fromArray([
-                                ...prefix,
-                                schema.text(name, [linkMark]),
-                                ...suffix,
-                            ])
-                        );
-                        view.dispatch(tr);
+                        insertInlineNodes(view, position.pos, [schema.text(name, [linkMark])]);
 
                         return true;
                     },

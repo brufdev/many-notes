@@ -5,6 +5,7 @@ import { useEditor } from '@/composables/useEditor';
 import { useTiptapPreferences } from '@/composables/useTiptapPreferences';
 import { useToast } from '@/composables/useToast';
 import { useVaultActions } from '@/composables/useVaultActions';
+import { useVaultFileUpload } from '@/composables/useVaultFileUpload';
 import { useLayoutStore } from '@/stores/layout';
 import { VaultNode } from '@/types/vault';
 import { inject, onMounted, ref, ShallowRef } from 'vue';
@@ -23,6 +24,7 @@ const emit = defineEmits<VaultFileNodeEmits>();
 const layoutStore = useLayoutStore();
 const { createToast } = useToast();
 const vaultActions = useVaultActions();
+const { importFiles } = useVaultFileUpload();
 const { isEditMode, isEditingMarkdown, isSpellcheckEnabled } = useTiptapPreferences();
 const form = useAxiosForm({});
 
@@ -78,6 +80,14 @@ const { editor, setContent, onMarkdownChanged } = useEditor({
         }, 1000);
     },
     openFilePath: vaultActions.openFilePath,
+    uploadFiles: request =>
+        importFiles({
+            vaultId: props.node.vault_id,
+            parentId: props.node.parent_id,
+            files: request.files,
+            onSuccess: request.onSuccess,
+            onFinish: request.onFinish,
+        }),
 });
 
 onMounted(() => {

@@ -8,6 +8,10 @@ import { CustomTableHeader } from '@/services/tiptap/extension-custom-table-head
 import { Hashtag } from '@/services/tiptap/extension-hashtag';
 import { SmartBracket } from '@/services/tiptap/extension-smart-bracket';
 import { VaultFileDrop } from '@/services/tiptap/extension-vault-file-drop';
+import {
+    VaultFileUpload,
+    VaultFileUploadRequest,
+} from '@/services/tiptap/extension-vault-file-upload';
 import { turndownService } from '@/services/turndown';
 import { Editor } from '@tiptap/core';
 import { Table, TableRow } from '@tiptap/extension-table';
@@ -26,6 +30,7 @@ interface SetupEditorOptions {
     isEditMode: Readonly<Ref<boolean>>;
     onUpdate: (markdown: string) => void;
     openFilePath: (path: string) => void;
+    uploadFiles: (request: VaultFileUploadRequest) => void;
 }
 
 export function useEditor(options: SetupEditorOptions) {
@@ -121,6 +126,11 @@ export function useEditor(options: SetupEditorOptions) {
                 }),
                 CustomTableColumnAlign,
                 VaultFileDrop,
+                VaultFileUpload.configure({
+                    uploadFiles: options.uploadFiles,
+                    placeholderClass:
+                        'bg-light-base-300 dark:bg-base-800 text-light-base-700 dark:text-base-200 rounded-sm px-1 text-sm',
+                }),
             ],
             content: content,
             editable: options.isEditMode.value,
