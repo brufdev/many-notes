@@ -9,7 +9,7 @@ import { computed, onMounted, ref } from 'vue';
 const page = usePage<AppPageProps>();
 const { closeModal } = useModalManager();
 const { createToast } = useToast();
-const { form, filterValidFiles, importFiles } = useVaultFileUpload();
+const { form, filesError, filterValidFiles, importFiles } = useVaultFileUpload();
 
 const props = defineProps<{
     vaultId: number;
@@ -85,8 +85,8 @@ onMounted(() => {
                 <span class="text-sm">Image, video, audio, note or pdf files</span>
                 <span class="text-sm">Up to {{ uploadMaxFilesize }}</span>
 
-                <p v-if="form.errors.files" class="text-error-500 text-sm">
-                    {{ form.errors.files }}
+                <p v-if="filesError" class="text-error-500 text-sm">
+                    {{ filesError }}
                 </p>
 
                 <progress

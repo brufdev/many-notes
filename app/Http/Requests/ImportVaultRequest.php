@@ -4,21 +4,26 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Services\UploadLimit;
 use Illuminate\Foundation\Http\FormRequest;
-use Monolog\Utils;
+use Override;
 
 final class ImportVaultRequest extends FormRequest
 {
-    /**
-     * @return array<string, array<int, string>>
-     */
+    /** @return array<string, array<int, string>> */
     public function rules(): array
     {
-        /** @var int $maxFileSize */
-        $maxFileSize = Utils::expandIniShorthandBytes(ini_get('upload_max_filesize'));
-
         return [
-            'file' => ['required', 'file', 'mimes:zip', 'max:' . $maxFileSize],
+            'file' => ['required', 'file', 'mimes:zip', 'max:' . UploadLimit::kilobytes()],
+        ];
+    }
+
+    /** @return array<string, string> */
+    #[Override]
+    public function messages(): array
+    {
+        return [
+            'file.max' => 'The vault archive must be smaller than ' . UploadLimit::label() . '.',
         ];
     }
 }

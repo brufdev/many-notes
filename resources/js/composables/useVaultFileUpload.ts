@@ -52,6 +52,13 @@ export function useVaultFileUpload() {
         files: [],
     });
 
+    const filesError = computed<string | undefined>(() => {
+        const errors = form.errors as unknown as Record<string, string | undefined>;
+        const key = Object.keys(errors).find(k => k === 'files' || k.startsWith('files.'));
+
+        return key ? errors[key] : undefined;
+    });
+
     function filterValidFiles(files: File[]): File[] {
         const allowedExtensions = uploadAllowedExtensions.value
             .split(',')
@@ -108,5 +115,5 @@ export function useVaultFileUpload() {
         });
     }
 
-    return { form, filterValidFiles, importFiles };
+    return { form, filesError, filterValidFiles, importFiles };
 }

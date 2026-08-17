@@ -6,36 +6,35 @@ use App\Actions\CreateVault;
 use App\Actions\GetPathFromVault;
 use App\Actions\GetPathFromVaultNode;
 use App\Models\User;
+use App\Services\UploadLimit;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 it('imports a zip file', function (): void {
-    $user = User::factory()->create()->first();
+    $user = User::factory()->create();
     $file = UploadedFile::fake()->create('test.zip');
 
-    $this->actingAs($user);
-
-    $this->post(route('vaults.import'), ['file' => $file]);
+    $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => $file]);
 
     $vaults = $user->vaults()->get();
     expect($vaults->count())->toBe(1);
     expect($vaults->first()->name)->toBe('test');
-    $path = new GetPathFromVault()->handle($vaults->first());
+    $path = app(GetPathFromVault::class)->handle($vaults->first());
     expect(Storage::disk('local')->exists($path))->toBeTrue();
 });
 
 it('handles name collisions when importing a vault with an existing name', function (): void {
-    $getPathFromVault = new GetPathFromVault();
+    $getPathFromVault = app(GetPathFromVault::class);
 
-    $user = User::factory()->create()->first();
+    $user = User::factory()->create();
     $vaultName = fake()->words(3, true);
-    new CreateVault()->handle($user, ['name' => $vaultName]);
+    app(CreateVault::class)->handle($user, ['name' => $vaultName]);
     $file = UploadedFile::fake()->create($vaultName . '.zip');
 
-    $this->actingAs($user);
-
-    $this->post(route('vaults.import'), ['file' => $file]);
+    $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => $file]);
 
     $vaults = $user->vaults()->get();
     expect($vaults->count())->toBe(2);
@@ -48,17 +47,16 @@ it('handles name collisions when importing a vault with an existing name', funct
 });
 
 it('handles name collisions when importing a vault with a name existing in multiple vaults', function (): void {
-    $createVault = new CreateVault();
+    $createVault = app(CreateVault::class);
 
-    $user = User::factory()->create()->first();
+    $user = User::factory()->create();
     $vaultName = fake()->words(3, true);
     $createVault->handle($user, ['name' => $vaultName]);
     $createVault->handle($user, ['name' => $vaultName]);
     $file = UploadedFile::fake()->create($vaultName . '.zip');
 
-    $this->actingAs($user);
-
-    $this->post(route('vaults.import'), ['file' => $file]);
+    $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => $file]);
 
     $vaults = $user->vaults()->get();
     expect($vaults->count())->toBe(3);
@@ -68,10 +66,10 @@ it('handles name collisions when importing a vault with a name existing in multi
 });
 
 it('imports a zip file with files and folders', function (): void {
-    $zip = new ZipArchive();
-    $getPathFromVaultNode = new GetPathFromVaultNode();
+    $zip = app(ZipArchive::class);
+    $getPathFromVaultNode = app(GetPathFromVaultNode::class);
 
-    $user = User::factory()->create()->first();
+    $user = User::factory()->create();
     $relativePath = 'public/' . Str::random(16) . '.zip';
     Storage::disk('local')->put($relativePath, '');
     $path = Storage::disk('local')->path($relativePath);
@@ -82,9 +80,8 @@ it('imports a zip file with files and folders', function (): void {
     $zip->close();
     $file = UploadedFile::fake()->createWithContent('vault.zip', file_get_contents($path));
 
-    $this->actingAs($user);
-
-    $this->post(route('vaults.import'), ['file' => $file]);
+    $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => $file]);
 
     $vaults = $user->vaults()->get();
     expect($vaults->count())->toBe(1);
@@ -97,9 +94,9 @@ it('imports a zip file with files and folders', function (): void {
 });
 
 it('creates links when importing a vault', function (): void {
-    $zip = new ZipArchive();
+    $zip = app(ZipArchive::class);
 
-    $user = User::factory()->create()->first();
+    $user = User::factory()->create();
     $relativePath = 'public/' . Str::random(16) . '.zip';
     Storage::disk('local')->put($relativePath, '');
     $path = Storage::disk('local')->path($relativePath);
@@ -111,9 +108,8 @@ it('creates links when importing a vault', function (): void {
     $zip->close();
     $file = UploadedFile::fake()->createWithContent('vault.zip', file_get_contents($path));
 
-    $this->actingAs($user);
-
-    $this->post(route('vaults.import'), ['file' => $file]);
+    $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => $file]);
 
     $vaults = $user->vaults()->get();
     expect($vaults->count())->toBe(1);
@@ -124,8 +120,8 @@ it('creates links when importing a vault', function (): void {
 });
 
 it('creates tags when importing a vault', function (): void {
-    $user = User::factory()->create()->first();
-    $zip = new ZipArchive();
+    $user = User::factory()->create();
+    $zip = app(ZipArchive::class);
     $relativePath = 'public/' . Str::random(16) . '.zip';
     Storage::disk('local')->put($relativePath, '');
     $path = Storage::disk('local')->path($relativePath);
@@ -134,13 +130,28 @@ it('creates tags when importing a vault', function (): void {
     $zip->close();
     $file = UploadedFile::fake()->createWithContent('vault.zip', file_get_contents($path));
 
-    $this->actingAs($user);
-
-    $this->post(route('vaults.import'), ['file' => $file]);
+    $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => $file]);
 
     $vaults = $user->vaults()->get();
     expect($vaults->count())->toBe(1);
     $nodes = $vaults->first()->nodes()->get();
     expect($nodes->count())->toBe(1);
     expect($nodes->first()->tags()->count())->toBe(2);
+});
+
+it('does not import a zip file larger than the upload limit', function (): void {
+    $user = User::factory()->create();
+    $file = UploadedFile::fake()->create(
+        'test.zip',
+        UploadLimit::kilobytes() + 1,
+        'application/zip',
+    );
+
+    $response = $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => $file], ['Accept' => 'application/json']);
+
+    $response->assertUnprocessable();
+    $response->assertJsonValidationErrors('file');
+    expect($user->vaults()->count())->toBe(0);
 });

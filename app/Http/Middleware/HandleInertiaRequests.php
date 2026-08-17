@@ -6,6 +6,7 @@ namespace App\Http\Middleware;
 
 use App\Actions\IsLocalAuthEnabled;
 use App\Models\Setting;
+use App\Services\UploadLimit;
 use App\Services\VaultFile;
 use App\Support\AppMetadata;
 use App\ViewModels\NotificationViewModelResolver;
@@ -49,7 +50,6 @@ final class HandleInertiaRequests extends Middleware
         $isLocalAuthEnabled = app(IsLocalAuthEnabled::class);
         $setting = app(Setting::class);
         $appMetadata = app(AppMetadata::class);
-        $uploadMaxFilesize = ini_get('upload_max_filesize') ?: '0';
 
         return [
             ...parent::share($request),
@@ -72,8 +72,8 @@ final class HandleInertiaRequests extends Middleware
                     'latest_version' => $appMetadata->latestVersion(),
                     'github_url' => $appMetadata->githubUrl(),
                     'update_available' => $appMetadata->updateAvailable(),
-                    'upload_max_filesize' => $uploadMaxFilesize,
-                    'upload_max_filesize_bytes' => ini_parse_quantity($uploadMaxFilesize),
+                    'upload_max_filesize' => UploadLimit::label(),
+                    'upload_max_filesize_bytes' => UploadLimit::bytes(),
                     'upload_allowed_extensions' => implode(',', VaultFile::extensions(true)),
                 ],
                 'notifications' => fn(): ?array => $user
