@@ -174,6 +174,10 @@ useEcho<{ data: VaultNode }>(`Vault.${props.vault.id}`, 'VaultNodeUpdatedEvent',
             openedFile.value.file.name = payload.data.name;
         }
 
+        if (openedFile.value?.file.parent_id !== payload.data.parent_id) {
+            openedFile.value.file.parent_id = payload.data.parent_id;
+        }
+
         if (
             payload.data.type === 'note' &&
             openedFile.value?.file.content !== payload.data.content

@@ -165,6 +165,10 @@ export function useVaultActions() {
 
                 vaultTreeActions.handleNodeUpdated(response.data.data);
                 vaultRecentFileStore.upsertRecentFile(response.data.data);
+
+                if (page.props.openedFile?.file.id === response.data.data.id) {
+                    page.props.openedFile.file.parent_id = response.data.data.parent_id;
+                }
             })
             .catch((error: AxiosError) => {
                 createToast(error.response?.statusText ?? 'Something went wrong', 'error');
