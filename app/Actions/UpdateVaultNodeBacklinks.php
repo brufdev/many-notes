@@ -59,7 +59,7 @@ final readonly class UpdateVaultNodeBacklinks
                 (string) $backlink->content,
             );
 
-            app(UpdateVaultNode::class)->handle($backlink, ['content' => $content]);
+            app(UpdateVaultNode::class)->handle($backlink, ['content' => $content], true);
         }
     }
 

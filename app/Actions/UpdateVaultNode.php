@@ -20,8 +20,11 @@ final readonly class UpdateVaultNode
      *   content?: string|null,
      * } $attributes
      */
-    public function handle(VaultNode $node, array $attributes): VaultNode
-    {
+    public function handle(
+        VaultNode $node,
+        array $attributes,
+        bool $broadcastToCurrentUser = false,
+    ): VaultNode {
         $originalPath = app(GetPathFromVaultNode::class)->handle($node);
         $originalLinkPath = '';
 
@@ -83,7 +86,11 @@ final readonly class UpdateVaultNode
         }
 
         // Broadcast events
-        broadcast(new VaultNodeUpdatedEvent($node))->toOthers();
+        $pendingBroadcast = broadcast(new VaultNodeUpdatedEvent($node));
+
+        if (!$broadcastToCurrentUser) {
+            $pendingBroadcast->toOthers();
+        }
 
         return $node;
     }

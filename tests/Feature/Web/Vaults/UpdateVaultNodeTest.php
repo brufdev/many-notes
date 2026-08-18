@@ -5,7 +5,9 @@ declare(strict_types=1);
 use App\Actions\CreateVault;
 use App\Actions\CreateVaultNode;
 use App\Actions\GetPathFromVault;
+use App\Events\VaultNodeUpdatedEvent;
 use App\Models\User;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 
 it('updates a node', function (): void {
@@ -28,7 +30,7 @@ it('updates a node', function (): void {
             ['name' => $newName],
         );
 
-    $response->assertStatus(200);
+    $response->assertOk();
     expect($vault->nodes()->first()->name)->toBe($newName);
     $path = app(GetPathFromVault::class)->handle($vault) . $newName;
     expect(Storage::disk('local')->path($path))->toBeDirectory();
@@ -88,12 +90,59 @@ it('updates note links when updating a node', function (): void {
             ['name' => $newFolderName],
         );
 
-    $response->assertStatus(200);
+    $response->assertOk();
     expect($folder2->refresh()->name)->toBe($newFolderName);
     $expectedContent = "Link: [file](/$folder1->name/$newFolderName/$folder3->name/$file1->name.md).";
     expect($rootFile1->refresh()->content)->toBe($expectedContent);
     $expectedContent = "Link: [file](/$folder1->name/$newFolderName/$folder3->name/$file2->name.md).";
     expect($rootFile2->refresh()->content)->toBe($expectedContent);
+});
+
+it('broadcasts updated note links to the current user when updating a node', function (): void {
+    $createVaultNode = app(CreateVaultNode::class);
+
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $image = $createVaultNode->handle($vault, [
+        'is_file' => true,
+        'name' => 'image',
+        'extension' => 'png',
+    ]);
+    $note = $createVaultNode->handle($vault, [
+        'is_file' => true,
+        'name' => 'note',
+        'extension' => 'md',
+        'content' => 'Embed: ![image](/image.png)',
+    ]);
+
+    Event::fake([VaultNodeUpdatedEvent::class]);
+
+    $response = $this->actingAs($user)
+        ->withHeader('X-Socket-Id', 'current-user-socket')
+        ->patch(
+            route('vaults.nodes.update', [
+                'vault' => $vault->id,
+                'node' => $image->id,
+            ]),
+            ['name' => 'renamed'],
+        );
+
+    $response->assertOk();
+    expect($note->refresh()->content)->toBe('Embed: ![image](/renamed.png)');
+
+    // The rewritten note reaches every client, including the one that renamed the image
+    Event::assertDispatched(
+        VaultNodeUpdatedEvent::class,
+        fn(VaultNodeUpdatedEvent $event): bool => $event->broadcastWith()['data']->id === $note->id
+            && $event->socket === null,
+    );
+
+    // The renamed node itself is still only broadcast to the other clients
+    Event::assertDispatched(
+        VaultNodeUpdatedEvent::class,
+        fn(VaultNodeUpdatedEvent $event): bool => $event->broadcastWith()['data']->id === $image->id
+            && $event->socket === 'current-user-socket',
+    );
 });
 
 it('does not update a node from a different vault', function (): void {
@@ -117,7 +166,7 @@ it('does not update a node from a different vault', function (): void {
             ['name' => $newName],
         );
 
-    $response->assertStatus(404);
+    $response->assertNotFound();
     expect($vault2->nodes()->first()->name)->toBe($node->name);
 });
 
@@ -138,6 +187,6 @@ it('does not update a node without permissions', function (): void {
             ['name' => fake()->words(3, true)],
         );
 
-    $response->assertStatus(403);
+    $response->assertForbidden();
     expect($vault->nodes()->first()->name)->toBe($node->name);
 });
