@@ -11,7 +11,10 @@ import { useLayoutStore } from '@/stores/layout';
 import { useVaultRecentFileStore } from '@/stores/vaultRecentFile';
 import { useVaultTreeStore } from '@/stores/vaultTree';
 import { VaultNode } from '@/types/vault';
+import { VaultShowPageProps } from '@/types/vault.pages';
+import { usePage } from '@inertiajs/vue3';
 
+const page = usePage<VaultShowPageProps>();
 const layoutStore = useLayoutStore();
 const vaultRecentFileStore = useVaultRecentFileStore();
 const vaultTreeStore = useVaultTreeStore();
@@ -52,6 +55,10 @@ const handleSubmit = () => {
 
             vaultRecentFileStore.upsertRecentFile(response.data);
             vaultTreeStore.handleNodeSaved(response.data);
+
+            if (page.props.openedFile?.file.id === response.data.id) {
+                page.props.openedFile.file.name = response.data.name;
+            }
         },
     });
 };
