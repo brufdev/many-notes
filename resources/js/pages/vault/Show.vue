@@ -192,6 +192,10 @@ useEcho<{ data: VaultOpenedFileData }>(
     `Vault.${props.vault.id}`,
     'VaultOpenedFileDataUpdatedEvent',
     payload => {
+        if (openedFile.value?.file.id !== payload.data.file.id) {
+            return;
+        }
+
         vaultOpenedFileStore.set(payload.data.links, payload.data.backlinks, payload.data.tags);
     }
 );
