@@ -46,9 +46,9 @@ final readonly class UpdateVaultNodeBacklinks
             \[(.*?)\]                 # Match a markdown-style link text [any text]
             \(                        # Match opening parenthesis "("
                 $originalLinkPattern  # Match the original link path
-                (\s\".*\")?           # Optional: Match a title in quotes after the filename
+                (\s\".*?\")?          # Optional: Match a title in quotes after the filename
             \)                        # Match closing parenthesis ")"
-            /x
+            /xi
         REGEX;
         $replacement = "[$1](/$replacementLinkPath.$node->extension$2)";
 
