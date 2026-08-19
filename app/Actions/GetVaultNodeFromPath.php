@@ -21,8 +21,8 @@ final readonly class GetVaultNodeFromPath
                 ->where('vault_id', $vaultId)
                 ->where('parent_id', $parentId)
                 ->where('is_file', true)
-                ->where('name', 'LIKE', $pathParts['filename'])
-                ->where('extension', 'LIKE', $pathParts['extension'] ?? 'md')
+                ->whereRaw('LOWER(name) = LOWER(?)', [$pathParts['filename']])
+                ->whereRaw('LOWER(extension) = LOWER(?)', [$pathParts['extension'] ?? 'md'])
                 ->first();
         }
 
@@ -30,7 +30,7 @@ final readonly class GetVaultNodeFromPath
             ->where('vault_id', $vaultId)
             ->where('parent_id', $parentId)
             ->where('is_file', false)
-            ->where('name', 'LIKE', $pieces[0])
+            ->whereRaw('LOWER(name) = LOWER(?)', [$pieces[0]])
             ->first();
 
         if (is_null($node)) {

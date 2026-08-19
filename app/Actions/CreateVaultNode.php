@@ -34,7 +34,7 @@ final readonly class CreateVaultNode
         $nodeExists = $vault->nodes()
             ->where('parent_id', $attributes['parent_id'])
             ->where('is_file', $attributes['is_file'])
-            ->where('name', 'like', $attributes['name'])
+            ->whereRaw('LOWER(name) = LOWER(?)', [$attributes['name']])
             ->where('extension', $attributes['extension'])
             ->exists();
 
@@ -44,7 +44,7 @@ final readonly class CreateVaultNode
                 ->select('name')
                 ->where('parent_id', $attributes['parent_id'])
                 ->where('is_file', $attributes['is_file'])
-                ->where('name', 'like', $attributes['name'] . '-%')
+                ->whereRaw('LOWER(name) LIKE LOWER(?)', [$attributes['name'] . '-%'])
                 ->where('extension', $attributes['extension'])
                 ->pluck('name')
                 ->toArray();

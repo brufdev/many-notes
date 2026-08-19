@@ -11,21 +11,19 @@ use Illuminate\Support\Facades\Storage;
 
 final readonly class CreateVault
 {
-    /**
-     * @param array{name: string} $attributes
-     */
+    /** @param array{name: string} $attributes */
     public function handle(User $user, array $attributes, bool $broadcast = true): Vault
     {
         // Generate a new vault name if the current one already exists
         $vaultExists = $user->vaults()
-            ->where('name', 'like', $attributes['name'])
+            ->whereRaw('LOWER(name) = LOWER(?)', [$attributes['name']])
             ->exists();
 
         if ($vaultExists) {
             /** @var list<string> $vaults */
             $vaults = $user->vaults()
                 ->select('name')
-                ->where('name', 'like', $attributes['name'] . '-%')
+                ->whereRaw('LOWER(name) LIKE LOWER(?)', [$attributes['name'] . '-%'])
                 ->pluck('name')
                 ->toArray();
             natcasesort($vaults);
