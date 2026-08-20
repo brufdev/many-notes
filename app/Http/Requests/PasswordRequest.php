@@ -17,14 +17,12 @@ final class PasswordRequest extends FormRequest
         return $isLocalAuthEnabled->handle();
     }
 
-    /**
-     * @return array<string, array<int, string|Password>>
-     */
+    /** @return array<string, array<int, string|Password>> */
     public function rules(): array
     {
         return [
             'current_password' => ['required', 'string', 'current_password'],
-            'password' => ['required', 'string', Password::defaults() ?? 'min:8', 'confirmed'],
+            'password' => ['required', 'string', Password::default(), 'confirmed'],
         ];
     }
 }

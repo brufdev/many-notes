@@ -14,20 +14,16 @@ use Illuminate\Validation\ValidationException;
 
 final class LoginRequest extends FormRequest
 {
-    /**
-     * @return array<string, array<mixed>>
-     */
+    /** @return array<string, array<mixed>> */
     public function rules(): array
     {
         return [
             'email' => ['required', 'string', 'max:255', 'lowercase', 'email'],
-            'password' => ['required', 'string', Password::defaults()],
+            'password' => ['required', 'string', Password::default()],
         ];
     }
 
-    /**
-     * @throws ValidationException
-     */
+    /** @throws ValidationException */
     public function validateCredentials(): User
     {
         $this->ensureIsNotRateLimited();
@@ -48,9 +44,7 @@ final class LoginRequest extends FormRequest
         return $user;
     }
 
-    /**
-     * @throws ValidationException
-     */
+    /** @throws ValidationException */
     private function ensureIsNotRateLimited(): void
     {
         if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {

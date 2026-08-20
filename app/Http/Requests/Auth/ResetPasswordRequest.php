@@ -10,26 +10,13 @@ use Override;
 
 final class ResetPasswordRequest extends FormRequest
 {
-    /**
-     * @return array<string, array<mixed>>
-     */
+    /** @return array<string, array<mixed>> */
     public function rules(): array
     {
         return [
             'token' => ['required'],
-            'email' => [
-                'required',
-                'string',
-                'max:255',
-                'lowercase',
-                'email',
-            ],
-            'password' => [
-                'required',
-                'string',
-                'confirmed',
-                Password::defaults(),
-            ],
+            'email' => ['required', 'string', 'max:255', 'lowercase', 'email'],
+            'password' => ['required', 'string', 'confirmed', Password::default()],
         ];
     }
 
