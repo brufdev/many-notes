@@ -12,9 +12,6 @@ import { AxiosError } from 'axios';
 import { useToast } from './useToast';
 import { useVaultTreeActions } from './useVaultTreeActions';
 
-const page = usePage<VaultShowPageProps>();
-const { createToast } = useToast();
-
 function resolvePaths(currentPath: string, path: string): string {
     // If path is absolute, return it
     if (path.startsWith('/')) {
@@ -52,6 +49,8 @@ function resolvePaths(currentPath: string, path: string): string {
 }
 
 export function useVaultActions() {
+    const page = usePage<VaultShowPageProps>();
+    const { createToast } = useToast();
     const layoutStore = useLayoutStore();
     const vaultStore = useVaultStore();
     const vaultRecentFileStore = useVaultRecentFileStore();

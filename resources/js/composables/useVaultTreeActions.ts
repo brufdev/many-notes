@@ -9,10 +9,9 @@ import { router, usePage } from '@inertiajs/vue3';
 import { AxiosError, AxiosResponse } from 'axios';
 import { useToast } from './useToast';
 
-const page = usePage<VaultShowPageProps>();
-const { createToast } = useToast();
-
 export function useVaultTreeActions() {
+    const page = usePage<VaultShowPageProps>();
+    const { createToast } = useToast();
     const layoutStore = useLayoutStore();
     const vaultStore = useVaultStore();
     const vaultTreeStore = useVaultTreeStore();
