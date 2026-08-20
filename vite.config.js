@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
+import inertia from '@inertiajs/vite';
 import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from 'vite-plugin-pwa';
 import vue from '@vitejs/plugin-vue';
@@ -13,6 +14,9 @@ export default defineConfig({
             refresh: true,
         }),
         vue(),
+        inertia({
+            ssr: false,
+        }),
         wayfinder({
             formVariants: true,
         }),
