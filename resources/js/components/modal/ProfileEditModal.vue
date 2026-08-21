@@ -3,32 +3,26 @@ import { update } from '@/actions/App/Http/Controllers/ProfileController';
 import ModelInput from '@/components/form/ModelInput.vue';
 import Submit from '@/components/form/Submit.vue';
 import SecondaryButton from '@/components/ui/SecondaryButton.vue';
-import { useAxiosForm } from '@/composables/useAxiosForm';
 import { useModalManager } from '@/composables/useModalManager';
+import { useRequest } from '@/composables/useRequest';
 import { useToast } from '@/composables/useToast';
 import { useSettingStore } from '@/stores/setting';
 import { useUserStore } from '@/stores/user';
 import { User } from '@/types';
 
-const { closeModal } = useModalManager();
-const { createToast } = useToast();
 const settingStore = useSettingStore();
 const userStore = useUserStore();
+const { closeModal } = useModalManager();
+const { createToast } = useToast();
 
-const form = useAxiosForm<{ name: string; email: string }>({
+const form = useRequest<{ name: string; email: string }>({
     name: userStore.name ?? '',
     email: userStore.email ?? '',
 });
 
 const handleSubmit = () => {
-    form.send({
-        url: update.url(),
-        method: 'patch',
-        onError: error => {
-            closeModal();
-            const message = error.response?.statusText ?? 'Something went wrong';
-            createToast(message, 'error');
-        },
+    form.patch(update.url(), {
+        onFailure: () => closeModal(),
         onSuccess: (response: { user: User }) => {
             closeModal();
             createToast('Profile updated', 'success');

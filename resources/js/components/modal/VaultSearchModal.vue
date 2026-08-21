@@ -2,29 +2,28 @@
 import VaultSearchController from '@/actions/App/Http/Controllers/VaultSearchController';
 import ModelInput from '@/components/form/ModelInput.vue';
 import VaultFileIcon from '@/components/vault/VaultFileIcon.vue';
-import { useAxiosForm } from '@/composables/useAxiosForm';
 import { useModalManager } from '@/composables/useModalManager';
-import { useToast } from '@/composables/useToast';
+import { useRequest } from '@/composables/useRequest';
 import { useVaultSearch } from '@/composables/useVaultSearch';
 import { useVaultStore } from '@/stores/vault';
 import { VaultSearchFile } from '@/types/vault';
 import { formatElapsedTime, formatExtendedDate } from '@/utils/time';
 import { computed, onMounted, ref } from 'vue';
 
-const { closeModal } = useModalManager();
-const { createToast } = useToast();
-const vaultStore = useVaultStore();
-
 const props = defineProps<{
     initialSearch?: string;
     onSelect: (fileId: number) => void;
 }>();
 
+const vaultStore = useVaultStore();
+const { closeModal } = useModalManager();
+
+const form = useRequest<{ search: string }>({ search: '' });
+
 const files = ref<VaultSearchFile[]>([]);
 const isLoading = ref(false);
 const fileCount = computed(() => files.value.length);
 
-const form = useAxiosForm({});
 const url = VaultSearchController.url({ vault: vaultStore.id! });
 
 function handleSubmit() {
@@ -37,18 +36,9 @@ function handleSubmit() {
 
     isLoading.value = true;
 
-    form.send<{ data: { files: VaultSearchFile[] } }>({
-        url: url,
-        method: 'get',
-        axiosConfig: {
-            params: {
-                search: search.value,
-            },
-        },
-        onError: error => {
-            const message = error.response?.statusText ?? 'Something went wrong';
-            createToast(message, 'error');
-        },
+    form.search = search.value;
+
+    form.get<{ data: { files: VaultSearchFile[] } }>(url, {
         onSuccess: payload => {
             files.value = payload.data.files;
         },

@@ -1,5 +1,5 @@
 import VaultNodeImportController from '@/actions/App/Http/Controllers/VaultNodeImportController';
-import { useAxiosForm } from '@/composables/useAxiosForm';
+import { useRequest } from '@/composables/useRequest';
 import { useToast } from '@/composables/useToast';
 import { useVaultRecentFileStore } from '@/stores/vaultRecentFile';
 import { useVaultTreeStore } from '@/stores/vaultTree';
@@ -44,7 +44,7 @@ export function useVaultFileUpload() {
         () => page.props.app?.metadata?.upload_allowed_extensions ?? ''
     );
 
-    const form = useAxiosForm<{
+    const form = useRequest<{
         parent_id: number | null;
         files: File[];
     }>({
@@ -83,17 +83,10 @@ export function useVaultFileUpload() {
             return;
         }
 
-        form.send({
-            url: VaultNodeImportController.url({ vault: options.vaultId }),
-            method: 'post',
-            data: {
-                parent_id: options.parentId,
-                files: validFiles,
-            },
-            onError: error => {
-                const message = error.response?.statusText ?? 'Something went wrong';
-                createToast(message, 'error');
-            },
+        form.parent_id = options.parentId;
+        form.files = validFiles;
+
+        form.post(VaultNodeImportController.url({ vault: options.vaultId }), {
             onSuccess: (response: { files: VaultNode[] }) => {
                 if (response.files.length === 0) {
                     createToast('No files were imported', 'error');

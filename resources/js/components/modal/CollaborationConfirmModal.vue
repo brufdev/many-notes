@@ -3,37 +3,28 @@ import VaultCollaborationAcceptController from '@/actions/App/Http/Controllers/V
 import VaultCollaborationDeclineController from '@/actions/App/Http/Controllers/VaultCollaborationDeclineController';
 import SecondarySubmit from '@/components/form/SecondarySubmit.vue';
 import Submit from '@/components/form/Submit.vue';
-import { useAxiosForm } from '@/composables/useAxiosForm';
 import { useModalManager } from '@/composables/useModalManager';
+import { useRequest } from '@/composables/useRequest';
 import { useToast } from '@/composables/useToast';
 import { useNotificationStore } from '@/stores/notification';
 import { AppNotification } from '@/types';
-import { ref } from 'vue';
-
-const { closeModal } = useModalManager();
-const { removeNotification } = useNotificationStore();
-const { createToast } = useToast();
 
 const props = defineProps<{
     notification: AppNotification;
 }>();
 
-const submitting = ref(false);
+const { removeNotification } = useNotificationStore();
+const { closeModal } = useModalManager();
+const { createToast } = useToast();
 
-const acceptForm = useAxiosForm({});
-const declineForm = useAxiosForm({});
+const acceptForm = useRequest({});
+const declineForm = useRequest({});
+
+const vaultId = Number(props.notification.data.vault_id);
 
 const handleAcceptSubmit = () => {
-    acceptForm.send({
-        url: VaultCollaborationAcceptController.url({
-            vault: Number(props.notification.data.vault_id),
-        }),
-        method: 'post',
-        onError: error => {
-            closeModal();
-            const message = error.response?.statusText ?? 'Something went wrong';
-            createToast(message, 'error');
-        },
+    acceptForm.post(VaultCollaborationAcceptController.url({ vault: vaultId }), {
+        onFailure: () => closeModal(),
         onSuccess: () => {
             removeNotification(props.notification.id);
             closeModal();
@@ -43,16 +34,8 @@ const handleAcceptSubmit = () => {
 };
 
 const handleDeclineSubmit = () => {
-    declineForm.send({
-        url: VaultCollaborationDeclineController.url({
-            vault: Number(props.notification.data.vault_id),
-        }),
-        method: 'post',
-        onError: error => {
-            closeModal();
-            const message = error.response?.statusText ?? 'Something went wrong';
-            createToast(message, 'error');
-        },
+    declineForm.post(VaultCollaborationDeclineController.url({ vault: vaultId }), {
+        onFailure: () => closeModal(),
         onSuccess: () => {
             removeNotification(props.notification.id);
             closeModal();
@@ -63,7 +46,10 @@ const handleDeclineSubmit = () => {
 </script>
 
 <template>
-    <div class="flex flex-col gap-6 inert:pointer-events-none" :inert="submitting">
+    <div
+        class="flex flex-col gap-6 inert:pointer-events-none"
+        :inert="acceptForm.processing || declineForm.processing"
+    >
         <p>
             {{ `${notification.data.user_name} has invited you to join the vault` }}
             <span class="font-semibold">{{ notification.data.vault_name }}</span>

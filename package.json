@@ -20,7 +20,6 @@
         "@types/turndown": "^5.0.6",
         "@vitejs/plugin-vue": "^6.0.8",
         "autoprefixer": "^10.5.4",
-        "axios": "^1.19.0",
         "eslint": "^10.8.1",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-vue": "^10.10.0",

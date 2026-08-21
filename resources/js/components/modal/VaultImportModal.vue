@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import VaultImportController from '@/actions/App/Http/Controllers/VaultImportController';
-import { useAxiosForm } from '@/composables/useAxiosForm';
 import { useModalManager } from '@/composables/useModalManager';
+import { useRequest } from '@/composables/useRequest';
 import { useToast } from '@/composables/useToast';
 import { AppPageProps } from '@/types';
 import { router, usePage } from '@inertiajs/vue3';
@@ -11,18 +11,13 @@ const page = usePage<AppPageProps>();
 const { closeModal } = useModalManager();
 const { createToast } = useToast();
 
+const form = useRequest<{ file: File | null }>({ file: null });
+const fileUpload = ref<HTMLInputElement | null>(null);
+
 const uploadMaxFilesize = computed(() => page.props.app?.metadata?.upload_max_filesize ?? '0');
 const uploadMaxFilesizeBytes = computed(
     () => page.props.app?.metadata?.upload_max_filesize_bytes ?? 0
 );
-
-const fileUpload = ref<HTMLInputElement | null>(null);
-
-const form = useAxiosForm<{
-    file: File | null;
-}>({
-    file: null,
-});
 
 const handleSubmit = () => {
     if (!fileUpload.value || !fileUpload.value.files) {
@@ -43,14 +38,8 @@ const handleSubmit = () => {
 
     form.file = file;
 
-    form.send({
-        url: VaultImportController.url(),
-        method: 'post',
-        onError: error => {
-            closeModal();
-            const message = error.response?.statusText ?? 'Something went wrong';
-            createToast(message, 'error');
-        },
+    form.post(VaultImportController.url(), {
+        onFailure: () => closeModal(),
         onSuccess: () => {
             closeModal();
             createToast('Vault imported', 'success');

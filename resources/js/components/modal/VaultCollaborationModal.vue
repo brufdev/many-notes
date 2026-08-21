@@ -5,41 +5,28 @@ import Submit from '@/components/form/Submit.vue';
 import Tab from '@/components/tabs/Tab.vue';
 import TabPanel from '@/components/tabs/TabPanel.vue';
 import Tabs from '@/components/tabs/Tabs.vue';
-import { useAxiosForm } from '@/composables/useAxiosForm';
 import { useModalManager } from '@/composables/useModalManager';
-import { useToast } from '@/composables/useToast';
+import { useRequest } from '@/composables/useRequest';
 import Trash from '@/icons/Trash.vue';
 import { useVaultStore } from '@/stores/vault';
 import { VaultCollaborator } from '@/types/vault';
 import { ref } from 'vue';
-import AxiosFormConfirmationModal from './AxiosFormConfirmationModal.vue';
-
-const { openModal } = useModalManager();
-const { createToast } = useToast();
-const vaultStore = useVaultStore();
+import RequestConfirmationModal from './RequestConfirmationModal.vue';
 
 const props = defineProps<{
     vaultId: number;
 }>();
 
-const activeTab = ref('users');
+const vaultStore = useVaultStore();
+const { openModal } = useModalManager();
 
-const form = useAxiosForm<{
-    email: string;
-}>({
-    email: '',
-});
+const form = useRequest<{ email: string }>({ email: '' });
+const activeTab = ref('users');
 
 const url = store.url({ vault: props.vaultId });
 
 const handleSubmit = () => {
-    form.send<{ data: VaultCollaborator }>({
-        url: url,
-        method: 'post',
-        onError: error => {
-            const message = error.response?.statusText ?? 'Something went wrong';
-            createToast(message, 'error');
-        },
+    form.post<{ data: VaultCollaborator }>(url, {
         onSuccess: payload => {
             form.reset();
             activeTab.value = 'users';
@@ -49,7 +36,7 @@ const handleSubmit = () => {
 };
 
 const deleteCollaborator = (userId: number) => {
-    openModal(AxiosFormConfirmationModal, {
+    openModal(RequestConfirmationModal, {
         title: 'Delete collaborator',
         url: destroy.url({
             vault: props.vaultId,

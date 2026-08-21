@@ -2,8 +2,7 @@
 import VaultNodeController from '@/actions/App/Http/Controllers/VaultNodeController';
 import VaultFileUpdatingSpinner from '@/components/vault/VaultFileUpdatingSpinner.vue';
 import VaultToggleContentWidthButton from '@/components/vault/VaultToggleContentWidthButton.vue';
-import { useAxiosForm } from '@/composables/useAxiosForm';
-import { useToast } from '@/composables/useToast';
+import { useRequest } from '@/composables/useRequest';
 import { useVaultActions } from '@/composables/useVaultActions';
 import XMark from '@/icons/XMark.vue';
 import { useLayoutStore } from '@/stores/layout';
@@ -26,8 +25,8 @@ const slots = useSlots();
 const layoutStore = useLayoutStore();
 const vaultTreeStore = useVaultTreeStore();
 const vaultActions = useVaultActions();
-const form = useAxiosForm({});
-const { createToast } = useToast();
+
+const form = useRequest<{ name: string }>({ name: props.node.name });
 
 const fileName = ref(props.node.name);
 
@@ -46,15 +45,10 @@ function rename(name: string): void {
 
         layoutStore.setVaultNodeUpdating(true);
 
-        form.send({
-            url: url,
-            method: 'patch',
-            data: {
-                name: name,
-            },
-            onError: error => {
-                const message = error.response?.statusText ?? 'Something went wrong';
-                createToast(message, 'error');
+        form.name = name;
+
+        form.patch(url, {
+            onFailure: () => {
                 fileName.value = props.node.name;
             },
             onSuccess: (response: { data: VaultNode }) => {

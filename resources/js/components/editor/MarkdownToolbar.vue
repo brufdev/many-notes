@@ -3,11 +3,10 @@ import VaultEditorApplyTemplateController from '@/actions/App/Http/Controllers/V
 import Menu from '@/components/menu/Menu.vue';
 import VaultEditorSearchFileModal from '@/components/modal/VaultEditorSearchModal.vue';
 import VaultEditorTemplateListModal from '@/components/modal/VaultEditorTemplateListModal.vue';
-import { useAxiosForm } from '@/composables/useAxiosForm';
 import { useEditor } from '@/composables/useEditor';
 import { useModalManager } from '@/composables/useModalManager';
+import { useRequest } from '@/composables/useRequest';
 import { useTiptapPreferences } from '@/composables/useTiptapPreferences';
-import { useToast } from '@/composables/useToast';
 import AlignCenter from '@/icons/AlignCenter.vue';
 import AlignLeft from '@/icons/AlignLeft.vue';
 import AlignRight from '@/icons/AlignRight.vue';
@@ -58,13 +57,15 @@ const props = defineProps<{
     nodeId: number;
 }>();
 
-const { openModal } = useModalManager();
+const editorContext = inject<ShallowRef<ReturnType<typeof useEditor> | null>>('editorContext');
+
 const layoutStore = useLayoutStore();
-const { createToast } = useToast();
+const { openModal } = useModalManager();
 const { isEditMode, isEditingMarkdown, toggleEditMode, toggleEditingMarkdown } =
     useTiptapPreferences();
 
-const editorContext = inject<ShallowRef<ReturnType<typeof useEditor> | null>>('editorContext');
+const applyTemplateForm = useRequest<{ node_id: number }>({ node_id: props.nodeId });
+
 const editor = computed(() => editorContext?.value?.editor.value ?? null);
 
 const isToolbarLocked = computed(() => !isEditMode.value || isEditingMarkdown.value);
@@ -229,8 +230,6 @@ function openTemplateListModal(): void {
 }
 
 function applyTemplateToVaultNode(templateId: number): void {
-    const form = useAxiosForm({});
-
     const url = VaultEditorApplyTemplateController.url({
         vault: props.vaultId,
         template: templateId,
@@ -238,16 +237,9 @@ function applyTemplateToVaultNode(templateId: number): void {
 
     layoutStore.setAppLoading(true);
 
-    form.send({
-        url: url,
-        method: 'post',
-        data: {
-            node_id: props.nodeId,
-        },
-        onError: error => {
-            const message = error.response?.statusText ?? 'Something went wrong';
-            createToast(message, 'error');
-        },
+    applyTemplateForm.node_id = props.nodeId;
+
+    applyTemplateForm.post(url, {
         onFinish: () => {
             layoutStore.setAppLoading(false);
         },

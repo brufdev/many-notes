@@ -2,9 +2,8 @@
 import VaultEditorSearchController from '@/actions/App/Http/Controllers/VaultEditorSearchController';
 import ModelInput from '@/components/form/ModelInput.vue';
 import VaultFileIcon from '@/components/vault/VaultFileIcon.vue';
-import { useAxiosForm } from '@/composables/useAxiosForm';
+import { useRequest } from '@/composables/useRequest';
 import { useModalManager } from '@/composables/useModalManager';
-import { useToast } from '@/composables/useToast';
 import { useVaultSearch } from '@/composables/useVaultSearch';
 import Link from '@/icons/Link.vue';
 import { useVaultStore } from '@/stores/vault';
@@ -15,15 +14,14 @@ import { computed, onMounted, ref } from 'vue';
 
 type SearchType = 'all' | 'image';
 
-const { closeModal } = useModalManager();
-const { createToast } = useToast();
-const vaultStore = useVaultStore();
-
 const props = defineProps<{
     searchType?: SearchType;
     initialUrl?: string;
     onSelect: (url: string, name: string) => void;
 }>();
+
+const vaultStore = useVaultStore();
+const { closeModal } = useModalManager();
 
 const files = ref<VaultEditorSearchFile[]>([]);
 const isLoading = ref(false);
@@ -39,9 +37,12 @@ const {
     selectPreviousFile,
     selectNextFile,
 } = useVaultSearch(() => runSearch(), optionCount);
+const form = useRequest<{ search: string; searchType: SearchType | undefined }>({
+    search: '',
+    searchType: undefined,
+});
 
 const searchUrl = VaultEditorSearchController.url({ vault: vaultStore.id! });
-const form = useAxiosForm({});
 
 const trimmedSearch = computed(() => search.value.trim());
 const resultsMatchSearch = computed(() => resultsQuery.value === trimmedSearch.value);
@@ -113,19 +114,10 @@ function runSearch() {
 
     isLoading.value = true;
 
-    form.send<{ data: { files: VaultEditorSearchFile[] } }>({
-        url: searchUrl,
-        method: 'get',
-        axiosConfig: {
-            params: {
-                search: query,
-                searchType: props.searchType,
-            },
-        },
-        onError: error => {
-            const message = error.response?.statusText ?? 'Something went wrong';
-            createToast(message, 'error');
-        },
+    form.search = query;
+    form.searchType = props.searchType;
+
+    form.get<{ data: { files: VaultEditorSearchFile[] } }>(searchUrl, {
         onSuccess: payload => {
             files.value = payload.data.files;
         },

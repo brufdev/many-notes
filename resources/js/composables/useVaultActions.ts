@@ -8,7 +8,7 @@ import { useVaultTreeStore } from '@/stores/vaultTree';
 import { VaultNode } from '@/types/vault';
 import { VaultShowPageProps } from '@/types/vault.pages';
 import { router, usePage } from '@inertiajs/vue3';
-import { AxiosError } from 'axios';
+import { useRequest } from './useRequest';
 import { useToast } from './useToast';
 import { useVaultTreeActions } from './useVaultTreeActions';
 
@@ -57,6 +57,7 @@ export function useVaultActions() {
     const vaultOpenedFileStore = useVaultOpenedFileStore();
     const vaultTreeStore = useVaultTreeStore();
     const vaultTreeActions = useVaultTreeActions();
+    const moveRequest = useRequest<{ parent_id: number | null }>({ parent_id: null });
 
     function openFile(fileId: number): void {
         if (!vaultStore.id) {
@@ -151,30 +152,22 @@ export function useVaultActions() {
             node: nodeId,
         });
 
-        axios<{ data: VaultNode }>({
-            url: url,
-            method: 'patch',
-            data: {
-                parent_id: newParentId,
-            },
-        })
-            .then(response => {
+        moveRequest.parent_id = newParentId;
+
+        moveRequest.patch<{ data: VaultNode }>(url, {
+            onSuccess: response => {
                 const message = node.is_file ? 'File moved' : 'Folder moved';
                 createToast(message, 'success');
 
-                vaultTreeActions.handleNodeUpdated(response.data.data);
-                vaultRecentFileStore.upsertRecentFile(response.data.data);
+                vaultTreeActions.handleNodeUpdated(response.data);
+                vaultRecentFileStore.upsertRecentFile(response.data);
 
-                if (page.props.openedFile?.file.id === response.data.data.id) {
-                    page.props.openedFile.file.parent_id = response.data.data.parent_id;
+                if (page.props.openedFile?.file.id === response.data.id) {
+                    page.props.openedFile.file.parent_id = response.data.parent_id;
                 }
-            })
-            .catch((error: AxiosError) => {
-                createToast(error.response?.statusText ?? 'Something went wrong', 'error');
-            })
-            .finally(() => {
-                layoutStore.setTreeViewLoading(false);
-            });
+            },
+            onFinish: () => layoutStore.setTreeViewLoading(false),
+        });
     }
 
     function handleNodesDeleted(nodeIds: number[], showToast = true): void {

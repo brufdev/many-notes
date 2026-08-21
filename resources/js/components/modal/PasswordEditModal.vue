@@ -3,14 +3,14 @@ import { update } from '@/actions/App/Http/Controllers/PasswordController';
 import ModelInput from '@/components/form/ModelInput.vue';
 import Submit from '@/components/form/Submit.vue';
 import SecondaryButton from '@/components/ui/SecondaryButton.vue';
-import { useAxiosForm } from '@/composables/useAxiosForm';
 import { useModalManager } from '@/composables/useModalManager';
+import { useRequest } from '@/composables/useRequest';
 import { useToast } from '@/composables/useToast';
 
 const { closeModal } = useModalManager();
 const { createToast } = useToast();
 
-const form = useAxiosForm<{
+const form = useRequest<{
     current_password: string;
     password: string;
     password_confirmation: string;
@@ -21,14 +21,8 @@ const form = useAxiosForm<{
 });
 
 const handleSubmit = () => {
-    form.send({
-        url: update.url(),
-        method: 'patch',
-        onError: error => {
-            closeModal();
-            const message = error.response?.statusText ?? 'Something went wrong';
-            createToast(message, 'error');
-        },
+    form.patch(update.url(), {
+        onFailure: () => closeModal(),
         onSuccess: () => {
             closeModal();
             createToast('Password updated', 'success');

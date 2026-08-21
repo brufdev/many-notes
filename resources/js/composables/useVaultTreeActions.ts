@@ -4,9 +4,10 @@ import { useLayoutStore } from '@/stores/layout';
 import { useVaultStore } from '@/stores/vault';
 import { useVaultTreeStore } from '@/stores/vaultTree';
 import { VaultNode } from '@/types/vault';
+import { VaultUpdated } from '@/types/vault.events';
 import { VaultShowPageProps } from '@/types/vault.pages';
 import { router, usePage } from '@inertiajs/vue3';
-import { AxiosError, AxiosResponse } from 'axios';
+import { useRequest } from './useRequest';
 import { useToast } from './useToast';
 
 export function useVaultTreeActions() {
@@ -15,6 +16,10 @@ export function useVaultTreeActions() {
     const layoutStore = useLayoutStore();
     const vaultStore = useVaultStore();
     const vaultTreeStore = useVaultTreeStore();
+    const childrenRequest = useRequest({});
+    const templateFolderRequest = useRequest<{ templates_node_id: number }>({
+        templates_node_id: 0,
+    });
 
     function toggleFolder(nodeId: number): void {
         const node = vaultTreeStore.getNodeById(nodeId);
@@ -28,25 +33,18 @@ export function useVaultTreeActions() {
         } else if (vaultTreeStore.isFolderLoaded(nodeId)) {
             vaultTreeStore.expandFolder(nodeId);
         } else {
-            fetchChildren(
-                nodeId,
-                response => {
-                    vaultTreeStore.setChildren(nodeId, response.data.children ?? []);
-                    vaultTreeStore.sortChildren(nodeId);
-                    vaultTreeStore.expandFolder(nodeId);
-                    vaultTreeStore.setLoadedFolder(nodeId);
-                },
-                error => {
-                    createToast(error.response?.statusText ?? 'Something went wrong', 'error');
-                }
-            );
+            fetchChildren(nodeId, nodes => {
+                vaultTreeStore.setChildren(nodeId, nodes);
+                vaultTreeStore.sortChildren(nodeId);
+                vaultTreeStore.expandFolder(nodeId);
+                vaultTreeStore.setLoadedFolder(nodeId);
+            });
         }
     }
 
     function fetchChildren(
         parentId: number | null,
-        onSuccess?: (response: AxiosResponse) => void,
-        onError?: (error: AxiosError) => void
+        onSuccess?: (nodes: VaultNode[]) => void
     ): void {
         const key = parentId ?? 0;
         const url = children.url({ vault: page.props.vault.id, node: key });
@@ -57,19 +55,10 @@ export function useVaultTreeActions() {
 
         vaultTreeStore.startLoadingFolder(key);
 
-        axios({
-            url: url,
-            method: 'get',
-        })
-            .then((response: AxiosResponse) => {
-                onSuccess?.(response);
-            })
-            .catch((error: AxiosError) => {
-                onError?.(error);
-            })
-            .finally(() => {
-                vaultTreeStore.finishLoadingFolder(key);
-            });
+        childrenRequest.get<{ children?: VaultNode[] }>(url, {
+            onSuccess: response => onSuccess?.(response.children ?? []),
+            onFinish: () => vaultTreeStore.finishLoadingFolder(key),
+        });
     }
 
     function setTemplateFolder(nodeId: number): void {
@@ -81,23 +70,15 @@ export function useVaultTreeActions() {
 
         layoutStore.setTreeViewLoading(true);
 
-        axios({
-            url: url,
-            method: 'patch',
-            data: {
-                templates_node_id: nodeId,
-            },
-        })
-            .then((response: AxiosResponse) => {
+        templateFolderRequest.templates_node_id = nodeId;
+
+        templateFolderRequest.patch<{ data: VaultUpdated }>(url, {
+            onSuccess: response => {
                 createToast('Template folder updated', 'success');
-                vaultStore.updateVault(response.data.data);
-            })
-            .catch((error: AxiosError) => {
-                createToast(error.response?.statusText ?? 'Something went wrong', 'error');
-            })
-            .finally(() => {
-                layoutStore.setTreeViewLoading(false);
-            });
+                vaultStore.updateVault(response.data);
+            },
+            onFinish: () => layoutStore.setTreeViewLoading(false),
+        });
     }
 
     function handleNodeUpdated(node: VaultNode): void {

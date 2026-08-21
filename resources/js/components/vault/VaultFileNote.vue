@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import VaultNodeController from '@/actions/App/Http/Controllers/VaultNodeController';
-import { useAxiosForm } from '@/composables/useAxiosForm';
 import { useEditor } from '@/composables/useEditor';
 import { useTiptapPreferences } from '@/composables/useTiptapPreferences';
-import { useToast } from '@/composables/useToast';
+import { useRequest } from '@/composables/useRequest';
 import { useVaultActions } from '@/composables/useVaultActions';
 import { useVaultFileUpload } from '@/composables/useVaultFileUpload';
 import { useLayoutStore } from '@/stores/layout';
@@ -21,18 +20,18 @@ interface VaultFileNodeEmits {
 const props = defineProps<VaultFileNodeProps>();
 const emit = defineEmits<VaultFileNodeEmits>();
 
-const layoutStore = useLayoutStore();
-const { createToast } = useToast();
-const vaultActions = useVaultActions();
-const { importFiles } = useVaultFileUpload();
-const { isEditMode, isEditingMarkdown, isSpellcheckEnabled } = useTiptapPreferences();
-const form = useAxiosForm({});
-
 const editorContext = inject<ShallowRef<ReturnType<typeof useEditor> | null>>('editorContext');
 
 if (!editorContext) {
     throw new Error('editorContext is not provided');
 }
+
+const layoutStore = useLayoutStore();
+const vaultActions = useVaultActions();
+const { importFiles } = useVaultFileUpload();
+const { isEditMode, isEditingMarkdown, isSpellcheckEnabled } = useTiptapPreferences();
+
+const form = useRequest<{ content: string }>({ content: props.node.content ?? '' });
 
 const noteEditorRef = ref<HTMLElement | null>(null);
 const noteMarkdownRef = ref<HTMLElement | null>(null);
@@ -58,15 +57,10 @@ const { editor, setContent, onMarkdownChanged } = useEditor({
 
             layoutStore.setVaultNodeUpdating(true);
 
-            form.send({
-                url: url,
-                method: 'patch',
-                data: {
-                    content: markdown,
-                },
-                onError: error => {
-                    const message = error.response?.statusText ?? 'Something went wrong';
-                    createToast(message, 'error');
+            form.content = markdown;
+
+            form.patch(url, {
+                onFailure: () => {
                     emit('contentUpdated', props.node.content ?? '');
                     editorContext.value?.setContent(props.node.content ?? '');
                 },

@@ -2,7 +2,7 @@
 import { destroy } from '@/actions/App/Http/Controllers/VaultNodeController';
 import Menu from '@/components/menu/Menu.vue';
 import MenuItem from '@/components/menu/MenuItem.vue';
-import AxiosFormConfirmationModal from '@/components/modal/AxiosFormConfirmationModal.vue';
+import RequestConfirmationModal from '@/components/modal/RequestConfirmationModal.vue';
 import VaultFilesImportModal from '@/components/modal/VaultFilesImportModal.vue';
 import VaultNodeCreateModal from '@/components/modal/VaultNodeCreateModal.vue';
 import VaultNodeEditModal from '@/components/modal/VaultNodeEditModal.vue';
@@ -41,11 +41,21 @@ interface VaultTreeNodeProps {
 const props = defineProps<VaultTreeNodeProps>();
 
 const page = usePage<VaultShowPageProps>();
+const vaultTreeDragAndDrop = inject<{
+    draggingNodeId: Ref<number | null>;
+    dropIndicator: Ref<VaultNodeTreeDropIndicator | null>;
+    onDragStart: (event: DragEvent, id: number) => void;
+    onDragEnd: () => void;
+    onDragLeave: (node: VaultNodeTreeItem) => void;
+    onDragOverNode: (event: DragEvent, node: VaultNodeTreeItem) => void;
+    onDrop: (event: DragEvent) => void;
+}>('vaultTreeDragAndDrop')!;
+
 const layoutStore = useLayoutStore();
-const { isSmallScreen } = useScreenSize();
-const { openModal } = useModalManager();
 const vaultStore = useVaultStore();
 const vaultTreeStore = useVaultTreeStore();
+const { openModal } = useModalManager();
+const { isSmallScreen } = useScreenSize();
 const vaultActions = useVaultActions();
 const vaultTreeActions = useVaultTreeActions();
 
@@ -64,28 +74,6 @@ const isExpanded = computed(() => vaultTreeStore.isFolderExpanded(props.nodeId))
 const isSelected = computed(() => vaultTreeStore.getSelectedFileId() === props.nodeId);
 const isLoading = computed(() => vaultTreeStore.isFolderLoading(props.nodeId));
 
-function handleClick() {
-    if (node.value.is_file) {
-        if (isSmallScreen.value) {
-            layoutStore.closePanels();
-        }
-
-        vaultActions.openFile(node.value.id);
-    } else {
-        vaultTreeActions.toggleFolder(node.value.id);
-    }
-}
-
-const vaultTreeDragAndDrop = inject<{
-    draggingNodeId: Ref<number | null>;
-    dropIndicator: Ref<VaultNodeTreeDropIndicator | null>;
-    onDragStart: (event: DragEvent, id: number) => void;
-    onDragEnd: () => void;
-    onDragLeave: (node: VaultNodeTreeItem) => void;
-    onDragOverNode: (event: DragEvent, node: VaultNodeTreeItem) => void;
-    onDrop: (event: DragEvent) => void;
-}>('vaultTreeDragAndDrop')!;
-
 const isValidDropInside = computed(() => {
     return (
         vaultTreeDragAndDrop.dropIndicator.value?.type === 'inside' &&
@@ -99,6 +87,18 @@ const isValidDropAfter = computed(() => {
         vaultTreeDragAndDrop.dropIndicator.value.targetId === node.value.id
     );
 });
+
+function handleClick() {
+    if (node.value.is_file) {
+        if (isSmallScreen.value) {
+            layoutStore.closePanels();
+        }
+
+        vaultActions.openFile(node.value.id);
+    } else {
+        vaultTreeActions.toggleFolder(node.value.id);
+    }
+}
 </script>
 
 <template>
@@ -225,7 +225,7 @@ const isValidDropAfter = computed(() => {
                             :icon="Trash"
                             @click="
                                 closeMenu();
-                                openModal(AxiosFormConfirmationModal, {
+                                openModal(RequestConfirmationModal, {
                                     title: node.is_file ? 'Delete file' : 'Delete folder',
                                     url: destroy.url({
                                         vault: page.props.vault.id,
