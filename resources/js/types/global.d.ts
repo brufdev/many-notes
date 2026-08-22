@@ -7,4 +7,13 @@ declare global {
     var Pusher: typeof PusherClass;
 }
 
+declare module '@inertiajs/core' {
+    interface InertiaConfig {
+        flashDataType: {
+            status?: string;
+            error?: string;
+        };
+    }
+}
+
 export {};

@@ -10,25 +10,25 @@ import TextSuccess from '@/components/form/TextSuccess.vue';
 import ArrowDownTray from '@/icons/ArrowDownTray.vue';
 import GuestLayout from '@/layouts/GuestLayout.vue';
 import { register } from '@/routes';
-import { Form, Head } from '@inertiajs/vue3';
+import { Form, Head, usePage } from '@inertiajs/vue3';
 
 defineOptions({ layout: GuestLayout });
 
 defineProps<{
-    status?: string;
-    error?: string;
     providers: object;
     canResetPassword: boolean;
     canRegister: boolean;
 }>();
+
+const page = usePage();
 </script>
 
 <template>
     <Head title="Log in" />
 
-    <div v-if="status || error" class="text-center">
-        <TextSuccess v-if="status" :text="status" />
-        <TextError v-if="error" :text="error" />
+    <div v-if="page.flash.status || page.flash.error" class="text-center">
+        <TextSuccess v-if="page.flash.status" :text="page.flash.status" />
+        <TextError v-if="page.flash.error" :text="page.flash.error" />
     </div>
 
     <div

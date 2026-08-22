@@ -73,13 +73,13 @@ final readonly class OAuthController
                 ?? $socialUser->getNickname()
                 ?? explode('@', (string) $userEmail)[0];
         } catch (Exception) {
-            session()->flash('error', __('An error occurred while authenticating.'));
+            Inertia::flash('error', __('An error occurred while authenticating.'));
 
             return redirect(route('login', absolute: false));
         }
 
         if (!filter_var($userEmail, FILTER_VALIDATE_EMAIL)) {
-            session()->flash('error', __('No email address found.'));
+            Inertia::flash('error', __('No email address found.'));
 
             return redirect(route('login', absolute: false));
         }
@@ -94,7 +94,7 @@ final readonly class OAuthController
 
             if (!$user) {
                 if (!app(Setting::class)->registration) {
-                    session()->flash('error', __('Registration is currently disabled.'));
+                    Inertia::flash('error', __('Registration is currently disabled.'));
 
                     return redirect(route('login', absolute: false));
                 }

@@ -25,7 +25,7 @@ it('sends a password reset link', function (): void {
         'email' => $user->email,
     ]);
 
-    $response->assertSessionHas('status', 'We have emailed your password reset link.');
+    $response->assertInertiaFlash('status', 'We have emailed your password reset link.');
 });
 
 it('fails sending a password reset link', function (): void {

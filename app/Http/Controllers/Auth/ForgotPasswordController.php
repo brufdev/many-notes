@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Requests\Auth\ForgotPasswordRequest;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -13,11 +12,9 @@ use Inertia\Response;
 
 final readonly class ForgotPasswordController
 {
-    public function create(Request $request): Response
+    public function create(): Response
     {
-        return Inertia::render('auth/ForgotPassword', [
-            'status' => $request->session()->get('status'),
-        ]);
+        return Inertia::render('auth/ForgotPassword');
     }
 
     /**
@@ -35,6 +32,6 @@ final readonly class ForgotPasswordController
             ]);
         }
 
-        session()->flash('status', __($status));
+        Inertia::flash('status', __($status));
     }
 }

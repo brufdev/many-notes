@@ -22,7 +22,6 @@ use Throwable;
 final readonly class LoginController
 {
     public function create(
-        Request $request,
         GetAvailableOAuthProviders $getAvailableOAuthProviders,
         IsLocalAuthEnabled $isLocalAuthEnabled,
     ): Response|SymfonyResponse {
@@ -42,8 +41,6 @@ final readonly class LoginController
         }
 
         return Inertia::render('auth/Login', [
-            'status' => $request->session()->get('status'),
-            'error' => $request->session()->get('error'),
             'providers' => $providers,
             'canResetPassword' => config('mail.default') !== 'log',
             'canRegister' => app(Setting::class)->registration,

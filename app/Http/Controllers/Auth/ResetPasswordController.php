@@ -48,7 +48,7 @@ final readonly class ResetPasswordController
             ]);
         }
 
-        session()->flash('status', __($status));
+        Inertia::flash('status', __($status));
 
         return redirect(route('login'));
     }

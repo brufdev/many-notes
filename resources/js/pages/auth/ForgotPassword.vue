@@ -6,20 +6,18 @@ import TextLink from '@/components/form/TextLink.vue';
 import TextSuccess from '@/components/form/TextSuccess.vue';
 import GuestLayout from '@/layouts/GuestLayout.vue';
 import { login } from '@/routes';
-import { Form, Head } from '@inertiajs/vue3';
+import { Form, Head, usePage } from '@inertiajs/vue3';
 
 defineOptions({ layout: GuestLayout });
 
-defineProps<{
-    status?: string;
-}>();
+const page = usePage();
 </script>
 
 <template>
     <Head title="Forgot password" />
 
-    <div v-if="status" class="text-center">
-        <TextSuccess :text="status" />
+    <div v-if="page.flash.status" class="text-center">
+        <TextSuccess :text="page.flash.status" />
     </div>
 
     <div class="flex flex-col gap-2 text-center text-sm">

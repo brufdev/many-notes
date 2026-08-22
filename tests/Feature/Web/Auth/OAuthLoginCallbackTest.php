@@ -101,7 +101,7 @@ it('fails to authenticate user', function (): void {
     $response = $this->get(route('oauth.store', ['provider' => 'github']));
 
     $response->assertRedirect(route('login'));
-    $response->assertSessionHas('error', 'An error occurred while authenticating.');
+    $response->assertInertiaFlash('error', 'An error occurred while authenticating.');
 });
 
 it('fails to authenticate user without email', function (): void {

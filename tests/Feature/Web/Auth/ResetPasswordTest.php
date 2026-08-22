@@ -27,7 +27,7 @@ it('resets the password', function (): void {
     ]));
 
     $response->assertRedirect(route('login'));
-    $response->assertSessionHas('status', 'Your password has been reset.');
+    $response->assertInertiaFlash('status', 'Your password has been reset.');
 });
 
 it('fails resetting the password', function (): void {
