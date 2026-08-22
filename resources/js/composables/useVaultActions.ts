@@ -72,12 +72,12 @@ export function useVaultActions() {
                 file: fileId,
             },
             preserveState: true,
-            only: ['openedFile', 'ancestors', 'ancestorsChildren'],
+            only: ['openedFile'],
             onSuccess: () => {
                 vaultTreeStore.handleFileOpened(
                     fileId,
-                    page.props.ancestors ?? [],
-                    page.props.ancestorsChildren ?? {}
+                    page.props.openedFile?.ancestors ?? [],
+                    page.props.openedFile?.ancestorsChildren ?? {}
                 );
             },
             onFinish: () => {
