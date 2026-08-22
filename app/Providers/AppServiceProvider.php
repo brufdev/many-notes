@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use Inertia\ExceptionResponse;
+use Inertia\Inertia;
 use Override;
 use SocialiteProviders\Auth0\Provider as Auth0Provider;
 use SocialiteProviders\Authelia\Provider as AutheliaProvider;
@@ -28,18 +30,14 @@ use Throwable;
 
 final class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
+    /** Register any application services. */
     #[Override]
     public function register(): void
     {
         $this->bindSettings();
     }
 
-    /**
-     * Bootstrap any application services.
-     */
+    /** Bootstrap any application services. */
     public function boot(): void
     {
         $this->configureDates();
@@ -48,12 +46,11 @@ final class AppServiceProvider extends ServiceProvider
         $this->configureVite();
         $this->configureAssetURL();
         $this->configureSocialite();
+        $this->configureInertiaExceptions();
         $this->checkForUpdates();
     }
 
-    /**
-     * Bind the application's settings singleton.
-     */
+    /** Bind the application's settings singleton. */
     private function bindSettings(): void
     {
         $this->app->singleton(Setting::class, function () {
@@ -78,50 +75,38 @@ final class AppServiceProvider extends ServiceProvider
         });
     }
 
-    /**
-     * Configure the application's dates.
-     */
+    /** Configure the application's dates. */
     private function configureDates(): void
     {
         Date::use(CarbonImmutable::class);
     }
 
-    /**
-     * Configure the application's models.
-     */
+    /** Configure the application's models. */
     private function configureModels(): void
     {
         Model::unguard();
         Model::shouldBeStrict();
     }
 
-    /**
-     * Configure the application's resources.
-     */
+    /** Configure the application's resources. */
     private function configureResources(): void
     {
         JsonResource::withoutWrapping();
     }
 
-    /**
-     * Configure the application's Vite instance.
-     */
+    /** Configure the application's Vite instance. */
     private function configureVite(): void
     {
         Vite::useAggressivePrefetching();
     }
 
-    /**
-     * Configure the application's asset URL.
-     */
+    /** Configure the application's asset URL. */
     private function configureAssetURL(): void
     {
         config(['app.asset_url' => config('app.url')]);
     }
 
-    /**
-     * Configure Laravel Socialite extra providers.
-     */
+    /** Configure Laravel Socialite extra providers. */
     private function configureSocialite(): void
     {
         Event::listen(function (SocialiteWasCalled $event): void {
@@ -147,9 +132,29 @@ final class AppServiceProvider extends ServiceProvider
         });
     }
 
-    /**
-     * Check for updates.
-     */
+    /** Render Inertia error pages so failures stay inside the app shell. */
+    private function configureInertiaExceptions(): void
+    {
+        Inertia::handleExceptionsUsing(function (ExceptionResponse $response): ?ExceptionResponse {
+            if (request()->is('api/*') || request()->expectsJson()) {
+                return null;
+            }
+
+            if (config('app.debug') && $response->statusCode() >= 500) {
+                return null;
+            }
+
+            if (!in_array($response->statusCode(), [403, 404, 419, 500, 503], true)) {
+                return null;
+            }
+
+            return $response->render('Error', [
+                'status' => $response->statusCode(),
+            ]);
+        });
+    }
+
+    /** Check for updates. */
     private function checkForUpdates(): void
     {
         if ($this->app->runningInConsole()) {
