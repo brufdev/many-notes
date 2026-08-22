@@ -10,7 +10,7 @@ const props = defineProps<{
     method: 'delete';
     content: string;
     successMessage: string;
-    onSuccess: (response: unknown) => void;
+    onSuccess?: (response: unknown) => void;
 }>();
 
 const { closeModal } = useModalManager();
@@ -21,6 +21,15 @@ const form = useRequest({});
 const handleSubmit = () => {
     form[props.method](props.url, {
         onFailure: () => closeModal(),
+        onInvalid: errors => {
+            closeModal();
+
+            const message = Object.values(errors).at(0);
+
+            if (typeof message === 'string') {
+                createToast(message, 'error');
+            }
+        },
         onSuccess: response => {
             closeModal();
             createToast(props.successMessage, 'success');

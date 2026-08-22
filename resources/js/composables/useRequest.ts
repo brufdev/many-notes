@@ -1,5 +1,5 @@
 import { useToast } from '@/composables/useToast';
-import type { FormDataType, HttpRequestHeaders } from '@inertiajs/core';
+import type { Errors, FormDataType, HttpRequestHeaders } from '@inertiajs/core';
 import { useHttp } from '@inertiajs/vue3';
 
 const GENERIC_MESSAGE = 'Something went wrong';
@@ -20,6 +20,7 @@ type RequestMethod = 'get' | 'post' | 'put' | 'patch' | 'delete';
 export interface RequestOptions<TResponse> {
     headers?: HttpRequestHeaders;
     onSuccess?: (response: TResponse) => void;
+    onInvalid?: (errors: Errors) => void;
     onFailure?: (message: string) => void;
     onFinish?: () => void;
 }
@@ -64,6 +65,7 @@ export function useRequest<TForm extends FormDataType<TForm>>(initialData: TForm
         submit[method](url, {
             headers: options.headers,
             onSuccess: response => options.onSuccess?.(response as TResponse),
+            onError: errors => options.onInvalid?.(errors),
             onHttpException: response => fail(STATUS_MESSAGES[response.status] ?? GENERIC_MESSAGE),
             onNetworkError: () => fail(GENERIC_MESSAGE),
             onFinish: () => options.onFinish?.(),

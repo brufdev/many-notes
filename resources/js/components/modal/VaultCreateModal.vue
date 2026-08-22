@@ -1,35 +1,50 @@
 <script setup lang="ts">
-import VaultController from '@/actions/App/Http/Controllers/VaultController';
-import Input from '@/components/form/Input.vue';
+import { store } from '@/actions/App/Http/Controllers/VaultController';
+import ModelInput from '@/components/form/ModelInput.vue';
 import Submit from '@/components/form/Submit.vue';
 import SecondaryButton from '@/components/ui/SecondaryButton.vue';
 import { useModalManager } from '@/composables/useModalManager';
+import { useRequest } from '@/composables/useRequest';
 import { useToast } from '@/composables/useToast';
-import { Form } from '@inertiajs/vue3';
 
 const { closeModal } = useModalManager();
 const { createToast } = useToast();
 
-const handleSuccess = () => {
-    closeModal();
-    createToast('Vault created', 'success');
+const form = useRequest<{ name: string }>({ name: '' });
+
+const url = store.url();
+
+const handleSubmit = () => {
+    form.post(url, {
+        onFailure: () => closeModal(),
+        onSuccess: () => {
+            closeModal();
+            createToast('Vault created', 'success');
+        },
+    });
 };
 </script>
 
 <template>
-    <Form
-        v-slot="{ errors, processing }"
-        v-bind="VaultController.store.form()"
+    <form
         class="flex flex-col gap-6 inert:pointer-events-none"
         autocomplete="off"
         novalidate
-        disable-while-processing
-        @success="handleSuccess"
+        :inert="form.processing"
+        @submit.prevent="handleSubmit"
     >
-        <Input name="name" type="text" placeholder="Name" :error="errors.name" required autofocus />
+        <ModelInput
+            v-model="form.name"
+            name="name"
+            type="text"
+            placeholder="Name"
+            :error="form.errors.name"
+            required
+            autofocus
+        />
         <div class="flex justify-end gap-2 py-1">
             <SecondaryButton @click="closeModal">Cancel</SecondaryButton>
-            <Submit label="Save" :processing="processing" />
+            <Submit label="Save" :processing="form.processing" />
         </div>
-    </Form>
+    </form>
 </template>

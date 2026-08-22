@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import VaultController from '@/actions/App/Http/Controllers/VaultController';
+import { destroy } from '@/actions/App/Http/Controllers/VaultController';
 import Menu from '@/components/menu/Menu.vue';
 import MenuItem from '@/components/menu/MenuItem.vue';
 import NotificationMenu from '@/components/menu/NotificationMenu.vue';
 import UserMenu from '@/components/menu/UserMenu.vue';
-import ConfirmationModal from '@/components/modal/ConfirmationModal.vue';
+import RequestConfirmationModal from '@/components/modal/RequestConfirmationModal.vue';
 import VaultCreateModal from '@/components/modal/VaultCreateModal.vue';
 import VaultEditModal from '@/components/modal/VaultEditModal.vue';
 import VaultImportModal from '@/components/modal/VaultImportModal.vue';
@@ -54,9 +54,10 @@ const formatDate = (date: string): string => {
 };
 
 const openDeleteVaultConfirmation = (vaultId: number) => {
-    openModal(ConfirmationModal, {
+    openModal(RequestConfirmationModal, {
         title: 'Delete vault',
-        routeForm: VaultController.destroy.form({ vault: vaultId }),
+        url: destroy.url({ vault: vaultId }),
+        method: 'delete',
         content: 'Are you sure you want to delete this vault?',
         successMessage: 'Vault deleted',
     });
