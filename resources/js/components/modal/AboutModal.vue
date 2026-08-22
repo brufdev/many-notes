@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { AppPageProps } from '@/types';
 import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
-const props = usePage().props as AppPageProps;
+const page = usePage();
 
-const metadata = computed(() => props.app?.metadata);
+const metadata = computed(() => page.props.app?.metadata);
 </script>
 
 <template>

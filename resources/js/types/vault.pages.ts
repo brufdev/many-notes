@@ -1,4 +1,3 @@
-import { AppPageProps } from '.';
 import {
     Vault,
     VaultEditorTemplateFile,
@@ -8,11 +7,11 @@ import {
     VaultTag,
 } from './vault';
 
-export interface VaultShowPageProps extends AppPageProps {
+export type VaultShowPageProps = {
     vault: Vault;
     recentFiles: VaultNode[];
     templateNodes: VaultEditorTemplateFile[] | null;
     rootNodes: VaultNodeTreeItem[];
     openedFile?: VaultOpenedFile;
     tags: VaultTag[];
-}
+};

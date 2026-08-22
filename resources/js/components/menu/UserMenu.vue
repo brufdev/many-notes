@@ -23,19 +23,18 @@ import { logout } from '@/routes/index';
 import { index } from '@/routes/vaults';
 import { useSettingStore } from '@/stores/setting';
 import { useUserStore } from '@/stores/user';
-import { AppPageProps } from '@/types';
 import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
-const props = usePage().props as AppPageProps;
+const page = usePage();
 const { isDark, toggleTheme } = useTheme();
 const { openModal } = useModalManager();
 const settingStore = useSettingStore();
 const userStore = useUserStore();
 const { isSpellcheckEnabled, toggleSpellcheck } = useTiptapPreferences();
 
-const user = computed(() => props.app?.user);
-const metadata = computed(() => props.app?.metadata);
+const user = computed(() => page.props.app?.user);
+const metadata = computed(() => page.props.app?.metadata);
 </script>
 
 <template>

@@ -21,7 +21,6 @@ import UserGroup from '@/icons/UserGroup.vue';
 import { reloadWithLoading } from '@/inertia/reloadWithLoading';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { exportMethod } from '@/routes/vaults';
-import { AppPageProps } from '@/types';
 import { VaultListItem } from '@/types/vault';
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { useEcho } from '@laravel/echo-vue';
@@ -33,7 +32,7 @@ defineProps<{
     visibleVaults: VaultListItem[];
 }>();
 
-const page = usePage<AppPageProps>();
+const page = usePage();
 const { openModal } = useModalManager();
 const { createToast } = useToast();
 const { error, download } = useDownload();

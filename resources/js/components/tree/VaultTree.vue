@@ -17,7 +17,6 @@ import UserGroup from '@/icons/UserGroup.vue';
 import { useLayoutStore } from '@/stores/layout';
 import { useVaultStore } from '@/stores/vault';
 import { useVaultTreeStore } from '@/stores/vaultTree';
-import { AppPageProps } from '@/types';
 import { VaultNode, VaultNodeTreeDropIndicator } from '@/types/vault';
 import { VaultUpdated } from '@/types/vault.events';
 import { usePage } from '@inertiajs/vue3';
@@ -28,7 +27,7 @@ const props = defineProps<{
     vaultId: number;
 }>();
 
-const page = usePage<AppPageProps>();
+const page = usePage();
 const { openModal } = useModalManager();
 const layoutStore = useLayoutStore();
 const vaultStore = useVaultStore();

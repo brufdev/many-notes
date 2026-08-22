@@ -3,7 +3,6 @@ import { useRequest } from '@/composables/useRequest';
 import { useToast } from '@/composables/useToast';
 import { useVaultRecentFileStore } from '@/stores/vaultRecentFile';
 import { useVaultTreeStore } from '@/stores/vaultTree';
-import { AppPageProps } from '@/types';
 import { VaultNode } from '@/types/vault';
 import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
@@ -34,7 +33,7 @@ export function getUploadableClipboardFiles(event: ClipboardEvent): File[] {
 export function useVaultFileUpload() {
     const vaultRecentFileStore = useVaultRecentFileStore();
     const vaultTreeStore = useVaultTreeStore();
-    const page = usePage<AppPageProps>();
+    const page = usePage();
     const { createToast } = useToast();
 
     const uploadMaxFilesizeBytes = computed(

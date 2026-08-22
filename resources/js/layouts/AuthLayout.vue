@@ -5,13 +5,13 @@ import Spinner from '@/icons/Spinner.vue';
 import { useLayoutStore } from '@/stores/layout';
 import { useNotificationStore } from '@/stores/notification';
 import { hydrateStoresFromPageProps } from '@/inertia/hydrateStores';
-import { AppNotification, AppPageProps } from '@/types';
+import { AppNotification } from '@/types';
 import { usePage } from '@inertiajs/vue3';
 import { useEcho, useEchoNotification } from '@laravel/echo-vue';
 import { computed, watch } from 'vue';
 import AppLayout from './AppLayout.vue';
 
-const page = usePage<AppPageProps>();
+const page = usePage();
 const layoutStore = useLayoutStore();
 const notificationStore = useNotificationStore();
 

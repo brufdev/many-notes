@@ -7,8 +7,6 @@ export interface AppPageProps {
         metadata?: Metadata;
         notifications?: AppNotification[];
     };
-
-    [key: string]: any;
 }
 
 export interface User {

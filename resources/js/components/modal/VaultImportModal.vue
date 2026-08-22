@@ -3,11 +3,10 @@ import VaultImportController from '@/actions/App/Http/Controllers/VaultImportCon
 import { useModalManager } from '@/composables/useModalManager';
 import { useRequest } from '@/composables/useRequest';
 import { useToast } from '@/composables/useToast';
-import { AppPageProps } from '@/types';
 import { router, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
-const page = usePage<AppPageProps>();
+const page = usePage();
 const { closeModal } = useModalManager();
 const { createToast } = useToast();
 

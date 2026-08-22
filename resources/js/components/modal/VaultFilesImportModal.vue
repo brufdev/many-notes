@@ -2,7 +2,6 @@
 import { useModalManager } from '@/composables/useModalManager';
 import { useToast } from '@/composables/useToast';
 import { useVaultFileUpload } from '@/composables/useVaultFileUpload';
-import { AppPageProps } from '@/types';
 import { usePage } from '@inertiajs/vue3';
 import { computed, onMounted, ref } from 'vue';
 
@@ -12,7 +11,7 @@ const props = defineProps<{
     dropEvent: DragEvent | null;
 }>();
 
-const page = usePage<AppPageProps>();
+const page = usePage();
 const { closeModal } = useModalManager();
 const { createToast } = useToast();
 const { form, filesError, filterValidFiles, importFiles } = useVaultFileUpload();
