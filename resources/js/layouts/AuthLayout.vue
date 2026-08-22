@@ -4,15 +4,22 @@ import Toast from '@/components/toast/Toast.vue';
 import Spinner from '@/icons/Spinner.vue';
 import { useLayoutStore } from '@/stores/layout';
 import { useNotificationStore } from '@/stores/notification';
+import { hydrateStoresFromPageProps } from '@/inertia/hydrateStores';
 import { AppNotification, AppPageProps } from '@/types';
 import { usePage } from '@inertiajs/vue3';
 import { useEcho, useEchoNotification } from '@laravel/echo-vue';
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import AppLayout from './AppLayout.vue';
 
 const page = usePage<AppPageProps>();
 const layoutStore = useLayoutStore();
 const notificationStore = useNotificationStore();
+
+watch(
+    () => page.props.app,
+    () => hydrateStoresFromPageProps(page.props),
+    { immediate: true }
+);
 
 const userId = computed(() => page.props.app?.user?.id ?? 0);
 
@@ -34,9 +41,7 @@ useEcho<{ data: { notification_id: string } }>(
         <header
             class="bg-light-base-200 dark:bg-base-800 text-light-base-950 dark:text-base-50 border-light-base-300 dark:border-base-500 border-b print:hidden"
         >
-            <div class="flex justify-between px-4 py-5">
-                <slot name="header" />
-            </div>
+            <div id="app-header" class="flex justify-between px-4 py-5"></div>
         </header>
 
         <main class="bg-light-base-50 dark:bg-base-900 relative flex flex-1 overflow-hidden">

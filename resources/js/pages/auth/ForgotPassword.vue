@@ -8,45 +8,38 @@ import GuestLayout from '@/layouts/GuestLayout.vue';
 import { login } from '@/routes';
 import { Form, Head } from '@inertiajs/vue3';
 
+defineOptions({ layout: GuestLayout });
+
 defineProps<{
     status?: string;
 }>();
 </script>
 
 <template>
-    <GuestLayout>
-        <Head title="Forgot password" />
+    <Head title="Forgot password" />
 
-        <div v-if="status" class="text-center">
-            <TextSuccess :text="status" />
-        </div>
+    <div v-if="status" class="text-center">
+        <TextSuccess :text="status" />
+    </div>
 
-        <div class="flex flex-col gap-2 text-center text-sm">
-            Can't sign in? Enter your email and we'll send you a link to reset your password.
-        </div>
+    <div class="flex flex-col gap-2 text-center text-sm">
+        Can't sign in? Enter your email and we'll send you a link to reset your password.
+    </div>
 
-        <Form
-            v-slot="{ errors, processing }"
-            v-bind="ForgotPasswordController.store.form()"
-            class="flex flex-col gap-6 inert:pointer-events-none"
-            autocomplete="off"
-            novalidate
-            disable-while-processing
-            :reset-on-success="['email']"
-        >
-            <Input
-                name="email"
-                type="email"
-                label="Email"
-                :error="errors.email"
-                required
-                autofocus
-            />
-            <Submit label="Send" full-width :processing="processing" />
-        </Form>
+    <Form
+        v-slot="{ errors, processing }"
+        v-bind="ForgotPasswordController.store.form()"
+        class="flex flex-col gap-6 inert:pointer-events-none"
+        autocomplete="off"
+        novalidate
+        disable-while-processing
+        :reset-on-success="['email']"
+    >
+        <Input name="email" type="email" label="Email" :error="errors.email" required autofocus />
+        <Submit label="Send" full-width :processing="processing" />
+    </Form>
 
-        <div class="text-center text-sm">
-            <TextLink :href="login().url" label="Back to Sign in" />
-        </div>
-    </GuestLayout>
+    <div class="text-center text-sm">
+        <TextLink :href="login().url" label="Back to Sign in" />
+    </div>
 </template>

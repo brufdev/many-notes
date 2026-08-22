@@ -27,6 +27,8 @@ import { Head, Link, usePage } from '@inertiajs/vue3';
 import { useEcho } from '@laravel/echo-vue';
 import { computed, watch } from 'vue';
 
+defineOptions({ layout: AuthLayout });
+
 defineProps<{
     visibleVaults: VaultListItem[];
 }>();
@@ -67,136 +69,134 @@ useEcho(`User.${userId.value}`, 'VaultListUpdatedEvent', () => {
 </script>
 
 <template>
-    <AuthLayout>
-        <Head title="Vaults" />
+    <Head title="Vaults" />
 
-        <template #header>
-            <div class="flex items-center gap-3"></div>
+    <Teleport defer to="#app-header">
+        <div class="flex items-center gap-3"></div>
 
+        <div class="flex items-center gap-3">
+            <NotificationMenu />
+
+            <UserMenu />
+        </div>
+    </Teleport>
+
+    <div class="flex flex-1 flex-col">
+        <div class="flex items-center justify-between p-4">
+            <div class="text-lg font-semibold">My vaults</div>
             <div class="flex items-center gap-3">
-                <NotificationMenu />
+                <button
+                    type="button"
+                    title="Import vault"
+                    @click="
+                        openModal(VaultImportModal, {
+                            title: 'Import vault',
+                        })
+                    "
+                >
+                    <ArrowUpTray class="h-5 w-5" />
+                </button>
 
-                <UserMenu />
+                <button
+                    type="button"
+                    title="Create vault"
+                    @click="
+                        openModal(VaultCreateModal, {
+                            title: 'Create vault',
+                        })
+                    "
+                >
+                    <Plus class="h-5 w-5" />
+                </button>
             </div>
-        </template>
-
-        <div class="flex flex-1 flex-col">
-            <div class="flex items-center justify-between p-4">
-                <div class="text-lg font-semibold">My vaults</div>
-                <div class="flex items-center gap-3">
-                    <button
-                        type="button"
-                        title="Import vault"
-                        @click="
-                            openModal(VaultImportModal, {
-                                title: 'Import vault',
-                            })
-                        "
+        </div>
+        <div class="mb-4 flex flex-grow flex-col overflow-y-auto px-4">
+            <div class="flex flex-col">
+                <template v-if="visibleVaults">
+                    <div
+                        v-for="vault in visibleVaults"
+                        :key="vault.id"
+                        class="border-light-base-300 dark:border-base-500 items-center border-b pt-3 pb-4 last:border-b-0"
                     >
-                        <ArrowUpTray class="h-5 w-5" />
-                    </button>
-
-                    <button
-                        type="button"
-                        title="Create vault"
-                        @click="
-                            openModal(VaultCreateModal, {
-                                title: 'Create vault',
-                            })
-                        "
-                    >
-                        <Plus class="h-5 w-5" />
-                    </button>
-                </div>
-            </div>
-            <div class="mb-4 flex flex-grow flex-col overflow-y-auto px-4">
-                <div class="flex flex-col">
-                    <template v-if="visibleVaults">
-                        <div
-                            v-for="vault in visibleVaults"
-                            :key="vault.id"
-                            class="border-light-base-300 dark:border-base-500 items-center border-b pt-3 pb-4 last:border-b-0"
-                        >
-                            <div class="flex w-full items-center justify-between">
-                                <Link
-                                    class="hover:text-primary-600 dark:hover:text-primary-300 flex flex-grow flex-col gap-2"
-                                    :href="'/vaults/' + vault.id"
-                                    :title="vault.name"
+                        <div class="flex w-full items-center justify-between">
+                            <Link
+                                class="hover:text-primary-600 dark:hover:text-primary-300 flex flex-grow flex-col gap-2"
+                                :href="'/vaults/' + vault.id"
+                                :title="vault.name"
+                            >
+                                <span class="flex-grow truncate">
+                                    {{ vault.name }}
+                                </span>
+                                <span
+                                    class="text-light-base-700 dark:text-base-200 truncate text-xs"
                                 >
-                                    <span class="flex-grow truncate">
-                                        {{ vault.name }}
-                                    </span>
-                                    <span
-                                        class="text-light-base-700 dark:text-base-200 truncate text-xs"
-                                    >
-                                        Updated on {{ formatDate(vault.updated_at) }}
-                                    </span>
-                                </Link>
-                                <div class="flex items-center justify-center gap-2">
-                                    <span
-                                        v-if="vault.accepted_collaborators_count > 0"
-                                        title="This vault has collaborators"
-                                    >
-                                        <UserGroup class="h-[1.1rem] w-[1.1rem]" />
-                                    </span>
+                                    Updated on {{ formatDate(vault.updated_at) }}
+                                </span>
+                            </Link>
+                            <div class="flex items-center justify-center gap-2">
+                                <span
+                                    v-if="vault.accepted_collaborators_count > 0"
+                                    title="This vault has collaborators"
+                                >
+                                    <UserGroup class="h-[1.1rem] w-[1.1rem]" />
+                                </span>
 
-                                    <Menu type="dropdown">
-                                        <template #trigger>
-                                            <EllipsisVertical class="h-5 w-5" />
-                                        </template>
+                                <Menu type="dropdown">
+                                    <template #trigger>
+                                        <EllipsisVertical class="h-5 w-5" />
+                                    </template>
 
-                                        <template #default="{ closeMenu }">
-                                            <div class="min-w-[10rem]">
-                                                <MenuItem
-                                                    label="Edit"
-                                                    :icon="PencilSquare"
-                                                    @click="
-                                                        closeMenu();
-                                                        openModal(VaultEditModal, {
-                                                            title: 'Edit vault',
-                                                            id: vault.id,
-                                                            name: vault.name,
-                                                            onSuccess: () => {
-                                                                reloadWithLoading({
-                                                                    only: ['visibleVaults'],
-                                                                });
-                                                            },
-                                                        });
-                                                    "
-                                                />
-                                                <MenuItem
-                                                    label="Export"
-                                                    :icon="ArrowDownTray"
-                                                    @click="
-                                                        closeMenu();
-                                                        download(
-                                                            exportMethod.url({
-                                                                vault: vault.id,
-                                                            })
-                                                        );
-                                                    "
-                                                />
-                                                <MenuItem
-                                                    v-if="vault.created_by === userId"
-                                                    label="Delete"
-                                                    :icon="Trash"
-                                                    @click="
-                                                        closeMenu();
-                                                        openDeleteVaultConfirmation(vault.id);
-                                                    "
-                                                />
-                                            </div>
-                                        </template>
-                                    </Menu>
-                                </div>
+                                    <template #default="{ closeMenu }">
+                                        <div class="min-w-[10rem]">
+                                            <MenuItem
+                                                label="Edit"
+                                                :icon="PencilSquare"
+                                                @click="
+                                                    closeMenu();
+                                                    openModal(VaultEditModal, {
+                                                        title: 'Edit vault',
+                                                        id: vault.id,
+                                                        name: vault.name,
+                                                        onSuccess: () => {
+                                                            reloadWithLoading({
+                                                                only: ['visibleVaults'],
+                                                            });
+                                                        },
+                                                    });
+                                                "
+                                            />
+                                            <MenuItem
+                                                label="Export"
+                                                :icon="ArrowDownTray"
+                                                @click="
+                                                    closeMenu();
+                                                    download(
+                                                        exportMethod.url({
+                                                            vault: vault.id,
+                                                        })
+                                                    );
+                                                "
+                                            />
+                                            <MenuItem
+                                                v-if="vault.created_by === userId"
+                                                label="Delete"
+                                                :icon="Trash"
+                                                @click="
+                                                    closeMenu();
+                                                    openDeleteVaultConfirmation(vault.id);
+                                                "
+                                            />
+                                        </div>
+                                    </template>
+                                </Menu>
                             </div>
                         </div>
-                    </template>
-                    <div v-else class="items-center pt-3 pb-4">
-                        <p>You have no vaults yet.</p>
                     </div>
+                </template>
+                <div v-else class="items-center pt-3 pb-4">
+                    <p>You have no vaults yet.</p>
                 </div>
             </div>
         </div>
-    </AuthLayout>
+    </div>
 </template>

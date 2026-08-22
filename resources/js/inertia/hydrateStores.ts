@@ -4,12 +4,17 @@ import { useUserStore } from '@/stores/user';
 import { AppPageProps } from '@/types';
 
 export function hydrateStoresFromPageProps(props: AppPageProps) {
-    const userStore = useUserStore();
-    userStore.setUser(props.app?.user ?? null);
+    const app = props.app;
 
-    const settingStore = useSettingStore();
-    settingStore.setSettings(props.app?.settings ?? null);
+    if (app?.user !== undefined) {
+        useUserStore().setUser(app.user);
+    }
 
-    const notificationStore = useNotificationStore();
-    notificationStore.setNotifications(props.app?.notifications ?? []);
+    if (app?.settings !== undefined) {
+        useSettingStore().setSettings(app.settings);
+    }
+
+    if (app?.notifications !== undefined) {
+        useNotificationStore().setNotifications(app.notifications);
+    }
 }

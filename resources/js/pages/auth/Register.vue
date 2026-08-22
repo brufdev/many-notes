@@ -6,45 +6,39 @@ import TextLink from '@/components/form/TextLink.vue';
 import GuestLayout from '@/layouts/GuestLayout.vue';
 import { login } from '@/routes';
 import { Form, Head } from '@inertiajs/vue3';
+
+defineOptions({ layout: GuestLayout });
 </script>
 
 <template>
-    <GuestLayout>
-        <Head title="Register" />
+    <Head title="Register" />
 
-        <Form
-            v-slot="{ errors, processing }"
-            v-bind="RegisterController.store.form()"
-            class="flex flex-col gap-6 inert:pointer-events-none"
-            autocomplete="off"
-            novalidate
-            disable-while-processing
-            :reset-on-success="['password', 'password_confirmation']"
-        >
-            <Input name="name" type="text" label="Name" :error="errors.name" required autofocus />
-            <Input name="email" type="email" label="Email" :error="errors.email" required />
-            <Input
-                name="password"
-                type="password"
-                label="Password"
-                :error="errors.password"
-                required
-            />
-            <Input
-                name="password_confirmation"
-                type="password"
-                label="Confirm password"
-                :error="errors.password_confirmation"
-                required
-            />
-            <Submit label="Register" full-width :processing="processing" />
-        </Form>
+    <Form
+        v-slot="{ errors, processing }"
+        v-bind="RegisterController.store.form()"
+        class="flex flex-col gap-6 inert:pointer-events-none"
+        autocomplete="off"
+        novalidate
+        disable-while-processing
+        :reset-on-success="['password', 'password_confirmation']"
+    >
+        <Input name="name" type="text" label="Name" :error="errors.name" required autofocus />
+        <Input name="email" type="email" label="Email" :error="errors.email" required />
+        <Input name="password" type="password" label="Password" :error="errors.password" required />
+        <Input
+            name="password_confirmation"
+            type="password"
+            label="Confirm password"
+            :error="errors.password_confirmation"
+            required
+        />
+        <Submit label="Register" full-width :processing="processing" />
+    </Form>
 
-        <div class="flex flex-col gap-2 text-center text-sm">
-            <p>
-                Already registered?
-                <TextLink :href="login().url" label="Sign in" />
-            </p>
-        </div>
-    </GuestLayout>
+    <div class="flex flex-col gap-2 text-center text-sm">
+        <p>
+            Already registered?
+            <TextLink :href="login().url" label="Sign in" />
+        </p>
+    </div>
 </template>
