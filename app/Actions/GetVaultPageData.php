@@ -7,6 +7,7 @@ namespace App\Actions;
 use App\Models\Tag;
 use App\Models\Vault;
 use App\Models\VaultNode;
+use Closure;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Staudenmeir\LaravelAdjacencyList\Eloquent\Collection;
 
@@ -14,19 +15,19 @@ final readonly class GetVaultPageData
 {
     /**
      * @return array{
-     *   recentFiles: Collection<int, VaultNode>,
-     *   rootNodes: Collection<int, VaultNode>,
-     *   templateNodes: Collection<int, VaultNode>|null,
-     *   tags: EloquentCollection<int, Tag&object{total: int}>
+     *   recentFiles: Closure(): Collection<int, VaultNode>,
+     *   rootNodes: Closure(): Collection<int, VaultNode>,
+     *   templateNodes: Closure(): (Collection<int, VaultNode>|null),
+     *   tags: Closure(): EloquentCollection<int, Tag&object{total: int}>
      * }
      */
     public function handle(Vault $vault): array
     {
         return [
-            'recentFiles' => $this->getRecentFiles($vault),
-            'rootNodes' => $this->getRootNodes($vault),
-            'templateNodes' => $this->getTemplateNodes($vault),
-            'tags' => $this->getTags($vault),
+            'recentFiles' => fn(): Collection => $this->getRecentFiles($vault),
+            'rootNodes' => fn(): Collection => $this->getRootNodes($vault),
+            'templateNodes' => fn(): ?Collection => $this->getTemplateNodes($vault),
+            'tags' => fn(): EloquentCollection => $this->getTags($vault),
         ];
     }
 

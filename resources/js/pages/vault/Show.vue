@@ -86,7 +86,6 @@ useReloadOnPopstate({
             openedFile.value?.ancestors,
             openedFile.value?.ancestorsChildren
         );
-        vaultTemplateStore.setTemplates(props.templateNodes);
     },
 });
 
@@ -102,7 +101,6 @@ onMounted(() => {
         openedFile.value?.ancestors,
         openedFile.value?.ancestorsChildren
     );
-    vaultTemplateStore.setTemplates(props.templateNodes);
 });
 
 watch(
@@ -137,6 +135,12 @@ watch(
 watch(
     () => props.tags,
     tags => vaultTagStore.setTags(tags),
+    { immediate: true }
+);
+
+watch(
+    () => props.templateNodes,
+    templates => vaultTemplateStore.setTemplates(templates ?? null),
     { immediate: true }
 );
 

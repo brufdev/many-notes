@@ -7,33 +7,57 @@ namespace App\ViewModels;
 use App\Actions\GetVaultPageData;
 use App\Models\Vault;
 use Illuminate\Support\Collection as SupportCollection;
+use Inertia\ProvidesInertiaProperties;
+use Inertia\RenderContext;
 
-final readonly class VaultDataViewModel
+final readonly class VaultDataViewModel implements ProvidesInertiaProperties
 {
-    /**
-     * @param SupportCollection<int, VaultNodeViewModel> $recentFiles
-     * @param SupportCollection<int, VaultNodeTreeItemViewModel> $rootNodes
-     * @param SupportCollection<int, VaultEditorTemplateViewModel>|null $templateNodes
-     * @param SupportCollection<int, VaultTagViewModel> $tags
-     */
-    public function __construct(
-        public SupportCollection $recentFiles,
-        public SupportCollection $rootNodes,
-        public ?SupportCollection $templateNodes,
-        public SupportCollection $tags,
-    ) {
+    public function __construct(private Vault $vault)
+    {
         //
     }
 
     public static function fromModel(Vault $vault): self
     {
-        $pageData = app(GetVaultPageData::class)->handle($vault);
+        return new self($vault);
+    }
 
-        return new self(
-            $pageData['recentFiles']->map(VaultNodeViewModel::fromModel(...)),
-            $pageData['rootNodes']->map(VaultNodeTreeItemViewModel::fromModel(...)),
-            $pageData['templateNodes']?->map(VaultEditorTemplateViewModel::fromModel(...)),
-            $pageData['tags']->map(VaultTagViewModel::fromModel(...)),
-        );
+    /** @return array<string, mixed> */
+    public function toInertiaProperties(RenderContext $context): array
+    {
+        return [
+            'recentFiles' => $this->recentFiles(...),
+            'rootNodes' => $this->rootNodes(...),
+            'tags' => $this->tags(...),
+            'templateNodes' => $this->templateNodes(...),
+        ];
+    }
+
+    /** @return SupportCollection<int, VaultNodeViewModel> */
+    private function recentFiles(): SupportCollection
+    {
+        return app(GetVaultPageData::class)->handle($this->vault)['recentFiles']()
+            ->map(VaultNodeViewModel::fromModel(...));
+    }
+
+    /** @return SupportCollection<int, VaultNodeTreeItemViewModel> */
+    private function rootNodes(): SupportCollection
+    {
+        return app(GetVaultPageData::class)->handle($this->vault)['rootNodes']()
+            ->map(VaultNodeTreeItemViewModel::fromModel(...));
+    }
+
+    /** @return SupportCollection<int, VaultTagViewModel> */
+    private function tags(): SupportCollection
+    {
+        return app(GetVaultPageData::class)->handle($this->vault)['tags']()
+            ->map(VaultTagViewModel::fromModel(...));
+    }
+
+    /** @return SupportCollection<int, VaultEditorTemplateViewModel>|null */
+    private function templateNodes(): ?SupportCollection
+    {
+        return app(GetVaultPageData::class)->handle($this->vault)['templateNodes']()
+            ?->map(VaultEditorTemplateViewModel::fromModel(...));
     }
 }

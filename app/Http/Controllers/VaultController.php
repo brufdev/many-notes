@@ -23,6 +23,7 @@ use App\ViewModels\VaultUpdateViewModel;
 use App\ViewModels\VaultViewModel;
 use Exception;
 use Illuminate\Container\Attributes\CurrentUser;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -38,7 +39,7 @@ final readonly class VaultController
         ]);
 
         return Inertia::render('vault/Index', [
-            'visibleVaults' => $visibleVaultsQuery($user)->get(),
+            'visibleVaults' => fn(): Collection => $visibleVaultsQuery($user)->get(),
         ]);
     }
 
@@ -58,8 +59,7 @@ final readonly class VaultController
         abort_unless($user->can('view', $vault), 403);
 
         $data = [
-            'vault' => VaultViewModel::fromModel($vault),
-            ...(array) VaultDataViewModel::fromModel($vault),
+            'vault' => fn(): VaultViewModel => VaultViewModel::fromModel($vault),
         ];
 
         $file = $request->query('file');
@@ -81,7 +81,7 @@ final readonly class VaultController
 
             $data = [
                 ...$data,
-                'openedFile' => [
+                'openedFile' => fn(): array => [
                     'file' => VaultNodeViewModel::fromModel($file),
                     ...(array) VaultOpenedFileDataViewModel::fromModel($file),
                     ...(array) VaultOpenedFileTreeDataViewModel::fromModel($vault, $file),
@@ -96,7 +96,8 @@ final readonly class VaultController
             'last_visited_url' => $currentUrl,
         ]);
 
-        return Inertia::render('vault/Show', $data);
+        return Inertia::render('vault/Show', $data)
+            ->with(VaultDataViewModel::fromModel($vault));
     }
 
     public function update(
