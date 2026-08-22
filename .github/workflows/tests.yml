@@ -1,6 +1,9 @@
 name: Tests
 
-on: ['push', 'pull_request']
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
 
 jobs:
   ci:
@@ -62,8 +65,17 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
+      - name: Lint frontend
+        run: npm run lint
+
+      - name: Check frontend formatting
+        run: npm run format
+
       - name: Build frontend
         run: npm run build
+
+      - name: Typecheck frontend
+        run: npm run typecheck
 
       - name: Prepare Laravel
         run: |

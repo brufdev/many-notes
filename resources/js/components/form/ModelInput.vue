@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { computed, useId } from 'vue';
 
+const model = defineModel<string | number | null>({
+    default: null,
+});
+
 const props = defineProps<{
     name: string;
     type: string;
     label?: string;
     error?: string;
 }>();
-
-const model = defineModel<string | number | null>({
-    default: null,
-});
 
 const hasError = computed(() => !!props.error);
 const errorId = `${props.name}-${useId()}-error`;

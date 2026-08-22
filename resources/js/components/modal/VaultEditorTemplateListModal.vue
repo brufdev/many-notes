@@ -7,12 +7,12 @@ import { formatElapsedTime, formatExtendedDate } from '@/utils/time';
 import { storeToRefs } from 'pinia';
 import { computed, onMounted, onUnmounted } from 'vue';
 
-const { closeModal } = useModalManager();
-const vaultTemplateStore = useVaultTemplateStore();
-
 const props = defineProps<{
     onSelect: (id: number) => void;
 }>();
+
+const { closeModal } = useModalManager();
+const vaultTemplateStore = useVaultTemplateStore();
 
 const { templates } = storeToRefs(vaultTemplateStore);
 const templatesCount = computed(() => templates.value.length);

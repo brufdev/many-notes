@@ -6,16 +6,16 @@ import { AppPageProps } from '@/types';
 import { usePage } from '@inertiajs/vue3';
 import { computed, onMounted, ref } from 'vue';
 
-const page = usePage<AppPageProps>();
-const { closeModal } = useModalManager();
-const { createToast } = useToast();
-const { form, filesError, filterValidFiles, importFiles } = useVaultFileUpload();
-
 const props = defineProps<{
     vaultId: number;
     parentId: number | null;
     dropEvent: DragEvent | null;
 }>();
+
+const page = usePage<AppPageProps>();
+const { closeModal } = useModalManager();
+const { createToast } = useToast();
+const { form, filesError, filterValidFiles, importFiles } = useVaultFileUpload();
 
 const uploadMaxFilesize = computed(() => page.props.app?.metadata?.upload_max_filesize ?? '0');
 const uploadAllowedExtensions = computed(

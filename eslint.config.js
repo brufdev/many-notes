@@ -42,11 +42,25 @@ export default [
         rules: {
             // Vue rules
             'vue/multi-word-component-names': 'off', // Disable the rule that requires multi-word component names in Vue
+            'vue/block-order': ['error', { order: ['script', 'template', 'style'] }], // Enforce script before template before style
             'vue/component-api-style': ['error', ['script-setup', 'composition']], // Enforce specific API style for Vue components
             'vue/component-name-in-template-casing': ['error', 'PascalCase'], // Enforce PascalCase for component names in templates
             'vue/component-options-name-casing': ['error', 'PascalCase'], // Enforce PascalCase for component option names
             'vue/define-emits-declaration': ['error', 'type-based'], // Enforce type-based declarations for emits
             'vue/define-props-declaration': ['error', 'type-based'], // Enforce type-based declarations for props
+            'vue/define-macros-order': [
+                'error',
+                {
+                    order: [
+                        'defineOptions',
+                        'defineModel',
+                        'defineProps',
+                        'defineEmits',
+                        'defineSlots',
+                    ],
+                    defineExposeLast: true,
+                },
+            ], // Enforce compiler macros at the top of `<script setup>`, `defineExpose` last
             'vue/no-deprecated-slot-attribute': 'error', // Disallow the use of deprecated `slot` attribute
             'vue/no-deprecated-v-on-native-modifier': 'error', // Disallow the use of deprecated `v-on: native` modifier
             'vue/no-unused-refs': 'error', // Disallow unused template refs

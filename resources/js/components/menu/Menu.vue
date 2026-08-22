@@ -10,8 +10,6 @@ const props = defineProps<{
 
 const { triggerRef, menuRef, isOpen, position, closeMenu, toggleMenu } = useMenu();
 
-defineExpose({ closeMenu });
-
 function handleClick() {
     if (props.type === 'dropdown') {
         toggleMenu();
@@ -23,6 +21,8 @@ function handleHover() {
         toggleMenu();
     }
 }
+
+defineExpose({ closeMenu });
 </script>
 
 <template>

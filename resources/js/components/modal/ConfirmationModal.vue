@@ -7,14 +7,14 @@ import { RouteFormDefinition } from '@/wayfinder';
 import { Form, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
-const { closeModal } = useModalManager();
-const { createToast } = useToast();
-
 const props = defineProps<{
     routeForm: RouteFormDefinition<'post'>;
     content: string;
     successMessage: string;
 }>();
+
+const { closeModal } = useModalManager();
+const { createToast } = useToast();
 
 const errors = computed(() => usePage().props.errors);
 
