@@ -73,7 +73,7 @@ function onDragStart(event: DragEvent, nodeId: number): void {
     if (node !== null && node.is_file) {
         event.dataTransfer.setData(
             'application/vault-file',
-            JSON.stringify({ name: node.name, url: node.full_path })
+            JSON.stringify({ type: node.type, name: node.name, url: encodeURI(node.full_path) })
         );
     }
 }

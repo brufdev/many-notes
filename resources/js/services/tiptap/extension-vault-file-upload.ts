@@ -1,5 +1,5 @@
 import { getUploadableClipboardFiles } from '@/composables/useVaultFileUpload';
-import { insertInlineNodes } from '@/services/tiptap/utils';
+import { createVaultFileNode, insertInlineNodes } from '@/services/tiptap/utils';
 import { VaultNode } from '@/types/vault';
 import { Extension } from '@tiptap/core';
 import { Node as ProseMirrorNode } from '@tiptap/pm/model';
@@ -45,22 +45,10 @@ function buildLabel(files: File[]): string {
 
 function buildNodes(view: EditorView, files: VaultNode[]): ProseMirrorNode[] {
     const { schema } = view.state;
-    const nodes: ProseMirrorNode[] = [];
 
-    for (const file of files) {
-        const path = encodeURI(file.full_path);
-
-        if (file.type === 'image' && schema.nodes.image) {
-            nodes.push(schema.nodes.image.create({ src: path, alt: file.name, title: null }));
-
-            continue;
-        }
-
-        const linkMark = schema.marks.link?.create({ href: path });
-        nodes.push(schema.text(file.name, linkMark ? [linkMark] : []));
-    }
-
-    return nodes;
+    return files.map(file =>
+        createVaultFileNode(schema, file.type, file.name, encodeURI(file.full_path))
+    );
 }
 
 export const VaultFileUpload = Extension.create<VaultFileUploadOptions>({

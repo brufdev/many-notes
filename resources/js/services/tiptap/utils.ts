@@ -1,5 +1,21 @@
-import { Fragment, Node as ProseMirrorNode } from '@tiptap/pm/model';
+import { VaultNode } from '@/types/vault';
+import { Fragment, Node as ProseMirrorNode, Schema } from '@tiptap/pm/model';
 import { EditorView } from '@tiptap/pm/view';
+
+export function createVaultFileNode(
+    schema: Schema,
+    type: VaultNode['type'],
+    name: string,
+    path: string
+): ProseMirrorNode {
+    if (type === 'image' && schema.nodes.image) {
+        return schema.nodes.image.create({ src: path, alt: name, title: null });
+    }
+
+    const linkMark = schema.marks.link?.create({ href: path });
+
+    return schema.text(name, linkMark ? [linkMark] : []);
+}
 
 export function insertInlineNodes(
     view: EditorView,
