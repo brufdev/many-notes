@@ -102,12 +102,18 @@ onMounted(() => {
     }
 });
 
+let requestId = 0;
+
 function runSearch() {
     const query = trimmedSearch.value;
+
+    form.cancel();
+    const currentRequest = ++requestId;
 
     if (query === '' || skipVaultSearch.value) {
         files.value = [];
         resultsQuery.value = query;
+        isLoading.value = false;
 
         return;
     }
@@ -122,6 +128,10 @@ function runSearch() {
             files.value = payload.data.files;
         },
         onFinish: () => {
+            if (currentRequest !== requestId) {
+                return;
+            }
+
             isLoading.value = false;
             resultsQuery.value = query;
         },

@@ -26,10 +26,16 @@ const fileCount = computed(() => files.value.length);
 
 const url = VaultSearchController.url({ vault: vaultStore.id! });
 
+let requestId = 0;
+
 function handleSubmit() {
+    form.cancel();
+    const currentRequest = ++requestId;
+
     if (!search.value) {
         hasSearched.value = false;
         files.value = [];
+        isLoading.value = false;
 
         return;
     }
@@ -43,6 +49,10 @@ function handleSubmit() {
             files.value = payload.data.files;
         },
         onFinish: () => {
+            if (currentRequest !== requestId) {
+                return;
+            }
+
             isLoading.value = false;
         },
     });
