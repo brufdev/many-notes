@@ -7,7 +7,7 @@ import { useVaultActions } from '@/composables/useVaultActions';
 import { useVaultFileUpload } from '@/composables/useVaultFileUpload';
 import { useLayoutStore } from '@/stores/layout';
 import { VaultNode } from '@/types/vault';
-import { inject, onMounted, ref, ShallowRef } from 'vue';
+import { inject, onMounted, onUnmounted, ref, ShallowRef } from 'vue';
 
 interface VaultFileNodeProps {
     node: VaultNode;
@@ -37,6 +37,7 @@ const noteEditorRef = ref<HTMLElement | null>(null);
 const noteMarkdownRef = ref<HTMLElement | null>(null);
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+let isUnmounted = false;
 
 const { editor, setContent, onMarkdownChanged } = useEditor({
     vaultId: String(props.node.vault_id),
@@ -61,6 +62,10 @@ const { editor, setContent, onMarkdownChanged } = useEditor({
 
             form.patch(url, {
                 onFailure: () => {
+                    if (isUnmounted) {
+                        return;
+                    }
+
                     emit('contentUpdated', props.node.content ?? '');
                     editorContext.value?.setContent(props.node.content ?? '');
                 },
@@ -86,6 +91,10 @@ const { editor, setContent, onMarkdownChanged } = useEditor({
 
 onMounted(() => {
     editorContext.value = { editor, setContent, onMarkdownChanged };
+});
+
+onUnmounted(() => {
+    isUnmounted = true;
 });
 </script>
 
