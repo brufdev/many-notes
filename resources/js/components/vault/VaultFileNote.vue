@@ -43,6 +43,7 @@ const { editor, setContent, onMarkdownChanged } = useEditor({
     vaultId: String(props.node.vault_id),
     element: noteEditorRef,
     markdownElement: noteMarkdownRef,
+    autofocus: false,
     content: props.node.content ?? '',
     isEditMode: isEditMode,
     onUpdate: (markdown: string) => {
