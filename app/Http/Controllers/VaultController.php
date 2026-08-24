@@ -60,6 +60,7 @@ final readonly class VaultController
 
         $data = [
             'vault' => fn(): VaultViewModel => VaultViewModel::fromModel($vault),
+            'openedFile' => null,
         ];
 
         $file = $request->query('file');
@@ -79,13 +80,10 @@ final readonly class VaultController
                 abort_unless($file !== null, 404);
             }
 
-            $data = [
-                ...$data,
-                'openedFile' => fn(): array => [
-                    'file' => VaultNodeViewModel::fromModel($file),
-                    ...(array) VaultOpenedFileDataViewModel::fromModel($file),
-                    ...(array) VaultOpenedFileTreeDataViewModel::fromModel($vault, $file),
-                ],
+            $data['openedFile'] = fn(): array => [
+                'file' => VaultNodeViewModel::fromModel($file),
+                ...(array) VaultOpenedFileDataViewModel::fromModel($file),
+                ...(array) VaultOpenedFileTreeDataViewModel::fromModel($vault, $file),
             ];
         }
 

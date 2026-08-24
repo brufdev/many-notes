@@ -12,6 +12,6 @@ export type VaultShowPageProps = {
     recentFiles: VaultNode[];
     templateNodes: VaultEditorTemplateFile[] | null;
     rootNodes: VaultNodeTreeItem[];
-    openedFile?: VaultOpenedFile;
+    openedFile: VaultOpenedFile | null;
     tags: VaultTag[];
 };
