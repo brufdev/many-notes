@@ -1,6 +1,7 @@
 import { useToast } from '@/composables/useToast';
 import type { Errors, FormDataType, HttpRequestHeaders } from '@inertiajs/core';
 import { useHttp } from '@inertiajs/vue3';
+import { useSocketId } from '@laravel/echo-vue';
 
 const GENERIC_MESSAGE = 'Something went wrong';
 
@@ -40,6 +41,7 @@ const METHODS = ['get', 'post', 'put', 'patch', 'delete'] as const;
 
 export function useRequest<TForm extends FormDataType<TForm>>(initialData: TForm): Request<TForm> {
     const { createToast } = useToast();
+    const socketId = useSocketId();
     const http = useHttp<TForm>(initialData);
 
     const submit = {
@@ -63,7 +65,10 @@ export function useRequest<TForm extends FormDataType<TForm>>(initialData: TForm
         };
 
         submit[method](url, {
-            headers: options.headers,
+            headers: {
+                ...(socketId.value ? { 'X-Socket-Id': socketId.value } : {}),
+                ...options.headers,
+            },
             onSuccess: response => options.onSuccess?.(response as TResponse),
             onError: errors => options.onInvalid?.(errors),
             onHttpException: response => fail(STATUS_MESSAGES[response.status] ?? GENERIC_MESSAGE),
