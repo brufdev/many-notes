@@ -7,6 +7,7 @@ import HelpModal from '@/components/modal/HelpModal.vue';
 import PasswordEditModal from '@/components/modal/PasswordEditModal.vue';
 import ProfileEditModal from '@/components/modal/ProfileEditModal.vue';
 import SettingEditModal from '@/components/modal/SettingEditModal.vue';
+import Avatar from '@/components/ui/Avatar.vue';
 import { useModalManager } from '@/composables/useModalManager';
 import { useTheme } from '@/composables/useTheme';
 import { useTiptapPreferences } from '@/composables/useTiptapPreferences';
@@ -35,6 +36,17 @@ const { isSpellcheckEnabled, toggleSpellcheck } = useTiptapPreferences();
 
 const user = computed(() => page.props.app?.user);
 const metadata = computed(() => page.props.app?.metadata);
+
+const avatarName = computed(() => {
+    const words = (userStore.name ?? '').split(' ');
+    let avatarName = words[0].charAt(0).toUpperCase();
+
+    if (words.length > 1) {
+        avatarName += words[words.length - 1].charAt(0).toUpperCase();
+    }
+
+    return avatarName;
+});
 </script>
 
 <template>
@@ -49,22 +61,33 @@ const metadata = computed(() => page.props.app?.metadata);
         </template>
 
         <template #default="{ closeMenu }">
-            <div class="min-w-[12rem]">
-                <div class="px-3 text-base font-semibold">
-                    {{ userStore.name }}
-                </div>
-
-                <div
-                    v-if="user?.role === 'SUPER_ADMIN'"
-                    class="text-light-base-700 dark:text-base-400 px-3 text-xs"
-                >
-                    Super Admin
-                </div>
-                <div
-                    v-else-if="user?.role === 'ADMIN'"
-                    class="text-light-base-700 dark:text-base-400 px-3 text-xs"
-                >
-                    Admin
+            <div class="w-[15rem]">
+                <div class="flex items-center gap-3 px-2.5 pt-2.5 pb-3">
+                    <Avatar
+                        :class="
+                            user?.role !== 'USER'
+                                ? 'bg-primary-300 dark:bg-primary-600 text-light-base-50!'
+                                : ''
+                        "
+                    >
+                        {{ avatarName }}
+                    </Avatar>
+                    <span class="flex min-w-0 flex-col gap-0.5">
+                        <span class="flex items-center gap-2.5">
+                            <span
+                                class="text-light-base-950/80 dark:text-base-50 truncate font-semibold"
+                                :title="userStore.name ?? ''"
+                            >
+                                {{ userStore.name }}
+                            </span>
+                        </span>
+                        <span
+                            class="truncate text-xs text-gray-600 dark:text-gray-400"
+                            :title="userStore.email ?? ''"
+                        >
+                            {{ userStore.email }}
+                        </span>
+                    </span>
                 </div>
 
                 <MenuDivider />
@@ -91,6 +114,17 @@ const metadata = computed(() => page.props.app?.metadata);
 
                 <MenuItem label="Vaults" :icon="CircleStack" :href="index.url()" />
 
+                <MenuItem
+                    label="Settings"
+                    :icon="Cog6Tooth"
+                    @click="
+                        closeMenu();
+                        openModal(SettingEditModal, { title: 'Settings' });
+                    "
+                />
+
+                <MenuDivider />
+
                 <MenuItem @click="toggleTheme">
                     <span class="flex w-full items-center justify-between">
                         <span class="flex items-center gap-2">
@@ -102,7 +136,7 @@ const metadata = computed(() => page.props.app?.metadata);
                             :class="
                                 isDark
                                     ? 'bg-primary-300 dark:bg-primary-600'
-                                    : 'bg-gray-200 dark:bg-gray-700'
+                                    : 'bg-gray-300 dark:bg-gray-700'
                             "
                         >
                             <span
@@ -128,7 +162,7 @@ const metadata = computed(() => page.props.app?.metadata);
                             :class="
                                 isSpellcheckEnabled
                                     ? 'bg-primary-300 dark:bg-primary-600'
-                                    : 'bg-gray-200 dark:bg-gray-700'
+                                    : 'bg-gray-300 dark:bg-gray-700'
                             "
                         >
                             <span
@@ -146,17 +180,6 @@ const metadata = computed(() => page.props.app?.metadata);
                 <MenuDivider />
 
                 <MenuItem
-                    label="Settings"
-                    :icon="Cog6Tooth"
-                    @click="
-                        closeMenu();
-                        openModal(SettingEditModal, { title: 'Settings' });
-                    "
-                />
-
-                <MenuDivider />
-
-                <MenuItem
                     label="Help"
                     :icon="MessageCircleQuestionMark"
                     @click="
@@ -166,6 +189,9 @@ const metadata = computed(() => page.props.app?.metadata);
                 />
 
                 <MenuItem
+                    :class="
+                        metadata?.update_available ? 'text-success-600 dark:text-success-500' : ''
+                    "
                     label="About"
                     :icon="InformationCircle"
                     @click="
@@ -174,7 +200,10 @@ const metadata = computed(() => page.props.app?.metadata);
                     "
                 />
 
+                <MenuDivider />
+
                 <MenuItem
+                    class="text-red-500 hover:bg-red-200/50 dark:text-red-400 dark:hover:bg-red-950/40"
                     label="Logout"
                     :icon="ArrowUpTray"
                     icon-class="rotate-90"
