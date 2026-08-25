@@ -71,6 +71,7 @@ final class HandleInertiaRequests extends Middleware
                     'app_version' => $appMetadata->appVersion(),
                     'latest_version' => $appMetadata->latestVersion(),
                     'github_url' => $appMetadata->githubUrl(),
+                    'sponsor_urls' => $appMetadata->sponsorUrls(),
                     'update_available' => $appMetadata->updateAvailable(),
                     'upload_max_filesize' => UploadLimit::label(),
                     'upload_max_filesize_bytes' => UploadLimit::bytes(),

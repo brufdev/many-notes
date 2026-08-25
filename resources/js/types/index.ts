@@ -20,6 +20,7 @@ export interface Metadata {
     app_version: string;
     latest_version: string;
     github_url: string;
+    sponsor_urls: Record<string, string>;
     update_available: boolean;
     upload_max_filesize: string;
     upload_max_filesize_bytes: number;

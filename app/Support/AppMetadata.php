@@ -25,6 +25,14 @@ final readonly class AppMetadata
         return 'https://github.com/brufdev/many-notes';
     }
 
+    /** @return array<string, string> */
+    public function sponsorUrls(): array
+    {
+        return [
+            'Buy me a coffee' => 'https://www.buymeacoffee.com/brufdev',
+        ];
+    }
+
     public function updateAvailable(): bool
     {
         return version_compare($this->latestVersion(), $this->appVersion(), '>');
