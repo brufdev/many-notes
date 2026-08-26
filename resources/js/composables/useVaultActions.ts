@@ -160,7 +160,10 @@ export function useVaultActions() {
                 createToast(message, 'success');
 
                 vaultTreeActions.handleNodeUpdated(response.data);
-                vaultRecentFileStore.upsertRecentFile(response.data);
+
+                if (response.data.is_file) {
+                    vaultRecentFileStore.upsertRecentFile(response.data);
+                }
 
                 if (page.props.openedFile?.file.id === response.data.id) {
                     page.props.openedFile.file.parent_id = response.data.parent_id;

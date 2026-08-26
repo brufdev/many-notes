@@ -46,8 +46,11 @@ const handleSubmit = () => {
                 layoutStore.closePanels();
             }
 
-            vaultRecentFileStore.upsertRecentFile(response.data);
             vaultTreeStore.handleNodeSaved(response.data);
+
+            if (response.data.is_file) {
+                vaultRecentFileStore.upsertRecentFile(response.data);
+            }
 
             if (page.props.openedFile?.file.id === response.data.id) {
                 page.props.openedFile.file.name = response.data.name;

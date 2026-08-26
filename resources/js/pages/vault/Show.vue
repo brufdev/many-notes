@@ -168,28 +168,34 @@ useEcho<{ data: VaultTag[] }>(`Vault.${props.vault.id}`, 'VaultTagListUpdatedEve
 
 useEcho<{ data: VaultNode }>(`Vault.${props.vault.id}`, 'VaultNodeCreatedEvent', payload => {
     vaultTreeStore.handleNodeSaved(payload.data);
-    vaultRecentFileStore.upsertRecentFile(payload.data);
+
+    if (payload.data.is_file) {
+        vaultRecentFileStore.upsertRecentFile(payload.data);
+    }
 });
 
 useEcho<{ data: VaultNode }>(`Vault.${props.vault.id}`, 'VaultNodeUpdatedEvent', payload => {
     vaultTreeActions.handleNodeUpdated(payload.data);
-    vaultRecentFileStore.upsertRecentFile(payload.data);
 
-    if (openedFile.value?.file.id === payload.data.id) {
-        if (openedFile.value?.file.name !== payload.data.name) {
-            openedFile.value.file.name = payload.data.name;
-        }
+    if (payload.data.is_file) {
+        vaultRecentFileStore.upsertRecentFile(payload.data);
 
-        if (openedFile.value?.file.parent_id !== payload.data.parent_id) {
-            openedFile.value.file.parent_id = payload.data.parent_id;
-        }
+        if (openedFile.value?.file.id === payload.data.id) {
+            if (openedFile.value?.file.name !== payload.data.name) {
+                openedFile.value.file.name = payload.data.name;
+            }
 
-        if (
-            payload.data.type === 'note' &&
-            openedFile.value?.file.content !== payload.data.content
-        ) {
-            openedFile.value.file.content = payload.data.content;
-            editorContext.value?.setContent(payload.data.content ?? '');
+            if (openedFile.value?.file.parent_id !== payload.data.parent_id) {
+                openedFile.value.file.parent_id = payload.data.parent_id;
+            }
+
+            if (
+                payload.data.type === 'note' &&
+                openedFile.value?.file.content !== payload.data.content
+            ) {
+                openedFile.value.file.content = payload.data.content;
+                editorContext.value?.setContent(payload.data.content ?? '');
+            }
         }
     }
 });

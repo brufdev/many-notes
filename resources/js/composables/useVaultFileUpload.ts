@@ -97,8 +97,11 @@ export function useVaultFileUpload() {
                 createToast(`${response.files.length} ${message}`, 'success');
 
                 for (const file of response.files) {
-                    vaultRecentFileStore.upsertRecentFile(file);
                     vaultTreeStore.handleNodeSaved(file);
+
+                    if (file.is_file) {
+                        vaultRecentFileStore.upsertRecentFile(file);
+                    }
                 }
 
                 options.onSuccess?.(response.files);
