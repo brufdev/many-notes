@@ -24,6 +24,7 @@ use SocialiteProviders\Authentik\Provider as AuthentikProvider;
 use SocialiteProviders\Azure\Provider as AzureProvider;
 use SocialiteProviders\Keycloak\Provider as KeycloakProvider;
 use SocialiteProviders\Manager\SocialiteWasCalled;
+use SocialiteProviders\OpenIDConnect\Provider as OpenIDConnectProvider;
 use SocialiteProviders\PocketID\Provider as PocketIDProvider;
 use SocialiteProviders\Zitadel\Provider as ZitadelProvider;
 use Throwable;
@@ -123,6 +124,9 @@ final class AppServiceProvider extends ServiceProvider
         });
         Event::listen(function (SocialiteWasCalled $event): void {
             $event->extendSocialite('keycloak', KeycloakProvider::class);
+        });
+        Event::listen(function (SocialiteWasCalled $event): void {
+            $event->extendSocialite('oidc', OpenIDConnectProvider::class);
         });
         Event::listen(function (SocialiteWasCalled $event): void {
             $event->extendSocialite('pocketid', PocketIDProvider::class);

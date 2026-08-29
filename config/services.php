@@ -114,6 +114,21 @@ return [
         'post_logout_redirect_uri' => env('LINKEDIN_POST_LOGOUT_REDIRECT_URI'),
     ],
 
+    'oidc' => [
+        'name' => env('OIDC_NAME', 'OpenID Connect'),
+        'client_id' => env('OIDC_CLIENT_ID'),
+        'client_secret' => env('OIDC_CLIENT_SECRET'),
+        'redirect' => env('OIDC_REDIRECT_URI'),
+        'base_url' => env('OIDC_BASE_URL'),
+        'scopes' => env('OIDC_SCOPES'),
+        'email_claims' => env('OIDC_EMAIL_CLAIMS'),
+        'verify_jwt' => env('OIDC_VERIFY_JWT', true),
+        'clock_skew' => env('OIDC_CLOCK_SKEW', 0),
+        'proxy' => env('OIDC_PROXY'),
+        'token_auth_method' => env('OIDC_TOKEN_AUTH_METHOD'),
+        'post_logout_redirect_uri' => env('OIDC_POST_LOGOUT_REDIRECT_URI'),
+    ],
+
     'pocketid' => [
         'client_id' => env('POCKETID_CLIENT_ID'),
         'client_secret' => env('POCKETID_CLIENT_SECRET'),

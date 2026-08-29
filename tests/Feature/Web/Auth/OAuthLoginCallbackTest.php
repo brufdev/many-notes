@@ -55,6 +55,28 @@ it('successfully authenticates an Azure user with mail instead of email', functi
     $response->assertRedirect(route('vaults.index'));
 });
 
+it('successfully authenticates a user through the generic OpenID Connect provider', function (): void {
+    config()->set('services.oidc.client_id', str()->random(20));
+    config()->set('services.oidc.client_secret', str()->random(40));
+    config()->set('services.oidc.redirect', 'http://localhost/oauth/oidc/callback');
+    config()->set('services.oidc.base_url', 'https://auth.example.com');
+    $user = User::factory()->create();
+    $abstractUser = Mockery::mock(SocialiteUser::class);
+    $abstractUser->shouldReceive('getId')
+        ->andReturn('8f14e45f-ceea-467a-9c1a-1b2c3d4e5f60')
+        ->shouldReceive('getName')
+        ->andReturn($user->name)
+        ->shouldReceive('getEmail')
+        ->andReturn($user->email);
+    $provider = Mockery::mock(Provider::class);
+    $provider->shouldReceive('user')->andReturn($abstractUser);
+    Socialite::shouldReceive('driver')->with('oidc')->andReturn($provider);
+
+    $response = $this->get(route('oauth.store', ['provider' => 'oidc']));
+
+    $response->assertRedirect(route('vaults.index'));
+});
+
 it('successfully authenticates a user without name or nickname', function (): void {
     $user = User::factory()->create();
     $abstractUser = Mockery::mock(SocialiteUser::class);

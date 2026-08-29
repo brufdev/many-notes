@@ -17,17 +17,9 @@ enum OAuthProvider: string
     case Google = 'google';
     case Keycloak = 'keycloak';
     case LinkedIn = 'linkedin';
+    case OIDC = 'oidc';
     case PocketID = 'pocketid';
     case Slack = 'slack';
     case Twitter = 'twitter';
     case Zitadel = 'zitadel';
-
-    /** @return array<string, string> */
-    public function toArray(): array
-    {
-        return [
-            'name' => $this->name,
-            'value' => $this->value,
-        ];
-    }
 }

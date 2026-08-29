@@ -16,6 +16,19 @@ it('redirects to the provider url', function (): void {
     $response->assertRedirect($targetUrl);
 });
 
+it('redirects to the generic OpenID Connect provider url', function (): void {
+    config()->set('services.oidc.client_id', str()->random(20));
+    config()->set('services.oidc.client_secret', str()->random(40));
+    config()->set('services.oidc.redirect', 'http://localhost/oauth/oidc/callback');
+    config()->set('services.oidc.base_url', 'https://auth.example.com');
+    $targetUrl = 'https://auth.example.com/authorize';
+    Socialite::shouldReceive('driver->redirect->getTargetUrl')->andReturn($targetUrl);
+
+    $response = $this->get(route('oauth', ['provider' => 'oidc']));
+
+    $response->assertRedirect($targetUrl);
+});
+
 it('fails redirecting to the provider url', function (): void {
     $response = $this->get(route('oauth', ['provider' => mb_strtolower(str()->random(20))]));
 

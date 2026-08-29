@@ -7,9 +7,9 @@ namespace App\Http\Controllers\Auth;
 use App\Actions\GetAvailableOAuthProviders;
 use App\Actions\GetOAuthPostLogoutRedirectUri;
 use App\Actions\IsLocalAuthEnabled;
-use App\Enums\OAuthProvider;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\Setting;
+use App\Support\AvailableOAuthProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,7 +26,7 @@ final readonly class LoginController
         IsLocalAuthEnabled $isLocalAuthEnabled,
     ): Response|SymfonyResponse {
         $providers = array_values(array_map(
-            fn(OAuthProvider $provider): array => $provider->toArray(),
+            fn(AvailableOAuthProvider $provider): array => $provider->toArray(),
             $getAvailableOAuthProviders->handle(),
         ));
 

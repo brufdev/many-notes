@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b197c39bd9ef925e5e6245cfdd4e578f",
+    "content-hash": "274fa9bb89a07a7d738ef76933d0185c",
     "packages": [
         {
             "name": "brick/math",
@@ -5674,6 +5674,68 @@
                 "source": "https://github.com/socialiteproviders/providers"
             },
             "time": "2026-08-23T02:40:58+00:00"
+        },
+        {
+            "name": "socialiteproviders/openidconnect",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/SocialiteProviders/OpenIDConnect.git",
+                "reference": "3a4946bd620cea34738e7495fab3f0080227506f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/SocialiteProviders/OpenIDConnect/zipball/3a4946bd620cea34738e7495fab3f0080227506f",
+                "reference": "3a4946bd620cea34738e7495fab3f0080227506f",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "ext-openssl": "*",
+                "firebase/php-jwt": "^7.0",
+                "illuminate/http": "^11.0 | ^12.0 | ^13.0",
+                "illuminate/support": "^11.0 | ^12.0 | ^13.0",
+                "php": "^8.2",
+                "socialiteproviders/manager": "^4.4"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "SocialiteProviders\\OpenIDConnect\\OpenIDConnectServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "SocialiteProviders\\OpenIDConnect\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "adrum"
+                }
+            ],
+            "description": "Generic OpenID Connect Provider for Laravel Socialite",
+            "keywords": [
+                "OpenId",
+                "laravel",
+                "oauth",
+                "oidc",
+                "openid-connect",
+                "provider",
+                "socialite"
+            ],
+            "support": {
+                "docs": "https://socialiteproviders.com/openidconnect",
+                "issues": "https://github.com/socialiteproviders/providers/issues",
+                "source": "https://github.com/socialiteproviders/providers"
+            },
+            "time": "2026-08-16T01:21:38+00:00"
         },
         {
             "name": "socialiteproviders/pocketid",

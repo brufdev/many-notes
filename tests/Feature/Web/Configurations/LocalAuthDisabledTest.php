@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use App\Actions\GetAvailableOAuthProviders;
-use App\Enums\OAuthProvider;
 use App\Models\User;
+use App\Support\AvailableOAuthProvider;
 use Laravel\Socialite\Contracts\Provider;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as SocialiteUser;
@@ -20,8 +20,9 @@ beforeEach(function (): void {
 it('redirects the user to the OAuth authentication page', function (): void {
     $targetUrl = 'https://github.com/login/oauth/authorize';
     Socialite::shouldReceive('driver->redirect->getTargetUrl')->andReturn($targetUrl);
-    $availableProviders = Mockery::mock(new GetAvailableOAuthProviders());
-    $availableProviders->shouldReceive('handle')->andReturn([OAuthProvider::GitHub]);
+    $availableAuthProvider = app(AvailableOAuthProvider::class, ['name' => 'GitHub', 'value' => 'github']);
+    $availableProviders = Mockery::mock(app(GetAvailableOAuthProviders::class));
+    $availableProviders->shouldReceive('handle')->andReturn([$availableAuthProvider]);
 
     $response = $this->get(route('login'));
 
@@ -65,8 +66,9 @@ it('ignores disabled local authentication if post_logout_redirect_uri is missing
 
 it('returns 404 when redirecting the user to the provider URL fails', function (): void {
     Socialite::shouldReceive('driver->redirect->getTargetUrl')->andThrow(new Exception());
-    $availableProviders = Mockery::mock(new GetAvailableOAuthProviders());
-    $availableProviders->shouldReceive('handle')->andReturn([OAuthProvider::GitHub]);
+    $availableAuthProvider = app(AvailableOAuthProvider::class, ['name' => 'GitHub', 'value' => 'github']);
+    $availableProviders = Mockery::mock(app(GetAvailableOAuthProviders::class));
+    $availableProviders->shouldReceive('handle')->andReturn([$availableAuthProvider]);
 
     $response = $this->get(route('login'));
 

@@ -12,6 +12,7 @@ use App\Http\Requests\Auth\OAuthRequest;
 use App\Models\Setting;
 use App\Models\SocialAccount;
 use App\Models\User;
+use App\Support\AvailableOAuthProvider;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
@@ -29,26 +30,28 @@ final readonly class OAuthController
         OAuthRequest $request,
         GetAvailableOAuthProviders $getAvailableOAuthProviders,
     ): Response {
-        try {
-            $provider = $request->safe()->string('provider')->value();
-            $isValidProvider = in_array(
-                $provider,
-                array_map(
-                    fn(OAuthProvider $provider): string => $provider->value,
-                    $getAvailableOAuthProviders->handle(),
-                ),
-            );
+        $provider = $request->safe()->string('provider')->value();
+        $isValidProvider = in_array(
+            $provider,
+            array_map(
+                fn(AvailableOAuthProvider $provider): string => $provider->value,
+                $getAvailableOAuthProviders->handle(),
+            ),
+        );
 
-            if (!$isValidProvider) {
-                throw new Exception();
-            }
-
-            $url = Socialite::driver($provider)->redirect()->getTargetUrl();
-
-            return Inertia::location($url);
-        } catch (Exception) {
+        if (!$isValidProvider) {
             abort(404);
         }
+
+        try {
+            $url = Socialite::driver($provider)->redirect()->getTargetUrl();
+        } catch (Exception $exception) {
+            report($exception);
+
+            abort(404);
+        }
+
+        return Inertia::location($url);
     }
 
     public function store(
@@ -72,7 +75,9 @@ final readonly class OAuthController
             $userName = $socialUser->getName()
                 ?? $socialUser->getNickname()
                 ?? explode('@', (string) $userEmail)[0];
-        } catch (Exception) {
+        } catch (Exception $exception) {
+            report($exception);
+
             Inertia::flash('error', __('An error occurred while authenticating.'));
 
             return redirect(route('login', absolute: false));

@@ -29,7 +29,7 @@ Vaults are simply storage containers for your files, and Many Notes lets you cho
 
 - **Multiple users**: Protect your files behind authentication
 - **Multiple vaults per user**: Choose how to organize your files
-- **OAuth support**: Authenticate using one of the many supported providers
+- **OpenID Connect and OAuth**: Authenticate with most login providers
 - **Collaboration**: Invite other users to access your vaults
 - **Broadcasting**: Real-time, live-updating user interfaces
 - **File search**: Experience a fast and typo-tolerant search
@@ -127,33 +127,37 @@ environment:
   - PHP_UPLOAD_MAX_FILE_SIZE=1G
 ```
 
-### Enable OAuth providers
+### Enable OpenID Connect and OAuth providers
 
-Many Notes supports a convenient way to authenticate with OAuth providers. Typically, these credentials may be retrieved by creating a "developer application" within the dashboard of the service you wish to use. Many Notes currently supports authentication via Auth0, Authelia, Authentik, Azure, Bitbucket, Facebook, GitHub, GitLab, Google, Keycloak, LinkedIn, Pocket ID, Slack, Twitter, and Zitadel. You can enable multiple providers simultaneously by adding the corresponding environment variables.
+Many Notes authenticates with OpenID Connect, so it works with most login providers, such as Pocket ID, Keycloak, Authentik, Entra ID, Auth0, Okta, or Google.
 
-For example, to enable GitHub OAuth, add:
+For example, to enable Pocket ID, add:
 
 ```yaml
 environment:
-  - GITHUB_CLIENT_ID=CLIENT_ID # change id
-  - GITHUB_CLIENT_SECRET=CLIENT_SECRET # change secret
-  - GITHUB_REDIRECT_URI=http://localhost/oauth/github/callback # change domain and provider
+  - OIDC_NAME=Pocket ID # name shown on the login button
+  - OIDC_CLIENT_ID=CLIENT_ID # change id
+  - OIDC_CLIENT_SECRET=CLIENT_SECRET # change secret
+  - OIDC_REDIRECT_URI=http://localhost/oauth/oidc/callback # change domain
+  - OIDC_BASE_URL=https://your-pocketid-url # change url
 ```
 
-Some providers require additional environment variables. Read the [OAuth documentation](./docs/customization/oauth.md) for more information.
+You can enable several OpenID Connect providers at the same time. Dedicated providers are also available for services like GitHub, GitLab, and Slack. Read the [OAuth documentation](./docs/customization/oauth.md) for both.
 
 ### Local authentication (default: true)
 
-Disable local authentication by configuring an OAuth provider and specifying a URL to redirect after logout. For example, to use GitHub OAuth as the only authentication method, add:
+Disable local authentication by configuring an OAuth provider and specifying a URL to redirect after logout. For example, to use Pocket ID as the only authentication method, add:
 
 ```yaml
 environment:
-  # enabling github provider:
-  - GITHUB_CLIENT_ID=CLIENT_ID # change id
-  - GITHUB_CLIENT_SECRET=CLIENT_SECRET # change secret
-  - GITHUB_REDIRECT_URI=http://localhost/oauth/github/callback # change domain and provider
+  # enabling the OpenID Connect provider:
+  - OIDC_NAME=Pocket ID # name shown on the login button
+  - OIDC_CLIENT_ID=CLIENT_ID # change id
+  - OIDC_CLIENT_SECRET=CLIENT_SECRET # change secret
+  - OIDC_REDIRECT_URI=http://localhost/oauth/oidc/callback # change domain
+  - OIDC_BASE_URL=https://your-pocketid-url # change url
   # disabling local authentication:
-  - GITHUB_POST_LOGOUT_REDIRECT_URI=https://github.com/logout # change URL
+  - OIDC_POST_LOGOUT_REDIRECT_URI=https://your-pocketid-url/logout # change URL
   - SETTINGS_LOCAL_AUTH_ENABLED=false
 ```
 
