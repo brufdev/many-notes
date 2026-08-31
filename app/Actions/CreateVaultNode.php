@@ -32,28 +32,13 @@ final readonly class CreateVaultNode
         $attributes['content'] ??= null;
 
         // Generate a new filename if the current one already exists
-        $nodeExists = $vault->nodes()
-            ->where('parent_id', $attributes['parent_id'])
-            ->where('is_file', $attributes['is_file'])
-            ->whereRaw('LOWER(name) = LOWER(?)', [$attributes['name']])
-            ->where('extension', $attributes['extension'])
-            ->exists();
-
-        if ($nodeExists) {
-            /** @var list<string> $nodes */
-            $nodes = $vault->nodes()
-                ->select('name')
-                ->where('parent_id', $attributes['parent_id'])
-                ->where('is_file', $attributes['is_file'])
-                ->whereRaw('LOWER(name) LIKE LOWER(?)', [$attributes['name'] . '-%'])
-                ->where('extension', $attributes['extension'])
-                ->pluck('name')
-                ->toArray();
-            natcasesort($nodes);
-            $attributes['name'] .= count($nodes) && preg_match('/-(\d+)$/', end($nodes), $matches) === 1
-                ? '-' . ((int) $matches[1] + 1)
-                : '-1';
-        }
+        $attributes['name'] = app(GetAvailableVaultNodeName::class)->handle(
+            $vault,
+            $attributes['parent_id'],
+            $attributes['is_file'],
+            $attributes['name'],
+            $attributes['extension'],
+        );
 
         // Save node to database
         $databaseContent = $attributes['extension'] === 'md' ? $attributes['content'] : null;
