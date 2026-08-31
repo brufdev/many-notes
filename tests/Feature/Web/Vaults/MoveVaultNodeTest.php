@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 use App\Actions\CreateVault;
 use App\Actions\CreateVaultNode;
+use App\Actions\GetPathFromVault;
 use App\Events\VaultNodeUpdatedEvent;
 use App\Models\User;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Storage;
 
 it('moves a node to a folder', function (): void {
     $user = User::factory()->create();
@@ -154,6 +156,41 @@ it('broadcasts updated note links to the current user when moving a node', funct
     );
 });
 
+it('suffixes the name of a moved node on collision', function (): void {
+    $createVaultNode = app(CreateVaultNode::class);
+
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $folder = $createVaultNode->handle($vault, ['is_file' => false, 'name' => 'folder']);
+    $createVaultNode->handle($vault, [
+        'is_file' => true,
+        'name' => 'note',
+        'extension' => 'md',
+        'content' => 'The one at the root',
+    ]);
+    $moved = $createVaultNode->handle($vault, [
+        'parent_id' => $folder->id,
+        'is_file' => true,
+        'name' => 'note',
+        'extension' => 'md',
+        'content' => 'The one being moved',
+    ]);
+
+    $response = $this->actingAs($user)
+        ->patch(
+            route('vaults.nodes.move', ['vault' => $vault->id, 'node' => $moved->id]),
+            ['parent_id' => null],
+        );
+
+    $response
+        ->assertOk()
+        ->assertJsonPath('data.name', 'note-1');
+
+    $path = app(GetPathFromVault::class)->handle($vault);
+    expect(Storage::disk('local')->get($path . 'note.md'))->toBe('The one at the root');
+    expect(Storage::disk('local')->get($path . 'note-1.md'))->toBe('The one being moved');
+});
+
 it('does not move a node without permissions', function (): void {
     [$user1, $user2] = User::factory(2)->create();
     $vault = app(CreateVault::class)->handle($user1, ['name' => fake()->words(3, true)]);
@@ -242,4 +279,28 @@ it('does not move a node to be a child of a file', function (): void {
         );
 
     $response->assertUnprocessable();
+});
+
+it('does not suffix the name of a moved node into the same folder', function (): void {
+    $createVaultNode = app(CreateVaultNode::class);
+
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $folder = $createVaultNode->handle($vault, ['is_file' => false, 'name' => 'folder']);
+    $node = $createVaultNode->handle($vault, [
+        'parent_id' => $folder->id,
+        'is_file' => true,
+        'name' => 'note',
+        'extension' => 'md',
+    ]);
+
+    $response = $this->actingAs($user)
+        ->patch(
+            route('vaults.nodes.move', ['vault' => $vault->id, 'node' => $node->id]),
+            ['parent_id' => $folder->id],
+        );
+
+    $response
+        ->assertOk()
+        ->assertJsonPath('data.name', 'note');
 });

@@ -167,6 +167,7 @@ export function useVaultActions() {
 
                 if (page.props.openedFile?.file.id === response.data.id) {
                     page.props.openedFile.file.parent_id = response.data.parent_id;
+                    page.props.openedFile.file.name = response.data.name;
                 }
             },
             onFinish: () => layoutStore.setTreeViewLoading(false),

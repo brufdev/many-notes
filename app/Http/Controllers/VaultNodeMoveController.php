@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Actions\GetAvailableVaultNodeName;
 use App\Actions\UpdateVaultNode;
 use App\Http\Requests\MoveVaultNodeRequest;
 use App\Models\User;
@@ -36,7 +37,20 @@ final readonly class VaultNodeMoveController
             abort_if($parent->is_file, 422, 'Parent node cannot be a file');
         }
 
-        $updatedNode = app(UpdateVaultNode::class)->handle($node, $data);
+        // Generate a new filename if it already exists in the destination folder
+        $name = app(GetAvailableVaultNodeName::class)->handle(
+            $vault,
+            $data['parent_id'],
+            $node->is_file,
+            $node->name,
+            $node->extension,
+            $node->id,
+        );
+
+        $updatedNode = app(UpdateVaultNode::class)->handle($node, [
+            'parent_id' => $data['parent_id'],
+            'name' => $name,
+        ]);
 
         return response()->json([
             'data' => VaultNodeViewModel::fromModel($updatedNode),

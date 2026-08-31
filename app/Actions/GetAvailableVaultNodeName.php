@@ -16,9 +16,10 @@ final readonly class GetAvailableVaultNodeName
         bool $isFile,
         string $name,
         ?string $extension,
+        ?int $ignoreId = null,
     ): string {
         $taken = $this
-            ->siblings($vault, $parentId, $isFile, $extension)
+            ->siblings($vault, $parentId, $isFile, $extension, $ignoreId)
             ->whereRaw('LOWER(name) = LOWER(?)', [$name])
             ->exists();
 
@@ -28,7 +29,7 @@ final readonly class GetAvailableVaultNodeName
 
         /** @var list<string> $names */
         $names = $this
-            ->siblings($vault, $parentId, $isFile, $extension)
+            ->siblings($vault, $parentId, $isFile, $extension, $ignoreId)
             ->select('name')
             ->whereRaw('LOWER(name) LIKE LOWER(?)', [$name . '-%'])
             ->pluck('name')
@@ -46,11 +47,18 @@ final readonly class GetAvailableVaultNodeName
         ?int $parentId,
         bool $isFile,
         ?string $extension,
+        ?int $ignoreId,
     ): Builder {
-        return VaultNode::query()
+        $siblings = VaultNode::query()
             ->where('vault_id', $vault->id)
             ->where('parent_id', $parentId)
             ->where('is_file', $isFile)
             ->where('extension', $extension);
+
+        if ($ignoreId !== null) {
+            $siblings->whereKeyNot($ignoreId);
+        }
+
+        return $siblings;
     }
 }
