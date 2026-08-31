@@ -145,6 +145,27 @@ it('broadcasts updated note links to the current user when updating a node', fun
     );
 });
 
+it('keeps the note content on disk when renaming a node', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $note = app(CreateVaultNode::class)->handle($vault, [
+        'is_file' => true,
+        'name' => 'note',
+        'extension' => 'md',
+        'content' => '# Important notes',
+    ]);
+
+    $response = $this->actingAs($user)
+        ->patch(
+            route('vaults.nodes.update', ['vault' => $vault->id, 'node' => $note->id]),
+            ['name' => 'renamed'],
+        );
+
+    $response->assertOk();
+    $path = app(GetPathFromVault::class)->handle($vault) . 'renamed.md';
+    expect(Storage::disk('local')->get($path))->toBe('# Important notes');
+});
+
 it('does not update a node from a different vault', function (): void {
     $createVault = app(CreateVault::class);
 
