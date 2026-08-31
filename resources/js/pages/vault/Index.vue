@@ -60,6 +60,9 @@ const openDeleteVaultConfirmation = (vaultId: number) => {
         method: 'delete',
         content: 'Are you sure you want to delete this vault?',
         successMessage: 'Vault deleted',
+        onSuccess: () => {
+            reloadWithLoading({ only: ['visibleVaults'] });
+        },
     });
 };
 
