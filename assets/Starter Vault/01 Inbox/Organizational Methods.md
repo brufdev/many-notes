@@ -9,9 +9,7 @@ Each folder has a specific purpose:
 - **00 Resources** - Save reference materials, tutorials, templates, and useful links
 - **01 Inbox** - Store incoming notes, ideas, tasks, and reminders for later review
 - **02 Personal** - Compile notes on personal development, wellness, hobbies, and life events
-- **03 Professional** - Document work-related notes, meetings, career goals, and evaluations
-- **04 Projects** - Keep detailed notes on specific projects, including plans and timelines
-- **05 Interests** - Collect notes on topics you love, such as articles and research ideas
+- **03 Projects** - Keep detailed notes on specific projects, including plans and timelines
 
 ## Organizational Methods
 
