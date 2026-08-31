@@ -7,6 +7,7 @@ namespace App\Actions;
 use App\Events\VaultNodeUpdatedEvent;
 use App\Events\VaultOpenedFileDataUpdatedEvent;
 use App\Events\VaultTagListUpdatedEvent;
+use App\Events\VaultTemplateListUpdatedEvent;
 use App\Models\VaultNode;
 use App\Services\VaultFiles\Types\Note;
 use Illuminate\Support\Facades\Storage;
@@ -32,6 +33,8 @@ final readonly class UpdateVaultNode
             && $attributes['name'] !== $node->name;
         $isParentIdAttributeChanged = array_key_exists('parent_id', $attributes)
             && $attributes['parent_id'] !== $node->parent_id;
+        $wasInTemplatesFolder = ($isNameAttributeChanged || $isParentIdAttributeChanged)
+            && $node->isInTemplatesFolder();
 
         if ($isNameAttributeChanged || $isParentIdAttributeChanged) {
             $originalLinkPath = $node->fullPath();
@@ -76,6 +79,21 @@ final readonly class UpdateVaultNode
             app(UpdateVaultNodeBacklinks::class)->handle($node, $originalLinkPath);
         }
 
+        // Broadcast events
+        $pendingBroadcast = broadcast(new VaultNodeUpdatedEvent($node));
+
+        if (!$broadcastToCurrentUser) {
+            $pendingBroadcast->toOthers();
+        }
+
+        if (
+            $node->wasChanged(['name', 'parent_id'])
+            && ($wasInTemplatesFolder || $node->isInTemplatesFolder())
+        ) {
+            // Broadcast events
+            broadcast(new VaultTemplateListUpdatedEvent($node->vault));
+        }
+
         if ($node->wasChanged(['name'])) {
             $backlinks = $node->backlinks()->get();
 
@@ -83,13 +101,6 @@ final readonly class UpdateVaultNode
             foreach ($backlinks as $backlink) {
                 broadcast(new VaultOpenedFileDataUpdatedEvent($backlink))->toOthers();
             }
-        }
-
-        // Broadcast events
-        $pendingBroadcast = broadcast(new VaultNodeUpdatedEvent($node));
-
-        if (!$broadcastToCurrentUser) {
-            $pendingBroadcast->toOthers();
         }
 
         return $node;

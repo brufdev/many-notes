@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Events\VaultNodeDeletedEvent;
+use App\Events\VaultTemplateListUpdatedEvent;
 use App\Models\VaultNode;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -14,13 +15,19 @@ final readonly class DeleteVaultNode
     /** @return array<int> */
     public function handle(VaultNode $node, bool $deleteFromDisk = true): array
     {
+        $wasInTemplatesFolder = $node->isInTemplatesFolder();
         $deletedNodeIds = DB::transaction(fn(): array => $this->deleteFromDatabase($node));
 
         if ($deleteFromDisk) {
             $this->deleteFromDisk($node);
         }
 
+        // Broadcast events
         broadcast(new VaultNodeDeletedEvent($node, $deletedNodeIds))->toOthers();
+
+        if ($wasInTemplatesFolder) {
+            broadcast(new VaultTemplateListUpdatedEvent($node->vault));
+        }
 
         return $deletedNodeIds;
     }

@@ -2,6 +2,7 @@ import { update } from '@/routes/vaults';
 import { children } from '@/routes/vaults/nodes';
 import { useLayoutStore } from '@/stores/layout';
 import { useVaultStore } from '@/stores/vault';
+import { useVaultTemplateStore } from '@/stores/vaultTemplate';
 import { useVaultTreeStore } from '@/stores/vaultTree';
 import { VaultNode } from '@/types/vault';
 import { VaultUpdated } from '@/types/vault.events';
@@ -15,6 +16,7 @@ export function useVaultTreeActions() {
     const { createToast } = useToast();
     const layoutStore = useLayoutStore();
     const vaultStore = useVaultStore();
+    const vaultTemplateStore = useVaultTemplateStore();
     const vaultTreeStore = useVaultTreeStore();
     const childrenRequest = useRequest({});
     const templateFolderRequest = useRequest<{ templates_node_id: number }>({
@@ -75,10 +77,20 @@ export function useVaultTreeActions() {
         templateFolderRequest.patch<{ data: VaultUpdated }>(url, {
             onSuccess: response => {
                 createToast('Template folder updated', 'success');
-                vaultStore.updateVault(response.data);
+                handleVaultUpdated(response.data);
             },
             onFinish: () => layoutStore.setTreeViewLoading(false),
         });
+    }
+
+    function handleVaultUpdated(data: VaultUpdated): void {
+        const templateFolderChanged = vaultStore.templates_node_id !== data.templates_node_id;
+
+        vaultStore.updateVault(data);
+
+        if (templateFolderChanged) {
+            router.reload({ only: ['templateNodes'] });
+        }
     }
 
     function handleNodeUpdated(node: VaultNode): void {
@@ -109,12 +121,17 @@ export function useVaultTreeActions() {
 
     function handleNodesDeleted(nodeIds: number[]): void {
         vaultTreeStore.handleNodesDeleted(nodeIds);
+
+        for (const nodeId of nodeIds) {
+            vaultTemplateStore.remove(nodeId);
+        }
     }
 
     return {
         toggleFolder,
         fetchChildren,
         setTemplateFolder,
+        handleVaultUpdated,
         handleNodeUpdated,
         handleNodesDeleted,
     };

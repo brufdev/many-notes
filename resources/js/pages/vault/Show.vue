@@ -34,7 +34,13 @@ import { useVaultRecentFileStore } from '@/stores/vaultRecentFile';
 import { useVaultTagStore } from '@/stores/vaultTag';
 import { useVaultTemplateStore } from '@/stores/vaultTemplate';
 import { useVaultTreeStore } from '@/stores/vaultTree';
-import { VaultCollaborator, VaultNode, VaultOpenedFileData, VaultTag } from '@/types/vault';
+import {
+    VaultCollaborator,
+    VaultEditorTemplateFile,
+    VaultNode,
+    VaultOpenedFileData,
+    VaultTag,
+} from '@/types/vault';
 import { VaultUpdated } from '@/types/vault.events';
 import { VaultShowPageProps } from '@/types/vault.pages';
 import { formatElapsedTime, formatExtendedDate } from '@/utils/time';
@@ -149,7 +155,7 @@ watch(isSmallScreen, value => {
 });
 
 useEcho<{ data: VaultUpdated }>(`Vault.${props.vault.id}`, 'VaultUpdatedEvent', payload => {
-    vaultStore.updateVault(payload.data);
+    vaultTreeActions.handleVaultUpdated(payload.data);
 });
 
 useEcho(`Vault.${props.vault.id}`, 'VaultDeletedEvent', () => {
@@ -165,6 +171,14 @@ useEcho(`Vault.${props.vault.id}`, 'VaultDeletedEvent', () => {
 useEcho<{ data: VaultTag[] }>(`Vault.${props.vault.id}`, 'VaultTagListUpdatedEvent', payload => {
     vaultTagStore.setTags(payload.data);
 });
+
+useEcho<{ data: VaultEditorTemplateFile[] | null }>(
+    `Vault.${props.vault.id}`,
+    'VaultTemplateListUpdatedEvent',
+    payload => {
+        vaultTemplateStore.setTemplates(payload.data);
+    }
+);
 
 useEcho<{ data: VaultNode }>(`Vault.${props.vault.id}`, 'VaultNodeCreatedEvent', payload => {
     vaultTreeStore.handleNodeSaved(payload.data);

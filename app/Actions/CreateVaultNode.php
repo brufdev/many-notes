@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Events\VaultNodeCreatedEvent;
+use App\Events\VaultTemplateListUpdatedEvent;
 use App\Models\Vault;
 use App\Models\VaultNode;
 use Illuminate\Support\Facades\Storage;
@@ -78,8 +79,13 @@ final readonly class CreateVaultNode
             Storage::disk('local')->makeDirectory($nodePath);
         }
 
+        // Broadcast events
         if ($broadcast) {
             broadcast(new VaultNodeCreatedEvent($node))->toOthers();
+
+            if ($node->isTemplate()) {
+                broadcast(new VaultTemplateListUpdatedEvent($vault));
+            }
         }
 
         return $node;
