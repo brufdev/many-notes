@@ -2,6 +2,8 @@
 
 OpenID Connect works with most providers and is the best place to start. Other providers are listed at the end.
 
+If you have trouble setting up a provider, see [how to debug the application](../support/faqs.md#how-to-debug-the-application) to find the error.
+
 ## OpenID Connect
 
 Works with any login provider that supports OpenID Connect discovery. Endpoints and signing keys are read from `OIDC_BASE_URL/.well-known/openid-configuration`, so there are no other URLs to configure.
