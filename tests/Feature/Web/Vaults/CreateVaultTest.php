@@ -11,14 +11,20 @@ it('creates a vault', function (): void {
     $vaultName = fake()->words(3, true);
     expect($user->vaults()->count())->toBe(0);
 
-    $this->actingAs($user);
+    $response = $this->actingAs($user)
+        ->post(route('vaults.store'), [
+            'name' => $vaultName,
+        ]);
 
-    $response = $this->post(route('vaults.store'), [
-        'name' => $vaultName,
-    ]);
-
-    $response->assertStatus(200);
+    $response
+        ->assertOk()
+        ->assertExactJson([
+            'data' => [
+                'id' => $user->vaults()->first()->id,
+                'name' => $vaultName,
+            ],
+        ]);
     expect($user->vaults()->count())->toBe(1);
-    $path = new GetPathFromUser()->handle($user) . $vaultName;
+    $path = app(GetPathFromUser::class)->handle($user) . $vaultName;
     expect(Storage::disk('local')->path($path))->toBeDirectory();
 });

@@ -6,9 +6,14 @@ import SecondaryButton from '@/components/ui/SecondaryButton.vue';
 import { useModalManager } from '@/composables/useModalManager';
 import { useRequest } from '@/composables/useRequest';
 import { useToast } from '@/composables/useToast';
+import { show } from '@/routes/vaults';
+import { useLayoutStore } from '@/stores/layout';
+import { VaultCreated } from '@/types/vault';
+import { router } from '@inertiajs/vue3';
 
 const { closeModal } = useModalManager();
 const { createToast } = useToast();
+const layoutStore = useLayoutStore();
 
 const form = useRequest<{ name: string }>({ name: '' });
 
@@ -17,9 +22,14 @@ const url = store.url();
 const handleSubmit = () => {
     form.post(url, {
         onFailure: () => closeModal(),
-        onSuccess: () => {
+        onSuccess: (response: { data: VaultCreated }) => {
             closeModal();
-            createToast('Vault created', 'success');
+
+            router.visit(show.url({ vault: response.data.id }), {
+                onStart: () => layoutStore.setAppLoading(true),
+                onSuccess: () => createToast('Vault created', 'success'),
+                onFinish: () => layoutStore.setAppLoading(false),
+            });
         },
     });
 };

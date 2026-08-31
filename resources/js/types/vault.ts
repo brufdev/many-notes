@@ -10,6 +10,8 @@ export interface Vault {
     updated_at: string;
 }
 
+export type VaultCreated = Pick<Vault, 'id' | 'name'>;
+
 export type VaultUser = Pick<User, 'id' | 'name' | 'email'>;
 
 export interface VaultCollaborator extends VaultUser {

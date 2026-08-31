@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Models\Vault;
 use App\Models\VaultNode;
 use App\Queries\Vaults\VisibleVaultsQuery;
+use App\ViewModels\VaultCreateViewModel;
 use App\ViewModels\VaultDataViewModel;
 use App\ViewModels\VaultNodeViewModel;
 use App\ViewModels\VaultOpenedFileDataViewModel;
@@ -43,12 +44,16 @@ final readonly class VaultController
         ]);
     }
 
-    public function store(StoreVaultRequest $request, #[CurrentUser] User $user, CreateVault $createVault): void
+    public function store(StoreVaultRequest $request, #[CurrentUser] User $user, CreateVault $createVault): JsonResponse
     {
         /** @var array{name: string} $data */
         $data = $request->validated();
 
-        $createVault->handle($user, $data);
+        $vault = $createVault->handle($user, $data);
+
+        return response()->json([
+            'data' => VaultCreateViewModel::fromModel($vault)->toArray(),
+        ]);
     }
 
     public function show(
