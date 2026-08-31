@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import VaultNodeController from '@/actions/App/Http/Controllers/VaultNodeController';
+import TextError from '@/components/form/TextError.vue';
 import VaultFileUpdatingSpinner from '@/components/vault/VaultFileUpdatingSpinner.vue';
 import VaultToggleContentWidthButton from '@/components/vault/VaultToggleContentWidthButton.vue';
 import { useRequest } from '@/composables/useRequest';
@@ -8,7 +9,7 @@ import XMark from '@/icons/XMark.vue';
 import { useLayoutStore } from '@/stores/layout';
 import { useVaultTreeStore } from '@/stores/vaultTree';
 import { VaultNode } from '@/types/vault';
-import { ref, useSlots, watch } from 'vue';
+import { computed, ref, useId, useSlots, watch } from 'vue';
 
 interface VaultFileProps {
     node: VaultNode;
@@ -28,14 +29,19 @@ const vaultActions = useVaultActions();
 
 const form = useRequest<{ name: string }>({ name: props.node.name });
 
-const fileName = ref(props.node.name);
+const name = ref(props.node.name);
+
+const nameError = computed(() => form.errors.name);
+const nameErrorId = `file-name-${useId()}-error`;
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
-function rename(name: string): void {
+function rename(value: string): void {
     if (debounceTimer) {
         clearTimeout(debounceTimer);
     }
+
+    form.clearErrors('name');
 
     debounceTimer = setTimeout(() => {
         const url = VaultNodeController.update.url({
@@ -45,14 +51,14 @@ function rename(name: string): void {
 
         layoutStore.setVaultNodeUpdating(true);
 
-        form.name = name;
+        form.name = value;
 
         form.patch(url, {
             onFailure: () => {
-                fileName.value = props.node.name;
+                name.value = props.node.name;
             },
             onSuccess: (response: { data: VaultNode }) => {
-                emit('nameUpdated', fileName.value);
+                emit('nameUpdated', name.value);
                 vaultTreeStore.handleNodeSaved(response.data);
             },
             onFinish: () => {
@@ -65,7 +71,8 @@ function rename(name: string): void {
 watch(
     () => props.node.name,
     value => {
-        fileName.value = value;
+        name.value = value;
+        form.clearErrors('name');
     }
 );
 </script>
@@ -73,22 +80,27 @@ watch(
 <template>
     <div class="flex h-full w-full flex-col">
         <div class="z-[15] flex flex-col p-4 print:hidden" :class="slots.toolbar ? 'gap-3' : ''">
-            <div class="flex items-center justify-between gap-2">
-                <input
-                    v-model="fileName"
-                    class="flex flex-grow border-0 bg-transparent p-0 px-1 text-lg font-semibold focus:ring-0 focus:outline-none"
-                    type="text"
-                    spellcheck="false"
-                    autocomplete="off"
-                    @input="rename(fileName)"
-                />
-                <div class="flex items-center gap-3">
-                    <VaultFileUpdatingSpinner />
-                    <VaultToggleContentWidthButton />
-                    <button title="Close file" @click="vaultActions.closeFile">
-                        <XMark class="h-5 w-5" />
-                    </button>
+            <div class="flex flex-col gap-1">
+                <div class="flex items-center justify-between gap-2">
+                    <input
+                        v-model="name"
+                        class="flex flex-grow border-0 bg-transparent p-0 px-1 text-lg font-semibold focus:ring-0 focus:outline-none"
+                        type="text"
+                        spellcheck="false"
+                        autocomplete="off"
+                        :aria-invalid="!!nameError"
+                        :aria-describedby="nameError ? nameErrorId : undefined"
+                        @input="rename(name)"
+                    />
+                    <div class="flex items-center gap-3">
+                        <VaultFileUpdatingSpinner />
+                        <VaultToggleContentWidthButton />
+                        <button title="Close file" @click="vaultActions.closeFile">
+                            <XMark class="h-5 w-5" />
+                        </button>
+                    </div>
                 </div>
+                <TextError v-if="nameError" :id="nameErrorId" class="px-1" :text="nameError" />
             </div>
             <slot name="toolbar" />
         </div>
