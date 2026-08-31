@@ -5,17 +5,16 @@ declare(strict_types=1);
 namespace App\Http\Requests;
 
 use App\Models\Vault;
+use App\Rules\VaultNodeName;
 use App\Services\VaultFile;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Exists;
-use Illuminate\Validation\Rules\In;
-use Illuminate\Validation\Rules\Unique;
+use Override;
 
 final class StoreVaultNodeRequest extends FormRequest
 {
     /**
-     * @return array<string, array<int, string|Exists|In|Unique>>
+     * @return array<string, array<int, mixed>>
      */
     public function rules(): array
     {
@@ -35,16 +34,25 @@ final class StoreVaultNodeRequest extends FormRequest
             ],
             'name' => [
                 'required',
-                'min:1',
+                'string',
                 'max:255',
-                // One or more allowed characters, not starting with a dot or space
-                'regex:/^(?![. ])[\w\s.,;_\-&%#\[\]()=]+$/u',
+                new VaultNodeName(),
             ],
             'extension' => [
                 'nullable',
                 'string',
                 Rule::in(VaultFile::extensions()),
             ],
+        ];
+    }
+
+    /** @return array<string, string> */
+    #[Override]
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'Cannot be empty.',
+            'name.max' => 'Cannot be longer than 255 characters.',
         ];
     }
 }

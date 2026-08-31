@@ -6,14 +6,15 @@ namespace App\Http\Requests;
 
 use App\Models\User;
 use App\Models\Vault;
+use App\Rules\VaultNodeName;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Unique;
+use Override;
 
 final class StoreVaultRequest extends FormRequest
 {
     /**
-     * @return array<string, array<int, string|Unique>>
+     * @return array<string, array<int, mixed>>
      */
     public function rules(): array
     {
@@ -25,12 +26,21 @@ final class StoreVaultRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                // One or more allowed characters, not starting with a dot or space
-                'regex:/^(?![. ])[\w\s.,;_\-&%#\[\]()=]+$/u',
+                new VaultNodeName(),
                 Rule::unique(Vault::class)
                     ->where('created_by', $user->id)
                     ->ignore($this->route('vault')),
             ],
+        ];
+    }
+
+    /** @return array<string, string> */
+    #[Override]
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'Cannot be empty.',
+            'name.max' => 'Cannot be longer than 255 characters.',
         ];
     }
 }
