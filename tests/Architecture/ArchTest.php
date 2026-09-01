@@ -82,6 +82,7 @@ arch('models')
         'App\Queries',
         'App\Policies',
         'App\Providers',
+        'App\Rules',
         'App\Services',
         'App\ViewModels',
         'Database\Factories',

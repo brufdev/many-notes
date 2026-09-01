@@ -166,6 +166,27 @@ it('keeps the note content on disk when renaming a node', function (): void {
     expect(Storage::disk('local')->get($path))->toBe('# Important notes');
 });
 
+it('does not update a node without permissions', function (): void {
+    [$user1, $user2] = User::factory()->count(2)->create();
+    $vault = app(CreateVault::class)->handle($user2, ['name' => fake()->words(3, true)]);
+    $node = app(CreateVaultNode::class)->handle($vault, [
+        'is_file' => false,
+        'name' => fake()->words(3, true),
+    ]);
+
+    $response = $this->actingAs($user1)
+        ->patch(
+            route('vaults.nodes.update', [
+                'vault' => $vault->id,
+                'node' => $node->id,
+            ]),
+            ['name' => fake()->words(3, true)],
+        );
+
+    $response->assertForbidden();
+    expect($vault->nodes()->first()->name)->toBe($node->name);
+});
+
 it('does not update a node from a different vault', function (): void {
     $createVault = app(CreateVault::class);
 
@@ -191,23 +212,32 @@ it('does not update a node from a different vault', function (): void {
     expect($vault2->nodes()->first()->name)->toBe($node->name);
 });
 
-it('does not update a node without permissions', function (): void {
-    [$user1, $user2] = User::factory()->count(2)->create();
-    $vault = app(CreateVault::class)->handle($user2, ['name' => fake()->words(3, true)]);
-    $node = app(CreateVaultNode::class)->handle($vault, [
-        'is_file' => false,
-        'name' => fake()->words(3, true),
-    ]);
+it(
+    'does not rename a node to a name a sibling of the same type already uses',
+    function (string $node, string $name): void {
+        $createVaultNode = app(CreateVaultNode::class);
 
-    $response = $this->actingAs($user1)
-        ->patch(
-            route('vaults.nodes.update', [
-                'vault' => $vault->id,
-                'node' => $node->id,
-            ]),
-            ['name' => fake()->words(3, true)],
-        );
+        $user = User::factory()->create();
+        $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+        $nodes = [
+            'folder' => $createVaultNode->handle($vault, ['is_file' => false, 'name' => 'folder']),
+            'other folder' => $createVaultNode->handle($vault, ['is_file' => false, 'name' => 'other folder']),
+            'note' => $createVaultNode->handle($vault, ['is_file' => true, 'name' => 'note', 'extension' => 'md']),
+            'taken' => $createVaultNode->handle($vault, ['is_file' => true, 'name' => 'taken', 'extension' => 'md']),
+        ];
 
-    $response->assertForbidden();
-    expect($vault->nodes()->first()->name)->toBe($node->name);
-});
+        $response = $this->actingAs($user)
+            ->patchJson(
+                route('vaults.nodes.update', ['vault' => $nodes[$node]->vault_id, 'node' => $nodes[$node]->id]),
+                ['name' => $name],
+            );
+
+        $response->assertJsonValidationErrors([
+            'name' => 'The name has already been taken.',
+        ]);
+    },
+)->with([
+    'a file named like another file' => ['note', 'taken'],
+    'a file named like another file in another case' => ['note', 'TAKEN'],
+    'a folder named like another folder' => ['folder', 'other folder'],
+]);
