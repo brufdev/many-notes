@@ -105,6 +105,21 @@ it('does not allow renaming a vault to an existing name', function (): void {
         ]);
 });
 
+it('allows renaming a vault to the name it already has', function (): void {
+    $user = User::factory()->create();
+    $vault = Vault::factory()->for($user)->create();
+
+    $response = $this
+        ->actingAs($user)
+        ->patch(
+            route('vaults.update', ['vault' => $vault->id]),
+            ['name' => $vault->name],
+        );
+
+    $response->assertOk();
+    expect($vault->refresh()->name)->toBe($vault->name);
+});
+
 it('does not allow setting a file as template node', function (): void {
     $user = User::factory()->hasVaults(1)->create();
 
