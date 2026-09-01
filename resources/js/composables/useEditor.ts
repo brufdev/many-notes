@@ -5,6 +5,7 @@ import { CustomLink } from '@/services/tiptap/extension-custom-link';
 import { CustomTableCell } from '@/services/tiptap/extension-custom-table-cell';
 import { CustomTableColumnAlign } from '@/services/tiptap/extension-custom-table-column-align';
 import { CustomTableHeader } from '@/services/tiptap/extension-custom-table-header';
+import { CustomTaskItem } from '@/services/tiptap/extension-custom-task-item';
 import { Hashtag } from '@/services/tiptap/extension-hashtag';
 import { SmartBracket } from '@/services/tiptap/extension-smart-bracket';
 import { VaultFileDrop } from '@/services/tiptap/extension-vault-file-drop';
@@ -15,7 +16,6 @@ import {
 import { turndownService } from '@/services/turndown';
 import { Editor } from '@tiptap/core';
 import { Table, TableRow } from '@tiptap/extension-table';
-import TaskItem from '@tiptap/extension-task-item';
 import TaskList from '@tiptap/extension-task-list';
 import StarterKit from '@tiptap/starter-kit';
 import { common, createLowlight } from 'lowlight';
@@ -109,7 +109,7 @@ export function useEditor(options: SetupEditorOptions) {
                     onOpenFile: href => options.openFilePath(href),
                 }),
                 TaskList,
-                TaskItem.configure({
+                CustomTaskItem.configure({
                     nested: true,
                 }),
                 Table,
