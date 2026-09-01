@@ -44,20 +44,18 @@ const handleSubmit = () => {
         onFailure: () => closeModal(),
         onSuccess: (response: { data: VaultNode }) => {
             closeModal();
-            const message = props.isFile ? 'File created' : 'Folder created';
+            const message = response.data.is_file ? 'File created' : 'Folder created';
             createToast(message, 'success');
-
-            if (isSmallScreen.value) {
-                layoutStore.closePanels();
-            }
 
             vaultTreeStore.handleNodeSaved(response.data);
 
             if (response.data.is_file) {
                 vaultRecentFileStore.upsertRecentFile(response.data);
-            }
 
-            if (props.isFile) {
+                if (isSmallScreen.value) {
+                    layoutStore.closePanels();
+                }
+
                 vaultActions.openFile(response.data.id);
             }
         },
