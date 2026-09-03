@@ -1,5 +1,4 @@
 import { update } from '@/routes/vaults';
-import { children } from '@/routes/vaults/nodes';
 import { useLayoutStore } from '@/stores/layout';
 import { useVaultStore } from '@/stores/vault';
 import { useVaultTemplateStore } from '@/stores/vaultTemplate';

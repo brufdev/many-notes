@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import LoginController from '@/actions/App/Http/Controllers/Auth/LoginController';
-import Checkbox from '@/components/form/Checkbox.vue';
-import Input from '@/components/form/Input.vue';
-import LinkButton from '@/components/form/LinkButton.vue';
-import Submit from '@/components/form/Submit.vue';
-import TextError from '@/components/form/TextError.vue';
-import TextLink from '@/components/form/TextLink.vue';
-import TextSuccess from '@/components/form/TextSuccess.vue';
-import ArrowDownTray from '@/icons/ArrowDownTray.vue';
+import {
+    Checkbox,
+    Input,
+    LinkButton,
+    Submit,
+    TextError,
+    TextLink,
+    TextSuccess,
+} from '@/components/form';
+import { ArrowDownTray } from '@/icons';
 import GuestLayout from '@/layouts/GuestLayout.vue';
 import { register } from '@/routes';
 import { Form, Head, usePage } from '@inertiajs/vue3';

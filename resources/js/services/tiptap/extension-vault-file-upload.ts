@@ -1,4 +1,4 @@
-import { getUploadableClipboardFiles } from '@/composables/useVaultFileUpload';
+import { getUploadableClipboardFiles } from '@/composables';
 import { createVaultFileNode, insertInlineNodes } from '@/services/tiptap/utils';
 import { VaultNode } from '@/types/vault';
 import { Extension } from '@tiptap/core';

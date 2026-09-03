@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import VaultImportController from '@/actions/App/Http/Controllers/VaultImportController';
-import { useModalManager } from '@/composables/useModalManager';
-import { useRequest } from '@/composables/useRequest';
-import { useToast } from '@/composables/useToast';
+import { useModalManager, useRequest, useToast } from '@/composables';
 import { router, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 

@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import FileAudio from '@/icons/FileAudio.vue';
-import FileImage from '@/icons/FileImage.vue';
-import FileMarkdown from '@/icons/FileMarkdown.vue';
-import FilePDF from '@/icons/FilePDF.vue';
-import FileVideo from '@/icons/FileVideo.vue';
+import { FileAudio, FileImage, FileMarkdown, FilePDF, FileVideo } from '@/icons';
 
 defineProps<{
     file: {

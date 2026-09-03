@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import BaseButton from '@/components/ui/BaseButton.vue';
-import { useModalManager } from '@/composables/useModalManager';
-import XMark from '@/icons/XMark.vue';
+import { useModalManager } from '@/composables';
+import { XMark } from '@/icons';
 import { computed, nextTick, ref, watch } from 'vue';
 
 const { activeModal, closeModal } = useModalManager();

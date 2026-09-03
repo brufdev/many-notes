@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import PrimaryButton from '@/components/ui/PrimaryButton.vue';
-import Spinner from '@/icons/Spinner.vue';
+import { Spinner } from '@/icons';
 
 defineProps<{
     label: string;

@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { useModalManager } from '@/composables/useModalManager';
-import { useToast } from '@/composables/useToast';
-import { useVaultFileUpload } from '@/composables/useVaultFileUpload';
+import { useModalManager, useToast, useVaultFileUpload } from '@/composables';
 import { usePage } from '@inertiajs/vue3';
 import { computed, onMounted, ref } from 'vue';
 

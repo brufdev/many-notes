@@ -4,20 +4,22 @@ import Menu from '@/components/menu/Menu.vue';
 import MenuItem from '@/components/menu/MenuItem.vue';
 import NotificationMenu from '@/components/menu/NotificationMenu.vue';
 import UserMenu from '@/components/menu/UserMenu.vue';
-import RequestConfirmationModal from '@/components/modal/RequestConfirmationModal.vue';
-import VaultCreateModal from '@/components/modal/VaultCreateModal.vue';
-import VaultEditModal from '@/components/modal/VaultEditModal.vue';
-import VaultImportModal from '@/components/modal/VaultImportModal.vue';
-import { useDownload } from '@/composables/useDownload';
-import { useModalManager } from '@/composables/useModalManager';
-import { useToast } from '@/composables/useToast';
-import ArrowDownTray from '@/icons/ArrowDownTray.vue';
-import ArrowUpTray from '@/icons/ArrowUpTray.vue';
-import EllipsisVertical from '@/icons/EllipsisVertical.vue';
-import PencilSquare from '@/icons/PencilSquare.vue';
-import Plus from '@/icons/Plus.vue';
-import Trash from '@/icons/Trash.vue';
-import UserGroup from '@/icons/UserGroup.vue';
+import {
+    RequestConfirmationModal,
+    VaultCreateModal,
+    VaultEditModal,
+    VaultImportModal,
+} from '@/components/modal';
+import { useDownload, useModalManager, useToast } from '@/composables';
+import {
+    ArrowDownTray,
+    ArrowUpTray,
+    EllipsisVertical,
+    PencilSquare,
+    Plus,
+    Trash,
+    UserGroup,
+} from '@/icons';
 import { reloadWithLoading } from '@/inertia/reloadWithLoading';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { exportMethod } from '@/routes/vaults';

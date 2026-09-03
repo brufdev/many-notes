@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import { store } from '@/actions/App/Http/Controllers/VaultController';
-import ModelInput from '@/components/form/ModelInput.vue';
-import Submit from '@/components/form/Submit.vue';
+import { ModelInput, Submit } from '@/components/form';
 import SecondaryButton from '@/components/ui/SecondaryButton.vue';
-import { useModalManager } from '@/composables/useModalManager';
-import { useRequest } from '@/composables/useRequest';
-import { useToast } from '@/composables/useToast';
+import { useModalManager, useRequest, useToast } from '@/composables';
 import { show } from '@/routes/vaults';
 import { useLayoutStore } from '@/stores/layout';
 import { VaultCreated } from '@/types/vault';

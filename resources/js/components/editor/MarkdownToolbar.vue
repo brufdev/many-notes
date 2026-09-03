@@ -1,51 +1,49 @@
 <script setup lang="ts">
 import VaultEditorApplyTemplateController from '@/actions/App/Http/Controllers/VaultEditorApplyTemplateController';
 import Menu from '@/components/menu/Menu.vue';
-import VaultEditorSearchFileModal from '@/components/modal/VaultEditorSearchModal.vue';
-import VaultEditorTemplateListModal from '@/components/modal/VaultEditorTemplateListModal.vue';
-import { useEditor } from '@/composables/useEditor';
-import { useModalManager } from '@/composables/useModalManager';
-import { useRequest } from '@/composables/useRequest';
-import { useTiptapPreferences } from '@/composables/useTiptapPreferences';
-import AlignCenter from '@/icons/AlignCenter.vue';
-import AlignLeft from '@/icons/AlignLeft.vue';
-import AlignRight from '@/icons/AlignRight.vue';
-import Bold from '@/icons/Bold.vue';
-import Code from '@/icons/Code.vue';
-import CodeInline from '@/icons/CodeInline.vue';
-import DocumentPlus from '@/icons/DocumentPlus.vue';
-import Heading from '@/icons/Heading.vue';
-import Heading1 from '@/icons/Heading1.vue';
-import Heading2 from '@/icons/Heading2.vue';
-import Heading3 from '@/icons/Heading3.vue';
-import Heading4 from '@/icons/Heading4.vue';
-import Heading5 from '@/icons/Heading5.vue';
-import Heading6 from '@/icons/Heading6.vue';
-import HorizontalRule from '@/icons/HorizontalRule.vue';
-import Image from '@/icons/Image.vue';
-import Indent from '@/icons/Indent.vue';
-import Italic from '@/icons/Italic.vue';
-import Link from '@/icons/Link.vue';
-import List from '@/icons/List.vue';
-import ListOrdered from '@/icons/ListOrdered.vue';
-import ListTodo from '@/icons/ListTodo.vue';
-import Markdown from '@/icons/Markdown.vue';
-import Outdent from '@/icons/Outdent.vue';
-import PencilOff from '@/icons/PencilOff.vue';
-import Pilcrow from '@/icons/Pilcrow.vue';
-import Print from '@/icons/Print.vue';
-import Quote from '@/icons/Quote.vue';
-import Redo from '@/icons/Redo.vue';
-import Strike from '@/icons/Strike.vue';
-import TableAdd from '@/icons/TableAdd.vue';
-import TableAddColumn from '@/icons/TableAddColumn.vue';
-import TableAddRow from '@/icons/TableAddRow.vue';
-import TableDelete from '@/icons/TableDelete.vue';
-import TableDeleteColumn from '@/icons/TableDeleteColumn.vue';
-import TableDeleteRow from '@/icons/TableDeleteRow.vue';
-import Template from '@/icons/Template.vue';
-import Text from '@/icons/Text.vue';
-import Undo from '@/icons/Undo.vue';
+import { VaultEditorSearchFileModal, VaultEditorTemplateListModal } from '@/components/modal';
+import { useEditor, useModalManager, useRequest, useTiptapPreferences } from '@/composables';
+import {
+    AlignCenter,
+    AlignLeft,
+    AlignRight,
+    Bold,
+    Code,
+    CodeInline,
+    DocumentPlus,
+    Heading,
+    Heading1,
+    Heading2,
+    Heading3,
+    Heading4,
+    Heading5,
+    Heading6,
+    HorizontalRule,
+    Image,
+    Indent,
+    Italic,
+    Link,
+    List,
+    ListOrdered,
+    ListTodo,
+    Markdown,
+    Outdent,
+    PencilOff,
+    Pilcrow,
+    Print,
+    Quote,
+    Redo,
+    Strike,
+    TableAdd,
+    TableAddColumn,
+    TableAddRow,
+    TableDelete,
+    TableDeleteColumn,
+    TableDeleteRow,
+    Template,
+    Text,
+    Undo,
+} from '@/icons';
 import { useLayoutStore } from '@/stores/layout';
 import { computed, inject, type ShallowRef } from 'vue';
 import MarkdownToolbarButton from './MarkdownToolbarButton.vue';

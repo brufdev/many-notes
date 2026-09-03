@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import VaultFileIcon from '@/components/vault/VaultFileIcon.vue';
-import { useModalManager } from '@/composables/useModalManager';
-import { useVaultSearch } from '@/composables/useVaultSearch';
+import { VaultFileIcon } from '@/components/vault';
+import { useModalManager, useVaultSearch } from '@/composables';
 import { useVaultTemplateStore } from '@/stores/vaultTemplate';
 import { formatElapsedTime, formatExtendedDate } from '@/utils/time';
 import { storeToRefs } from 'pinia';

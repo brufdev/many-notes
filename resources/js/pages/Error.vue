@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import TextLink from '@/components/form/TextLink.vue';
+import { TextLink } from '@/components/form';
 import GuestLayout from '@/layouts/GuestLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { computed } from 'vue';

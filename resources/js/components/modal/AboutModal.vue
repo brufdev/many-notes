@@ -2,8 +2,7 @@
 import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import Avatar from '../ui/Avatar.vue';
-import Link from '@/icons/Link.vue';
-import Heart from '@/icons/Heart.vue';
+import { Link, Heart } from '@/icons';
 import ExternalLinkButton from '../ui/ExternalLinkButton.vue';
 
 const page = usePage();

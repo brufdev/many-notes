@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import ForgotPasswordController from '@/actions/App/Http/Controllers/Auth/ForgotPasswordController';
-import Input from '@/components/form/Input.vue';
-import Submit from '@/components/form/Submit.vue';
-import TextLink from '@/components/form/TextLink.vue';
-import TextSuccess from '@/components/form/TextSuccess.vue';
+import { Input, Submit, TextLink, TextSuccess } from '@/components/form';
 import GuestLayout from '@/layouts/GuestLayout.vue';
 import { login } from '@/routes';
 import { Form, Head, usePage } from '@inertiajs/vue3';

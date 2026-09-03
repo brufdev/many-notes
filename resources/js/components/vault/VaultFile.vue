@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import VaultNodeController from '@/actions/App/Http/Controllers/VaultNodeController';
-import TextError from '@/components/form/TextError.vue';
-import VaultFileUpdatingSpinner from '@/components/vault/VaultFileUpdatingSpinner.vue';
-import VaultToggleContentWidthButton from '@/components/vault/VaultToggleContentWidthButton.vue';
-import { useRequest } from '@/composables/useRequest';
-import { useVaultActions } from '@/composables/useVaultActions';
-import XMark from '@/icons/XMark.vue';
+import { TextError } from '@/components/form';
+import { VaultFileUpdatingSpinner, VaultToggleContentWidthButton } from '@/components/vault';
+import { useRequest, useVaultActions } from '@/composables';
+import { XMark } from '@/icons';
 import { useLayoutStore } from '@/stores/layout';
 import { useVaultTreeStore } from '@/stores/vaultTree';
 import { VaultNode } from '@/types/vault';

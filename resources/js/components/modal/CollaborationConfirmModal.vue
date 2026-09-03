@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import VaultCollaborationAcceptController from '@/actions/App/Http/Controllers/VaultCollaborationAcceptController';
 import VaultCollaborationDeclineController from '@/actions/App/Http/Controllers/VaultCollaborationDeclineController';
-import SecondarySubmit from '@/components/form/SecondarySubmit.vue';
-import Submit from '@/components/form/Submit.vue';
-import { useModalManager } from '@/composables/useModalManager';
-import { useRequest } from '@/composables/useRequest';
-import { useToast } from '@/composables/useToast';
+import { SecondarySubmit, Submit } from '@/components/form';
+import { useModalManager, useRequest, useToast } from '@/composables';
 import { useNotificationStore } from '@/stores/notification';
 import { AppNotification } from '@/types';
 

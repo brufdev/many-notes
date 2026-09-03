@@ -61,7 +61,7 @@ final readonly class ProcessDiskVault
             $attributes['is_file'] = true;
             $attributes['name'] = $pathInfo['filename'];
             $attributes['extension'] = $pathInfo['extension'] ?? 'md';
-            $attributes['content'] = (string) file_get_contents("/$file");
+            $attributes['content'] = (string) file_get_contents($file);
             $createVaultNode->handle($vault, $attributes, false);
         }
     }
