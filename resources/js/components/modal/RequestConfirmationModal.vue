@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import Submit from '@/components/form/Submit.vue';
+import { Submit } from '@/components/form';
 import SecondaryButton from '@/components/ui/SecondaryButton.vue';
-import { useModalManager } from '@/composables/useModalManager';
-import { useRequest } from '@/composables/useRequest';
-import { useToast } from '@/composables/useToast';
+import { useModalManager, useRequest, useToast } from '@/composables';
 
 const props = defineProps<{
     url: string;

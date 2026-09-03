@@ -3,7 +3,7 @@ import Menu from '@/components/menu/Menu.vue';
 import VaultCollaborationAccepted from '@/components/notification/VaultCollaborationAccepted.vue';
 import VaultCollaborationDeclined from '@/components/notification/VaultCollaborationDeclined.vue';
 import VaultCollaborationInvitationReceived from '@/components/notification/VaultCollaborationInvitationReceived.vue';
-import Bell from '@/icons/Bell.vue';
+import { Bell } from '@/icons';
 import { useNotificationStore } from '@/stores/notification';
 import { type Component } from 'vue';
 

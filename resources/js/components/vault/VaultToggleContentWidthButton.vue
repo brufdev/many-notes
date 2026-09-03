@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Fullscreen from '@/icons/Fullscreen.vue';
+import { Fullscreen } from '@/icons';
 import { useLayoutStore } from '@/stores/layout';
 
 const layoutStore = useLayoutStore();

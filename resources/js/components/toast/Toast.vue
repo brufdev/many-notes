@@ -1,9 +1,6 @@
 <script setup lang="ts">
-import { useToast } from '@/composables/useToast';
-import CheckCircle from '@/icons/CheckCircle.vue';
-import ExclamationCircle from '@/icons/ExclamationCircle.vue';
-import ExclamationTriangle from '@/icons/ExclamationTriangle.vue';
-import InformationCircle from '@/icons/InformationCircle.vue';
+import { useToast } from '@/composables';
+import { CheckCircle, ExclamationCircle, ExclamationTriangle, InformationCircle } from '@/icons';
 
 const { toasts, destroyToast } = useToast();
 

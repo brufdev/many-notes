@@ -2,28 +2,34 @@
 import { destroy } from '@/actions/App/Http/Controllers/VaultNodeController';
 import Menu from '@/components/menu/Menu.vue';
 import MenuItem from '@/components/menu/MenuItem.vue';
-import RequestConfirmationModal from '@/components/modal/RequestConfirmationModal.vue';
-import VaultFilesImportModal from '@/components/modal/VaultFilesImportModal.vue';
-import VaultNodeCreateModal from '@/components/modal/VaultNodeCreateModal.vue';
-import VaultNodeEditModal from '@/components/modal/VaultNodeEditModal.vue';
-import { useModalManager } from '@/composables/useModalManager';
-import { useScreenSize } from '@/composables/useScreenSize';
-import { useVaultActions } from '@/composables/useVaultActions';
-import { useVaultTreeActions } from '@/composables/useVaultTreeActions';
-import ArrowUpTray from '@/icons/ArrowUpTray.vue';
-import ChevronDown from '@/icons/ChevronDown.vue';
-import DocumentDuplicate from '@/icons/DocumentDuplicate.vue';
-import DocumentPlus from '@/icons/DocumentPlus.vue';
-import EllipsisVertical from '@/icons/EllipsisVertical.vue';
-import FileAudio from '@/icons/FileAudio.vue';
-import FileImage from '@/icons/FileImage.vue';
-import FileMarkdown from '@/icons/FileMarkdown.vue';
-import FilePDF from '@/icons/FilePDF.vue';
-import FileVideo from '@/icons/FileVideo.vue';
-import FolderPlus from '@/icons/FolderPlus.vue';
-import PencilSquare from '@/icons/PencilSquare.vue';
-import Spinner from '@/icons/Spinner.vue';
-import Trash from '@/icons/Trash.vue';
+import {
+    RequestConfirmationModal,
+    VaultFilesImportModal,
+    VaultNodeCreateModal,
+    VaultNodeEditModal,
+} from '@/components/modal';
+import {
+    useModalManager,
+    useScreenSize,
+    useVaultActions,
+    useVaultTreeActions,
+} from '@/composables';
+import {
+    ArrowUpTray,
+    ChevronDown,
+    DocumentDuplicate,
+    DocumentPlus,
+    EllipsisVertical,
+    FileAudio,
+    FileImage,
+    FileMarkdown,
+    FilePDF,
+    FileVideo,
+    FolderPlus,
+    PencilSquare,
+    Spinner,
+    Trash,
+} from '@/icons';
 import { useLayoutStore } from '@/stores/layout';
 import { useVaultStore } from '@/stores/vault';
 import { useVaultTreeStore } from '@/stores/vaultTree';

@@ -1,6 +1,5 @@
 import VaultNodeImportController from '@/actions/App/Http/Controllers/VaultNodeImportController';
-import { useRequest } from '@/composables/useRequest';
-import { useToast } from '@/composables/useToast';
+import { useRequest, useToast } from '@/composables';
 import { useVaultRecentFileStore } from '@/stores/vaultRecentFile';
 import { useVaultTreeStore } from '@/stores/vaultTree';
 import { VaultNode } from '@/types/vault';

@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import VaultSearchController from '@/actions/App/Http/Controllers/VaultSearchController';
-import ModelInput from '@/components/form/ModelInput.vue';
-import VaultFileIcon from '@/components/vault/VaultFileIcon.vue';
-import { useModalManager } from '@/composables/useModalManager';
-import { useRequest } from '@/composables/useRequest';
-import { useVaultSearch } from '@/composables/useVaultSearch';
+import { ModelInput } from '@/components/form';
+import { VaultFileIcon } from '@/components/vault';
+import { useModalManager, useRequest, useVaultSearch } from '@/composables';
 import { useVaultStore } from '@/stores/vault';
 import { VaultSearchFile } from '@/types/vault';
 import { formatElapsedTime, formatExtendedDate } from '@/utils/time';

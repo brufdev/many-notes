@@ -2,24 +2,26 @@
 import Menu from '@/components/menu/Menu.vue';
 import MenuDivider from '@/components/menu/MenuDivider.vue';
 import MenuItem from '@/components/menu/MenuItem.vue';
-import AboutModal from '@/components/modal/AboutModal.vue';
-import HelpModal from '@/components/modal/HelpModal.vue';
-import PasswordEditModal from '@/components/modal/PasswordEditModal.vue';
-import ProfileEditModal from '@/components/modal/ProfileEditModal.vue';
-import SettingEditModal from '@/components/modal/SettingEditModal.vue';
+import {
+    AboutModal,
+    HelpModal,
+    PasswordEditModal,
+    ProfileEditModal,
+    SettingEditModal,
+} from '@/components/modal';
 import Avatar from '@/components/ui/Avatar.vue';
-import { useModalManager } from '@/composables/useModalManager';
-import { useTheme } from '@/composables/useTheme';
-import { useTiptapPreferences } from '@/composables/useTiptapPreferences';
-import ArrowUpTray from '@/icons/ArrowUpTray.vue';
-import CircleStack from '@/icons/CircleStack.vue';
-import Cog6Tooth from '@/icons/Cog6Tooth.vue';
-import InformationCircle from '@/icons/InformationCircle.vue';
-import Lock from '@/icons/Lock.vue';
-import MessageCircleQuestionMark from '@/icons/MessageCircleQuestionMark.vue';
-import Moon from '@/icons/Moon.vue';
-import Spellcheck from '@/icons/Spellcheck.vue';
-import User from '@/icons/User.vue';
+import { useModalManager, useTheme, useTiptapPreferences } from '@/composables';
+import {
+    ArrowUpTray,
+    CircleStack,
+    Cog6Tooth,
+    InformationCircle,
+    Lock,
+    MessageCircleQuestionMark,
+    Moon,
+    Spellcheck,
+    User,
+} from '@/icons';
 import { logout } from '@/routes/index';
 import { index } from '@/routes/vaults';
 import { useSettingStore } from '@/stores/setting';

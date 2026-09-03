@@ -1,19 +1,22 @@
 <script setup lang="ts">
 import Menu from '@/components/menu/Menu.vue';
 import MenuItem from '@/components/menu/MenuItem.vue';
-import VaultCollaborationModal from '@/components/modal/VaultCollaborationModal.vue';
-import VaultEditModal from '@/components/modal/VaultEditModal.vue';
-import VaultFilesImportModal from '@/components/modal/VaultFilesImportModal.vue';
-import VaultNodeCreateModal from '@/components/modal/VaultNodeCreateModal.vue';
-import { useModalManager } from '@/composables/useModalManager';
-import { useVaultActions } from '@/composables/useVaultActions';
-import ArrowUpTray from '@/icons/ArrowUpTray.vue';
-import Bars3 from '@/icons/Bars3.vue';
-import DocumentPlus from '@/icons/DocumentPlus.vue';
-import FolderPlus from '@/icons/FolderPlus.vue';
-import PencilSquare from '@/icons/PencilSquare.vue';
-import Spinner from '@/icons/Spinner.vue';
-import UserGroup from '@/icons/UserGroup.vue';
+import {
+    VaultCollaborationModal,
+    VaultEditModal,
+    VaultFilesImportModal,
+    VaultNodeCreateModal,
+} from '@/components/modal';
+import { useModalManager, useVaultActions } from '@/composables';
+import {
+    ArrowUpTray,
+    Bars3,
+    DocumentPlus,
+    FolderPlus,
+    PencilSquare,
+    Spinner,
+    UserGroup,
+} from '@/icons';
 import { useLayoutStore } from '@/stores/layout';
 import { useVaultStore } from '@/stores/vault';
 import { useVaultTreeStore } from '@/stores/vaultTree';

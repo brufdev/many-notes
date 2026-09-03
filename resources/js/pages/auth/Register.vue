@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import RegisterController from '@/actions/App/Http/Controllers/Auth/RegisterController';
-import Input from '@/components/form/Input.vue';
-import Submit from '@/components/form/Submit.vue';
-import TextLink from '@/components/form/TextLink.vue';
+import { Input, Submit, TextLink } from '@/components/form';
 import GuestLayout from '@/layouts/GuestLayout.vue';
 import { login } from '@/routes';
 import { Form, Head } from '@inertiajs/vue3';

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import ModalManager from '@/components/modal/ModalManager.vue';
+import { ModalManager } from '@/components/modal';
 import Toast from '@/components/toast/Toast.vue';
-import Spinner from '@/icons/Spinner.vue';
+import { Spinner } from '@/icons';
 import { useLayoutStore } from '@/stores/layout';
 import { useNotificationStore } from '@/stores/notification';
 import { hydrateStoresFromPageProps } from '@/inertia/hydrateStores';

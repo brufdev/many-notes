@@ -1,10 +1,10 @@
-import { defineConfig } from 'vite';
+import {defineConfig} from 'vite';
 import laravel from 'laravel-vite-plugin';
 import inertia from '@inertiajs/vite';
 import tailwindcss from "@tailwindcss/vite";
-import { VitePWA } from 'vite-plugin-pwa';
+import {VitePWA} from 'vite-plugin-pwa';
 import vue from '@vitejs/plugin-vue';
-import { wayfinder } from "@laravel/vite-plugin-wayfinder";
+import {wayfinder} from "@laravel/vite-plugin-wayfinder";
 import path from 'node:path';
 
 export default defineConfig({

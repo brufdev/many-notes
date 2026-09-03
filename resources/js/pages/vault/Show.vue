@@ -2,29 +2,29 @@
 import MarkdownToolbar from '@/components/editor/MarkdownToolbar.vue';
 import NotificationMenu from '@/components/menu/NotificationMenu.vue';
 import UserMenu from '@/components/menu/UserMenu.vue';
-import VaultNodeCreateModal from '@/components/modal/VaultNodeCreateModal.vue';
-import VaultSearchModal from '@/components/modal/VaultSearchModal.vue';
+import { VaultNodeCreateModal, VaultSearchModal } from '@/components/modal';
 import VaultTree from '@/components/tree/VaultTree.vue';
-import VaultFile from '@/components/vault/VaultFile.vue';
-import VaultFileAudio from '@/components/vault/VaultFileAudio.vue';
-import VaultFileIcon from '@/components/vault/VaultFileIcon.vue';
-import VaultFileImage from '@/components/vault/VaultFileImage.vue';
-import VaultFileNote from '@/components/vault/VaultFileNote.vue';
-import VaultFilePdf from '@/components/vault/VaultFilePdf.vue';
-import VaultFileVideo from '@/components/vault/VaultFileVideo.vue';
-import VaultToggleContentWidthButton from '@/components/vault/VaultToggleContentWidthButton.vue';
-import { useContentWidthPreference } from '@/composables/useContentWidthPreference';
-import { useEditor } from '@/composables/useEditor';
-import { useModalManager } from '@/composables/useModalManager';
-import { useReloadOnPopstate } from '@/composables/useReloadOnPopstate';
-import { useScreenSize } from '@/composables/useScreenSize';
-import { useToast } from '@/composables/useToast';
-import { useVaultActions } from '@/composables/useVaultActions';
-import { useVaultTreeActions } from '@/composables/useVaultTreeActions';
-import Bars3BottomLeft from '@/icons/Bars3BottomLeft.vue';
-import Bars3BottomRight from '@/icons/Bars3BottomRight.vue';
-import MagnifyingGlass from '@/icons/MagnifyingGlass.vue';
-import Plus from '@/icons/Plus.vue';
+import {
+    VaultFile,
+    VaultFileAudio,
+    VaultFileIcon,
+    VaultFileImage,
+    VaultFileNote,
+    VaultFilePdf,
+    VaultFileVideo,
+    VaultToggleContentWidthButton,
+} from '@/components/vault';
+import {
+    useContentWidthPreference,
+    useEditor,
+    useModalManager,
+    useReloadOnPopstate,
+    useScreenSize,
+    useToast,
+    useVaultActions,
+    useVaultTreeActions,
+} from '@/composables';
+import { Bars3BottomLeft, Bars3BottomRight, MagnifyingGlass, Plus } from '@/icons';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { index } from '@/routes/vaults';
 import { useLayoutStore } from '@/stores/layout';

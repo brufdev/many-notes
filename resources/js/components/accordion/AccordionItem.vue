@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ChevronDown from '@/icons/ChevronDown.vue';
+import { ChevronDown } from '@/icons';
 import { computed, inject, onMounted, ref, useId, watch } from 'vue';
 
 const accordion = inject<{

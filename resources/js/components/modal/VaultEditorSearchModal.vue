@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import VaultEditorSearchController from '@/actions/App/Http/Controllers/VaultEditorSearchController';
-import ModelInput from '@/components/form/ModelInput.vue';
-import VaultFileIcon from '@/components/vault/VaultFileIcon.vue';
-import { useRequest } from '@/composables/useRequest';
-import { useModalManager } from '@/composables/useModalManager';
-import { useVaultSearch } from '@/composables/useVaultSearch';
-import Link from '@/icons/Link.vue';
+import { ModelInput } from '@/components/form';
+import { VaultFileIcon } from '@/components/vault';
+import { useRequest, useModalManager, useVaultSearch } from '@/composables';
+import { Link } from '@/icons';
 import { useVaultStore } from '@/stores/vault';
 import { VaultEditorSearchFile } from '@/types/vault';
 import { isValidEmail, isValidUrl } from '@/utils/link';

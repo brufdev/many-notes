@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import VaultNodeController from '@/actions/App/Http/Controllers/VaultNodeController';
-import { useEditor } from '@/composables/useEditor';
-import { useTiptapPreferences } from '@/composables/useTiptapPreferences';
-import { useRequest } from '@/composables/useRequest';
-import { useVaultActions } from '@/composables/useVaultActions';
-import { useVaultFileUpload } from '@/composables/useVaultFileUpload';
+import {
+    useEditor,
+    useRequest,
+    useTiptapPreferences,
+    useVaultActions,
+    useVaultFileUpload,
+} from '@/composables';
 import { useLayoutStore } from '@/stores/layout';
 import { VaultNode } from '@/types/vault';
 import { inject, onMounted, onUnmounted, ref, ShallowRef } from 'vue';

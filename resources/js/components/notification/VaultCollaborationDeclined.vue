@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { destroy } from '@/actions/App/Http/Controllers/NotificationController';
 import MenuItem from '@/components/menu/MenuItem.vue';
-import { useRequest } from '@/composables/useRequest';
-import { useToast } from '@/composables/useToast';
+import { useRequest, useToast } from '@/composables';
 import { useNotificationStore } from '@/stores/notification';
 import { AppNotification } from '@/types';
 

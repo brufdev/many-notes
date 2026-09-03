@@ -1,0 +1,9 @@
+export { default as VaultFile } from './VaultFile.vue';
+export { default as VaultFileAudio } from './VaultFileAudio.vue';
+export { default as VaultFileIcon } from './VaultFileIcon.vue';
+export { default as VaultFileImage } from './VaultFileImage.vue';
+export { default as VaultFileNote } from './VaultFileNote.vue';
+export { default as VaultFilePdf } from './VaultFilePdf.vue';
+export { default as VaultFileUpdatingSpinner } from './VaultFileUpdatingSpinner.vue';
+export { default as VaultFileVideo } from './VaultFileVideo.vue';
+export { default as VaultToggleContentWidthButton } from './VaultToggleContentWidthButton.vue';

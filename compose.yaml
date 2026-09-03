@@ -1,0 +1,20 @@
+services:
+    php:
+        image: brufdev/many-notes:latest
+        restart: unless-stopped
+        environment:
+            - APP_URL=http://localhost
+        volumes:
+            - .:/var/www/html
+            - database:/var/www/html/database/sqlite
+            - logs:/var/www/html/storage/logs
+            - private:/var/www/html/storage/app/private
+            - typesense:/var/www/html/typesense
+        ports:
+            - 80:8080
+
+volumes:
+    database:
+    logs:
+    private:
+    typesense:

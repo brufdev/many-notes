@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useMenu } from '@/composables/useMenu';
+import { useMenu } from '@/composables';
 
 type MenuType = 'dropdown' | 'hover';
 

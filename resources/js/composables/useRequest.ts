@@ -1,4 +1,4 @@
-import { useToast } from '@/composables/useToast';
+import { useToast } from '@/composables';
 import type { Errors, FormDataType, HttpRequestHeaders } from '@inertiajs/core';
 import { useHttp } from '@inertiajs/vue3';
 import { useSocketId } from '@laravel/echo-vue';

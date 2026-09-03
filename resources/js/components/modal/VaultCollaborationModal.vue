@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { destroy, store } from '@/actions/App/Http/Controllers/VaultCollaborationController';
-import ModelInput from '@/components/form/ModelInput.vue';
-import Submit from '@/components/form/Submit.vue';
+import { ModelInput, Submit } from '@/components/form';
 import Tab from '@/components/tabs/Tab.vue';
 import TabPanel from '@/components/tabs/TabPanel.vue';
 import Tabs from '@/components/tabs/Tabs.vue';
-import { useModalManager } from '@/composables/useModalManager';
-import { useRequest } from '@/composables/useRequest';
-import Trash from '@/icons/Trash.vue';
+import { useModalManager, useRequest } from '@/composables';
+import { Trash } from '@/icons';
 import { useVaultStore } from '@/stores/vault';
 import { VaultCollaborator } from '@/types/vault';
 import { ref } from 'vue';

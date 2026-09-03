@@ -29,14 +29,8 @@ final readonly class UpdateVaultNodeBacklinks
             return;
         }
 
-        if ($replacementLinkPath === null) {
-            /**
-             * @var string $replacementLinkPath
-             *
-             * @phpstan-ignore-next-line larastan.noUnnecessaryCollectionCall
-             */
-            $replacementLinkPath = $node->ancestorsAndSelf()->get()->last()->full_path;
-        }
+        /** @var string $replacementLinkPath */
+        $replacementLinkPath ??= $node->ancestorsAndSelf()->get()->last()->full_path;
 
         $originalLinkPattern = '\/?'
             . str_replace(' ', '\s', preg_quote($originalLinkPath, '/'))
