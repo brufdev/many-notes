@@ -11,12 +11,14 @@ final class Pdf implements VaultFileType
 {
     use HasVaultFileBehavior;
 
-    private static function extensionsList(): array
+    private static function responseMimeTypes(): array
     {
-        return ['pdf'];
+        return [
+            'pdf' => 'application/pdf',
+        ];
     }
 
-    private static function mimeTypesList(): array
+    private static function uploadMimeTypes(): array
     {
         return [
             'application/pdf', // pdf

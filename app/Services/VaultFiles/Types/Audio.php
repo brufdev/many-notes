@@ -11,12 +11,20 @@ final class Audio implements VaultFileType
 {
     use HasVaultFileBehavior;
 
-    private static function extensionsList(): array
+    private static function responseMimeTypes(): array
     {
-        return ['mp3', 'flac', 'm4a', 'aac', 'wav', 'ogg', 'opus'];
+        return [
+            'mp3' => 'audio/mpeg',
+            'flac' => 'audio/flac',
+            'm4a' => 'audio/mp4',
+            'aac' => 'audio/aac',
+            'wav' => 'audio/wav',
+            'ogg' => 'audio/ogg',
+            'opus' => 'audio/ogg',
+        ];
     }
 
-    private static function mimeTypesList(): array
+    private static function uploadMimeTypes(): array
     {
         return [
             'audio/mpeg',   // mp3

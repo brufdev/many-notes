@@ -9,5 +9,7 @@ interface VaultFileType
     /** @return list<string> */
     public static function extensions(bool $withDots = false): array;
 
+    public static function contentType(string $extension): ?string;
+
     public static function validate(string $extension, string $mimeType): bool;
 }

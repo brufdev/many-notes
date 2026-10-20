@@ -11,12 +11,18 @@ final class Video implements VaultFileType
 {
     use HasVaultFileBehavior;
 
-    private static function extensionsList(): array
+    private static function responseMimeTypes(): array
     {
-        return ['mp4', 'm4v', 'mov', 'webm', 'mkv'];
+        return [
+            'mp4' => 'video/mp4',
+            'm4v' => 'video/mp4',
+            'mov' => 'video/quicktime',
+            'webm' => 'video/webm',
+            'mkv' => 'video/x-matroska',
+        ];
     }
 
-    private static function mimeTypesList(): array
+    private static function uploadMimeTypes(): array
     {
         return [
             'video/mp4',        // mp4, m4v

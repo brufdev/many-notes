@@ -11,12 +11,19 @@ final class Image implements VaultFileType
 {
     use HasVaultFileBehavior;
 
-    private static function extensionsList(): array
+    private static function responseMimeTypes(): array
     {
-        return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif'];
+        return [
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'webp' => 'image/webp',
+            'avif' => 'image/avif',
+        ];
     }
 
-    private static function mimeTypesList(): array
+    private static function uploadMimeTypes(): array
     {
         return [
             'image/jpeg', // jpg, jpeg

@@ -36,6 +36,19 @@ final class VaultFile
         return $all;
     }
 
+    public static function contentType(string $extension): ?string
+    {
+        foreach (self::$fileTypes as $type) {
+            $contentType = $type::contentType($extension);
+
+            if ($contentType !== null) {
+                return $contentType;
+            }
+        }
+
+        return null;
+    }
+
     public static function validate(string $extension, string $mimeType): bool
     {
         return array_any(
