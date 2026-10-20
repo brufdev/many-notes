@@ -10,7 +10,9 @@ use App\Actions\ResolveTwoPaths;
 use App\Models\User;
 use App\Models\Vault;
 use App\Models\VaultNode;
+use App\Services\VaultFile;
 use App\Services\VaultFiles\Types\Note;
+use App\Services\VaultFiles\Types\Pdf;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -52,9 +54,21 @@ final readonly class FileController
 
         abort_if(in_array($node->extension, Note::extensions()), 403);
 
+        $contentType = VaultFile::contentType((string) $node->extension);
+
+        abort_if($contentType === null, 404);
+
         $relativePath = $getPathFromVaultNode->handle($node);
         $absolutePath = Storage::disk('local')->path($relativePath);
+        $headers = [
+            'Content-Type' => $contentType,
+            'X-Content-Type-Options' => 'nosniff',
+        ];
 
-        return response()->file($absolutePath);
+        if (!in_array($node->extension, Pdf::extensions())) {
+            $headers['Content-Security-Policy'] = 'sandbox';
+        }
+
+        return response()->file($absolutePath, $headers);
     }
 }
