@@ -70,7 +70,7 @@
         ],
         "rector": "rector --dry-run",
         "pint": "pint --parallel --test",
-        "phpcs": "phpcs --standard=PSR12 app database/factories database/migrations database/seeders routes tests/Feature tests/Unit",
+        "phpcs": "phpcs",
         "phpstan": "phpstan",
         "fix:rector": "rector",
         "fix:pint": "pint --parallel",

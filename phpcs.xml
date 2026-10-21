@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<ruleset name="Many Notes">
+    <rule ref="PSR12"/>
+
+    <rule ref="PSR1.Files.SideEffects">
+        <exclude-pattern>tests/*</exclude-pattern>
+    </rule>
+
+    <file>app</file>
+    <file>database/factories</file>
+    <file>database/migrations</file>
+    <file>database/seeders</file>
+    <file>routes</file>
+    <file>tests/Feature</file>
+    <file>tests/Unit</file>
+</ruleset>
