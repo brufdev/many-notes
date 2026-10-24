@@ -6,16 +6,15 @@ namespace App\Http\Requests;
 
 use App\Models\User;
 use App\Models\Vault;
-use App\Rules\VaultNodeName;
+use App\Rules\FilesystemSafeName;
+use App\Rules\VaultSafeName;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Override;
 
 final class StoreVaultRequest extends FormRequest
 {
-    /**
-     * @return array<string, array<int, mixed>>
-     */
+    /** @return array<string, array<int, mixed>> */
     public function rules(): array
     {
         /** @var User $user */
@@ -23,10 +22,11 @@ final class StoreVaultRequest extends FormRequest
 
         return [
             'name' => [
+                'bail',
                 'required',
                 'string',
-                'max:255',
-                new VaultNodeName(),
+                new FilesystemSafeName(),
+                new VaultSafeName(),
                 Rule::unique(Vault::class)
                     ->where('created_by', $user->id)
                     ->ignore($this->route('vault')),
@@ -40,7 +40,6 @@ final class StoreVaultRequest extends FormRequest
     {
         return [
             'name.required' => 'Cannot be empty.',
-            'name.max' => 'Cannot be longer than 255 characters.',
         ];
     }
 }

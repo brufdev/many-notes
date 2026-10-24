@@ -42,3 +42,20 @@ it('does not create a vault with a name the user already has', function (): void
     ]);
     expect($user->vaults()->count())->toBe(1);
 });
+
+it('does not create a vault with an invalid name', function (string $name, string $message): void {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)
+        ->postJson(route('vaults.store'), ['name' => $name]);
+
+    $response->assertJsonValidationErrors(['name' => $message]);
+    expect($response->json('errors.name'))->toHaveCount(1);
+    expect($user->vaults()->count())->toBe(0);
+})->with([
+    'empty' => ['', 'Cannot be empty.'],
+    'only spaces' => ['   ', 'Cannot be empty.'],
+    'reserved name' => ['CON', 'CON is a reserved name.'],
+    'starting with a dot' => ['.vault', 'Cannot start with a dot.'],
+    'link characters' => ['[vault]', 'Cannot contain [ ]'],
+]);

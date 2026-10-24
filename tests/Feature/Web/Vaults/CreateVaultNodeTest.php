@@ -86,3 +86,25 @@ it('does not create a file without permissions', function (): void {
     $response->assertForbidden();
     expect($vault->nodes()->count())->toBe(0);
 });
+
+it('does not create a node with an invalid name', function (bool $isFile, string $name, string $message): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+
+    $response = $this->actingAs($user)
+        ->postJson(
+            route('vaults.nodes.store', ['vault' => $vault->id]),
+            ['name' => $name, 'is_file' => $isFile],
+        );
+
+    $response->assertJsonValidationErrors(['name' => $message]);
+    expect($response->json('errors.name'))->toHaveCount(1);
+    expect($vault->nodes()->count())->toBe(0);
+})->with([
+    'empty' => [true, '', 'Cannot be empty.'],
+    'reserved file name' => [true, 'nul', 'nul is a reserved name.'],
+    'reserved folder name' => [false, 'LPT1', 'LPT1 is a reserved name.'],
+    'starting with a dot' => [false, '.obsidian', 'Cannot start with a dot.'],
+    'link characters' => [true, 'a|b^c', 'Cannot contain |'],
+    'file over 255 bytes with its extension' => [true, str_repeat('a', 253), 'Cannot be longer than 255 bytes.'],
+]);

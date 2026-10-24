@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Requests;
 
 use App\Models\Vault;
-use App\Rules\VaultNodeName;
+use App\Rules\FilesystemSafeName;
+use App\Rules\VaultSafeName;
 use App\Services\VaultFile;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -13,9 +14,7 @@ use Override;
 
 final class StoreVaultNodeRequest extends FormRequest
 {
-    /**
-     * @return array<string, array<int, mixed>>
-     */
+    /** @return array<string, array<int, mixed>> */
     public function rules(): array
     {
         /** @var Vault $vault */
@@ -33,10 +32,11 @@ final class StoreVaultNodeRequest extends FormRequest
                 'boolean',
             ],
             'name' => [
+                'bail',
                 'required',
                 'string',
-                'max:255',
-                new VaultNodeName(),
+                new FilesystemSafeName($this->boolean('is_file') ? 'md' : null),
+                new VaultSafeName(),
             ],
             'extension' => [
                 'nullable',
@@ -52,7 +52,6 @@ final class StoreVaultNodeRequest extends FormRequest
     {
         return [
             'name.required' => 'Cannot be empty.',
-            'name.max' => 'Cannot be longer than 255 characters.',
         ];
     }
 }

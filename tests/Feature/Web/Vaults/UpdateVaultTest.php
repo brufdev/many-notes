@@ -144,3 +144,21 @@ it('does not allow setting a file as template node', function (): void {
             'templates_node_id' => 'The selected templates node id is invalid.',
         ]);
 });
+
+it('does not rename a vault to an invalid name', function (string $name, string $message): void {
+    $user = User::factory()->create();
+    $vault = Vault::factory()->for($user)->create();
+
+    $response = $this->actingAs($user)
+        ->patchJson(route('vaults.update', ['vault' => $vault->id]), ['name' => $name]);
+
+    $response->assertJsonValidationErrors(['name' => $message]);
+    expect($response->json('errors.name'))->toHaveCount(1);
+    expect($vault->refresh()->name)->not->toBe($name);
+})->with([
+    'empty' => ['', 'Cannot be empty.'],
+    'only spaces' => ['   ', 'Cannot be empty.'],
+    'reserved name' => ['aux', 'aux is a reserved name.'],
+    'starting with a dot' => ['.vault', 'Cannot start with a dot.'],
+    'link characters' => ['#vault', 'Cannot contain #'],
+]);

@@ -241,3 +241,31 @@ it(
     'a file named like another file in another case' => ['note', 'TAKEN'],
     'a folder named like another folder' => ['folder', 'other folder'],
 ]);
+
+it('does not rename a node to an invalid name', function (bool $isFile, string $name, string $message): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $node = app(CreateVaultNode::class)->handle($vault, [
+        'is_file' => $isFile,
+        'name' => 'node',
+        'extension' => $isFile ? 'md' : null,
+    ]);
+
+    $response = $this->actingAs($user)
+        ->patchJson(
+            route('vaults.nodes.update', ['vault' => $vault->id, 'node' => $node->id]),
+            ['name' => $name],
+        );
+
+    $response->assertJsonValidationErrors(['name' => $message]);
+    expect($response->json('errors.name'))->toHaveCount(1);
+    expect($node->refresh()->name)->toBe('node');
+})->with([
+    'empty' => [true, '', 'Cannot be empty.'],
+    'only spaces' => [false, '   ', 'Cannot be empty.'],
+    'reserved name' => [true, 'prn.draft', 'prn is a reserved name.'],
+    'starting with a dot' => [false, '.trash', 'Cannot start with a dot.'],
+    'only invisible characters' => [true, "\u{202E}", 'Cannot be only invisible characters.'],
+    'only trimmed invisible characters' => [true, "\u{200B}", 'Cannot be empty.'],
+    'file over 255 bytes with its extension' => [true, str_repeat('a', 253), 'Cannot be longer than 255 bytes.'],
+]);

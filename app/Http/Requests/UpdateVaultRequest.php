@@ -6,7 +6,8 @@ namespace App\Http\Requests;
 
 use App\Models\User;
 use App\Models\Vault;
-use App\Rules\VaultNodeName;
+use App\Rules\FilesystemSafeName;
+use App\Rules\VaultSafeName;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Override;
@@ -24,10 +25,12 @@ final class UpdateVaultRequest extends FormRequest
 
         return [
             'name' => [
-                'min:1',
+                'bail',
+                'sometimes',
+                'required',
                 'string',
-                'max:255',
-                new VaultNodeName(),
+                new FilesystemSafeName(),
+                new VaultSafeName(),
                 Rule::unique(Vault::class)
                     ->where('created_by', $user->id)
                     ->ignore($this->route('vault')),
@@ -46,8 +49,7 @@ final class UpdateVaultRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.min' => 'Cannot be empty.',
-            'name.max' => 'Cannot be longer than 255 characters.',
+            'name.required' => 'Cannot be empty.',
         ];
     }
 }
