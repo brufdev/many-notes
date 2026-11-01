@@ -6,10 +6,41 @@ use App\Actions\CreateVault;
 use App\Actions\GetPathFromVault;
 use App\Actions\GetPathFromVaultNode;
 use App\Models\User;
+use App\Models\VaultNode;
 use App\Services\UploadLimit;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+
+/** @param array<string, string|null> $entries */
+function createZipUpload(array $entries): UploadedFile
+{
+    $zip = new ZipArchive();
+    $relativePath = 'public/' . Str::random(16) . '.zip';
+    Storage::disk('local')->put($relativePath, '');
+    $path = Storage::disk('local')->path($relativePath);
+    $zip->open($path, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+    foreach ($entries as $name => $content) {
+        $content === null
+            ? $zip->addEmptyDir($name)
+            : $zip->addFromString($name, $content);
+    }
+
+    $zip->close();
+
+    return UploadedFile::fake()->createWithContent('vault.zip', (string) file_get_contents($path));
+}
+
+/** @return list<string> */
+function importedVaultPaths(User $user): array
+{
+    return $user->vaults()->firstOrFail()->nodes()->get()
+        ->map(fn(VaultNode $node): string => $node->fullPath() . ($node->is_file ? ".{$node->extension}" : '/'))
+        ->sort()
+        ->values()
+        ->all();
+}
 
 it('imports a zip file', function (): void {
     $user = User::factory()->create();
@@ -86,19 +117,14 @@ it('handles name collisions when importing a vault with a name existing in multi
 });
 
 it('imports a zip file with files and folders', function (): void {
-    $zip = app(ZipArchive::class);
     $getPathFromVaultNode = app(GetPathFromVaultNode::class);
 
     $user = User::factory()->create();
-    $relativePath = 'public/' . Str::random(16) . '.zip';
-    Storage::disk('local')->put($relativePath, '');
-    $path = Storage::disk('local')->path($relativePath);
-    $zip->open($path, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-    $zip->addFromString(fake()->words(3, true) . '.sh', fake()->paragraph());
-    $zip->addEmptyDir('Notes');
-    $zip->addFromString('Notes/' . fake()->words(3, true) . '.md', fake()->paragraph());
-    $zip->close();
-    $file = UploadedFile::fake()->createWithContent('vault.zip', file_get_contents($path));
+    $file = createZipUpload([
+        fake()->words(3, true) . '.sh' => fake()->paragraph(),
+        'Notes' => null,
+        'Notes/' . fake()->words(3, true) . '.md' => fake()->paragraph(),
+    ]);
 
     $this->actingAs($user)
         ->post(route('vaults.import'), ['file' => $file]);
@@ -113,20 +139,98 @@ it('imports a zip file with files and folders', function (): void {
     expect(Storage::disk('local')->exists($path))->toBeTrue();
 });
 
-it('creates links when importing a vault', function (): void {
-    $zip = app(ZipArchive::class);
-
+it('imports files whose folders have no entry in the zip', function (): void {
     $user = User::factory()->create();
-    $relativePath = 'public/' . Str::random(16) . '.zip';
-    Storage::disk('local')->put($relativePath, '');
-    $path = Storage::disk('local')->path($relativePath);
-    $zip->open($path, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+    $file = createZipUpload(['Notes/Daily/Plan.md' => 'plan']);
+
+    $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => $file])
+        ->assertOk();
+
+    expect(importedVaultPaths($user))->toBe(['Notes/', 'Notes/Daily/', 'Notes/Daily/Plan.md']);
+    $path = app(GetPathFromVault::class)->handle($user->vaults()->first()) . 'Notes/Daily/Plan.md';
+    expect(Storage::disk('local')->get($path))->toBe('plan');
+});
+
+it('imports files listed before their folder', function (): void {
+    $user = User::factory()->create();
+    $file = createZipUpload(['Notes/Plan.md' => 'plan', 'Notes' => null]);
+
+    $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => $file])
+        ->assertOk();
+
+    expect(importedVaultPaths($user))->toBe(['Notes/', 'Notes/Plan.md']);
+});
+
+it('normalizes the paths of zip entries', function (): void {
+    $user = User::factory()->create();
+    $file = createZipUpload([
+        'Notes\\Plan.md' => 'plan',
+        './Ideas.md' => 'ideas',
+        'Daily//Today.md' => 'today',
+        '/Archive/Old.md' => 'old',
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => $file])
+        ->assertOk();
+
+    expect(importedVaultPaths($user))->toBe([
+        'Archive/',
+        'Archive/Old.md',
+        'Daily/',
+        'Daily/Today.md',
+        'Ideas.md',
+        'Notes/',
+        'Notes/Plan.md',
+    ]);
+});
+
+it('skips zip entries that leave the vault', function (): void {
+    $user = User::factory()->create();
+    $file = createZipUpload([
+        '../Escape.md' => 'escape',
+        'Notes/../../Escape.md' => 'escape',
+        'Notes\\..\\..\\Escape.md' => 'escape',
+        'Plan.md' => 'plan',
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => $file])
+        ->assertOk();
+
+    expect(importedVaultPaths($user))->toBe(['Plan.md']);
+});
+
+it('skips junk entries added by operating systems', function (): void {
+    $user = User::factory()->create();
+    $file = createZipUpload([
+        '__MACOSX' => null,
+        '__MACOSX/Notes' => null,
+        '__MACOSX/Notes/._Plan.md' => 'junk',
+        'Notes/._Plan.md' => 'junk',
+        'Notes/.DS_Store' => 'junk',
+        'Notes/Thumbs.db' => 'junk',
+        'Notes/desktop.ini' => 'junk',
+        'Notes/Plan.md' => 'plan',
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => $file])
+        ->assertOk();
+
+    expect(importedVaultPaths($user))->toBe(['Notes/', 'Notes/Plan.md']);
+});
+
+it('creates links when importing a vault', function (): void {
+    $user = User::factory()->create();
     $firstNodeName = fake()->words(3, true);
     $secondNodeName = fake()->words(3, true);
-    $zip->addFromString($firstNodeName . '.md', '[link](/' . $secondNodeName . '.md)');
-    $zip->addFromString($secondNodeName . '.md', '[link](/' . $firstNodeName . '.md)');
-    $zip->close();
-    $file = UploadedFile::fake()->createWithContent('vault.zip', file_get_contents($path));
+    $file = createZipUpload([
+        $firstNodeName . '.md' => '[link](/' . $secondNodeName . '.md)',
+        $secondNodeName . '.md' => '[link](/' . $firstNodeName . '.md)',
+    ]);
 
     $this->actingAs($user)
         ->post(route('vaults.import'), ['file' => $file]);
@@ -141,14 +245,7 @@ it('creates links when importing a vault', function (): void {
 
 it('creates tags when importing a vault', function (): void {
     $user = User::factory()->create();
-    $zip = app(ZipArchive::class);
-    $relativePath = 'public/' . Str::random(16) . '.zip';
-    Storage::disk('local')->put($relativePath, '');
-    $path = Storage::disk('local')->path($relativePath);
-    $zip->open($path, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-    $zip->addFromString('note.md', '#tag1 ' . fake()->paragraph() . ' #tag2');
-    $zip->close();
-    $file = UploadedFile::fake()->createWithContent('vault.zip', file_get_contents($path));
+    $file = createZipUpload(['note.md' => '#tag1 ' . fake()->paragraph() . ' #tag2']);
 
     $this->actingAs($user)
         ->post(route('vaults.import'), ['file' => $file]);
