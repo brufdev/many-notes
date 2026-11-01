@@ -18,7 +18,7 @@ final readonly class ProcessImportedVault
         $createVaultNode = app(CreateVaultNode::class);
 
         $nodeIds = ['.' => null];
-        $vaultName = pathinfo($fileName, PATHINFO_FILENAME);
+        $vaultName = app(GetVaultSafeName::class)->handle(pathinfo($fileName, PATHINFO_FILENAME), 'Imported vault');
         $vault = app(CreateVault::class)->handle($user, ['name' => $vaultName], false);
 
         // Create vault nodes with valid zip files and folders

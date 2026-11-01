@@ -18,27 +18,29 @@ final readonly class GetAvailableVaultNodeName
         ?string $extension,
         ?int $ignoreId = null,
     ): string {
-        $taken = $this
-            ->siblings($vault, $parentId, $isFile, $extension, $ignoreId)
-            ->whereRaw('LOWER(name) = LOWER(?)', [$name])
-            ->exists();
+        $siblings = $this->siblings($vault, $parentId, $isFile, $extension, $ignoreId);
 
-        if (!$taken) {
+        if (!$this->isTaken($siblings, $name)) {
             return $name;
         }
 
-        /** @var list<string> $names */
-        $names = $this
-            ->siblings($vault, $parentId, $isFile, $extension, $ignoreId)
-            ->select('name')
-            ->whereRaw('LOWER(name) LIKE LOWER(?)', [$name . '-%'])
-            ->pluck('name')
-            ->toArray();
-        natcasesort($names);
+        $getSuffixedName = app(GetSuffixedName::class);
+        $number = 1;
 
-        return $name . (count($names) && preg_match('/-(\d+)$/', end($names), $matches) === 1
-            ? '-' . ((int) $matches[1] + 1)
-            : '-1');
+        while ($this->isTaken($siblings, $getSuffixedName->handle($name, $number, $extension))) {
+            $number++;
+        }
+
+        return $getSuffixedName->handle($name, $number, $extension);
+    }
+
+    /** @param Builder<VaultNode> $siblings */
+    private function isTaken(Builder $siblings, string $name): bool
+    {
+        return $siblings
+            ->clone()
+            ->whereRaw('LOWER(name) = LOWER(?)', [$name])
+            ->exists();
     }
 
     /** @return Builder<VaultNode> */

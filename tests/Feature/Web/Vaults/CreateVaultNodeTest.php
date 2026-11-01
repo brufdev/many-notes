@@ -69,6 +69,47 @@ it('returns the suffixed name when creating a file that collides with an existin
     expect(Storage::disk('local')->path($path))->toBeFile();
 });
 
+it('keeps suffixed file names within 255 bytes', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $name = str_repeat('a', 252);
+
+    foreach (range(1, 3) as $attempt) {
+        $this->actingAs($user)
+            ->postJson(
+                route('vaults.nodes.store', ['vault' => $vault->id]),
+                ['name' => $name, 'is_file' => true],
+            )
+            ->assertOk();
+    }
+
+    $names = $vault->nodes()->pluck('name')->all();
+    expect($names)->toBe([
+        $name,
+        str_repeat('a', 250) . '-1',
+        str_repeat('a', 250) . '-2',
+    ]);
+
+    foreach ($names as $nodeName) {
+        $path = app(GetPathFromVault::class)->handle($vault) . $nodeName . '.md';
+        expect(Storage::disk('local')->path($path))->toBeFile();
+    }
+});
+
+it('skips taken suffixes when a sibling name ends without a number', function (): void {
+    $createVaultNode = app(CreateVaultNode::class);
+
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $createVaultNode->handle($vault, ['is_file' => true, 'name' => 'note', 'extension' => 'md']);
+    $createVaultNode->handle($vault, ['is_file' => true, 'name' => 'note-1', 'extension' => 'md']);
+    $createVaultNode->handle($vault, ['is_file' => true, 'name' => 'note-draft', 'extension' => 'md']);
+
+    $node = $createVaultNode->handle($vault, ['is_file' => true, 'name' => 'note', 'extension' => 'md']);
+
+    expect($node->name)->toBe('note-2');
+});
+
 it('does not create a file without permissions', function (): void {
     $user1 = User::factory()->hasVaults(1)->create();
     $vault = app(CreateVault::class)->handle($user1, ['name' => fake()->words(3, true)]);

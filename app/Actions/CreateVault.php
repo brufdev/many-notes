@@ -15,21 +15,15 @@ final readonly class CreateVault
     public function handle(User $user, array $attributes, bool $broadcast = true): Vault
     {
         // Generate a new vault name if the current one already exists
-        $vaultExists = $user->vaults()
-            ->whereRaw('LOWER(name) = LOWER(?)', [$attributes['name']])
-            ->exists();
+        if ($this->isTaken($user, $attributes['name'])) {
+            $getSuffixedName = app(GetSuffixedName::class);
+            $number = 1;
 
-        if ($vaultExists) {
-            /** @var list<string> $vaults */
-            $vaults = $user->vaults()
-                ->select('name')
-                ->whereRaw('LOWER(name) LIKE LOWER(?)', [$attributes['name'] . '-%'])
-                ->pluck('name')
-                ->toArray();
-            natcasesort($vaults);
-            $attributes['name'] .= count($vaults) && preg_match('/-(\d+)$/', end($vaults), $matches) === 1
-                ? '-' . ((int) $matches[1] + 1)
-                : '-1';
+            while ($this->isTaken($user, $getSuffixedName->handle($attributes['name'], $number))) {
+                $number++;
+            }
+
+            $attributes['name'] = $getSuffixedName->handle($attributes['name'], $number);
         }
 
         // Save vault to database
@@ -45,5 +39,12 @@ final readonly class CreateVault
         }
 
         return $vault;
+    }
+
+    private function isTaken(User $user, string $name): bool
+    {
+        return $user->vaults()
+            ->whereRaw('LOWER(name) = LOWER(?)', [$name])
+            ->exists();
     }
 }

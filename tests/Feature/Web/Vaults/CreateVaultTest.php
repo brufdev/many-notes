@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Actions\CreateVault;
 use App\Actions\GetPathFromUser;
 use App\Models\User;
 use App\Models\Vault;
@@ -28,6 +29,27 @@ it('creates a vault', function (): void {
     expect($user->vaults()->count())->toBe(1);
     $path = app(GetPathFromUser::class)->handle($user) . $vaultName;
     expect(Storage::disk('local')->path($path))->toBeDirectory();
+});
+
+it('keeps suffixed vault names within 255 bytes', function (): void {
+    $user = User::factory()->create();
+    $name = str_repeat('a', 255);
+
+    foreach (range(1, 3) as $attempt) {
+        app(CreateVault::class)->handle($user, ['name' => $name]);
+    }
+
+    $names = $user->vaults()->pluck('name')->all();
+    expect($names)->toBe([
+        $name,
+        str_repeat('a', 253) . '-1',
+        str_repeat('a', 253) . '-2',
+    ]);
+
+    foreach ($names as $vaultName) {
+        $path = app(GetPathFromUser::class)->handle($user) . $vaultName;
+        expect(Storage::disk('local')->path($path))->toBeDirectory();
+    }
 });
 
 it('does not create a vault with a name the user already has', function (): void {

@@ -25,6 +25,26 @@ it('imports a zip file', function (): void {
     expect(Storage::disk('local')->exists($path))->toBeTrue();
 });
 
+it('sanitizes the vault name taken from the zip file name', function (string $fileName, string $vaultName): void {
+    $user = User::factory()->create();
+    $file = UploadedFile::fake()->create($fileName);
+
+    $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => $file]);
+
+    $vaults = $user->vaults()->get();
+    expect($vaults->count())->toBe(1);
+    expect($vaults->first()->name)->toBe($vaultName);
+    $path = app(GetPathFromVault::class)->handle($vaults->first());
+    expect($path)->toBe('vaults/' . $user->id . '/' . $vaultName . '/');
+    expect(Storage::disk('local')->exists($path))->toBeTrue();
+})->with([
+    'parent directory' => ['...zip', 'Imported vault'],
+    'leading dot' => ['.backup.zip', 'backup'],
+    'link characters' => ['Ideas #1.zip', 'Ideas -1'],
+    'reserved name' => ['CON.zip', 'CON_'],
+]);
+
 it('handles name collisions when importing a vault with an existing name', function (): void {
     $getPathFromVault = app(GetPathFromVault::class);
 
