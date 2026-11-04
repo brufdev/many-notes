@@ -10,27 +10,6 @@ use App\Models\VaultNode;
 use App\Services\UploadLimit;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-
-/** @param array<string, string|null> $entries */
-function createZipUpload(array $entries): UploadedFile
-{
-    $zip = new ZipArchive();
-    $relativePath = 'public/' . Str::random(16) . '.zip';
-    Storage::disk('local')->put($relativePath, '');
-    $path = Storage::disk('local')->path($relativePath);
-    $zip->open($path, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-
-    foreach ($entries as $name => $content) {
-        $content === null
-            ? $zip->addEmptyDir($name)
-            : $zip->addFromString($name, $content);
-    }
-
-    $zip->close();
-
-    return UploadedFile::fake()->createWithContent('vault.zip', (string) file_get_contents($path));
-}
 
 /** @return list<string> */
 function importedVaultPaths(User $user): array

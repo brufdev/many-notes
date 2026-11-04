@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 /*
@@ -50,7 +52,22 @@ expect()->extend('toBeOne', fn() => $this->toBe(1));
 |
 */
 
-function something(): void
+/** @param array<string, string|null> $entries */
+function createZipUpload(array $entries): UploadedFile
 {
-    // ..
+    $zip = new ZipArchive();
+    $relativePath = 'public/' . Str::random(16) . '.zip';
+    Storage::disk('local')->put($relativePath, '');
+    $path = Storage::disk('local')->path($relativePath);
+    $zip->open($path, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+    foreach ($entries as $name => $content) {
+        $content === null
+            ? $zip->addEmptyDir($name)
+            : $zip->addFromString($name, $content);
+    }
+
+    $zip->close();
+
+    return UploadedFile::fake()->createWithContent('vault.zip', (string) file_get_contents($path));
 }

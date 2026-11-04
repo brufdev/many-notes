@@ -4,28 +4,51 @@ declare(strict_types=1);
 
 use App\Actions\CreateVault;
 use App\Actions\CreateVaultNode;
+use App\Actions\GetPathFromVault;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Testing\TestResponse;
+
+/** @return array<string, string|null> */
+function exportedZipEntries(TestResponse $response): array
+{
+    Storage::disk('local')->put('public/export.zip', (string) $response->streamedContent());
+    $zip = new ZipArchive();
+    $zip->open(Storage::disk('local')->path('public/export.zip'));
+    $entries = [];
+
+    for ($i = 0; $i < $zip->count(); $i++) {
+        $name = (string) $zip->getNameIndex($i);
+        $entries[$name] = str_ends_with($name, '/') ? null : (string) $zip->getFromIndex($i);
+    }
+
+    $zip->close();
+    ksort($entries);
+
+    return $entries;
+}
 
 it('exports a vault', function (): void {
     $user = User::factory()->create();
-    $vault = new CreateVault()->handle($user, [
+    $vault = app(CreateVault::class)->handle($user, [
         'name' => fake()->words(3, true),
     ]);
-    $folderNode = new CreateVaultNode()->handle($vault, [
+    $folderNode = app(CreateVaultNode::class)->handle($vault, [
         'is_file' => false,
-        'name' => fake()->words(3, true),
+        'name' => 'Notes',
     ]);
-    new CreateVaultNode()->handle($vault, [
+    app(CreateVaultNode::class)->handle($vault, [
         'is_file' => true,
         'parent_id' => $folderNode->id,
-        'name' => fake()->words(3, true),
+        'name' => 'Plan',
         'extension' => 'md',
-        'content' => fake()->paragraph(),
+        'content' => 'plan',
     ]);
-    new CreateVaultNode()->handle($vault, [
+    app(CreateVaultNode::class)->handle($vault, [
         'is_file' => true,
-        'name' => fake()->words(3, true),
+        'name' => 'Photo',
         'extension' => 'jpg',
+        'content' => 'photo',
     ]);
 
     $this->actingAs($user);
@@ -34,7 +57,70 @@ it('exports a vault', function (): void {
 
     $response->assertStatus(200);
     expect($response->headers->get('Content-Disposition'))->toBe('attachment; filename="' . $vault->name . '.zip"');
-    expect($response->streamedContent())->toBeString();
+    expect(exportedZipEntries($response))->toBe([
+        'Notes/' => null,
+        'Notes/Plan.md' => 'plan',
+        'Photo.jpg' => 'photo',
+    ]);
+});
+
+it('exports an imported vault unchanged', function (): void {
+    $user = User::factory()->create();
+    $entries = [
+        'Daily/' => null,
+        'Daily/Today.md' => '#daily [[Ideas]]',
+        'Empty/' => null,
+        'Ideas.md' => 'ideas',
+        'Projects/' => null,
+        'Projects/Archive/' => null,
+        'Projects/Archive/Old.md' => 'old',
+    ];
+
+    $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => createZipUpload($entries)]);
+    $vault = $user->vaults()->firstOrFail();
+
+    $response = $this->get(route('vaults.export', ['vault' => $vault->id]));
+
+    $response->assertStatus(200);
+    expect(exportedZipEntries($response))->toBe($entries);
+});
+
+it('exports files on disk that have no node', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, [
+        'name' => fake()->words(3, true),
+    ]);
+    $vaultPath = app(GetPathFromVault::class)->handle($vault);
+    Storage::disk('local')->put($vaultPath . '.obsidian/app.json', '{}');
+
+    $this->actingAs($user);
+
+    $response = $this->get(route('vaults.export', ['vault' => $vault->id]));
+
+    $response->assertStatus(200);
+    expect(exportedZipEntries($response))->toBe([
+        '.obsidian/' => null,
+        '.obsidian/app.json' => '{}',
+    ]);
+});
+
+it('exports a vault with only an empty folder', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, [
+        'name' => fake()->words(3, true),
+    ]);
+    app(CreateVaultNode::class)->handle($vault, [
+        'is_file' => false,
+        'name' => 'Empty',
+    ]);
+
+    $this->actingAs($user);
+
+    $response = $this->get(route('vaults.export', ['vault' => $vault->id]));
+
+    $response->assertStatus(200);
+    expect(exportedZipEntries($response))->toBe(['Empty/' => null]);
 });
 
 it('fails exporting a vault with no permissions', function (): void {
@@ -55,8 +141,10 @@ it('fails exporting a vault with no permissions', function (): void {
 });
 
 it('fails exporting an empty vault', function (): void {
-    $user = User::factory()->hasVaults(1)->create();
-    $vault = $user->vaults()->first();
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, [
+        'name' => fake()->words(3, true),
+    ]);
 
     $this->actingAs($user);
 
@@ -65,7 +153,7 @@ it('fails exporting an empty vault', function (): void {
     $response->assertStatus(422);
 });
 
-it('fails exporting a vault with files missing on disk', function (): void {
+it('fails exporting a vault whose nodes are missing on disk', function (): void {
     $user = User::factory()->hasVaults(1)->create();
     $vault = $user->vaults()->first();
     $vault->nodes()->create([
@@ -78,5 +166,5 @@ it('fails exporting a vault with files missing on disk', function (): void {
 
     $response = $this->get(route('vaults.export', ['vault' => $vault->id]));
 
-    $response->assertStatus(500);
+    $response->assertStatus(422);
 });
