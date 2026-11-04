@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Models\Setting;
+use App\Services\FilesystemManager;
 use Carbon\CarbonImmutable;
 use Exception;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Cache;
@@ -36,6 +38,7 @@ final class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->bindSettings();
+        $this->bindFilesystem();
     }
 
     /** Bootstrap any application services. */
@@ -74,6 +77,12 @@ final class AppServiceProvider extends ServiceProvider
                 return $setting;
             }
         });
+    }
+
+    /** Bind a filesystem manager that allows Unicode format characters in paths. */
+    private function bindFilesystem(): void
+    {
+        $this->app->singleton('filesystem', fn(Application $app): FilesystemManager => new FilesystemManager($app));
     }
 
     /** Configure the application's dates. */

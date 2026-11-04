@@ -202,6 +202,23 @@ it('skips junk entries added by operating systems', function (): void {
     expect(importedVaultPaths($user))->toBe(['Notes/', 'Notes/Plan.md']);
 });
 
+it('imports zip entries whose names have Unicode format characters', function (): void {
+    $user = User::factory()->create();
+    $file = createZipUpload(["\u{1F468}\u{200D}\u{1F4BB} Work/co\u{00AD}operate.md" => 'plan']);
+
+    $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => $file])
+        ->assertOk();
+
+    expect(importedVaultPaths($user))->toBe([
+        "\u{1F468}\u{200D}\u{1F4BB} Work/",
+        "\u{1F468}\u{200D}\u{1F4BB} Work/co\u{00AD}operate.md",
+    ]);
+    $path = app(GetPathFromVault::class)->handle($user->vaults()->first())
+        . "\u{1F468}\u{200D}\u{1F4BB} Work/co\u{00AD}operate.md";
+    expect(Storage::disk('local')->get($path))->toBe('plan');
+});
+
 it('creates links when importing a vault', function (): void {
     $user = User::factory()->create();
     $firstNodeName = fake()->words(3, true);

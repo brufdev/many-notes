@@ -110,6 +110,28 @@ it('skips taken suffixes when a sibling name ends without a number', function ()
     expect($node->name)->toBe('note-2');
 });
 
+it('creates a node whose name has Unicode format characters', function (bool $isFile, string $name): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+
+    $response = $this->actingAs($user)
+        ->post(
+            route('vaults.nodes.store', ['vault' => $vault->id]),
+            [
+                'name' => $name,
+                'is_file' => $isFile,
+            ],
+        );
+
+    $response->assertOk();
+    $path = app(GetPathFromVault::class)->handle($vault) . $name . ($isFile ? '.md' : '');
+    expect(Storage::disk('local')->exists($path))->toBeTrue();
+})->with([
+    'file with an emoji sequence' => [true, "\u{1F468}\u{200D}\u{1F4BB} Work"],
+    'folder with an emoji sequence' => [false, "\u{1F468}\u{200D}\u{1F4BB} Work"],
+    'file with a soft hyphen' => [true, "co\u{00AD}operate"],
+]);
+
 it('does not create a file without permissions', function (): void {
     $user1 = User::factory()->hasVaults(1)->create();
     $vault = app(CreateVault::class)->handle($user1, ['name' => fake()->words(3, true)]);
