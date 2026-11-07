@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 use App\Actions\CreateVault;
 use App\Actions\CreateVaultNode;
+use App\Actions\GetPathFromVault;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 it('deletes a file', function (): void {
     $user = User::factory()->create();
-    $vault = new CreateVault()->handle($user, [
-        'name' => fake()->words(3, true),
-    ]);
-    $file = new CreateVaultNode()->handle($vault, [
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $file = app(CreateVaultNode::class)->handle($vault, [
         'is_file' => true,
         'name' => fake()->words(3, true),
     ]);
@@ -32,14 +32,12 @@ it('deletes a file', function (): void {
 
 it('deletes a folder and its children', function (): void {
     $user = User::factory()->create();
-    $vault = new CreateVault()->handle($user, [
-        'name' => fake()->words(3, true),
-    ]);
-    $folder = new CreateVaultNode()->handle($vault, [
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $folder = app(CreateVaultNode::class)->handle($vault, [
         'is_file' => false,
         'name' => fake()->words(3, true),
     ]);
-    new CreateVaultNode()->handle($vault, [
+    app(CreateVaultNode::class)->handle($vault, [
         'parent_id' => $folder->id,
         'is_file' => true,
         'name' => fake()->words(3, true),
@@ -60,12 +58,27 @@ it('deletes a folder and its children', function (): void {
     expect($vault->nodes()->count())->toBe(0);
 });
 
+it('deletes files without a node with their folder', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $folder = app(CreateVaultNode::class)->handle($vault, [
+        'is_file' => false,
+        'name' => 'Notes',
+    ]);
+    $vaultPath = app(GetPathFromVault::class)->handle($vault);
+    Storage::disk('local')->put($vaultPath . 'Notes/.trash/Old.md', 'old');
+
+    $this->actingAs($user)
+        ->delete(route('vaults.nodes.destroy', ['vault' => $vault->id, 'node' => $folder->id]))
+        ->assertOk();
+
+    expect(Storage::disk('local')->exists($vaultPath . 'Notes'))->toBeFalse();
+});
+
 it('does not delete a file without permissions', function (): void {
     [$user1, $user2] = User::factory(2)->create();
-    $vault = new CreateVault()->handle($user1, [
-        'name' => fake()->words(3, true),
-    ]);
-    $file = new CreateVaultNode()->handle($vault, [
+    $vault = app(CreateVault::class)->handle($user1, ['name' => fake()->words(3, true)]);
+    $file = app(CreateVaultNode::class)->handle($vault, [
         'is_file' => true,
         'name' => fake()->words(3, true),
     ]);
@@ -79,6 +92,6 @@ it('does not delete a file without permissions', function (): void {
         ]),
     );
 
-    $response->assertStatus(403);
+    $response->assertForbidden();
     expect($vault->nodes()->count())->toBe(1);
 });

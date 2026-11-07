@@ -145,6 +145,41 @@ it('broadcasts updated note links to the current user when updating a node', fun
     );
 });
 
+it('moves files without a node when renaming a folder', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $folder = app(CreateVaultNode::class)->handle($vault, ['is_file' => false, 'name' => 'Notes']);
+    $vaultPath = app(GetPathFromVault::class)->handle($vault);
+    Storage::disk('local')->put($vaultPath . 'Notes/.trash/Old.md', 'old');
+
+    $this->actingAs($user)
+        ->patch(
+            route('vaults.nodes.update', ['vault' => $vault->id, 'node' => $folder->id]),
+            ['name' => 'Archive'],
+        )
+        ->assertOk();
+
+    expect(Storage::disk('local')->get($vaultPath . 'Archive/.trash/Old.md'))->toBe('old');
+    expect(Storage::disk('local')->exists($vaultPath . 'Notes'))->toBeFalse();
+});
+
+it('does not rename a node to the name of a file without a node', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $note = app(CreateVaultNode::class)->handle($vault, ['is_file' => true, 'name' => 'note', 'extension' => 'md']);
+    Storage::disk('local')->put(app(GetPathFromVault::class)->handle($vault) . 'taken.md', 'kept');
+
+    $response = $this->actingAs($user)
+        ->patchJson(
+            route('vaults.nodes.update', ['vault' => $vault->id, 'node' => $note->id]),
+            ['name' => 'taken'],
+        );
+
+    $response->assertJsonValidationErrors([
+        'name' => 'The name has already been taken.',
+    ]);
+});
+
 it('keeps the note content on disk when renaming a node', function (): void {
     $user = User::factory()->create();
     $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);

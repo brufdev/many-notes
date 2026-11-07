@@ -25,4 +25,9 @@ final class UploadLimit
     {
         return Number::fileSize(self::bytes());
     }
+
+    public static function unzippedBytes(): int
+    {
+        return ini_parse_quantity(config()->string('settings.import.max_unzipped_size'));
+    }
 }

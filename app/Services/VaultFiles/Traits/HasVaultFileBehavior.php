@@ -13,13 +13,9 @@ trait HasVaultFileBehavior
     abstract private static function uploadMimeTypes(): array;
 
     /** @return list<string> */
-    public static function extensions(bool $withDots = false): array
+    public static function extensions(): array
     {
-        $extensions = array_keys(static::responseMimeTypes());
-
-        return $withDots
-            ? array_map(fn(string $value): string => '.' . $value, $extensions)
-            : $extensions;
+        return array_keys(static::responseMimeTypes());
     }
 
     public static function contentType(string $extension): ?string

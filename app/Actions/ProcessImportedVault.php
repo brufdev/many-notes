@@ -7,9 +7,10 @@ namespace App\Actions;
 use App\Events\VaultListUpdatedEvent;
 use App\Models\User;
 use App\Models\Vault;
-use App\Services\VaultFile;
+use App\Models\VaultNode;
 use App\Services\VaultFiles\Types\Note;
 use finfo;
+use Illuminate\Support\Facades\Storage;
 use ZipArchive;
 
 final readonly class ProcessImportedVault
@@ -19,12 +20,13 @@ final readonly class ProcessImportedVault
     public function handle(User $user, string $fileName, string $filePath): void
     {
         $createVaultNode = app(CreateVaultNode::class);
+        $isPassthroughFile = app(IsPassthroughFile::class);
 
-        $folderIds = ['' => null];
+        $folders = ['' => null];
         $vaultName = app(GetVaultSafeName::class)->handle(pathinfo($fileName, PATHINFO_FILENAME), 'Imported vault');
         $vault = app(CreateVault::class)->handle($user, ['name' => $vaultName], false);
 
-        // Create vault nodes with valid zip files and folders
+        // Create vault nodes with valid zip files and folders, and keep the rest on disk only
         $finfo = new finfo(FILEINFO_MIME_TYPE);
         $zip = new ZipArchive();
         $zip->open($filePath);
@@ -43,25 +45,41 @@ final readonly class ProcessImportedVault
                 continue;
             }
 
-            if (str_ends_with($entryName, '/')) {
-                $this->folderId($vault, $segments, $folderIds);
+            $path = implode('/', $segments);
+            $entryFileName = str_ends_with($entryName, '/') ? null : array_pop($segments);
+            $hiddenIndex = $this->hiddenIndex($segments);
+            $parent = $this->folder($vault, array_slice($segments, 0, $hiddenIndex), $folders);
+            $directory = $this->directory($vault, $parent, array_slice($segments, $hiddenIndex));
+
+            if ($entryFileName === null) {
+                Storage::disk('local')->makeDirectory($directory);
 
                 continue;
             }
 
-            $pathInfo = pathinfo((string) array_pop($segments));
+            if ($isPassthroughFile->handle($path)) {
+                $this->savePassthroughStream($zip, $i, $directory, $entryFileName);
+
+                continue;
+            }
+
+            $content = (string) $zip->getFromIndex($i);
+
+            if ($isPassthroughFile->handle($path, $finfo->buffer($content) ?: '')) {
+                $entryFileName = app(GetAvailableFileName::class)->handle($directory, $entryFileName);
+                Storage::disk('local')->put($directory . $entryFileName, $content);
+
+                continue;
+            }
+
+            $pathInfo = pathinfo($entryFileName);
             $attributes = [
-                'parent_id' => $this->folderId($vault, $segments, $folderIds),
+                'parent_id' => $parent?->id,
                 'is_file' => true,
                 'name' => $pathInfo['filename'],
                 'extension' => $pathInfo['extension'] ?? '',
-                'content' => (string) $zip->getFromIndex($i),
+                'content' => $content,
             ];
-            $fileMimeType = $finfo->buffer($attributes['content']) ?: '';
-
-            if (!VaultFile::validate($attributes['extension'], $fileMimeType)) {
-                continue;
-            }
 
             if (in_array($attributes['extension'], Note::extensions())) {
                 $attributes['extension'] = 'md';
@@ -87,8 +105,13 @@ final readonly class ProcessImportedVault
             explode('/', $entryName),
             fn(string $segment): bool => $segment !== '' && $segment !== '.',
         ));
+        $isStorableName = app(IsStorableName::class);
 
-        if ($segments === [] || in_array('..', $segments, true)) {
+        if (
+            $segments === []
+            || in_array('..', $segments, true)
+            || !array_all($segments, fn(string $segment): bool => $isStorableName->handle($segment))
+        ) {
             return null;
         }
 
@@ -105,11 +128,23 @@ final readonly class ProcessImportedVault
             || in_array($name, self::JUNK_FILE_NAMES, true);
     }
 
+    /** @param list<string> $segments */
+    private function hiddenIndex(array $segments): int
+    {
+        foreach ($segments as $index => $segment) {
+            if (str_starts_with($segment, '.')) {
+                return $index;
+            }
+        }
+
+        return count($segments);
+    }
+
     /**
      * @param list<string> $segments
-     * @param array<string, int|null> $folderIds
+     * @param array<string, VaultNode|null> $folders
      */
-    private function folderId(Vault $vault, array $segments, array &$folderIds): ?int
+    private function folder(Vault $vault, array $segments, array &$folders): ?VaultNode
     {
         $path = '';
 
@@ -117,19 +152,39 @@ final readonly class ProcessImportedVault
             $parentPath = $path;
             $path = $path === '' ? $segment : "{$path}/{$segment}";
 
-            if (array_key_exists($path, $folderIds)) {
+            if (array_key_exists($path, $folders)) {
                 continue;
             }
 
             // Create missing folder
-            $folder = app(CreateVaultNode::class)->handle($vault, [
-                'parent_id' => $folderIds[$parentPath],
+            $folders[$path] = app(CreateVaultNode::class)->handle($vault, [
+                'parent_id' => $folders[$parentPath]?->id,
                 'is_file' => false,
                 'name' => $segment,
             ], false, false);
-            $folderIds[$path] = $folder->id;
         }
 
-        return $folderIds[$path];
+        return $folders[$path];
+    }
+
+    /** @param list<string> $hiddenSegments */
+    private function directory(Vault $vault, ?VaultNode $parent, array $hiddenSegments): string
+    {
+        $directory = app(GetPathFromVaultFolder::class)->handle($vault, $parent);
+
+        return $directory . implode('', array_map(fn(string $segment): string => "{$segment}/", $hiddenSegments));
+    }
+
+    private function savePassthroughStream(ZipArchive $zip, int $index, string $directory, string $fileName): void
+    {
+        $stream = $zip->getStreamIndex($index);
+
+        if ($stream === false) {
+            return;
+        }
+
+        $fileName = app(GetAvailableFileName::class)->handle($directory, $fileName);
+        Storage::disk('local')->writeStream($directory . $fileName, $stream);
+        fclose($stream);
     }
 }

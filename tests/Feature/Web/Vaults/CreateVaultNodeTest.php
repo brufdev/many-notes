@@ -69,6 +69,30 @@ it('returns the suffixed name when creating a file that collides with an existin
     expect(Storage::disk('local')->path($path))->toBeFile();
 });
 
+it('suffixes a name used by a file without a node', function (bool $isFile, string $diskName, string $name): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $vaultPath = app(GetPathFromVault::class)->handle($vault);
+    Storage::disk('local')->put($vaultPath . $diskName, 'kept');
+
+    $response = $this->actingAs($user)
+        ->post(
+            route('vaults.nodes.store', ['vault' => $vault->id]),
+            [
+                'name' => 'note',
+                'is_file' => $isFile,
+            ],
+        );
+
+    $response
+        ->assertOk()
+        ->assertJsonPath('data.name', $name);
+    expect(Storage::disk('local')->get($vaultPath . $diskName))->toBe('kept');
+})->with([
+    'file' => [true, 'note.md', 'note-1'],
+    'folder' => [false, 'note', 'note-1'],
+]);
+
 it('keeps suffixed file names within 255 bytes', function (): void {
     $user = User::factory()->create();
     $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);

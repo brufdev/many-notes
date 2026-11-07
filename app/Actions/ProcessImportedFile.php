@@ -12,10 +12,23 @@ use Illuminate\Support\Facades\Storage;
 
 final readonly class ProcessImportedFile
 {
-    public function handle(Vault $vault, ?VaultNode $parent, string $fileName, string $filePath): VaultNode
-    {
+    public function handle(
+        Vault $vault,
+        ?VaultNode $parent,
+        string $fileName,
+        string $filePath,
+        string $mimeType,
+    ): ?VaultNode {
+        // Keep unsupported and hidden files on disk only
+        if (app(IsPassthroughFile::class)->handle($fileName, $mimeType)) {
+            $directory = app(GetPathFromVaultFolder::class)->handle($vault, $parent);
+            $fileName = app(GetAvailableFileName::class)->handle($directory, $fileName);
+            Storage::disk('local')->putFileAs($directory, new File($filePath), $fileName);
+
+            return null;
+        }
+
         $createVaultNode = app(CreateVaultNode::class);
-        $getPathFromVaultNode = app(GetPathFromVaultNode::class);
 
         $attributes = [
             'parent_id' => $parent?->id,
@@ -34,7 +47,7 @@ final readonly class ProcessImportedFile
         $node = $createVaultNode->handle($vault, $attributes);
 
         if ($node->extension !== 'md') {
-            $relativePath = $getPathFromVaultNode->handle($node);
+            $relativePath = app(GetPathFromVaultNode::class)->handle($node);
             $pathInfo = pathinfo($relativePath);
             $savePath = $pathInfo['dirname'] ?? '';
             $saveName = $pathInfo['basename'];

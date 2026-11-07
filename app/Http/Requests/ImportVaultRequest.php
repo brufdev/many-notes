@@ -4,17 +4,26 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Rules\ValidZipSizes;
 use App\Services\UploadLimit;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Override;
 
 final class ImportVaultRequest extends FormRequest
 {
-    /** @return array<string, array<int, string>> */
+    /** @return array<string, array<int, string|ValidationRule>> */
     public function rules(): array
     {
         return [
-            'file' => ['required', 'file', 'mimes:zip', 'max:' . UploadLimit::kilobytes()],
+            'file' => [
+                'bail',
+                'required',
+                'file',
+                'mimes:zip',
+                'max:' . UploadLimit::kilobytes(),
+                new ValidZipSizes(UploadLimit::unzippedBytes()),
+            ],
         ];
     }
 

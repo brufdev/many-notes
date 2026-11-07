@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Actions\CreateVault;
 use App\Actions\CreateVaultNode;
+use App\Actions\GetPathFromVault;
 use App\Actions\GetPathFromVaultNode;
 use App\Actions\GetUrlFromVaultNode;
 use App\Models\User;
@@ -132,6 +133,16 @@ it('return a 404 error if the giving node is from another vault', function (): v
 
     $this->actingAs($user)
         ->get($imageUrl . '&node=' . $textNode->id)
+        ->assertStatus(404);
+});
+
+it('returns a 404 error for a file without a node', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    Storage::disk('local')->put(app(GetPathFromVault::class)->handle($vault) . 'photo.png', '<html></html>');
+
+    $this->actingAs($user)
+        ->get('/files/' . $vault->id . '?path=/photo.png')
         ->assertStatus(404);
 });
 

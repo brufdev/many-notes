@@ -55,7 +55,7 @@ it('exports a vault', function (): void {
 
     $response = $this->get(route('vaults.export', ['vault' => $vault->id]));
 
-    $response->assertStatus(200);
+    $response->assertOk();
     expect($response->headers->get('Content-Disposition'))->toBe('attachment; filename="' . $vault->name . '.zip"');
     expect(exportedZipEntries($response))->toBe([
         'Notes/' => null,
@@ -82,7 +82,35 @@ it('exports an imported vault unchanged', function (): void {
 
     $response = $this->get(route('vaults.export', ['vault' => $vault->id]));
 
-    $response->assertStatus(200);
+    $response->assertOk();
+    expect(exportedZipEntries($response))->toBe($entries);
+});
+
+it('exports an imported Obsidian vault unchanged', function (): void {
+    $user = User::factory()->create();
+    $entries = [
+        '.obsidian/' => null,
+        '.obsidian/app.json' => '{"promptDelete":false}',
+        '.obsidian/plugins/' => null,
+        '.obsidian/plugins/x/' => null,
+        '.obsidian/plugins/x/main.js' => 'module.exports = {};',
+        'Attachments/' => null,
+        'Attachments/data.json' => '[]',
+        'Board.canvas' => '{"nodes":[]}',
+        'Notes/' => null,
+        'Notes/.trash/' => null,
+        'Notes/.trash/Old.md' => 'old',
+        'Notes/Plan.md' => '#plan [[Board.canvas]]',
+        'photo.png' => '<html></html>',
+    ];
+
+    $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => createZipUpload($entries)]);
+    $vault = $user->vaults()->firstOrFail();
+
+    $response = $this->get(route('vaults.export', ['vault' => $vault->id]));
+
+    $response->assertOk();
     expect(exportedZipEntries($response))->toBe($entries);
 });
 
@@ -98,7 +126,7 @@ it('exports files on disk that have no node', function (): void {
 
     $response = $this->get(route('vaults.export', ['vault' => $vault->id]));
 
-    $response->assertStatus(200);
+    $response->assertOk();
     expect(exportedZipEntries($response))->toBe([
         '.obsidian/' => null,
         '.obsidian/app.json' => '{}',
@@ -119,7 +147,7 @@ it('exports a vault with only an empty folder', function (): void {
 
     $response = $this->get(route('vaults.export', ['vault' => $vault->id]));
 
-    $response->assertStatus(200);
+    $response->assertOk();
     expect(exportedZipEntries($response))->toBe(['Empty/' => null]);
 });
 
@@ -137,7 +165,7 @@ it('fails exporting a vault with no permissions', function (): void {
 
     $response = $this->get(route('vaults.export', ['vault' => $vault->id]));
 
-    $response->assertStatus(403);
+    $response->assertForbidden();
 });
 
 it('fails exporting an empty vault', function (): void {
@@ -150,7 +178,7 @@ it('fails exporting an empty vault', function (): void {
 
     $response = $this->get(route('vaults.export', ['vault' => $vault->id]));
 
-    $response->assertStatus(422);
+    $response->assertUnprocessable();
 });
 
 it('fails exporting a vault whose nodes are missing on disk', function (): void {
@@ -166,5 +194,5 @@ it('fails exporting a vault whose nodes are missing on disk', function (): void 
 
     $response = $this->get(route('vaults.export', ['vault' => $vault->id]));
 
-    $response->assertStatus(422);
+    $response->assertUnprocessable();
 });

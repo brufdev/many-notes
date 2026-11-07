@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Actions\IsStorableName;
 use App\Actions\ProcessImportedFile;
 use App\Http\Requests\ImportVaultNodeRequest;
 use App\Models\User;
 use App\Models\Vault;
-use App\Services\VaultFile;
+use App\Models\VaultNode;
 use App\ViewModels\VaultNodeViewModel;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
@@ -21,6 +22,7 @@ final readonly class VaultNodeImportController
         Vault $vault,
         #[CurrentUser] User $user,
         ProcessImportedFile $processImportedFile,
+        IsStorableName $isStorableName,
     ): JsonResponse {
         if ($user->cannot('update', $vault)) {
             abort(403);
@@ -42,24 +44,35 @@ final readonly class VaultNodeImportController
         }
 
         $importedFiles = [];
+        $passthroughCount = 0;
+        $skippedCount = 0;
 
         foreach ($data['files'] as $file) {
-            $fileExtension = $file->getClientOriginalExtension();
-            $fileMimeType = $file->getMimeType() ?? '';
+            $fileName = $file->getClientOriginalName();
 
-            if (!VaultFile::validate($fileExtension, $fileMimeType)) {
+            if (!$isStorableName->handle($fileName)) {
+                $skippedCount++;
+
                 continue;
             }
 
-            $fileName = $file->getClientOriginalName();
             $filePath = $file->getRealPath();
-            $node = $processImportedFile->handle($vault, $parent, $fileName, $filePath);
+            $fileMimeType = $file->getMimeType() ?? '';
+            $node = $processImportedFile->handle($vault, $parent, $fileName, $filePath, $fileMimeType);
+
+            if (!$node instanceof VaultNode) {
+                $passthroughCount++;
+
+                continue;
+            }
 
             $importedFiles[] = VaultNodeViewModel::fromModel($node);
         }
 
         return response()->json([
             'files' => $importedFiles,
+            'passthrough_count' => $passthroughCount,
+            'skipped_count' => $skippedCount,
         ]);
     }
 }

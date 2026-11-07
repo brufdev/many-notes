@@ -33,6 +33,43 @@ it('moves a node to a folder', function (): void {
     expect($file->refresh()->parent_id)->toBe($folder->id);
 });
 
+it('moves files without a node with their folder', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $archive = app(CreateVaultNode::class)->handle($vault, ['is_file' => false, 'name' => 'Archive']);
+    $folder = app(CreateVaultNode::class)->handle($vault, ['is_file' => false, 'name' => 'Notes']);
+    $vaultPath = app(GetPathFromVault::class)->handle($vault);
+    Storage::disk('local')->put($vaultPath . 'Notes/data.json', '[]');
+
+    $this->actingAs($user)
+        ->patch(
+            route('vaults.nodes.move', ['vault' => $vault->id, 'node' => $folder->id]),
+            ['parent_id' => $archive->id],
+        )
+        ->assertOk();
+
+    expect(Storage::disk('local')->get($vaultPath . 'Archive/Notes/data.json'))->toBe('[]');
+});
+
+it('suffixes the name of a moved node taken by a file without a node', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $folder = app(CreateVaultNode::class)->handle($vault, ['is_file' => false, 'name' => 'Notes']);
+    $note = app(CreateVaultNode::class)->handle($vault, ['is_file' => true, 'name' => 'note', 'extension' => 'md']);
+    $vaultPath = app(GetPathFromVault::class)->handle($vault);
+    Storage::disk('local')->put($vaultPath . 'Notes/note.md', 'kept');
+
+    $this->actingAs($user)
+        ->patch(
+            route('vaults.nodes.move', ['vault' => $vault->id, 'node' => $note->id]),
+            ['parent_id' => $folder->id],
+        )
+        ->assertOk()
+        ->assertJsonPath('data.name', 'note-1');
+
+    expect(Storage::disk('local')->get($vaultPath . 'Notes/note.md'))->toBe('kept');
+});
+
 it('moves a node to the root', function (): void {
     $user = User::factory()->create();
     $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);

@@ -6,7 +6,8 @@ namespace App\Actions;
 
 use App\Models\Vault;
 use App\Models\VaultNode;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 final readonly class GetAvailableVaultNodeName
 {
@@ -19,40 +20,49 @@ final readonly class GetAvailableVaultNodeName
         ?int $ignoreId = null,
     ): string {
         $siblings = $this->siblings($vault, $parentId, $isFile, $extension, $ignoreId);
+        $directory = $this->directory($vault, $parentId);
+        $ignoredPath = $this->ignoredPath($vault, $ignoreId);
+        $isTaken = fn(string $candidate): bool => $this->isTaken(
+            $siblings,
+            $directory . $candidate . ($extension === null ? '' : ".{$extension}"),
+            $ignoredPath,
+            $candidate,
+        );
 
-        if (!$this->isTaken($siblings, $name)) {
+        if (!$isTaken($name)) {
             return $name;
         }
 
         $getSuffixedName = app(GetSuffixedName::class);
         $number = 1;
 
-        while ($this->isTaken($siblings, $getSuffixedName->handle($name, $number, $extension))) {
+        while ($isTaken($getSuffixedName->handle($name, $number, $extension))) {
             $number++;
         }
 
         return $getSuffixedName->handle($name, $number, $extension);
     }
 
-    /** @param Builder<VaultNode> $siblings */
-    private function isTaken(Builder $siblings, string $name): bool
+    /** @param HasMany<VaultNode, Vault> $siblings */
+    private function isTaken(HasMany $siblings, string $path, ?string $ignoredPath, string $name): bool
     {
-        return $siblings
-            ->clone()
-            ->whereRaw('LOWER(name) = LOWER(?)', [$name])
-            ->exists();
+        if ((clone $siblings)->whereRaw('LOWER(name) = LOWER(?)', [$name])->exists()) {
+            return true;
+        }
+
+        // Check files without a node
+        return mb_strtolower($path) !== $ignoredPath && Storage::disk('local')->exists($path);
     }
 
-    /** @return Builder<VaultNode> */
+    /** @return HasMany<VaultNode, Vault> */
     private function siblings(
         Vault $vault,
         ?int $parentId,
         bool $isFile,
         ?string $extension,
         ?int $ignoreId,
-    ): Builder {
-        $siblings = VaultNode::query()
-            ->where('vault_id', $vault->id)
+    ): HasMany {
+        $siblings = $vault->nodes()
             ->where('parent_id', $parentId)
             ->where('is_file', $isFile)
             ->where('extension', $extension);
@@ -62,5 +72,21 @@ final readonly class GetAvailableVaultNodeName
         }
 
         return $siblings;
+    }
+
+    private function directory(Vault $vault, ?int $parentId): string
+    {
+        $parent = $parentId === null ? null : $vault->nodes()->find($parentId);
+
+        return app(GetPathFromVaultFolder::class)->handle($vault, $parent);
+    }
+
+    private function ignoredPath(Vault $vault, ?int $ignoreId): ?string
+    {
+        $node = $ignoreId === null ? null : $vault->nodes()->find($ignoreId);
+
+        return $node instanceof VaultNode
+            ? mb_strtolower(app(GetPathFromVaultNode::class)->handle($node))
+            : null;
     }
 }

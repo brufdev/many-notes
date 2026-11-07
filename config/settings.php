@@ -17,4 +17,18 @@ return [
         'enabled' => env('SETTINGS_LOCAL_AUTH_ENABLED', true),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Vault Import
+    |--------------------------------------------------------------------------
+    |
+    | This option defines the maximum total size of a vault archive once
+    | unzipped, using the same format as php.ini (for example 512M or 2G).
+    |
+    */
+
+    'import' => [
+        'max_unzipped_size' => env('SETTINGS_IMPORT_MAX_UNZIPPED_SIZE', '1G'),
+    ],
+
 ];

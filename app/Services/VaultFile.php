@@ -23,12 +23,12 @@ final class VaultFile
     ];
 
     /** @return list<string> */
-    public static function extensions(bool $withDots = false): array
+    public static function extensions(): array
     {
         $all = [];
 
         foreach (self::$fileTypes as $type) {
-            foreach ($type::extensions($withDots) as $ext) {
+            foreach ($type::extensions() as $ext) {
                 $all[] = $ext;
             }
         }

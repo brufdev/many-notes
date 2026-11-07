@@ -7,7 +7,7 @@ namespace App\Services\VaultFiles\Contracts;
 interface VaultFileType
 {
     /** @return list<string> */
-    public static function extensions(bool $withDots = false): array;
+    public static function extensions(): array;
 
     public static function contentType(string $extension): ?string;
 

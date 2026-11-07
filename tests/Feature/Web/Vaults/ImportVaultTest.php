@@ -202,6 +202,47 @@ it('skips junk entries added by operating systems', function (): void {
     expect(importedVaultPaths($user))->toBe(['Notes/', 'Notes/Plan.md']);
 });
 
+it('keeps hidden and unsupported zip entries on disk without a node', function (): void {
+    $user = User::factory()->create();
+    $passthroughFiles = [
+        '.obsidian/app.json' => '{}',
+        'Attachments/data.json' => '[]',
+        'Board.canvas' => '{"nodes":[]}',
+        'Notes/.trash/Old.md' => 'old',
+        'README' => 'readme',
+        'photo.png' => '<html></html>',
+    ];
+    $file = createZipUpload(['.obsidian/plugins/' => null, ...$passthroughFiles, 'Notes/Plan.md' => 'plan']);
+
+    $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => $file])
+        ->assertOk();
+
+    expect(importedVaultPaths($user))->toBe(['Attachments/', 'Notes/', 'Notes/Plan.md']);
+    $vaultPath = app(GetPathFromVault::class)->handle($user->vaults()->first());
+    expect(Storage::disk('local')->path($vaultPath . '.obsidian/plugins'))->toBeDirectory();
+
+    foreach ($passthroughFiles as $path => $content) {
+        expect(Storage::disk('local')->get($vaultPath . $path))->toBe($content);
+    }
+});
+
+it('skips zip entries whose names cannot be stored', function (): void {
+    $user = User::factory()->create();
+    $file = createZipUpload([
+        "Plan\t.md" => 'tab',
+        str_repeat('a', 253) . '.md' => 'too long',
+        "Notes\n/Plan.md" => 'line feed',
+        'Plan.md' => 'plan',
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => $file])
+        ->assertOk();
+
+    expect(importedVaultPaths($user))->toBe(['Plan.md']);
+});
+
 it('imports zip entries whose names have Unicode format characters', function (): void {
     $user = User::factory()->create();
     $file = createZipUpload(["\u{1F468}\u{200D}\u{1F4BB} Work/co\u{00AD}operate.md" => 'plan']);
@@ -267,4 +308,49 @@ it('does not import a zip file larger than the upload limit', function (): void 
     $response->assertUnprocessable();
     $response->assertJsonValidationErrors('file');
     expect($user->vaults()->count())->toBe(0);
+});
+
+it('does not import a zip file larger than the unzipped size limit', function (): void {
+    config()->set('settings.import.max_unzipped_size', '1K');
+    $user = User::factory()->create();
+    $file = createZipUpload(['Plan.md' => str_repeat('a', 1025)]);
+
+    $response = $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => $file], ['Accept' => 'application/json']);
+
+    $response->assertUnprocessable();
+    $response->assertJsonValidationErrors(['file' => 'The unzipped vault must be smaller than 1 KB.']);
+    expect($user->vaults()->count())->toBe(0);
+});
+
+it('does not import a zip file whose declared sizes are wrong', function (int $declaredSize): void {
+    $user = User::factory()->create();
+    $file = createZipUpload(['data.json' => str_repeat('a', 100_000)]);
+    $zip = (string) file_get_contents($file->getRealPath());
+
+    // Overwrite the size in the local header and the central directory
+    $localHeader = (int) mb_strpos($zip, "PK\x03\x04", 0, '8bit');
+    $centralDirectory = (int) mb_strpos($zip, "PK\x01\x02", 0, '8bit');
+    $zip = substr_replace($zip, pack('V', $declaredSize), $localHeader + 22, 4);
+    $zip = substr_replace($zip, pack('V', $declaredSize), $centralDirectory + 24, 4);
+    file_put_contents($file->getRealPath(), $zip);
+
+    $response = $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => $file], ['Accept' => 'application/json']);
+
+    $response->assertUnprocessable();
+    $response->assertJsonValidationErrors(['file' => 'The zip file is damaged.']);
+    expect($user->vaults()->count())->toBe(0);
+})->with(['smaller' => 10, 'larger' => 200_000]);
+
+it('imports a zip file that is exactly at the unzipped size limit', function (): void {
+    config()->set('settings.import.max_unzipped_size', '1K');
+    $user = User::factory()->create();
+    $file = createZipUpload(['Plan.md' => str_repeat('a', 1024)]);
+
+    $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => $file])
+        ->assertOk();
+
+    expect(importedVaultPaths($user))->toBe(['Plan.md']);
 });

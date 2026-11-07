@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Actions\GetPathFromUser;
 use App\Actions\GetPathFromVault;
+use App\Actions\GetPathFromVaultFolder;
 use App\Actions\GetPathFromVaultNode;
 use App\Models\User;
 use App\Models\Vault;
@@ -79,4 +80,30 @@ it('resolves the folder of a vault node without including itself', function (): 
     $path = app(GetPathFromVaultNode::class)->handle($note, false);
 
     expect(localDiskPath($path))->toBe(storage_path("app/private/vaults/{$user->id}/Personal/Inbox/"));
+});
+
+it('resolves a nested vault folder path to the folder on disk', function (): void {
+    $user = User::factory()->create();
+    $vault = Vault::factory()->for($user)->create(['name' => 'Personal']);
+    $folder = VaultNode::factory()->for($vault)->create([
+        'parent_id' => null,
+        'name' => 'Inbox',
+    ]);
+    $subfolder = VaultNode::factory()->for($vault)->create([
+        'parent_id' => $folder->id,
+        'name' => 'Ideas',
+    ]);
+
+    $path = app(GetPathFromVaultFolder::class)->handle($vault, $subfolder);
+
+    expect(localDiskPath($path))->toBe(storage_path("app/private/vaults/{$user->id}/Personal/Inbox/Ideas/"));
+});
+
+it('resolves a missing vault folder path to the vault folder on disk', function (): void {
+    $user = User::factory()->create();
+    $vault = Vault::factory()->for($user)->create(['name' => 'Personal']);
+
+    $path = app(GetPathFromVaultFolder::class)->handle($vault, null);
+
+    expect(localDiskPath($path))->toBe(storage_path("app/private/vaults/{$user->id}/Personal/"));
 });

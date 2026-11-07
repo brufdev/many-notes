@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Actions\CreateVault;
+use App\Actions\GetPathFromVault;
 use App\Models\User;
 use App\Models\Vault;
 use App\Models\VaultNode;
+use Illuminate\Support\Facades\Storage;
 
 it('allows a user to update his vault', function (): void {
     $user = User::factory()->create();
@@ -35,6 +38,19 @@ it('allows a user to update his vault', function (): void {
         ])
         ->assertJsonPath('data.name', $payload['name'])
         ->assertJsonPath('data.templates_node_id', $payload['templates_node_id']);
+});
+
+it('keeps files without a node when renaming a vault', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => 'Notes']);
+    Storage::disk('local')->put(app(GetPathFromVault::class)->handle($vault) . '.obsidian/app.json', '{}');
+
+    $this->actingAs($user)
+        ->patch(route('vaults.update', ['vault' => $vault->id]), ['name' => 'Archive'])
+        ->assertOk();
+
+    expect(Storage::disk('local')->get(app(GetPathFromVault::class)->handle($vault->refresh()) . '.obsidian/app.json'))
+        ->toBe('{}');
 });
 
 it('forbids users without permission from updating a vault', function (): void {

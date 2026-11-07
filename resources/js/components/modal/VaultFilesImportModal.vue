@@ -14,12 +14,9 @@ const props = defineProps<{
 const page = usePage();
 const { closeModal } = useModalManager();
 const { createToast } = useToast();
-const { form, filesError, filterValidFiles, importFiles } = useVaultFileUpload();
+const { form, filesError, tooLargeMessage, filterValidFiles, importFiles } = useVaultFileUpload();
 
 const uploadMaxFilesize = computed(() => page.props.app?.metadata?.upload_max_filesize ?? '0');
-const uploadAllowedExtensions = computed(
-    () => page.props.app?.metadata?.upload_allowed_extensions ?? ''
-);
 
 const fileUpload = ref<HTMLInputElement | null>(null);
 
@@ -40,7 +37,7 @@ const handleSubmit = () => {
     const files = filterValidFiles(Array.from(fileUpload.value.files));
 
     if (files.length === 0) {
-        createToast('No valid files to import', 'error');
+        createToast(tooLargeMessage.value, 'error');
 
         return;
     }
@@ -102,7 +99,6 @@ onMounted(() => {
                 id="file-upload"
                 ref="fileUpload"
                 type="file"
-                :accept="uploadAllowedExtensions"
                 multiple
                 class="hidden"
                 @change="handleSubmit"
