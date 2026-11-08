@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Actions\IsHiddenPath;
 use App\Actions\IsStorableName;
 use App\Actions\ProcessImportedFile;
 use App\Http\Requests\ImportVaultNodeRequest;
 use App\Models\User;
 use App\Models\Vault;
-use App\Models\VaultNode;
 use App\ViewModels\VaultNodeViewModel;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
@@ -23,6 +23,7 @@ final readonly class VaultNodeImportController
         #[CurrentUser] User $user,
         ProcessImportedFile $processImportedFile,
         IsStorableName $isStorableName,
+        IsHiddenPath $isHiddenPath,
     ): JsonResponse {
         if ($user->cannot('update', $vault)) {
             abort(403);
@@ -44,13 +45,12 @@ final readonly class VaultNodeImportController
         }
 
         $importedFiles = [];
-        $passthroughCount = 0;
         $skippedCount = 0;
 
         foreach ($data['files'] as $file) {
             $fileName = $file->getClientOriginalName();
 
-            if (!$isStorableName->handle($fileName)) {
+            if (!$isStorableName->handle($fileName) || $isHiddenPath->handle($fileName)) {
                 $skippedCount++;
 
                 continue;
@@ -59,19 +59,11 @@ final readonly class VaultNodeImportController
             $filePath = $file->getRealPath();
             $fileMimeType = $file->getMimeType() ?? '';
             $node = $processImportedFile->handle($vault, $parent, $fileName, $filePath, $fileMimeType);
-
-            if (!$node instanceof VaultNode) {
-                $passthroughCount++;
-
-                continue;
-            }
-
             $importedFiles[] = VaultNodeViewModel::fromModel($node);
         }
 
         return response()->json([
             'files' => $importedFiles,
-            'passthrough_count' => $passthroughCount,
             'skipped_count' => $skippedCount,
         ]);
     }

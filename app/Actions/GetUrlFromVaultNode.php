@@ -10,13 +10,8 @@ final readonly class GetUrlFromVaultNode
 {
     public function handle(VaultNode $node): string
     {
-        /**
-         * @var string $fullPath
-         *
-         * @phpstan-ignore-next-line larastan.noUnnecessaryCollectionCall
-         */
-        $fullPath = $node->ancestorsAndSelf()->get()->last()->full_path;
+        $extension = $node->extension === null ? '' : ".{$node->extension}";
 
-        return '/files/' . $node->vault_id . '?path=' . $fullPath . '.' . $node->extension;
+        return '/files/' . $node->vault_id . '?path=' . $node->fullPath() . $extension;
     }
 }

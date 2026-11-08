@@ -13,7 +13,7 @@ final readonly class VaultEditorTemplateViewModel
         public int $id,
         public string $type,
         public string $name,
-        public string $extension,
+        public ?string $extension,
         public string $full_path,
         public CarbonImmutable $updated_at,
     ) {

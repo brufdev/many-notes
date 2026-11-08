@@ -20,13 +20,14 @@ final readonly class ProcessImportedVault
     public function handle(User $user, string $fileName, string $filePath): void
     {
         $createVaultNode = app(CreateVaultNode::class);
-        $isPassthroughFile = app(IsPassthroughFile::class);
+        $isHiddenPath = app(IsHiddenPath::class);
+        $isSupportedFile = app(IsSupportedFile::class);
 
         $folders = ['' => null];
         $vaultName = app(GetVaultSafeName::class)->handle(pathinfo($fileName, PATHINFO_FILENAME), 'Imported vault');
         $vault = app(CreateVault::class)->handle($user, ['name' => $vaultName], false);
 
-        // Create vault nodes with valid zip files and folders, and keep the rest on disk only
+        // Create vault nodes for zip files and folders, and keep hidden ones on disk only
         $finfo = new finfo(FILEINFO_MIME_TYPE);
         $zip = new ZipArchive();
         $zip->open($filePath);
@@ -57,17 +58,9 @@ final readonly class ProcessImportedVault
                 continue;
             }
 
-            if ($isPassthroughFile->handle($path)) {
-                $this->savePassthroughStream($zip, $i, $directory, $entryFileName);
-
-                continue;
-            }
-
-            $content = (string) $zip->getFromIndex($i);
-
-            if ($isPassthroughFile->handle($path, $finfo->buffer($content) ?: '')) {
-                $entryFileName = app(GetAvailableFileName::class)->handle($directory, $entryFileName);
-                Storage::disk('local')->put($directory . $entryFileName, $content);
+            if ($isHiddenPath->handle($path)) {
+                $availableName = app(GetAvailableFileName::class)->handle($directory, $entryFileName);
+                $this->saveStream($zip, $i, $directory . $availableName);
 
                 continue;
             }
@@ -77,11 +70,23 @@ final readonly class ProcessImportedVault
                 'parent_id' => $parent?->id,
                 'is_file' => true,
                 'name' => $pathInfo['filename'],
-                'extension' => $pathInfo['extension'] ?? '',
-                'content' => $content,
+                'extension' => $pathInfo['extension'] ?? null,
             ];
 
-            if (in_array($attributes['extension'], Note::extensions())) {
+            if (!$isSupportedFile->handle($entryFileName)) {
+                $node = $createVaultNode->handle($vault, [...$attributes, 'is_supported' => false], false, false);
+                $this->saveStream($zip, $i, app(GetPathFromVaultNode::class)->handle($node));
+
+                continue;
+            }
+
+            $attributes['content'] = (string) $zip->getFromIndex($i);
+            $attributes['is_supported'] = $isSupportedFile->handle(
+                $entryFileName,
+                $finfo->buffer($attributes['content']) ?: '',
+            );
+
+            if ($attributes['is_supported'] && in_array($attributes['extension'], Note::extensions())) {
                 $attributes['extension'] = 'md';
             }
 
@@ -175,7 +180,7 @@ final readonly class ProcessImportedVault
         return $directory . implode('', array_map(fn(string $segment): string => "{$segment}/", $hiddenSegments));
     }
 
-    private function savePassthroughStream(ZipArchive $zip, int $index, string $directory, string $fileName): void
+    private function saveStream(ZipArchive $zip, int $index, string $path): void
     {
         $stream = $zip->getStreamIndex($index);
 
@@ -183,8 +188,7 @@ final readonly class ProcessImportedVault
             return;
         }
 
-        $fileName = app(GetAvailableFileName::class)->handle($directory, $fileName);
-        Storage::disk('local')->writeStream($directory . $fileName, $stream);
+        Storage::disk('local')->writeStream($path, $stream);
         fclose($stream);
     }
 }

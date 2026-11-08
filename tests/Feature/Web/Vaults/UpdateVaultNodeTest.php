@@ -201,6 +201,40 @@ it('keeps the note content on disk when renaming a node', function (): void {
     expect(Storage::disk('local')->get($path))->toBe('# Important notes');
 });
 
+it('renames an unsupported file', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $node = createUnsupportedNode($vault, 'Board.canvas');
+    $vaultPath = app(GetPathFromVault::class)->handle($vault);
+
+    $this->actingAs($user)
+        ->patch(
+            route('vaults.nodes.update', ['vault' => $vault->id, 'node' => $node->id]),
+            ['name' => 'Plan'],
+        )
+        ->assertOk();
+
+    expect(Storage::disk('local')->get($vaultPath . 'Plan.canvas'))->toBe('unsupported');
+    expect(Storage::disk('local')->exists($vaultPath . 'Board.canvas'))->toBeFalse();
+});
+
+it('does not update the content of an unsupported file', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $node = createUnsupportedNode($vault, 'notes.md');
+
+    $this->actingAs($user)
+        ->patch(
+            route('vaults.nodes.update', ['vault' => $vault->id, 'node' => $node->id]),
+            ['content' => 'replaced'],
+        )
+        ->assertOk();
+
+    expect($node->refresh()->content)->toBeNull();
+    expect(Storage::disk('local')->get(app(GetPathFromVault::class)->handle($vault) . 'notes.md'))
+        ->toBe('unsupported');
+});
+
 it('does not update a node without permissions', function (): void {
     [$user1, $user2] = User::factory()->count(2)->create();
     $vault = app(CreateVault::class)->handle($user2, ['name' => fake()->words(3, true)]);

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useVaultTreePreferences } from '@/composables/useVaultTreePreferences';
 import { useVaultTreeStore } from '@/stores/vaultTree';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import VaultTreeNode from './VaultTreeNode.vue';
@@ -10,7 +11,8 @@ const props = defineProps<{
 }>();
 
 const tree = useVaultTreeStore();
-const children = computed(() => tree.getChildren(props.parentId));
+const { isShowingUnsupportedFiles } = useVaultTreePreferences();
+const children = computed(() => tree.getChildren(props.parentId, isShowingUnsupportedFiles.value));
 
 const container = ref<HTMLElement | null>(null);
 const maxHeight = ref('0px');

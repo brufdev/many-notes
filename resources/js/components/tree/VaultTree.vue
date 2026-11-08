@@ -7,9 +7,11 @@ import VaultFilesImportModal from '@/components/modal/VaultFilesImportModal.vue'
 import VaultNodeCreateModal from '@/components/modal/VaultNodeCreateModal.vue';
 import { useModalManager } from '@/composables/useModalManager';
 import { useVaultActions } from '@/composables/useVaultActions';
+import { useVaultTreePreferences } from '@/composables/useVaultTreePreferences';
 import ArrowUpTray from '@/icons/ArrowUpTray.vue';
 import Bars3 from '@/icons/Bars3.vue';
 import DocumentPlus from '@/icons/DocumentPlus.vue';
+import FileOther from '@/icons/FileOther.vue';
 import FolderPlus from '@/icons/FolderPlus.vue';
 import PencilSquare from '@/icons/PencilSquare.vue';
 import Spinner from '@/icons/Spinner.vue';
@@ -33,9 +35,10 @@ const layoutStore = useLayoutStore();
 const vaultStore = useVaultStore();
 const vaultActions = useVaultActions();
 const vaultTreeStore = useVaultTreeStore();
+const { isShowingUnsupportedFiles, toggleShowingUnsupportedFiles } = useVaultTreePreferences();
 
 const userId = computed(() => page.props.app?.user?.id);
-const children = computed(() => vaultTreeStore.getChildren(null));
+const children = computed(() => vaultTreeStore.getChildren(null, isShowingUnsupportedFiles.value));
 
 const draggingNodeId = ref<number | null>(null);
 const dropIndicator = ref<VaultNodeTreeDropIndicator>(null);
@@ -205,6 +208,18 @@ provide('vaultTreeDragAndDrop', {
                                             vaultId: vaultId,
                                             parentId: null,
                                         });
+                                    "
+                                />
+                                <MenuItem
+                                    :label="
+                                        isShowingUnsupportedFiles
+                                            ? 'Hide unsupported files'
+                                            : 'Show unsupported files'
+                                    "
+                                    :icon="FileOther"
+                                    @click="
+                                        closeMenu();
+                                        toggleShowingUnsupportedFiles();
                                     "
                                 />
                                 <MenuItem

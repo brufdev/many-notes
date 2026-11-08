@@ -70,6 +70,7 @@ arch('factories')
 arch('models')
     ->expect('App\Models')
     ->toHaveMethod('casts')
+    ->ignoring('App\Models\Scopes')
     ->toOnlyBeUsedIn([
         'App\Actions',
         'App\Console\Commands',

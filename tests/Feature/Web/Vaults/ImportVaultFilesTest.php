@@ -6,6 +6,7 @@ use App\Actions\CreateVault;
 use App\Actions\CreateVaultNode;
 use App\Actions\GetPathFromVault;
 use App\Actions\GetPathFromVaultNode;
+use App\Models\Scopes\SupportedVaultNodeScope;
 use App\Models\User;
 use App\Services\UploadLimit;
 use Illuminate\Http\UploadedFile;
@@ -149,7 +150,7 @@ it('creates tags when importing a markdown file', function (): void {
     expect($vault->nodes()->first()->tags()->count())->toBe(2);
 });
 
-it('saves hidden and unsupported files on disk without a node', function (string $fileName, string $content): void {
+it('saves unsupported files as hidden nodes', function (string $fileName, string $content): void {
     $user = User::factory()->create();
     $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
     $folder = app(CreateVaultNode::class)->handle($vault, ['is_file' => false, 'name' => 'Notes']);
@@ -161,17 +162,17 @@ it('saves hidden and unsupported files on disk without a node', function (string
             'files' => [$uploadFile],
         ]);
 
-    $response->assertExactJson(['files' => [], 'passthrough_count' => 1, 'skipped_count' => 0]);
+    $response->assertJsonPath('files.0.type', 'other')->assertJsonPath('skipped_count', 0);
     expect($vault->nodes()->count())->toBe(1);
+    expect($vault->nodes()->withoutGlobalScope(SupportedVaultNodeScope::class)->count())->toBe(2);
     $path = app(GetPathFromVaultNode::class)->handle($folder) . '/' . $fileName;
     expect(Storage::disk('local')->get($path))->toBe($content);
 })->with([
     'unsupported extension' => ['script.sh', 'echo'],
     'no extension' => ['README', 'readme'],
-    'hidden file' => ['.md', 'hidden'],
 ]);
 
-it('saves files whose content does not match their extension on disk without a node', function (): void {
+it('saves files whose content does not match their extension as hidden nodes', function (): void {
     $user = User::factory()->create();
     $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
     Storage::disk('local')->put('public/photo.png', '<html></html>');
@@ -182,33 +183,29 @@ it('saves files whose content does not match their extension on disk without a n
             'parent_id' => null,
             'files' => [$uploadFile],
         ])
-        ->assertExactJson(['files' => [], 'passthrough_count' => 1, 'skipped_count' => 0]);
+        ->assertJsonPath('files.0.type', 'other');
 
     expect($vault->nodes()->count())->toBe(0);
     $path = app(GetPathFromVault::class)->handle($vault) . 'photo.png';
     expect(Storage::disk('local')->get($path))->toBe('<html></html>');
 });
 
-it('suffixes files without a node when the name is taken', function (string $fileName, string $suffixedName): void {
+it('suffixes unsupported files when the name is taken', function (): void {
     $user = User::factory()->create();
     $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
     $vaultPath = app(GetPathFromVault::class)->handle($vault);
-    Storage::disk('local')->put($vaultPath . $fileName, 'old');
-    $uploadFile = UploadedFile::fake()->createWithContent($fileName, 'new');
 
-    $this->actingAs($user)
-        ->post(route('vaults.nodes.import', ['vault' => $vault->id]), [
-            'parent_id' => null,
-            'files' => [$uploadFile],
-        ])
-        ->assertExactJson(['files' => [], 'passthrough_count' => 1, 'skipped_count' => 0]);
+    foreach (['old', 'new'] as $content) {
+        $this->actingAs($user)
+            ->post(route('vaults.nodes.import', ['vault' => $vault->id]), [
+                'parent_id' => null,
+                'files' => [UploadedFile::fake()->createWithContent('data.json', $content)],
+            ]);
+    }
 
-    expect(Storage::disk('local')->get($vaultPath . $fileName))->toBe('old');
-    expect(Storage::disk('local')->get($vaultPath . $suffixedName))->toBe('new');
-})->with([
-    'file' => ['data.json', 'data-1.json'],
-    'dotfile' => ['.env', '.env-1'],
-]);
+    expect(Storage::disk('local')->get($vaultPath . 'data.json'))->toBe('old');
+    expect(Storage::disk('local')->get($vaultPath . 'data-1.json'))->toBe('new');
+});
 
 it('suffixes imported files when the name is taken by a file without a node', function (): void {
     $user = User::factory()->create();
@@ -228,20 +225,48 @@ it('suffixes imported files when the name is taken by a file without a node', fu
     expect(Storage::disk('local')->get($vaultPath . 'note-1.md'))->toBe('new');
 });
 
-it('skips files whose names cannot be stored', function (): void {
+it('imports a file that is exactly at the upload limit', function (): void {
     $user = User::factory()->create();
     $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
-    $uploadFile = UploadedFile::fake()->createWithContent(str_repeat('a', 253) . '.md', 'too long');
+    $uploadFile = UploadedFile::fake()->create(
+        'document.pdf',
+        UploadLimit::kilobytes(),
+        'application/pdf',
+    );
+
+    $response = $this->actingAs($user)
+        ->post(
+            route('vaults.nodes.import', ['vault' => $vault->id]),
+            [
+                'parent_id' => null,
+                'files' => [$uploadFile],
+            ],
+            ['Accept' => 'application/json'],
+        );
+
+    $response->assertOk();
+    expect($vault->nodes()->count())->toBe(1);
+});
+
+it('skips hidden files and files whose names cannot be stored', function (string $fileName): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $uploadFile = UploadedFile::fake()->createWithContent($fileName, 'content');
 
     $this->actingAs($user)
         ->post(route('vaults.nodes.import', ['vault' => $vault->id]), [
             'parent_id' => null,
             'files' => [$uploadFile],
         ])
-        ->assertExactJson(['files' => [], 'passthrough_count' => 0, 'skipped_count' => 1]);
+        ->assertExactJson(['files' => [], 'skipped_count' => 1]);
 
-    expect($vault->nodes()->count())->toBe(0);
-});
+    expect($vault->nodes()->withoutGlobalScope(SupportedVaultNodeScope::class)->count())->toBe(0);
+    expect(Storage::disk('local')->allFiles(app(GetPathFromVault::class)->handle($vault)))->toBe([]);
+})->with([
+    'hidden note' => ['.md'],
+    'hidden file' => ['.env'],
+    'name over 255 bytes' => [str_repeat('a', 253) . '.md'],
+]);
 
 it('does not import a file without permissions', function (): void {
     [$user1, $user2] = User::factory(2)->create();
@@ -300,29 +325,6 @@ it('does not import a file larger than the upload limit', function (): void {
     $response->assertUnprocessable();
     $response->assertJsonValidationErrors('files.0');
     expect($vault->nodes()->count())->toBe(0);
-});
-
-it('imports a file that is exactly at the upload limit', function (): void {
-    $user = User::factory()->create();
-    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
-    $uploadFile = UploadedFile::fake()->create(
-        'document.pdf',
-        UploadLimit::kilobytes(),
-        'application/pdf',
-    );
-
-    $response = $this->actingAs($user)
-        ->post(
-            route('vaults.nodes.import', ['vault' => $vault->id]),
-            [
-                'parent_id' => null,
-                'files' => [$uploadFile],
-            ],
-            ['Accept' => 'application/json'],
-        );
-
-    $response->assertOk();
-    expect($vault->nodes()->count())->toBe(1);
 });
 
 it('does not import when no files are sent', function (): void {

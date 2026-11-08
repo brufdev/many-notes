@@ -18,35 +18,27 @@ final readonly class ProcessImportedFile
         string $fileName,
         string $filePath,
         string $mimeType,
-    ): ?VaultNode {
-        // Keep unsupported and hidden files on disk only
-        if (app(IsPassthroughFile::class)->handle($fileName, $mimeType)) {
-            $directory = app(GetPathFromVaultFolder::class)->handle($vault, $parent);
-            $fileName = app(GetAvailableFileName::class)->handle($directory, $fileName);
-            Storage::disk('local')->putFileAs($directory, new File($filePath), $fileName);
-
-            return null;
-        }
-
+    ): VaultNode {
         $createVaultNode = app(CreateVaultNode::class);
 
+        $pathInfo = pathinfo($fileName);
         $attributes = [
             'parent_id' => $parent?->id,
             'is_file' => true,
+            'name' => $pathInfo['filename'],
+            'extension' => $pathInfo['extension'] ?? null,
+            'content' => null,
+            'is_supported' => app(IsSupportedFile::class)->handle($fileName, $mimeType),
         ];
-        $pathInfo = pathinfo($fileName);
-        $attributes['name'] = $pathInfo['filename'];
-        $attributes['extension'] = $pathInfo['extension'] ?? '';
-        $attributes['content'] = null;
 
-        if (in_array($attributes['extension'], Note::extensions())) {
+        if ($attributes['is_supported'] && in_array($attributes['extension'], Note::extensions())) {
             $attributes['extension'] = 'md';
             $attributes['content'] = (string) file_get_contents($filePath);
         }
 
         $node = $createVaultNode->handle($vault, $attributes);
 
-        if ($node->extension !== 'md') {
+        if ($attributes['content'] === null) {
             $relativePath = app(GetPathFromVaultNode::class)->handle($node);
             $pathInfo = pathinfo($relativePath);
             $savePath = $pathInfo['dirname'] ?? '';

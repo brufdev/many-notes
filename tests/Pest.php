@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Actions\CreateVaultNode;
+use App\Models\Vault;
+use App\Models\VaultNode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -70,4 +73,18 @@ function createZipUpload(array $entries): UploadedFile
     $zip->close();
 
     return UploadedFile::fake()->createWithContent('vault.zip', (string) file_get_contents($path));
+}
+
+function createUnsupportedNode(Vault $vault, string $fileName, ?int $parentId = null): VaultNode
+{
+    $pathInfo = pathinfo($fileName);
+
+    return app(CreateVaultNode::class)->handle($vault, [
+        'parent_id' => $parentId,
+        'is_file' => true,
+        'name' => $pathInfo['filename'],
+        'extension' => $pathInfo['extension'] ?? null,
+        'content' => 'unsupported',
+        'is_supported' => false,
+    ]);
 }

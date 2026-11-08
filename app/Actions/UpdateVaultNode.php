@@ -29,6 +29,10 @@ final readonly class UpdateVaultNode
         $originalPath = app(GetPathFromVaultNode::class)->handle($node);
         $originalLinkPath = '';
 
+        if (!$node->is_supported) {
+            unset($attributes['content']);
+        }
+
         $isNameAttributeChanged = array_key_exists('name', $attributes)
             && $attributes['name'] !== $node->name;
         $isParentIdAttributeChanged = array_key_exists('parent_id', $attributes)

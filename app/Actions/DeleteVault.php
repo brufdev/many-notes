@@ -6,6 +6,7 @@ namespace App\Actions;
 
 use App\Events\VaultDeletedEvent;
 use App\Events\VaultListUpdatedEvent;
+use App\Models\Scopes\SupportedVaultNodeScope;
 use App\Models\Vault;
 use App\Notifications\CollaborationAccepted;
 use App\Notifications\CollaborationDeclined;
@@ -66,13 +67,14 @@ final readonly class DeleteVault
         broadcast(new VaultDeletedEvent($vault))->toOthers();
     }
 
-    /**
-     * Delete vault from the database.
-     */
     private function deleteFromDatabase(Vault $vault): void
     {
         $deleteVaultNode = app(DeleteVaultNode::class);
-        $rootNodes = $vault->nodes()->whereNull('parent_id')->get();
+        $rootNodes = $vault->nodes()
+            ->withoutGlobalScope(SupportedVaultNodeScope::class)
+            ->whereNull('parent_id')
+            ->with('vault')
+            ->get();
 
         foreach ($rootNodes as $node) {
             $deleteVaultNode->handle($node, false);
@@ -81,9 +83,6 @@ final readonly class DeleteVault
         $vault->delete();
     }
 
-    /**
-     * Delete vault from the disk.
-     */
     private function deleteFromDisk(Vault $vault): void
     {
         $vaultPath = app(GetPathFromUser::class)->handle($vault->user) . $vault->name;

@@ -65,6 +65,31 @@ it('deletes a vault without a folder in the disk', function (): void {
     expect($user->vaults()->count())->toBe(0);
 });
 
+it('deletes a vault with several root nodes', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    app(CreateVaultNode::class)->handle($vault, ['is_file' => true, 'name' => 'One', 'extension' => 'md']);
+    app(CreateVaultNode::class)->handle($vault, ['is_file' => true, 'name' => 'Two', 'extension' => 'md']);
+
+    $this->actingAs($user)
+        ->delete(route('vaults.destroy', ['vault' => $vault->id]));
+
+    expect($user->vaults()->count())->toBe(0);
+});
+
+it('deletes a vault with unsupported files', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $folder = app(CreateVaultNode::class)->handle($vault, ['is_file' => false, 'name' => 'Attachments']);
+    createUnsupportedNode($vault, 'data.json', $folder->id);
+    createUnsupportedNode($vault, 'Board.canvas');
+
+    $this->actingAs($user)
+        ->delete(route('vaults.destroy', ['vault' => $vault->id]));
+
+    expect($user->vaults()->count())->toBe(0);
+});
+
 it('does not delete a vault without permissions', function (): void {
     $user = User::factory()->create();
     $secondUser = User::factory()->hasVaults(1)->create();

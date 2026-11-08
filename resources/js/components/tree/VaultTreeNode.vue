@@ -18,6 +18,7 @@ import EllipsisVertical from '@/icons/EllipsisVertical.vue';
 import FileAudio from '@/icons/FileAudio.vue';
 import FileImage from '@/icons/FileImage.vue';
 import FileMarkdown from '@/icons/FileMarkdown.vue';
+import FileOther from '@/icons/FileOther.vue';
 import FilePDF from '@/icons/FilePDF.vue';
 import FileVideo from '@/icons/FileVideo.vue';
 import FolderPlus from '@/icons/FolderPlus.vue';
@@ -69,6 +70,7 @@ const node = computed(() => {
     return node;
 });
 
+const isUnsupported = computed(() => node.value.type === 'other');
 const isTemplateFolder = computed(() => vaultStore.isTemplateFolder(props.nodeId));
 const isExpanded = computed(() => vaultTreeStore.isFolderExpanded(props.nodeId));
 const isSelected = computed(() => vaultTreeStore.getSelectedFileId() === props.nodeId);
@@ -89,6 +91,10 @@ const isValidDropAfter = computed(() => {
 });
 
 function handleClick() {
+    if (isUnsupported.value) {
+        return;
+    }
+
     if (node.value.is_file) {
         if (isSmallScreen.value) {
             layoutStore.closePanels();
@@ -121,6 +127,7 @@ function handleClick() {
         >
             <div
                 class="flex min-w-0 flex-1 items-center gap-2 py-1"
+                :class="{ 'cursor-default opacity-50': isUnsupported }"
                 :title="node.name"
                 @click="handleClick"
             >
@@ -133,6 +140,7 @@ function handleClick() {
                             :class="{ 'rotate-270': !isExpanded }"
                         />
                     </template>
+                    <FileOther v-else-if="isUnsupported" class="h-4 w-4 opacity-70" />
                     <FileMarkdown v-else-if="node.extension === 'md'" class="h-4 w-4 opacity-70" />
                     <FileAudio v-else-if="node.type === 'audio'" class="h-4 w-4 opacity-70" />
                     <FileImage v-else-if="node.type === 'image'" class="h-4 w-4 opacity-70" />

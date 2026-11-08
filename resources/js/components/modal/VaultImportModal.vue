@@ -26,11 +26,15 @@ const handleSubmit = () => {
     const file = fileUpload.value.files[0];
 
     const extension = file.name.split('.').pop()?.toLowerCase();
-    const invalidExtension = !extension || extension !== 'zip';
-    const invalidSize = file.size > uploadMaxFilesizeBytes.value;
 
-    if (invalidExtension || invalidSize) {
-        createToast('The file is not valid', 'error');
+    if (extension !== 'zip') {
+        createToast('Only zip files can be imported', 'error');
+
+        return;
+    }
+
+    if (file.size > uploadMaxFilesizeBytes.value) {
+        createToast(`The zip must be smaller than ${uploadMaxFilesize.value}`, 'error');
 
         return;
     }

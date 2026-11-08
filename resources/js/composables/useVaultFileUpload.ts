@@ -1,6 +1,7 @@
 import VaultNodeImportController from '@/actions/App/Http/Controllers/VaultNodeImportController';
 import { useRequest } from '@/composables/useRequest';
 import { useToast } from '@/composables/useToast';
+import { useVaultTreePreferences } from '@/composables/useVaultTreePreferences';
 import { useVaultRecentFileStore } from '@/stores/vaultRecentFile';
 import { useVaultTreeStore } from '@/stores/vaultTree';
 import { VaultNode } from '@/types/vault';
@@ -35,6 +36,7 @@ export function useVaultFileUpload() {
     const vaultTreeStore = useVaultTreeStore();
     const page = usePage();
     const { createToast } = useToast();
+    const { isShowingUnsupportedFiles } = useVaultTreePreferences();
 
     const uploadMaxFilesizeBytes = computed(
         () => page.props.app?.metadata?.upload_max_filesize_bytes ?? 0
@@ -77,21 +79,19 @@ export function useVaultFileUpload() {
         form.files = validFiles;
 
         form.post(VaultNodeImportController.url({ vault: options.vaultId }), {
-            onSuccess: (response: {
-                files: VaultNode[];
-                passthrough_count: number;
-                skipped_count: number;
-            }) => {
-                const importedCount = response.files.length;
-                const hiddenCount = response.passthrough_count;
+            onSuccess: (response: { files: VaultNode[]; skipped_count: number }) => {
+                const hiddenCount = isShowingUnsupportedFiles.value
+                    ? 0
+                    : response.files.filter(file => file.type === 'other').length;
+                const importedCount = response.files.length - hiddenCount;
                 const skippedCount = response.skipped_count;
                 const skippedMessage = skippedCount > 0 ? `, ${skippedCount} skipped` : '';
 
                 if (importedCount === 0 && hiddenCount === 0) {
                     const message =
                         skippedCount === 1
-                            ? 'File name is too long or invalid'
-                            : 'File names are too long or invalid';
+                            ? 'Hidden or invalid file name'
+                            : 'Hidden or invalid file names';
                     createToast(message, 'error');
 
                     return;
@@ -101,21 +101,19 @@ export function useVaultFileUpload() {
                     const message =
                         hiddenCount === 1 ? 'file saved, not shown' : 'files saved, not shown';
                     createToast(`${hiddenCount} ${message}${skippedMessage}`, 'info');
-
-                    return;
+                } else {
+                    const message = importedCount === 1 ? 'file imported' : 'files imported';
+                    const hiddenMessage = hiddenCount > 0 ? `, ${hiddenCount} not shown` : '';
+                    createToast(
+                        `${importedCount} ${message}${hiddenMessage}${skippedMessage}`,
+                        'success'
+                    );
                 }
-
-                const message = importedCount === 1 ? 'file imported' : 'files imported';
-                const hiddenMessage = hiddenCount > 0 ? `, ${hiddenCount} not shown` : '';
-                createToast(
-                    `${importedCount} ${message}${hiddenMessage}${skippedMessage}`,
-                    'success'
-                );
 
                 for (const file of response.files) {
                     vaultTreeStore.handleNodeSaved(file);
 
-                    if (file.is_file) {
+                    if (file.is_file && file.type !== 'other') {
                         vaultRecentFileStore.upsertRecentFile(file);
                     }
                 }

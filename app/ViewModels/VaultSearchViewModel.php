@@ -15,7 +15,7 @@ final readonly class VaultSearchViewModel
         public string $type,
         public string $name,
         public string $content,
-        public string $extension,
+        public ?string $extension,
         public string $full_path,
         public CarbonImmutable $updated_at,
     ) {

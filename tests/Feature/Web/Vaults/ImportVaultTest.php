@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Actions\CreateVault;
 use App\Actions\GetPathFromVault;
 use App\Actions\GetPathFromVaultNode;
+use App\Models\Scopes\SupportedVaultNodeScope;
 use App\Models\User;
 use App\Models\VaultNode;
 use App\Services\UploadLimit;
@@ -202,27 +203,39 @@ it('skips junk entries added by operating systems', function (): void {
     expect(importedVaultPaths($user))->toBe(['Notes/', 'Notes/Plan.md']);
 });
 
-it('keeps hidden and unsupported zip entries on disk without a node', function (): void {
+it('keeps hidden zip entries on disk and unsupported ones as hidden nodes', function (): void {
     $user = User::factory()->create();
-    $passthroughFiles = [
+    $hiddenFiles = [
         '.obsidian/app.json' => '{}',
+        'Notes/.trash/Old.md' => 'old',
+    ];
+    $unsupportedFiles = [
         'Attachments/data.json' => '[]',
         'Board.canvas' => '{"nodes":[]}',
-        'Notes/.trash/Old.md' => 'old',
         'README' => 'readme',
         'photo.png' => '<html></html>',
     ];
-    $file = createZipUpload(['.obsidian/plugins/' => null, ...$passthroughFiles, 'Notes/Plan.md' => 'plan']);
+    $file = createZipUpload([
+        '.obsidian/plugins/' => null,
+        ...$hiddenFiles,
+        ...$unsupportedFiles,
+        'Notes/Plan.md' => 'plan',
+    ]);
 
     $this->actingAs($user)
         ->post(route('vaults.import'), ['file' => $file])
         ->assertOk();
 
+    $vault = $user->vaults()->firstOrFail();
     expect(importedVaultPaths($user))->toBe(['Attachments/', 'Notes/', 'Notes/Plan.md']);
-    $vaultPath = app(GetPathFromVault::class)->handle($user->vaults()->first());
+    expect($vault->nodes()->withoutGlobalScope(SupportedVaultNodeScope::class)->where('is_supported', false)->get()
+        ->map(fn(VaultNode $node): string => $node->type()->value . ':' . $node->name)
+        ->sort()->values()->all())
+        ->toBe(['other:Board', 'other:README', 'other:data', 'other:photo']);
+    $vaultPath = app(GetPathFromVault::class)->handle($vault);
     expect(Storage::disk('local')->path($vaultPath . '.obsidian/plugins'))->toBeDirectory();
 
-    foreach ($passthroughFiles as $path => $content) {
+    foreach ([...$hiddenFiles, ...$unsupportedFiles] as $path => $content) {
         expect(Storage::disk('local')->get($vaultPath . $path))->toBe($content);
     }
 });

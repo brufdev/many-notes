@@ -18,7 +18,8 @@ final readonly class CreateVaultNode
      *   is_file: bool,
      *   name: string,
      *   extension?: string|null,
-     *   content?: string|null
+     *   content?: string|null,
+     *   is_supported?: bool
      * } $attributes
      */
     public function handle(
@@ -30,6 +31,8 @@ final readonly class CreateVaultNode
         $attributes['parent_id'] ??= null;
         $attributes['extension'] ??= null;
         $attributes['content'] ??= null;
+        $attributes['is_supported'] ??= true;
+        $isNote = $attributes['is_supported'] && $attributes['extension'] === 'md';
 
         // Generate a new filename if the current one already exists
         $attributes['name'] = app(GetAvailableVaultNodeName::class)->handle(
@@ -41,20 +44,21 @@ final readonly class CreateVaultNode
         );
 
         // Save node to database
-        $databaseContent = $attributes['extension'] === 'md' ? $attributes['content'] : null;
+        $databaseContent = $isNote ? $attributes['content'] : null;
         $node = $vault->nodes()->create([
             'parent_id' => $attributes['parent_id'],
             'is_file' => $attributes['is_file'],
             'name' => $attributes['name'],
             'extension' => $attributes['extension'],
             'content' => $databaseContent,
+            'is_supported' => $attributes['is_supported'],
         ]);
 
         // Save node to disk
         $nodePath = app(GetPathFromVaultNode::class)->handle($node);
 
         if ($node->is_file) {
-            if ($node->extension === 'md' && $processLinksAndTags) {
+            if ($isNote && $processLinksAndTags) {
                 app(ProcessVaultNodeLinks::class)->handle($node);
                 app(ProcessVaultNodeTags::class)->handle($node);
             }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
+use App\Models\Scopes\SupportedVaultNodeScope;
 use App\Models\Vault;
 use App\Models\VaultNode;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -63,6 +64,7 @@ final readonly class GetAvailableVaultNodeName
         ?int $ignoreId,
     ): HasMany {
         $siblings = $vault->nodes()
+            ->withoutGlobalScope(SupportedVaultNodeScope::class)
             ->where('parent_id', $parentId)
             ->where('is_file', $isFile)
             ->where('extension', $extension);
@@ -83,7 +85,9 @@ final readonly class GetAvailableVaultNodeName
 
     private function ignoredPath(Vault $vault, ?int $ignoreId): ?string
     {
-        $node = $ignoreId === null ? null : $vault->nodes()->find($ignoreId);
+        $node = $ignoreId === null
+            ? null
+            : $vault->nodes()->withoutGlobalScope(SupportedVaultNodeScope::class)->find($ignoreId);
 
         return $node instanceof VaultNode
             ? mb_strtolower(app(GetPathFromVaultNode::class)->handle($node))

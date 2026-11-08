@@ -6,6 +6,7 @@ namespace App\Actions;
 
 use App\Events\VaultNodeDeletedEvent;
 use App\Events\VaultTemplateListUpdatedEvent;
+use App\Models\Scopes\SupportedVaultNodeScope;
 use App\Models\VaultNode;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -38,7 +39,7 @@ final readonly class DeleteVaultNode
         $deletedNodeIds = [$node->id];
 
         if (!$node->is_file) {
-            foreach ($node->children()->get() as $child) {
+            foreach ($node->children()->withoutGlobalScope(SupportedVaultNodeScope::class)->get() as $child) {
                 $deletedNodeIds = [
                     ...$deletedNodeIds,
                     ...$this->deleteFromDatabase($child),

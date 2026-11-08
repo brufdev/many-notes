@@ -34,7 +34,7 @@ export interface VaultNode {
     vault_id: number;
     parent_id: number | null;
     is_file: boolean;
-    type: 'audio' | 'folder' | 'image' | 'note' | 'pdf' | 'video';
+    type: 'audio' | 'folder' | 'image' | 'note' | 'other' | 'pdf' | 'video';
     name: string;
     extension: string | null;
     full_path: string;

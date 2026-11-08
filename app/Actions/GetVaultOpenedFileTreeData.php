@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
+use App\Models\Scopes\SupportedVaultNodeScope;
 use App\Models\Vault;
 use App\Models\VaultNode;
 use Illuminate\Support\Collection as SupportCollection;
@@ -31,6 +32,7 @@ final readonly class GetVaultOpenedFileTreeData
             /** @var SupportCollection<int, Collection<int, VaultNode>> $ancestorsChildren */
             $ancestorsChildren = $vault
                 ->nodes()
+                ->withoutGlobalScope(SupportedVaultNodeScope::class)
                 ->whereIn('parent_id', $ancestorsIds)
                 ->orderBy('parent_id')
                 ->orderBy('name')
@@ -40,6 +42,7 @@ final readonly class GetVaultOpenedFileTreeData
 
         $siblings = $vault
             ->nodes()
+            ->withoutGlobalScope(SupportedVaultNodeScope::class)
             ->where('parent_id', $file->parent_id)
             ->get();
 

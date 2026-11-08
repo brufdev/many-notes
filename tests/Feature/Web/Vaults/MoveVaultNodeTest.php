@@ -228,6 +228,23 @@ it('suffixes the name of a moved node on collision', function (): void {
     expect(Storage::disk('local')->get($path . 'note-1.md'))->toBe('The one being moved');
 });
 
+it('moves an unsupported file', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $folder = app(CreateVaultNode::class)->handle($vault, ['is_file' => false, 'name' => 'Attachments']);
+    $node = createUnsupportedNode($vault, 'data.json');
+
+    $this->actingAs($user)
+        ->patch(
+            route('vaults.nodes.move', ['vault' => $vault->id, 'node' => $node->id]),
+            ['parent_id' => $folder->id],
+        )
+        ->assertOk();
+
+    expect(Storage::disk('local')->get(app(GetPathFromVault::class)->handle($vault) . 'Attachments/data.json'))
+        ->toBe('unsupported');
+});
+
 it('does not move a node without permissions', function (): void {
     [$user1, $user2] = User::factory(2)->create();
     $vault = app(CreateVault::class)->handle($user1, ['name' => fake()->words(3, true)]);

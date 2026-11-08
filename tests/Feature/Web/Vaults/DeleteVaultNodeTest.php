@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Actions\CreateVault;
 use App\Actions\CreateVaultNode;
 use App\Actions\GetPathFromVault;
+use App\Models\Scopes\SupportedVaultNodeScope;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 
@@ -73,6 +74,33 @@ it('deletes files without a node with their folder', function (): void {
         ->assertOk();
 
     expect(Storage::disk('local')->exists($vaultPath . 'Notes'))->toBeFalse();
+});
+
+it('deletes an unsupported file', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $node = createUnsupportedNode($vault, 'Board.canvas');
+
+    $this->actingAs($user)
+        ->delete(route('vaults.nodes.destroy', ['vault' => $vault->id, 'node' => $node->id]))
+        ->assertOk();
+
+    expect($vault->nodes()->withoutGlobalScope(SupportedVaultNodeScope::class)->count())->toBe(0);
+    expect(Storage::disk('local')->exists(app(GetPathFromVault::class)->handle($vault) . 'Board.canvas'))
+        ->toBeFalse();
+});
+
+it('deletes a folder with unsupported files', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $folder = app(CreateVaultNode::class)->handle($vault, ['is_file' => false, 'name' => 'Attachments']);
+    createUnsupportedNode($vault, 'data.json', $folder->id);
+
+    $this->actingAs($user)
+        ->delete(route('vaults.nodes.destroy', ['vault' => $vault->id, 'node' => $folder->id]))
+        ->assertOk();
+
+    expect($vault->nodes()->withoutGlobalScope(SupportedVaultNodeScope::class)->count())->toBe(0);
 });
 
 it('does not delete a file without permissions', function (): void {

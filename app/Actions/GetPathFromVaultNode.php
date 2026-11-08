@@ -31,7 +31,7 @@ final readonly class GetPathFromVaultNode
         );
 
         if ($includeSelf) {
-            $path .= $node->name . ($node->is_file ? '.' . $node->extension : '');
+            $path .= $node->name . ($node->is_file && $node->extension !== null ? ".{$node->extension}" : '');
         }
 
         return $path;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\VaultNodeType;
+use App\Models\Scopes\SupportedVaultNodeScope;
 use App\Services\VaultFiles\Types\Audio;
 use App\Services\VaultFiles\Types\Image;
 use App\Services\VaultFiles\Types\Note;
@@ -12,12 +13,16 @@ use App\Services\VaultFiles\Types\Pdf;
 use App\Services\VaultFiles\Types\Video;
 use Carbon\CarbonImmutable;
 use Database\Factories\VaultNodeFactory;
+use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
+use Illuminate\Database\Eloquent\Attributes\ScopedBy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Laravel\Scout\Searchable;
 use Override;
 use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
@@ -28,7 +33,8 @@ use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
  * @property-read int|null $parent_id
  * @property-read bool $is_file
  * @property-read string $name
- * @property-read string $extension
+ * @property-read string|null $extension
+ * @property-read bool $is_supported
  * @property-read string $full_path
  * @property-read string|null $content
  * @property-read CarbonImmutable $created_at
@@ -39,6 +45,7 @@ use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
  * @property-read Collection<int, VaultNode> $backlinks
  * @property-read Collection<int, Tag> $tags
  */
+#[ScopedBy([SupportedVaultNodeScope::class])]
 final class VaultNode extends Model
 {
     /** @use HasFactory<VaultNodeFactory> */
@@ -46,6 +53,11 @@ final class VaultNode extends Model
 
     use HasRecursiveRelationships;
     use Searchable;
+
+    /** @var array<string, mixed> */
+    protected $attributes = [
+        'is_supported' => true,
+    ];
 
     /** @return BelongsTo<Vault, $this> */
     public function vault(): BelongsTo
@@ -99,6 +111,7 @@ final class VaultNode extends Model
             && $this->parent_id !== null
             && $this->is_file === true
             && $this->extension === 'md'
+            && $this->is_supported
             /** @phpstan-ignore-next-line larastan.noUnnecessaryCollectionCall */
             && $this->ancestors()->get()->contains($this->vault->templates_node_id);
     }
@@ -106,6 +119,7 @@ final class VaultNode extends Model
     public function type(): VaultNodeType
     {
         return match (true) {
+            $this->is_file && !$this->is_supported => VaultNodeType::OTHER,
             in_array($this->extension, Audio::extensions()) => VaultNodeType::AUDIO,
             in_array($this->extension, Note::extensions()) => VaultNodeType::NOTE,
             in_array($this->extension, Image::extensions()) => VaultNodeType::IMAGE,
@@ -117,7 +131,11 @@ final class VaultNode extends Model
 
     public function fullPath(): string
     {
-        return (string) $this->ancestorsAndSelf()->orderBy('depth')->first()?->full_path;
+        return (string) $this->ancestorsAndSelf()
+            ->withoutGlobalScope(SupportedVaultNodeScope::class)
+            ->orderBy('depth')
+            ->first()
+            ?->full_path;
     }
 
     /** @return list<array{name: string, column: string, separator: string, reverse: bool}> */
@@ -147,7 +165,21 @@ final class VaultNode extends Model
 
     public function shouldBeSearchable(): bool
     {
-        return (bool) $this->is_file;
+        return $this->is_file && $this->is_supported;
+    }
+
+    /**
+     * @param Model|Builder<VaultNode>|Relation<VaultNode, Model, mixed> $query
+     * @param mixed $value
+     * @param string|null $field
+     */
+    #[Override]
+    public function resolveRouteBindingQuery($query, $value, $field = null): BuilderContract
+    {
+        $query = $query instanceof Model ? $query->newQuery() : $query;
+        $query = $query->withoutGlobalScope(SupportedVaultNodeScope::class);
+
+        return parent::resolveRouteBindingQuery($query, $value, $field);
     }
 
     #[Override]
@@ -155,6 +187,7 @@ final class VaultNode extends Model
     {
         return [
             'is_file' => 'boolean',
+            'is_supported' => 'boolean',
         ];
     }
 }

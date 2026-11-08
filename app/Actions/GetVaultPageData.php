@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
+use App\Models\Scopes\SupportedVaultNodeScope;
 use App\Models\Tag;
 use App\Models\Vault;
 use App\Models\VaultNode;
@@ -34,8 +35,8 @@ final readonly class GetVaultPageData
     /** @return Collection<int, VaultNode> */
     private function getRecentFiles(Vault $vault): Collection
     {
-        return VaultNode::query()
-            ->where('vault_id', $vault->id)
+        return $vault
+            ->nodes()
             ->where('is_file', true)
             ->orderBy('updated_at', 'desc')
             ->limit(10)
@@ -47,6 +48,7 @@ final readonly class GetVaultPageData
     {
         return $vault
             ->nodes()
+            ->withoutGlobalScope(SupportedVaultNodeScope::class)
             ->whereNull('parent_id')
             ->get();
     }

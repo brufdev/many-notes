@@ -14,7 +14,7 @@ final readonly class VaultEditorSearchViewModel
         public int $id,
         public VaultNodeType $type,
         public string $name,
-        public string $extension,
+        public ?string $extension,
         public string $full_path,
         public string $full_path_encoded,
         public string $dir_name,

@@ -91,3 +91,11 @@ it('does not treat a percent sign in a name as a wildcard', function (): void {
 
     expect($action->handle($vault->id, '%.md'))->toBeNull();
 });
+
+it('does not resolve an unsupported file', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    createUnsupportedNode($vault, 'Board.canvas');
+
+    expect(app(GetVaultNodeFromPath::class)->handle($vault->id, 'Board.canvas'))->toBeNull();
+});

@@ -38,6 +38,19 @@ it('lists the children of a folder', function (): void {
         ->toHaveCount(1);
 });
 
+it('lists unsupported children of a folder', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $folder = app(CreateVaultNode::class)->handle($vault, ['is_file' => false, 'name' => 'Attachments']);
+    createUnsupportedNode($vault, 'data.json', $folder->id);
+
+    $this->actingAs($user)
+        ->get(route('vaults.nodes.children', ['vault' => $vault->id, 'node' => $folder->id]))
+        ->assertOk()
+        ->assertJsonPath('children.0.type', 'other')
+        ->assertJsonPath('children.0.full_path', '/Attachments/data.json');
+});
+
 it('does not list the children of a folder without permissions', function (): void {
     [$user1, $user2] = User::factory(2)->create();
     $vault = new CreateVault()->handle($user1, [

@@ -10,6 +10,7 @@ enum VaultNodeType: string
     case FOLDER = 'folder';
     case IMAGE = 'image';
     case NOTE = 'note';
+    case OTHER = 'other';
     case PDF = 'pdf';
     case VIDEO = 'video';
 }

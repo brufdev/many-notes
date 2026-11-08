@@ -47,8 +47,14 @@ export const useVaultTreeStore = defineStore('vaultTree', () => {
         return tree.value.nodesById[id] ?? null;
     }
 
-    function getChildren(parentId: number | null): number[] {
-        return tree.value.childrenByParentId[parentId ?? 0] || [];
+    function getChildren(parentId: number | null, includeUnsupported = true): number[] {
+        const children = tree.value.childrenByParentId[parentId ?? 0] || [];
+
+        if (includeUnsupported) {
+            return children;
+        }
+
+        return children.filter(id => tree.value.nodesById[id]?.type !== 'other');
     }
 
     function isFolderExpanded(id: number): boolean {

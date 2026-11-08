@@ -345,7 +345,7 @@ useEcho<{ data: { user_id: number } }>(
                 </template>
                 <component
                     :is="fileComponents[openedFile.file.type]"
-                    v-if="openedFile.file.type !== 'folder'"
+                    v-if="openedFile.file.type !== 'folder' && openedFile.file.type !== 'other'"
                     :node="openedFile.file"
                     @content-updated="openedFile.file.content = $event"
                 />

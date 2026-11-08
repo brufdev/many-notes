@@ -24,7 +24,7 @@ it('shows the file to a user', function (): void {
 
     $this->actingAs($user)
         ->get($imageUrl)
-        ->assertStatus(200);
+        ->assertOk();
 });
 
 it('shows the file, resolving the path from another file', function (): void {
@@ -46,7 +46,7 @@ it('shows the file, resolving the path from another file', function (): void {
 
     $this->actingAs($user)
         ->get($imageUrl . '&node=' . $textNode->id)
-        ->assertStatus(200);
+        ->assertOk();
 });
 
 it('serves the file with the content type of its extension', function (): void {
@@ -63,7 +63,7 @@ it('serves the file with the content type of its extension', function (): void {
 
     $this->actingAs($user)
         ->get($imageUrl)
-        ->assertStatus(200)
+        ->assertOk()
         ->assertHeader('Content-Type', 'image/jpeg')
         ->assertHeader('X-Content-Type-Options', 'nosniff')
         ->assertHeader('Content-Security-Policy', 'sandbox');
@@ -83,7 +83,7 @@ it('serves pdf files without sandbox', function (): void {
 
     $this->actingAs($user)
         ->get($pdfUrl)
-        ->assertStatus(200)
+        ->assertOk()
         ->assertHeader('Content-Type', 'application/pdf')
         ->assertHeader('X-Content-Type-Options', 'nosniff')
         ->assertHeaderMissing('Content-Security-Policy');
@@ -101,7 +101,7 @@ it('returns a 403 error if the file is a note', function (): void {
 
     $this->actingAs($user)
         ->get($noteUrl)
-        ->assertStatus(403);
+        ->assertForbidden();
 });
 
 it('returns a 404 error if the path is not provided', function (): void {
@@ -110,10 +110,10 @@ it('returns a 404 error if the path is not provided', function (): void {
 
     $this->actingAs($user)
         ->get('/files/' . $vault->id)
-        ->assertStatus(404);
+        ->assertNotFound();
 });
 
-it('return a 404 error if the giving node is from another vault', function (): void {
+it('returns a 404 error if the given node is from another vault', function (): void {
     $user = User::factory()->create();
     $firstVault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
     $secondVault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
@@ -133,7 +133,7 @@ it('return a 404 error if the giving node is from another vault', function (): v
 
     $this->actingAs($user)
         ->get($imageUrl . '&node=' . $textNode->id)
-        ->assertStatus(404);
+        ->assertNotFound();
 });
 
 it('returns a 404 error for a file without a node', function (): void {
@@ -143,10 +143,10 @@ it('returns a 404 error for a file without a node', function (): void {
 
     $this->actingAs($user)
         ->get('/files/' . $vault->id . '?path=/photo.png')
-        ->assertStatus(404);
+        ->assertNotFound();
 });
 
-it('returns a 404 error if the file type is not supported', function (): void {
+it('returns a 404 error if the extension has no content type', function (): void {
     $user = User::factory()->create();
     $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
     $htmlNode = app(CreateVaultNode::class)->handle($vault, [
@@ -160,5 +160,15 @@ it('returns a 404 error if the file type is not supported', function (): void {
 
     $this->actingAs($user)
         ->get($htmlUrl)
-        ->assertStatus(404);
+        ->assertNotFound();
+});
+
+it('returns a 404 error for a node flagged unsupported', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $node = createUnsupportedNode($vault, 'photo.png');
+
+    $this->actingAs($user)
+        ->get(app(GetUrlFromVaultNode::class)->handle($node))
+        ->assertNotFound();
 });
