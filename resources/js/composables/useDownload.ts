@@ -59,9 +59,23 @@ export function useDownload() {
             return null;
         }
 
-        const results = /filename="?([^"]+)"?$/.exec(disposition);
+        const encoded = /filename\*=utf-8''([^;]+)/i.exec(disposition);
 
-        return results?.[1] ?? null;
+        if (encoded) {
+            try {
+                return decodeURIComponent(encoded[1]);
+            } catch {
+                // Fall back to the plain name
+            }
+        }
+
+        const quoted = /filename="((?:[^"\\]|\\.)*)"/i.exec(disposition);
+
+        if (quoted) {
+            return quoted[1].replace(/\\(.)/g, '$1');
+        }
+
+        return /filename=([^;]+)/i.exec(disposition)?.[1].trim() ?? null;
     };
 
     return {

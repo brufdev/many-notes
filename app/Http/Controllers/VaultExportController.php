@@ -8,9 +8,7 @@ use App\Actions\ExportVault;
 use App\Models\User;
 use App\Models\Vault;
 use Illuminate\Container\Attributes\CurrentUser;
-use Illuminate\Http\JsonResponse;
-use Symfony\Component\HttpFoundation\StreamedResponse;
-use Throwable;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 final readonly class VaultExportController
 {
@@ -18,32 +16,18 @@ final readonly class VaultExportController
         Vault $vault,
         #[CurrentUser] User $user,
         ExportVault $exportVault,
-    ): StreamedResponse|JsonResponse {
-        if ($user->cannot('view', $vault)) {
-            return response()->json([
-                'message' => 'Not allowed',
-            ], 403);
-        }
+    ): BinaryFileResponse {
+        abort_unless($user->can('view', $vault), 403, __('Not allowed'));
 
-        try {
-            $path = $exportVault->handle($vault);
-        } catch (Throwable $e) {
-            return response()->json([
-                'message' => $e->getMessage(),
-            ], $e->getCode());
-        }
+        $path = $exportVault->handle($vault);
 
-        return response()->streamDownload(
-            function () use ($path): void {
-                $stream = fopen($path, 'rb');
+        abort_if($path === null, 422, __('Your vault is empty'));
 
-                if ($stream !== false) {
-                    fpassthru($stream);
-                    fclose($stream);
-                    @unlink($path);
-                }
-            },
-            $vault->name . '.zip',
-        );
+        return response()
+            ->download($path, $vault->name . '.zip', [
+                'Content-Type' => 'application/zip',
+                'X-Content-Type-Options' => 'nosniff',
+            ])
+            ->deleteFileAfterSend();
     }
 }

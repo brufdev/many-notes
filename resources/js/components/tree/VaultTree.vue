@@ -1,13 +1,17 @@
 <script setup lang="ts">
+import VaultExportController from '@/actions/App/Http/Controllers/VaultExportController';
 import Menu from '@/components/menu/Menu.vue';
 import MenuItem from '@/components/menu/MenuItem.vue';
 import VaultCollaborationModal from '@/components/modal/VaultCollaborationModal.vue';
 import VaultEditModal from '@/components/modal/VaultEditModal.vue';
 import VaultFilesImportModal from '@/components/modal/VaultFilesImportModal.vue';
 import VaultNodeCreateModal from '@/components/modal/VaultNodeCreateModal.vue';
+import { useDownload } from '@/composables/useDownload';
 import { useModalManager } from '@/composables/useModalManager';
+import { useToast } from '@/composables/useToast';
 import { useVaultActions } from '@/composables/useVaultActions';
 import { useVaultTreePreferences } from '@/composables/useVaultTreePreferences';
+import ArrowDownTray from '@/icons/ArrowDownTray.vue';
 import ArrowUpTray from '@/icons/ArrowUpTray.vue';
 import Bars3 from '@/icons/Bars3.vue';
 import DocumentPlus from '@/icons/DocumentPlus.vue';
@@ -22,7 +26,7 @@ import { useVaultTreeStore } from '@/stores/vaultTree';
 import { VaultNode, VaultNodeTreeDropIndicator } from '@/types/vault';
 import { VaultUpdated } from '@/types/vault.events';
 import { usePage } from '@inertiajs/vue3';
-import { computed, provide, ref } from 'vue';
+import { computed, provide, ref, watch } from 'vue';
 import VaultTreeNode from './VaultTreeNode.vue';
 
 const props = defineProps<{
@@ -36,6 +40,8 @@ const vaultStore = useVaultStore();
 const vaultActions = useVaultActions();
 const vaultTreeStore = useVaultTreeStore();
 const { isShowingUnsupportedFiles, toggleShowingUnsupportedFiles } = useVaultTreePreferences();
+const { createToast } = useToast();
+const { error: downloadError, download } = useDownload();
 
 const userId = computed(() => page.props.app?.user?.id);
 const children = computed(() => vaultTreeStore.getChildren(null, isShowingUnsupportedFiles.value));
@@ -43,6 +49,12 @@ const children = computed(() => vaultTreeStore.getChildren(null, isShowingUnsupp
 const draggingNodeId = ref<number | null>(null);
 const dropIndicator = ref<VaultNodeTreeDropIndicator>(null);
 const isValidDropAfter = computed(() => dropIndicator.value?.type === 'root');
+
+watch(downloadError, message => {
+    if (message) {
+        createToast(message, 'error');
+    }
+});
 
 function canDrop(draggedId: number, target: VaultNode): boolean {
     const node = vaultTreeStore.getNodeById(draggedId);
@@ -235,6 +247,14 @@ provide('vaultTreeDragAndDrop', {
                                                 vaultStore.updateVault(data);
                                             },
                                         });
+                                    "
+                                />
+                                <MenuItem
+                                    label="Export vault"
+                                    :icon="ArrowDownTray"
+                                    @click="
+                                        closeMenu();
+                                        download(VaultExportController.url({ vault: vaultId }));
                                     "
                                 />
                                 <MenuItem

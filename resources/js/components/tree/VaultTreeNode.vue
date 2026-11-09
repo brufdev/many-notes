@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import { destroy } from '@/actions/App/Http/Controllers/VaultNodeController';
+import VaultNodeDownloadController from '@/actions/App/Http/Controllers/VaultNodeDownloadController';
 import Menu from '@/components/menu/Menu.vue';
 import MenuItem from '@/components/menu/MenuItem.vue';
 import RequestConfirmationModal from '@/components/modal/RequestConfirmationModal.vue';
 import VaultFilesImportModal from '@/components/modal/VaultFilesImportModal.vue';
 import VaultNodeCreateModal from '@/components/modal/VaultNodeCreateModal.vue';
 import VaultNodeEditModal from '@/components/modal/VaultNodeEditModal.vue';
+import { useDownload } from '@/composables/useDownload';
 import { useModalManager } from '@/composables/useModalManager';
 import { useScreenSize } from '@/composables/useScreenSize';
+import { useToast } from '@/composables/useToast';
 import { useVaultActions } from '@/composables/useVaultActions';
 import { useVaultTreeActions } from '@/composables/useVaultTreeActions';
+import ArrowDownTray from '@/icons/ArrowDownTray.vue';
 import ArrowUpTray from '@/icons/ArrowUpTray.vue';
 import ChevronDown from '@/icons/ChevronDown.vue';
 import DocumentDuplicate from '@/icons/DocumentDuplicate.vue';
@@ -31,7 +35,7 @@ import { useVaultTreeStore } from '@/stores/vaultTree';
 import { VaultNodeTreeDropIndicator, VaultNodeTreeItem } from '@/types/vault';
 import { VaultShowPageProps } from '@/types/vault.pages';
 import { usePage } from '@inertiajs/vue3';
-import { computed, inject, Ref } from 'vue';
+import { computed, inject, Ref, watch } from 'vue';
 import VaultTreeChildren from './VaultTreeChildren.vue';
 
 interface VaultTreeNodeProps {
@@ -59,6 +63,8 @@ const { openModal } = useModalManager();
 const { isSmallScreen } = useScreenSize();
 const vaultActions = useVaultActions();
 const vaultTreeActions = useVaultTreeActions();
+const { createToast } = useToast();
+const { error: downloadError, download } = useDownload();
 
 const node = computed(() => {
     const node = vaultTreeStore.getNodeById(props.nodeId);
@@ -88,6 +94,12 @@ const isValidDropAfter = computed(() => {
         vaultTreeDragAndDrop.dropIndicator.value?.type === 'after' &&
         vaultTreeDragAndDrop.dropIndicator.value.targetId === node.value.id
     );
+});
+
+watch(downloadError, message => {
+    if (message) {
+        createToast(message, 'error');
+    }
 });
 
 function handleClick() {
@@ -214,6 +226,19 @@ function handleClick() {
                                     isFile: node.is_file,
                                     name: node.name,
                                 });
+                            "
+                        />
+                        <MenuItem
+                            label="Download"
+                            :icon="ArrowDownTray"
+                            @click="
+                                closeMenu();
+                                download(
+                                    VaultNodeDownloadController.url({
+                                        vault: page.props.vault.id,
+                                        node: node.id,
+                                    })
+                                );
                             "
                         />
                         <MenuItem

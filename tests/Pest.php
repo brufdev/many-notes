@@ -9,6 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 /*
@@ -87,4 +88,23 @@ function createUnsupportedNode(Vault $vault, string $fileName, ?int $parentId = 
         'content' => 'unsupported',
         'is_supported' => false,
     ]);
+}
+
+/** @return array<string, string|null> */
+function unzipResponse(TestResponse $response): array
+{
+    Storage::disk('local')->put('public/response.zip', (string) $response->streamedContent());
+    $zip = new ZipArchive();
+    $zip->open(Storage::disk('local')->path('public/response.zip'));
+    $entries = [];
+
+    for ($i = 0; $i < $zip->count(); $i++) {
+        $name = (string) $zip->getNameIndex($i);
+        $entries[$name] = str_ends_with($name, '/') ? null : (string) $zip->getFromIndex($i);
+    }
+
+    $zip->close();
+    ksort($entries);
+
+    return $entries;
 }

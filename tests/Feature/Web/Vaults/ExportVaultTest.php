@@ -7,26 +7,6 @@ use App\Actions\CreateVaultNode;
 use App\Actions\GetPathFromVault;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Testing\TestResponse;
-
-/** @return array<string, string|null> */
-function exportedZipEntries(TestResponse $response): array
-{
-    Storage::disk('local')->put('public/export.zip', (string) $response->streamedContent());
-    $zip = new ZipArchive();
-    $zip->open(Storage::disk('local')->path('public/export.zip'));
-    $entries = [];
-
-    for ($i = 0; $i < $zip->count(); $i++) {
-        $name = (string) $zip->getNameIndex($i);
-        $entries[$name] = str_ends_with($name, '/') ? null : (string) $zip->getFromIndex($i);
-    }
-
-    $zip->close();
-    ksort($entries);
-
-    return $entries;
-}
 
 it('exports a vault', function (): void {
     $user = User::factory()->create();
@@ -55,9 +35,11 @@ it('exports a vault', function (): void {
 
     $response = $this->get(route('vaults.export', ['vault' => $vault->id]));
 
-    $response->assertOk();
+    $response->assertOk()
+        ->assertHeader('Content-Type', 'application/zip')
+        ->assertHeader('X-Content-Type-Options', 'nosniff');
     expect($response->headers->get('Content-Disposition'))->toBe('attachment; filename="' . $vault->name . '.zip"');
-    expect(exportedZipEntries($response))->toBe([
+    expect(unzipResponse($response))->toBe([
         'Notes/' => null,
         'Notes/Plan.md' => 'plan',
         'Photo.jpg' => 'photo',
@@ -83,7 +65,7 @@ it('exports an imported vault unchanged', function (): void {
     $response = $this->get(route('vaults.export', ['vault' => $vault->id]));
 
     $response->assertOk();
-    expect(exportedZipEntries($response))->toBe($entries);
+    expect(unzipResponse($response))->toBe($entries);
 });
 
 it('exports an imported Obsidian vault unchanged', function (): void {
@@ -111,7 +93,7 @@ it('exports an imported Obsidian vault unchanged', function (): void {
     $response = $this->get(route('vaults.export', ['vault' => $vault->id]));
 
     $response->assertOk();
-    expect(exportedZipEntries($response))->toBe($entries);
+    expect(unzipResponse($response))->toBe($entries);
 });
 
 it('exports files on disk that have no node', function (): void {
@@ -127,7 +109,7 @@ it('exports files on disk that have no node', function (): void {
     $response = $this->get(route('vaults.export', ['vault' => $vault->id]));
 
     $response->assertOk();
-    expect(exportedZipEntries($response))->toBe([
+    expect(unzipResponse($response))->toBe([
         '.obsidian/' => null,
         '.obsidian/app.json' => '{}',
     ]);
@@ -148,7 +130,7 @@ it('exports a vault with only an empty folder', function (): void {
     $response = $this->get(route('vaults.export', ['vault' => $vault->id]));
 
     $response->assertOk();
-    expect(exportedZipEntries($response))->toBe(['Empty/' => null]);
+    expect(unzipResponse($response))->toBe(['Empty/' => null]);
 });
 
 it('fails exporting a vault with no permissions', function (): void {
@@ -163,9 +145,10 @@ it('fails exporting a vault with no permissions', function (): void {
 
     $this->actingAs($secondUser);
 
-    $response = $this->get(route('vaults.export', ['vault' => $vault->id]));
+    $response = $this->getJson(route('vaults.export', ['vault' => $vault->id]));
 
-    $response->assertForbidden();
+    $response->assertForbidden()
+        ->assertJsonPath('message', 'Not allowed');
 });
 
 it('fails exporting an empty vault', function (): void {
@@ -176,9 +159,10 @@ it('fails exporting an empty vault', function (): void {
 
     $this->actingAs($user);
 
-    $response = $this->get(route('vaults.export', ['vault' => $vault->id]));
+    $response = $this->getJson(route('vaults.export', ['vault' => $vault->id]));
 
-    $response->assertUnprocessable();
+    $response->assertUnprocessable()
+        ->assertJsonPath('message', 'Your vault is empty');
 });
 
 it('fails exporting a vault whose nodes are missing on disk', function (): void {
@@ -192,7 +176,8 @@ it('fails exporting a vault whose nodes are missing on disk', function (): void 
 
     $this->actingAs($user);
 
-    $response = $this->get(route('vaults.export', ['vault' => $vault->id]));
+    $response = $this->getJson(route('vaults.export', ['vault' => $vault->id]));
 
-    $response->assertUnprocessable();
+    $response->assertUnprocessable()
+        ->assertJsonPath('message', 'Your vault is empty');
 });

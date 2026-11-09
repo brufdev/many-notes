@@ -23,6 +23,7 @@ use App\Http\Controllers\VaultExportController;
 use App\Http\Controllers\VaultImportController;
 use App\Http\Controllers\VaultNodeChildrenController;
 use App\Http\Controllers\VaultNodeController;
+use App\Http\Controllers\VaultNodeDownloadController;
 use App\Http\Controllers\VaultNodeImportController;
 use App\Http\Controllers\VaultNodeMoveController;
 use App\Http\Controllers\VaultSearchController;
@@ -55,6 +56,7 @@ Route::middleware('auth')->group(function (): void {
             Route::patch('', [VaultNodeController::class, 'update'])->name('update');
             Route::delete('', [VaultNodeController::class, 'destroy'])->name('destroy');
             Route::get('children', VaultNodeChildrenController::class)->name('children');
+            Route::get('download', VaultNodeDownloadController::class)->name('download');
             Route::patch('move', VaultNodeMoveController::class)->name('move');
         });
 
