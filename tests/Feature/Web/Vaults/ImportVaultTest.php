@@ -22,6 +22,23 @@ function importedVaultPaths(User $user): array
         ->all();
 }
 
+/** @return list<string> */
+function importedVaultFiles(User $user): array
+{
+    return $user->vaults()->firstOrFail()->nodes()
+        ->withoutGlobalScope(SupportedVaultNodeScope::class)
+        ->where('is_file', true)
+        ->get()
+        ->map(function (VaultNode $node): string {
+            $extension = $node->extension === null ? '' : ".{$node->extension}";
+
+            return "{$node->type()->value}:{$node->fullPath()}{$extension}";
+        })
+        ->sort()
+        ->values()
+        ->all();
+}
+
 it('imports a zip file', function (): void {
     $user = User::factory()->create();
     $file = UploadedFile::fake()->create('test.zip');
@@ -228,16 +245,60 @@ it('keeps hidden zip entries on disk and unsupported ones as hidden nodes', func
 
     $vault = $user->vaults()->firstOrFail();
     expect(importedVaultPaths($user))->toBe(['Attachments/', 'Notes/', 'Notes/Plan.md']);
-    expect($vault->nodes()->withoutGlobalScope(SupportedVaultNodeScope::class)->where('is_supported', false)->get()
-        ->map(fn(VaultNode $node): string => $node->type()->value . ':' . $node->name)
-        ->sort()->values()->all())
-        ->toBe(['other:Board', 'other:README', 'other:data', 'other:photo']);
+    expect(importedVaultFiles($user))->toBe([
+        'note:Notes/Plan.md',
+        'other:Attachments/data.json',
+        'other:Board.canvas',
+        'other:README',
+        'other:photo.png',
+    ]);
     $vaultPath = app(GetPathFromVault::class)->handle($vault);
     expect(Storage::disk('local')->path($vaultPath . '.obsidian/plugins'))->toBeDirectory();
 
     foreach ([...$hiddenFiles, ...$unsupportedFiles] as $path => $content) {
         expect(Storage::disk('local')->get($vaultPath . $path))->toBe($content);
     }
+});
+
+it('lower-cases the extensions of zip entries', function (): void {
+    $user = User::factory()->create();
+    $file = createZipUpload([
+        'Attachments/photo.JPG' => "\xFF\xD8\xFF\xE0jpeg",
+        'Board.CANVAS' => '{"nodes":[]}',
+        'Note.MD' => '#plan ![photo](/Attachments/photo.JPG)',
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => $file])
+        ->assertOk();
+
+    $vault = $user->vaults()->firstOrFail();
+    expect(importedVaultFiles($user))->toBe([
+        'image:Attachments/photo.jpg',
+        'note:Note.md',
+        'other:Board.canvas',
+    ]);
+    $note = $vault->nodes()->where('extension', 'md')->firstOrFail();
+    expect($note->content)->toBe('#plan ![photo](/Attachments/photo.JPG)');
+    expect($note->tags()->pluck('name')->all())->toBe(['plan']);
+    expect($note->links()->pluck('name')->all())->toBe(['photo']);
+    $vaultPath = app(GetPathFromVault::class)->handle($vault);
+    expect(Storage::disk('local')->get($vaultPath . 'Attachments/photo.jpg'))->toBe("\xFF\xD8\xFF\xE0jpeg");
+    expect(Storage::disk('local')->get($vaultPath . 'Board.canvas'))->toBe('{"nodes":[]}');
+});
+
+it('suffixes zip entries whose names only differ in the case of the extension', function (): void {
+    $user = User::factory()->create();
+    $file = createZipUpload([
+        'photo.jpg' => "\xFF\xD8\xFF\xE0lower",
+        'photo.JPG' => "\xFF\xD8\xFF\xE0upper",
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => $file])
+        ->assertOk();
+
+    expect(importedVaultPaths($user))->toBe(['photo-1.jpg', 'photo.jpg']);
 });
 
 it('skips zip entries whose names cannot be stored', function (): void {

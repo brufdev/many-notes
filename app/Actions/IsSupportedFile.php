@@ -10,7 +10,7 @@ final readonly class IsSupportedFile
 {
     public function handle(string $fileName, ?string $mimeType = null): bool
     {
-        $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+        $extension = mb_strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
         if (!in_array($extension, VaultFile::extensions(), true)) {
             return false;

@@ -10,6 +10,7 @@ it('detects supported files', function (string $fileName, ?string $mimeType): vo
     'note' => ['Plan.md', 'text/plain'],
     'image' => ['photo.png', 'image/png'],
     'name checked before the content is read' => ['photo.png', null],
+    'upper-case extension' => ['photo.PNG', 'image/png'],
 ]);
 
 it('detects unsupported files', function (string $fileName, ?string $mimeType): void {
@@ -17,6 +18,5 @@ it('detects unsupported files', function (string $fileName, ?string $mimeType): 
 })->with([
     'unsupported extension' => ['Board.canvas', null],
     'no extension' => ['README', null],
-    'uppercase extension' => ['photo.PNG', 'image/png'],
     'content that does not match the extension' => ['photo.png', 'text/html'],
 ]);

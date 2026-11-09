@@ -6,6 +6,8 @@ use App\Actions\CreateVault;
 use App\Actions\CreateVaultNode;
 use App\Actions\GetPathFromVault;
 use App\Actions\GetPathFromVaultNode;
+use App\Actions\GetUrlFromVaultNode;
+use App\Actions\SearchVaultFilesForEditor;
 use App\Models\Scopes\SupportedVaultNodeScope;
 use App\Models\User;
 use App\Services\UploadLimit;
@@ -148,6 +150,53 @@ it('creates tags when importing a markdown file', function (): void {
 
     $response->assertOk();
     expect($vault->nodes()->first()->tags()->count())->toBe(2);
+});
+
+it('lower-cases the extensions of imported files', function (
+    string $fileName,
+    string $storedName,
+    string $mimeType,
+    string $type,
+): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $content = $type === 'image' ? "\xFF\xD8\xFF\xE0jpeg" : 'content';
+    $uploadFile = UploadedFile::fake()->createWithContent($fileName, $content)->mimeType($mimeType);
+
+    $this->actingAs($user)
+        ->post(route('vaults.nodes.import', ['vault' => $vault->id]), [
+            'parent_id' => null,
+            'files' => [$uploadFile],
+        ])
+        ->assertOk()
+        ->assertJsonPath('files.0.type', $type);
+
+    $path = app(GetPathFromVault::class)->handle($vault) . $storedName;
+    expect(Storage::disk('local')->get($path))->toBe($content);
+})->with([
+    'image' => ['photo.JPG', 'photo.jpg', 'image/jpeg', 'image'],
+    'note' => ['Note.MD', 'Note.md', 'text/plain', 'note'],
+    'unsupported' => ['Board.CANVAS', 'Board.canvas', 'application/json', 'other'],
+]);
+
+it('serves an imported upper-case image and finds it in the editor search', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $uploadFile = UploadedFile::fake()->createWithContent('photo.JPG', "\xFF\xD8\xFF\xE0jpeg");
+
+    $this->actingAs($user)
+        ->post(route('vaults.nodes.import', ['vault' => $vault->id]), [
+            'parent_id' => null,
+            'files' => [$uploadFile],
+        ])
+        ->assertOk();
+
+    $node = $vault->nodes()->firstOrFail();
+    $this->get(app(GetUrlFromVaultNode::class)->handle($node))
+        ->assertOk()
+        ->assertHeader('Content-Type', 'image/jpeg');
+    $images = app(SearchVaultFilesForEditor::class)->handle($vault, 'photo', 'image');
+    expect($images->pluck('id')->all())->toBe([$node->id]);
 });
 
 it('saves unsupported files as hidden nodes', function (string $fileName, string $content): void {

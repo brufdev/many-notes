@@ -70,7 +70,7 @@ final readonly class ProcessImportedVault
                 'parent_id' => $parent?->id,
                 'is_file' => true,
                 'name' => $pathInfo['filename'],
-                'extension' => $pathInfo['extension'] ?? null,
+                'extension' => isset($pathInfo['extension']) ? mb_strtolower($pathInfo['extension']) : null,
             ];
 
             if (!$isSupportedFile->handle($entryFileName)) {

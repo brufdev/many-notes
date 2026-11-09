@@ -96,6 +96,27 @@ it('exports an imported Obsidian vault unchanged', function (): void {
     expect(unzipResponse($response))->toBe($entries);
 });
 
+it('exports imported upper-case extensions in lower case', function (): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => createZipUpload([
+            'Board.CANVAS' => '{}',
+            'Note.MD' => 'note',
+            'photo.JPG' => "\xFF\xD8\xFF\xE0jpeg",
+        ])]);
+    $vault = $user->vaults()->firstOrFail();
+
+    $response = $this->get(route('vaults.export', ['vault' => $vault->id]));
+
+    $response->assertOk();
+    expect(unzipResponse($response))->toBe([
+        'Board.canvas' => '{}',
+        'Note.md' => 'note',
+        'photo.jpg' => "\xFF\xD8\xFF\xE0jpeg",
+    ]);
+});
+
 it('exports files on disk that have no node', function (): void {
     $user = User::factory()->create();
     $vault = app(CreateVault::class)->handle($user, [

@@ -26,7 +26,7 @@ final readonly class ProcessImportedFile
             'parent_id' => $parent?->id,
             'is_file' => true,
             'name' => $pathInfo['filename'],
-            'extension' => $pathInfo['extension'] ?? null,
+            'extension' => isset($pathInfo['extension']) ? mb_strtolower($pathInfo['extension']) : null,
             'content' => null,
             'is_supported' => app(IsSupportedFile::class)->handle($fileName, $mimeType),
         ];
