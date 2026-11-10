@@ -32,11 +32,12 @@ import AccordionItem from '@/components/accordion/AccordionItem.vue';
                 <div class="flex flex-col gap-3 pt-3">
                     <p>
                         <span class="font-semibold">Importing vaults</span>: You can import any
-                        vault, not just those exported from Many Notes, although only files with
-                        valid extensions will be imported. To import a vault, simply upload a zip
-                        file containing your files and folders. You may upload text files (md, txt,
-                        pdf), images (jpg, jpeg, png, gif, webp, avif), videos (mp4, m4v, mov, webm,
-                        mkv), and audio files (mp3, flac, m4a, aac, wav, ogg, opus).
+                        vault, not just those exported from Many Notes. To import a vault, simply
+                        upload a zip file containing your files and folders. Many Notes opens notes
+                        (md), pdf files, images (jpg, jpeg, png, gif, webp, avif), videos (mp4, m4v,
+                        mov, webm, mkv), and audio files (mp3, flac, m4a, aac, wav, ogg, opus).
+                        Other files are kept and listed in the tree when "Show unsupported files" is
+                        on. Hidden files and folders, such as .obsidian, are kept but never shown.
                     </p>
                     <p>
                         <span class="font-semibold">Exporting vaults</span>: The export feature

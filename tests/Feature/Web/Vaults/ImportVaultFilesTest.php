@@ -219,6 +219,7 @@ it('saves unsupported files as hidden nodes', function (string $fileName, string
 })->with([
     'unsupported extension' => ['script.sh', 'echo'],
     'no extension' => ['README', 'readme'],
+    'text file' => ['todo.txt', 'todo'],
 ]);
 
 it('saves files whose content does not match their extension as hidden nodes', function (): void {

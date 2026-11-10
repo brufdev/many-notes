@@ -32,7 +32,6 @@ final readonly class ProcessImportedFile
         ];
 
         if ($attributes['is_supported'] && in_array($attributes['extension'], Note::extensions())) {
-            $attributes['extension'] = 'md';
             $attributes['content'] = (string) file_get_contents($filePath);
         }
 

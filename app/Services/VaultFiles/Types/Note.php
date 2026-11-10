@@ -15,14 +15,13 @@ final class Note implements VaultFileType
     {
         return [
             'md' => 'text/markdown',
-            'txt' => 'text/plain',
         ];
     }
 
     private static function uploadMimeTypes(): array
     {
         return [
-            'text/plain', // md, txt
+            'text/plain', // md
         ];
     }
 }

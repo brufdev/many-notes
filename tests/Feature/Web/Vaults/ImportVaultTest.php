@@ -231,6 +231,7 @@ it('keeps hidden zip entries on disk and unsupported ones as hidden nodes', func
         'Board.canvas' => '{"nodes":[]}',
         'README' => 'readme',
         'photo.png' => '<html></html>',
+        'todo.txt' => 'todo',
     ];
     $file = createZipUpload([
         '.obsidian/plugins/' => null,
@@ -251,6 +252,7 @@ it('keeps hidden zip entries on disk and unsupported ones as hidden nodes', func
         'other:Board.canvas',
         'other:README',
         'other:photo.png',
+        'other:todo.txt',
     ]);
     $vaultPath = app(GetPathFromVault::class)->handle($vault);
     expect(Storage::disk('local')->path($vaultPath . '.obsidian/plugins'))->toBeDirectory();

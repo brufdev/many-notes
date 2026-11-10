@@ -84,6 +84,7 @@ it('exports an imported Obsidian vault unchanged', function (): void {
         'Notes/.trash/Old.md' => 'old',
         'Notes/Plan.md' => '#plan [[Board.canvas]]',
         'photo.png' => '<html></html>',
+        'todo.txt' => 'todo',
     ];
 
     $this->actingAs($user)

@@ -8,7 +8,6 @@ use App\Events\VaultListUpdatedEvent;
 use App\Models\User;
 use App\Models\Vault;
 use App\Models\VaultNode;
-use App\Services\VaultFiles\Types\Note;
 use finfo;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
@@ -85,10 +84,6 @@ final readonly class ProcessImportedVault
                 $entryFileName,
                 $finfo->buffer($attributes['content']) ?: '',
             );
-
-            if ($attributes['is_supported'] && in_array($attributes['extension'], Note::extensions())) {
-                $attributes['extension'] = 'md';
-            }
 
             $createVaultNode->handle($vault, $attributes, false, false);
         }
