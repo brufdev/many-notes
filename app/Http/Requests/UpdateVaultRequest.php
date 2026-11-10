@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
-use App\Models\User;
 use App\Models\Vault;
+use App\Rules\AvailableVaultName;
 use App\Rules\FilesystemSafeName;
 use App\Rules\VaultSafeName;
 use Illuminate\Foundation\Http\FormRequest;
@@ -17,11 +17,9 @@ final class UpdateVaultRequest extends FormRequest
     /** @return array<string, array<int, mixed>> */
     public function rules(): array
     {
-        /** @var User $user */
-        $user = $this->user();
-
         /** @var Vault $vault */
         $vault = $this->route('vault');
+        $vault->loadMissing('user');
 
         return [
             'name' => [
@@ -31,9 +29,7 @@ final class UpdateVaultRequest extends FormRequest
                 'string',
                 new FilesystemSafeName(),
                 new VaultSafeName(),
-                Rule::unique(Vault::class)
-                    ->where('created_by', $user->id)
-                    ->ignore($this->route('vault')),
+                new AvailableVaultName($vault->user, $vault),
             ],
             'templates_node_id' => [
                 'integer',

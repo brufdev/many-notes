@@ -15,16 +15,7 @@ final readonly class CreateVault
     public function handle(User $user, array $attributes, bool $broadcast = true): Vault
     {
         // Generate a new vault name if the current one already exists
-        if ($this->isTaken($user, $attributes['name'])) {
-            $getSuffixedName = app(GetSuffixedName::class);
-            $number = 1;
-
-            while ($this->isTaken($user, $getSuffixedName->handle($attributes['name'], $number))) {
-                $number++;
-            }
-
-            $attributes['name'] = $getSuffixedName->handle($attributes['name'], $number);
-        }
+        $attributes['name'] = app(GetAvailableVaultName::class)->handle($user, $attributes['name']);
 
         // Save vault to database
         $vault = $user->vaults()->create($attributes);
@@ -39,12 +30,5 @@ final readonly class CreateVault
         }
 
         return $vault;
-    }
-
-    private function isTaken(User $user, string $name): bool
-    {
-        return $user->vaults()
-            ->whereRaw('LOWER(name) = LOWER(?)', [$name])
-            ->exists();
     }
 }

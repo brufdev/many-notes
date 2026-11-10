@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Actions\CreateVault;
+use App\Actions\GetPathFromUser;
 use App\Actions\GetPathFromVault;
 use App\Actions\GetPathFromVaultNode;
 use App\Models\Scopes\SupportedVaultNodeScope;
@@ -111,6 +112,33 @@ it('handles name collisions when importing a vault with a name existing in multi
     expect($vaults->get(0)->name)->toBe($vaultName);
     expect($vaults->get(1)->name)->toBe($vaultName . '-1');
     expect($vaults->get(2)->name)->toBe($vaultName . '-2');
+});
+
+it('suffixes the vault name when it is a case variant of an existing name', function (): void {
+    $user = User::factory()->create();
+    app(CreateVault::class)->handle($user, ['name' => 'secrets']);
+    $file = UploadedFile::fake()->create('Secrets.zip');
+
+    $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => $file]);
+
+    expect($user->vaults()->pluck('name')->all())->toBe(['secrets', 'Secrets-1']);
+});
+
+it('suffixes the vault name when a folder without a vault has it', function (): void {
+    $user = User::factory()->create();
+    Storage::disk('local')->put(app(GetPathFromUser::class)->handle($user) . 'Secrets/old.md', 'old');
+    $zip = createZipUpload(['note.md' => 'new']);
+    $file = new UploadedFile($zip->getRealPath(), 'Secrets.zip', 'application/zip', null, true);
+
+    $this->actingAs($user)
+        ->post(route('vaults.import'), ['file' => $file]);
+
+    $vault = $user->vaults()->firstOrFail();
+    expect($vault->name)->toBe('Secrets-1');
+    expect(Storage::disk('local')->allFiles(app(GetPathFromVault::class)->handle($vault)))
+        ->toBe(['vaults/' . $user->id . '/Secrets-1/note.md']);
+    expect(Storage::disk('local')->get(app(GetPathFromUser::class)->handle($user) . 'Secrets/old.md'))->toBe('old');
 });
 
 it('imports a zip file with files and folders', function (): void {

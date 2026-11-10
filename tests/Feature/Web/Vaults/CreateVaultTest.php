@@ -65,6 +65,32 @@ it('does not create a vault with a name the user already has', function (): void
     expect($user->vaults()->count())->toBe(1);
 });
 
+it('does not create a vault with a case variant of an existing name', function (): void {
+    $user = User::factory()->create();
+    app(CreateVault::class)->handle($user, ['name' => 'secrets']);
+
+    $response = $this->actingAs($user)
+        ->postJson(route('vaults.store'), ['name' => 'Secrets']);
+
+    $response->assertJsonValidationErrors([
+        'name' => 'The name has already been taken.',
+    ]);
+    expect($user->vaults()->pluck('name')->all())->toBe(['secrets']);
+});
+
+it('does not create a vault with the name of a folder without a vault', function (): void {
+    $user = User::factory()->create();
+    Storage::disk('local')->put(app(GetPathFromUser::class)->handle($user) . 'Leftover/old.md', 'old');
+
+    $response = $this->actingAs($user)
+        ->postJson(route('vaults.store'), ['name' => 'Leftover']);
+
+    $response->assertJsonValidationErrors([
+        'name' => 'The name has already been taken.',
+    ]);
+    expect($user->vaults()->count())->toBe(0);
+});
+
 it('does not create a vault with an invalid name', function (string $name, string $message): void {
     $user = User::factory()->create();
 

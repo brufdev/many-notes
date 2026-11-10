@@ -3,11 +3,14 @@
 declare(strict_types=1);
 
 use App\Actions\CreateVault;
+use App\Actions\GetPathFromUser;
 use App\Actions\GetPathFromVault;
+use App\Actions\UpdateVault;
 use App\Models\User;
 use App\Models\Vault;
 use App\Models\VaultNode;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 it('allows a user to update his vault', function (): void {
     $user = User::factory()->create();
@@ -178,3 +181,94 @@ it('does not rename a vault to an invalid name', function (string $name, string 
     'starting with a dot' => ['.vault', 'Cannot start with a dot.'],
     'link characters' => ['#vault', 'Cannot contain #'],
 ]);
+
+it('checks the name against the owner vaults when a collaborator renames a vault', function (string $name): void {
+    [$alice, $bob] = User::factory(2)->create();
+    $secrets = app(CreateVault::class)->handle($alice, ['name' => 'Secrets']);
+    Storage::disk('local')->put(app(GetPathFromVault::class)->handle($secrets) . 'private.md', 'private');
+    $shared = app(CreateVault::class)->handle($alice, ['name' => 'Shared']);
+    $shared->collaborators()->attach($bob, ['accepted' => 1]);
+
+    $this->actingAs($bob)
+        ->patchJson(route('vaults.update', ['vault' => $shared->id]), ['name' => $name])
+        ->assertJsonValidationErrors(['name' => 'The name has already been taken.']);
+
+    expect($shared->refresh()->name)->toBe('Shared');
+    expect(Storage::disk('local')->exists(app(GetPathFromVault::class)->handle($shared)))->toBeTrue();
+    expect(Storage::disk('local')->get(app(GetPathFromVault::class)->handle($secrets) . 'private.md'))->toBe('private');
+})->with(['same case' => 'Secrets', 'other case' => 'SECRETS']);
+
+it('allows a collaborator to rename a vault to the name of one of their own vaults', function (): void {
+    [$alice, $bob] = User::factory(2)->create();
+    app(CreateVault::class)->handle($bob, ['name' => 'Ideas']);
+    $shared = app(CreateVault::class)->handle($alice, ['name' => 'Shared']);
+    $shared->collaborators()->attach($bob, ['accepted' => 1]);
+
+    $this->actingAs($bob)
+        ->patchJson(route('vaults.update', ['vault' => $shared->id]), ['name' => 'Ideas'])
+        ->assertOk();
+
+    expect($shared->refresh()->name)->toBe('Ideas');
+});
+
+it('does not rename a vault to a case variant of an existing name', function (): void {
+    $user = User::factory()->create();
+    app(CreateVault::class)->handle($user, ['name' => 'secrets']);
+    $vault = app(CreateVault::class)->handle($user, ['name' => 'foo']);
+
+    $this->actingAs($user)
+        ->patchJson(route('vaults.update', ['vault' => $vault->id]), ['name' => 'Secrets'])
+        ->assertJsonValidationErrors(['name' => 'The name has already been taken.']);
+
+    expect($vault->refresh()->name)->toBe('foo');
+});
+
+it('does not rename a vault to the name of a folder without a vault', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => 'foo']);
+    Storage::disk('local')->put(app(GetPathFromUser::class)->handle($user) . 'Leftover/old.md', 'old');
+
+    $this->actingAs($user)
+        ->patchJson(route('vaults.update', ['vault' => $vault->id]), ['name' => 'Leftover'])
+        ->assertJsonValidationErrors(['name' => 'The name has already been taken.']);
+
+    expect($vault->refresh()->name)->toBe('foo');
+});
+
+it('keeps the old name when the vault folder cannot be moved', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => 'foo']);
+    Storage::disk('local')->put(app(GetPathFromUser::class)->handle($user) . 'bar/old.md', 'old');
+
+    expect(fn() => app(UpdateVault::class)->handle($vault, ['name' => 'bar']))
+        ->toThrow(ValidationException::class, 'The name has already been taken.');
+
+    expect($vault->refresh()->name)->toBe('foo');
+    expect(Storage::disk('local')->exists(app(GetPathFromVault::class)->handle($vault)))->toBeTrue();
+});
+
+it('does not move the vault folder when saving the new name fails', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => 'foo']);
+    Vault::updating(fn(): never => throw new RuntimeException('Database error'));
+
+    expect(fn() => app(UpdateVault::class)->handle($vault, ['name' => 'bar']))
+        ->toThrow(RuntimeException::class, 'Database error');
+
+    expect($vault->refresh()->name)->toBe('foo');
+    expect(Storage::disk('local')->directories('vaults/' . $user->id))->toBe(['vaults/' . $user->id . '/foo']);
+});
+
+it('renames a vault to a case variant of its own name', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => 'secrets']);
+    Storage::disk('local')->put(app(GetPathFromVault::class)->handle($vault) . 'note.md', 'note');
+
+    $this->actingAs($user)
+        ->patchJson(route('vaults.update', ['vault' => $vault->id]), ['name' => 'Secrets'])
+        ->assertOk();
+
+    expect($vault->refresh()->name)->toBe('Secrets');
+    expect(Storage::disk('local')->get('vaults/' . $user->id . '/Secrets/note.md'))->toBe('note');
+    expect(Storage::disk('local')->directories('vaults/' . $user->id))->toBe(['vaults/' . $user->id . '/Secrets']);
+});

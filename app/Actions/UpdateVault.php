@@ -7,7 +7,9 @@ namespace App\Actions;
 use App\Events\VaultListUpdatedEvent;
 use App\Events\VaultUpdatedEvent;
 use App\Models\Vault;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 final readonly class UpdateVault
 {
@@ -21,7 +23,16 @@ final readonly class UpdateVault
             $attributes['templates_node_id'] = null;
         }
 
-        $vault->update($attributes);
+        $getPathFromVault = app(GetPathFromVault::class);
+        $previousPath = $getPathFromVault->handle($vault);
+
+        DB::transaction(function () use ($vault, $attributes, $getPathFromVault, $previousPath): void {
+            $vault->update($attributes);
+
+            if ($vault->wasChanged('name')) {
+                $this->move($previousPath, $getPathFromVault->handle($vault));
+            }
+        });
 
         // Broadcast events
         broadcast(new VaultUpdatedEvent($vault))->toOthers();
@@ -32,15 +43,6 @@ final readonly class UpdateVault
 
         $collaborators = $vault->collaborators()->get();
 
-        /** @var string $previousName */
-        $previousName = $vault->getPrevious()['name'];
-
-        $relativePath = app(GetPathFromUser::class)->handle($vault->user);
-        Storage::disk('local')->move(
-            $relativePath . $previousName,
-            $relativePath . $vault->name,
-        );
-
         broadcast(new VaultListUpdatedEvent($vault->user))->toOthers();
 
         foreach ($collaborators as $collaborator) {
@@ -48,5 +50,20 @@ final readonly class UpdateVault
         }
 
         return $vault;
+    }
+
+    private function move(string $from, string $to): void
+    {
+        $disk = Storage::disk('local');
+
+        if (!$disk->exists($from)) {
+            return;
+        }
+
+        if (!$disk->move($from, $to)) {
+            throw ValidationException::withMessages([
+                'name' => 'The name has already been taken.',
+            ]);
+        }
     }
 }
