@@ -6,6 +6,7 @@ namespace App\Actions;
 
 use App\Events\VaultNodeDeletedEvent;
 use App\Events\VaultTemplateListUpdatedEvent;
+use App\Exceptions\InvalidVaultPath;
 use App\Models\Scopes\SupportedVaultNodeScope;
 use App\Models\VaultNode;
 use Illuminate\Support\Facades\DB;
@@ -57,7 +58,11 @@ final readonly class DeleteVaultNode
 
     private function deleteFromDisk(VaultNode $node): void
     {
-        $nodePath = app(GetPathFromVaultNode::class)->handle($node);
+        try {
+            $nodePath = app(GetPathFromVaultNode::class)->handle($node);
+        } catch (InvalidVaultPath) {
+            return;
+        }
 
         if (!Storage::disk('local')->exists($nodePath)) {
             return;

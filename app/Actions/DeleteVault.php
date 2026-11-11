@@ -6,6 +6,7 @@ namespace App\Actions;
 
 use App\Events\VaultDeletedEvent;
 use App\Events\VaultListUpdatedEvent;
+use App\Exceptions\InvalidVaultPath;
 use App\Models\Scopes\SupportedVaultNodeScope;
 use App\Models\Vault;
 use App\Notifications\CollaborationAccepted;
@@ -85,7 +86,11 @@ final readonly class DeleteVault
 
     private function deleteFromDisk(Vault $vault): void
     {
-        $vaultPath = app(GetPathFromUser::class)->handle($vault->user) . $vault->name;
+        try {
+            $vaultPath = app(GetPathFromVault::class)->handle($vault);
+        } catch (InvalidVaultPath) {
+            return;
+        }
 
         if (!Storage::disk('local')->exists($vaultPath)) {
             return;

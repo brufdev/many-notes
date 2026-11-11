@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Actions\CreateVaultNode;
+use App\Models\User;
 use App\Models\Vault;
 use App\Models\VaultNode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -107,4 +108,29 @@ function unzipResponse(TestResponse $response): array
     ksort($entries);
 
     return $entries;
+}
+
+/** @return list<string> */
+function storeFilesOutsideVault(User $owner): array
+{
+    $other = User::factory()->create();
+    $paths = [
+        "vaults/{$other->id}/Private/secret.md",
+        "vaults/{$owner->id}/Other/own.md",
+        "vaults/{$owner->id}/photo.png",
+    ];
+
+    foreach ($paths as $path) {
+        Storage::disk('local')->put($path, 'outside');
+    }
+
+    return $paths;
+}
+
+/** @param list<string> $paths */
+function expectFilesKept(array $paths): void
+{
+    foreach ($paths as $path) {
+        expect(Storage::disk('local')->get($path))->toBe('outside');
+    }
 }

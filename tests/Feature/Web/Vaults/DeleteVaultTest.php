@@ -9,6 +9,8 @@ use App\Actions\CreateVaultNode;
 use App\Actions\DeclineVaultCollaboration;
 use App\Actions\GetPathFromVault;
 use App\Models\User;
+use App\Models\Vault;
+use App\Models\VaultNode;
 use Illuminate\Support\Facades\Storage;
 
 it('deletes a vault with invites, collaborators and related notifications', function (): void {
@@ -103,3 +105,18 @@ it('does not delete a vault without permissions', function (): void {
     $response->assertSessionHasErrors(['delete']);
     expect($secondUser->vaults()->count())->toBe(1);
 });
+
+it('deletes a vault whose name is unsafe without touching the disk', function (string $name): void {
+    $user = User::factory()->create();
+    $vault = Vault::factory()->for($user)->create(['name' => $name]);
+    VaultNode::factory()->for($vault)->file()->create();
+    $paths = storeFilesOutsideVault($user);
+
+    $this->actingAs($user)
+        ->deleteJson(route('vaults.destroy', ['vault' => $vault->id]))
+        ->assertOk();
+
+    expect(Vault::query()->find($vault->id))->toBeNull();
+    expect(VaultNode::query()->where('vault_id', $vault->id)->count())->toBe(0);
+    expectFilesKept($paths);
+})->with('unsafe path segments');

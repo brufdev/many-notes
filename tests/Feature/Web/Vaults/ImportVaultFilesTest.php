@@ -10,6 +10,7 @@ use App\Actions\GetUrlFromVaultNode;
 use App\Actions\SearchVaultFilesForEditor;
 use App\Models\Scopes\SupportedVaultNodeScope;
 use App\Models\User;
+use App\Models\Vault;
 use App\Services\UploadLimit;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -392,3 +393,18 @@ it('does not import when no files are sent', function (): void {
     $response->assertJsonValidationErrors('files');
     expect($vault->nodes()->count())->toBe(0);
 });
+
+it('does not import a file to a vault whose name is unsafe', function (string $name): void {
+    $user = User::factory()->create();
+    $vault = Vault::factory()->for($user)->create(['name' => $name]);
+
+    $this->actingAs($user)
+        ->postJson(route('vaults.nodes.import', ['vault' => $vault->id]), [
+            'parent_id' => null,
+            'files' => [UploadedFile::fake()->createWithContent('Plan.md', 'plan')],
+        ])
+        ->assertUnprocessable()
+        ->assertJsonPath('message', 'This path has an invalid name.');
+
+    expect($vault->nodes()->count())->toBe(0);
+})->with('unsafe path segments');

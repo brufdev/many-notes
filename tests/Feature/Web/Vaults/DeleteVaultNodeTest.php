@@ -7,6 +7,7 @@ use App\Actions\CreateVaultNode;
 use App\Actions\GetPathFromVault;
 use App\Models\Scopes\SupportedVaultNodeScope;
 use App\Models\User;
+use App\Models\VaultNode;
 use Illuminate\Support\Facades\Storage;
 
 it('deletes a file', function (): void {
@@ -123,3 +124,19 @@ it('does not delete a file without permissions', function (): void {
     $response->assertForbidden();
     expect($vault->nodes()->count())->toBe(1);
 });
+
+it('deletes a folder whose name is unsafe without touching the disk', function (string $name): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => 'Notes']);
+    $folder = VaultNode::factory()->for($vault)->create(['name' => $name]);
+    VaultNode::factory()->for($vault)->file()->create(['parent_id' => $folder->id]);
+    $paths = [...storeFilesOutsideVault($user), "vaults/{$user->id}/Notes/keep.md"];
+    Storage::disk('local')->put("vaults/{$user->id}/Notes/keep.md", 'outside');
+
+    $this->actingAs($user)
+        ->deleteJson(route('vaults.nodes.destroy', ['vault' => $vault->id, 'node' => $folder->id]))
+        ->assertOk();
+
+    expect($vault->nodes()->count())->toBe(0);
+    expectFilesKept($paths);
+})->with('unsafe path segments');

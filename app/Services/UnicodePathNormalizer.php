@@ -22,21 +22,13 @@ final readonly class UnicodePathNormalizer implements PathNormalizer
         $parts = [];
 
         foreach (explode('/', $unixPath) as $part) {
-            if ($part === '' || $part === '.') {
-                continue;
-            }
-
-            if ($part !== '..') {
-                $parts[] = $part;
-
-                continue;
-            }
-
-            if ($parts === []) {
+            if ($part === '..') {
                 throw PathTraversalDetected::forPath($path);
             }
 
-            array_pop($parts);
+            if ($part !== '' && $part !== '.') {
+                $parts[] = $part;
+            }
         }
 
         return implode('/', $parts);

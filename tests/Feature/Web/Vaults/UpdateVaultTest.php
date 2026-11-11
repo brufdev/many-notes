@@ -272,3 +272,15 @@ it('renames a vault to a case variant of its own name', function (): void {
     expect(Storage::disk('local')->get('vaults/' . $user->id . '/Secrets/note.md'))->toBe('note');
     expect(Storage::disk('local')->directories('vaults/' . $user->id))->toBe(['vaults/' . $user->id . '/Secrets']);
 });
+
+it('does not rename a vault whose name is unsafe', function (string $name): void {
+    $user = User::factory()->create();
+    $vault = Vault::factory()->for($user)->create(['name' => $name]);
+
+    $this->actingAs($user)
+        ->patchJson(route('vaults.update', ['vault' => $vault->id]), ['name' => 'Fixed'])
+        ->assertUnprocessable()
+        ->assertJsonPath('message', 'This path has an invalid name.');
+
+    expect($vault->refresh()->name)->toBe($name);
+})->with('unsafe path segments');

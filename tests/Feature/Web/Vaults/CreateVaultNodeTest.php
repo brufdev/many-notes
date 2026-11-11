@@ -6,6 +6,8 @@ use App\Actions\CreateVault;
 use App\Actions\CreateVaultNode;
 use App\Actions\GetPathFromVault;
 use App\Models\User;
+use App\Models\Vault;
+use App\Models\VaultNode;
 use Illuminate\Support\Facades\Storage;
 
 it('creates a folder', function (): void {
@@ -195,3 +197,32 @@ it('does not create a node with an invalid name', function (bool $isFile, string
     'link characters' => [true, 'a|b^c', 'Cannot contain |'],
     'file over 255 bytes with its extension' => [true, str_repeat('a', 253), 'Cannot be longer than 255 bytes.'],
 ]);
+
+it('does not create a node in a vault whose name is unsafe', function (string $name): void {
+    $user = User::factory()->create();
+    $vault = Vault::factory()->for($user)->create(['name' => $name]);
+
+    $this->actingAs($user)
+        ->postJson(route('vaults.nodes.store', ['vault' => $vault->id]), ['is_file' => true, 'name' => 'Plan'])
+        ->assertUnprocessable()
+        ->assertJsonPath('message', 'This path has an invalid name.');
+
+    expect($vault->nodes()->count())->toBe(0);
+})->with('unsafe path segments');
+
+it('does not create a node in a folder whose name is unsafe', function (string $name): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => 'Notes']);
+    $folder = VaultNode::factory()->for($vault)->create(['name' => $name]);
+
+    $this->actingAs($user)
+        ->postJson(route('vaults.nodes.store', ['vault' => $vault->id]), [
+            'parent_id' => $folder->id,
+            'is_file' => true,
+            'name' => 'Plan',
+        ])
+        ->assertUnprocessable()
+        ->assertJsonPath('message', 'This path has an invalid name.');
+
+    expect($vault->nodes()->count())->toBe(1);
+})->with('unsafe path segments');

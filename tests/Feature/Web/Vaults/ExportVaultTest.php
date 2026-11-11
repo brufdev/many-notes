@@ -6,6 +6,7 @@ use App\Actions\CreateVault;
 use App\Actions\CreateVaultNode;
 use App\Actions\GetPathFromVault;
 use App\Models\User;
+use App\Models\Vault;
 use Illuminate\Support\Facades\Storage;
 
 it('exports a vault', function (): void {
@@ -203,3 +204,13 @@ it('fails exporting a vault whose nodes are missing on disk', function (): void 
     $response->assertUnprocessable()
         ->assertJsonPath('message', 'Your vault is empty');
 });
+
+it('fails exporting a vault whose name is unsafe', function (string $name): void {
+    $user = User::factory()->create();
+    $vault = Vault::factory()->for($user)->create(['name' => $name]);
+
+    $this->actingAs($user)
+        ->getJson(route('vaults.export', ['vault' => $vault->id]))
+        ->assertUnprocessable()
+        ->assertJsonPath('message', 'This path has an invalid name.');
+})->with('unsafe path segments');

@@ -6,6 +6,7 @@ use App\Actions\CreateVault;
 use App\Actions\CreateVaultNode;
 use App\Actions\GetPathFromVaultNode;
 use App\Models\User;
+use App\Models\VaultNode;
 use Illuminate\Support\Facades\Storage;
 
 it('downloads a file', function (string $fileName): void {
@@ -138,3 +139,26 @@ it('fails downloading a node with no permissions', function (): void {
         ->assertForbidden()
         ->assertJsonPath('message', 'Not allowed');
 });
+
+it('fails downloading a folder whose name is unsafe', function (string $name): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => 'Notes']);
+    $folder = VaultNode::factory()->for($vault)->create(['name' => $name]);
+
+    $this->actingAs($user)
+        ->getJson(route('vaults.nodes.download', ['vault' => $vault->id, 'node' => $folder->id]))
+        ->assertUnprocessable()
+        ->assertJsonPath('message', 'This path has an invalid name.');
+})->with('unsafe path segments');
+
+it('fails downloading a file in a folder whose name is unsafe', function (string $name): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => 'Notes']);
+    $folder = VaultNode::factory()->for($vault)->create(['name' => $name]);
+    $file = VaultNode::factory()->for($vault)->file()->create(['parent_id' => $folder->id]);
+
+    $this->actingAs($user)
+        ->getJson(route('vaults.nodes.download', ['vault' => $vault->id, 'node' => $file->id]))
+        ->assertUnprocessable()
+        ->assertJsonPath('message', 'This path has an invalid name.');
+})->with('unsafe path segments');

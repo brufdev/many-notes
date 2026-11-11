@@ -8,6 +8,7 @@ use App\Actions\GetPathFromVault;
 use App\Actions\GetPathFromVaultNode;
 use App\Actions\GetUrlFromVaultNode;
 use App\Models\User;
+use App\Models\VaultNode;
 use Illuminate\Support\Facades\Storage;
 
 it('shows the file to a user', function (): void {
@@ -172,3 +173,20 @@ it('returns a 404 error for a node flagged unsupported', function (): void {
         ->get(app(GetUrlFromVaultNode::class)->handle($node))
         ->assertNotFound();
 });
+
+it('does not serve a file in a folder whose name is unsafe', function (string $name): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => 'Notes']);
+    $folder = VaultNode::factory()->for($vault)->create(['name' => $name]);
+    VaultNode::factory()->for($vault)->create([
+        'parent_id' => $folder->id,
+        'is_file' => true,
+        'name' => 'photo',
+        'extension' => 'png',
+    ]);
+
+    $this->actingAs($user)
+        ->getJson(route('files.show', ['vault' => $vault->id, 'path' => "{$name}/photo.png"]))
+        ->assertUnprocessable()
+        ->assertJsonPath('message', 'This path has an invalid name.');
+})->with(['parent folder' => '..', 'current folder' => '.']);

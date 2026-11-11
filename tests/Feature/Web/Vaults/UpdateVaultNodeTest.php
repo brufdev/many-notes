@@ -7,6 +7,7 @@ use App\Actions\CreateVaultNode;
 use App\Actions\GetPathFromVault;
 use App\Events\VaultNodeUpdatedEvent;
 use App\Models\User;
+use App\Models\VaultNode;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 
@@ -338,3 +339,35 @@ it('does not rename a node to an invalid name', function (bool $isFile, string $
     'only trimmed invisible characters' => [true, "\u{200B}", 'Cannot be empty.'],
     'file over 255 bytes with its extension' => [true, str_repeat('a', 253), 'Cannot be longer than 255 bytes.'],
 ]);
+
+it('does not update a note in a folder whose name is unsafe', function (string $name): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => 'Notes']);
+    $folder = VaultNode::factory()->for($vault)->create(['name' => $name]);
+    $note = VaultNode::factory()->for($vault)->file()->create(['parent_id' => $folder->id]);
+
+    $this->actingAs($user)
+        ->patchJson(route('vaults.nodes.update', ['vault' => $vault->id, 'node' => $note->id]), [
+            'content' => 'changed',
+        ])
+        ->assertUnprocessable()
+        ->assertJsonPath('message', 'This path has an invalid name.');
+
+    expect($note->refresh()->content)->not->toBe('changed');
+})->with('unsafe path segments');
+
+it('does not rename a note in a folder whose name is unsafe', function (string $name): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => 'Notes']);
+    $folder = VaultNode::factory()->for($vault)->create(['name' => $name]);
+    $note = VaultNode::factory()->for($vault)->file()->create(['parent_id' => $folder->id, 'name' => 'Plan']);
+
+    $this->actingAs($user)
+        ->patchJson(route('vaults.nodes.update', ['vault' => $vault->id, 'node' => $note->id]), [
+            'name' => 'Renamed',
+        ])
+        ->assertUnprocessable()
+        ->assertJsonPath('message', 'This path has an invalid name.');
+
+    expect($note->refresh()->name)->toBe('Plan');
+})->with('unsafe path segments');
