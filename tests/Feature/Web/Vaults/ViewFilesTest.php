@@ -50,7 +50,7 @@ it('shows the file, resolving the path from another file', function (): void {
         ->assertOk();
 });
 
-it('serves the file with the content type of its extension', function (): void {
+it('shows the file with the content type of its extension', function (): void {
     $user = User::factory()->create();
     $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
     $imageNode = app(CreateVaultNode::class)->handle($vault, [
@@ -70,7 +70,7 @@ it('serves the file with the content type of its extension', function (): void {
         ->assertHeader('Content-Security-Policy', 'sandbox');
 });
 
-it('serves pdf files without sandbox', function (): void {
+it('shows pdf files without sandbox', function (): void {
     $user = User::factory()->create();
     $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
     $pdfNode = app(CreateVaultNode::class)->handle($vault, [
@@ -88,6 +88,22 @@ it('serves pdf files without sandbox', function (): void {
         ->assertHeader('Content-Type', 'application/pdf')
         ->assertHeader('X-Content-Type-Options', 'nosniff')
         ->assertHeaderMissing('Content-Security-Policy');
+});
+
+it('shows the file from an absolute path with dot segments', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    app(CreateVaultNode::class)->handle($vault, ['is_file' => false, 'name' => 'Folder']);
+    $imageNode = app(CreateVaultNode::class)->handle($vault, [
+        'is_file' => true,
+        'name' => 'img',
+        'extension' => 'png',
+    ]);
+    Storage::disk('local')->put(app(GetPathFromVaultNode::class)->handle($imageNode), '');
+
+    $this->actingAs($user)
+        ->get('/files/' . $vault->id . '?path=/Folder/../../img.png')
+        ->assertOk();
 });
 
 it('returns a 403 error if the file is a note', function (): void {
@@ -174,11 +190,11 @@ it('returns a 404 error for a node flagged unsupported', function (): void {
         ->assertNotFound();
 });
 
-it('does not serve a file in a folder whose name is unsafe', function (string $name): void {
+it('does not show a file in a folder whose name is unsafe', function (string $name): void {
     $user = User::factory()->create();
     $vault = app(CreateVault::class)->handle($user, ['name' => 'Notes']);
     $folder = VaultNode::factory()->for($vault)->create(['name' => $name]);
-    VaultNode::factory()->for($vault)->create([
+    $imageNode = VaultNode::factory()->for($vault)->create([
         'parent_id' => $folder->id,
         'is_file' => true,
         'name' => 'photo',
@@ -186,7 +202,6 @@ it('does not serve a file in a folder whose name is unsafe', function (string $n
     ]);
 
     $this->actingAs($user)
-        ->getJson(route('files.show', ['vault' => $vault->id, 'path' => "{$name}/photo.png"]))
-        ->assertUnprocessable()
-        ->assertJsonPath('message', 'This path has an invalid name.');
-})->with(['parent folder' => '..', 'current folder' => '.']);
+        ->get(app(GetUrlFromVaultNode::class)->handle($imageNode))
+        ->assertNotFound();
+})->with('unsafe path segments');

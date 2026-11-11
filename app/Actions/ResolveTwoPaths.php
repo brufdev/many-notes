@@ -14,6 +14,6 @@ final readonly class ResolveTwoPaths
         $uri = Utils::uriFor(mb_trim($path));
         $resolvedUri = (string) UriResolver::resolve(Utils::uriFor(mb_trim($currentPath)), $uri);
 
-        return urldecode($resolvedUri);
+        return rawurldecode($resolvedUri);
     }
 }

@@ -5,38 +5,63 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Models\VaultNode;
-use Illuminate\Support\Str;
 
 final readonly class GetVaultNodeFromPath
 {
-    public function handle(int $vaultId, string $path, ?int $parentId = null): ?VaultNode
+    public function handle(int $vaultId, string $path): ?VaultNode
     {
-        $path = mb_ltrim(str_replace('%20', ' ', $path), '/');
-        $pieces = explode('/', $path);
+        $segments = explode('/', str_replace('%20', ' ', $path));
+        $fileName = array_pop($segments);
 
-        if (count($pieces) === 1) {
-            $pathParts = pathinfo($pieces[0]);
+        if (in_array($fileName, ['', '.', '..'], true)) {
+            return null;
+        }
 
-            return VaultNode::query()
+        $parentId = null;
+
+        foreach ($this->folderNames($segments) as $folderName) {
+            $folder = VaultNode::query()
                 ->where('vault_id', $vaultId)
                 ->where('parent_id', $parentId)
-                ->where('is_file', true)
-                ->whereRaw('LOWER(name) = LOWER(?)', [$pathParts['filename']])
-                ->whereRaw('LOWER(extension) = LOWER(?)', [$pathParts['extension'] ?? 'md'])
+                ->where('is_file', false)
+                ->whereRaw('LOWER(name) = LOWER(?)', [$folderName])
                 ->first();
+
+            if (is_null($folder)) {
+                return null;
+            }
+
+            $parentId = $folder->id;
         }
 
-        $node = VaultNode::query()
+        $pathParts = pathinfo($fileName);
+
+        return VaultNode::query()
             ->where('vault_id', $vaultId)
             ->where('parent_id', $parentId)
-            ->where('is_file', false)
-            ->whereRaw('LOWER(name) = LOWER(?)', [$pieces[0]])
+            ->where('is_file', true)
+            ->whereRaw('LOWER(name) = LOWER(?)', [$pathParts['filename']])
+            ->whereRaw('LOWER(extension) = LOWER(?)', [$pathParts['extension'] ?? 'md'])
             ->first();
+    }
 
-        if (is_null($node)) {
-            return $node;
+    /**
+     * @param list<string> $segments
+     * @return list<string>
+     */
+    private function folderNames(array $segments): array
+    {
+        $folderNames = [];
+
+        // Resolve dot segments, stopping at the vault root
+        foreach ($segments as $segment) {
+            if ($segment === '..') {
+                array_pop($folderNames);
+            } elseif ($segment !== '' && $segment !== '.') {
+                $folderNames[] = $segment;
+            }
         }
 
-        return $this->handle($vaultId, Str::after($path, '/'), $node->id);
+        return $folderNames;
     }
 }

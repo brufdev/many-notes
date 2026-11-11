@@ -35,3 +35,17 @@ it('resolves paths with utf-8 characters', function (): void {
     expect(new ResolveTwoPaths()->handle($currentPath, $path))
         ->toBe('/β.md');
 });
+
+it('keeps plus signs', function (): void {
+    expect(new ResolveTwoPaths()->handle('/Notes/Plan.md', 'C++.md'))
+        ->toBe('/Notes/C++.md');
+});
+
+it('decodes the path after resolving it', function (string $path, string $expected): void {
+    expect(new ResolveTwoPaths()->handle('/Folder/Note.md', $path))->toBe($expected);
+})->with([
+    'encoded space' => ['My%20Note.md', '/Folder/My Note.md'],
+    'encoded hash' => ['C%23%20notes.md', '/Folder/C# notes.md'],
+    'encoded dots' => ['%2e%2e/%2e%2e/img.png', '/Folder/../../img.png'],
+    'encoded slash' => ['..%2fimg.png', '/Folder/../img.png'],
+]);
