@@ -8,8 +8,6 @@ use App\Events\VaultListUpdatedEvent;
 use App\Events\VaultUpdatedEvent;
 use App\Models\Vault;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\ValidationException;
 
 final readonly class UpdateVault
 {
@@ -30,7 +28,7 @@ final readonly class UpdateVault
             $vault->update($attributes);
 
             if ($vault->wasChanged('name')) {
-                $this->move($previousPath, $getPathFromVault->handle($vault));
+                app(MovePath::class)->handle($previousPath, $getPathFromVault->handle($vault));
             }
         });
 
@@ -50,20 +48,5 @@ final readonly class UpdateVault
         }
 
         return $vault;
-    }
-
-    private function move(string $from, string $to): void
-    {
-        $disk = Storage::disk('local');
-
-        if (!$disk->exists($from)) {
-            return;
-        }
-
-        if (!$disk->move($from, $to)) {
-            throw ValidationException::withMessages([
-                'name' => 'The name has already been taken.',
-            ]);
-        }
     }
 }

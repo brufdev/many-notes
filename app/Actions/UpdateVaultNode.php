@@ -12,7 +12,6 @@ use App\Models\VaultNode;
 use App\Services\VaultFiles\Types\Note;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\ValidationException;
 
 final readonly class UpdateVaultNode
 {
@@ -111,7 +110,7 @@ final readonly class UpdateVaultNode
         // Rename node on disk before committing
         if ($node->wasChanged(['name', 'parent_id'])) {
             $path = app(GetPathFromVaultNode::class)->handle($node);
-            $this->move($originalPath, $path);
+            app(MovePath::class)->handle($originalPath, $path);
         }
 
         // Save content of note to disk
@@ -121,21 +120,6 @@ final readonly class UpdateVaultNode
             && in_array($node->extension, Note::extensions())
         ) {
             Storage::disk('local')->put($path, $attributes['content'] ?? '');
-        }
-    }
-
-    private function move(string $from, string $to): void
-    {
-        $disk = Storage::disk('local');
-
-        if (!$disk->exists($from)) {
-            return;
-        }
-
-        if (!$disk->move($from, $to)) {
-            throw ValidationException::withMessages([
-                'name' => 'The name has already been taken.',
-            ]);
         }
     }
 
