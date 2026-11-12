@@ -219,6 +219,23 @@ it('renames an unsupported file', function (): void {
     expect(Storage::disk('local')->exists($vaultPath . 'Board.canvas'))->toBeFalse();
 });
 
+it('saves the content to the renamed note', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => 'Notes']);
+    $note = app(CreateVaultNode::class)->handle($vault, ['is_file' => true, 'name' => 'Plan', 'extension' => 'md']);
+
+    $this->actingAs($user)
+        ->patchJson(route('vaults.nodes.update', ['vault' => $vault->id, 'node' => $note->id]), [
+            'name' => 'Renamed',
+            'content' => 'changed',
+        ])
+        ->assertOk();
+
+    $vaultPath = app(GetPathFromVault::class)->handle($vault);
+    expect(Storage::disk('local')->files($vaultPath))->toBe([$vaultPath . 'Renamed.md']);
+    expect(Storage::disk('local')->get($vaultPath . 'Renamed.md'))->toBe('changed');
+});
+
 it('does not update the content of an unsupported file', function (): void {
     $user = User::factory()->create();
     $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);

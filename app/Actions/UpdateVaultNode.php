@@ -10,7 +10,9 @@ use App\Events\VaultTagListUpdatedEvent;
 use App\Events\VaultTemplateListUpdatedEvent;
 use App\Models\VaultNode;
 use App\Services\VaultFiles\Types\Note;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 final readonly class UpdateVaultNode
 {
@@ -44,19 +46,7 @@ final readonly class UpdateVaultNode
             $originalLinkPath = $node->fullPath();
         }
 
-        // Save node to database
-        $node->update($attributes);
-
-        // Save content of note to disk
-        if (
-            $node->is_file
-            && array_key_exists('content', $attributes)
-            && in_array($node->extension, Note::extensions())
-        ) {
-            Storage::disk('local')->put($originalPath, $attributes['content'] ?? '');
-        }
-
-        $node->refresh();
+        DB::transaction(fn() => $this->save($node, $attributes, $originalPath));
 
         if ($node->is_file && $node->extension === 'md' && $node->wasChanged(['content'])) {
             $previousLinks = $this->getLinks($node);
@@ -79,10 +69,6 @@ final readonly class UpdateVaultNode
         }
 
         if ($node->wasChanged(['name', 'parent_id'])) {
-            // Rename node on disk
-            $path = app(GetPathFromVaultNode::class)->handle($node);
-            Storage::disk('local')->move($originalPath, $path);
-
             // Update all backlinks
             app(UpdateVaultNodeBacklinks::class)->handle($node, $originalLinkPath);
         }
@@ -112,6 +98,45 @@ final readonly class UpdateVaultNode
         }
 
         return $node;
+    }
+
+    /** @param array{parent_id?: int|null, name?: string, content?: string|null} $attributes */
+    private function save(VaultNode $node, array $attributes, string $originalPath): void
+    {
+        // Save node to database
+        $node->update($attributes);
+        $node->refresh();
+        $path = $originalPath;
+
+        // Rename node on disk before committing
+        if ($node->wasChanged(['name', 'parent_id'])) {
+            $path = app(GetPathFromVaultNode::class)->handle($node);
+            $this->move($originalPath, $path);
+        }
+
+        // Save content of note to disk
+        if (
+            $node->is_file
+            && array_key_exists('content', $attributes)
+            && in_array($node->extension, Note::extensions())
+        ) {
+            Storage::disk('local')->put($path, $attributes['content'] ?? '');
+        }
+    }
+
+    private function move(string $from, string $to): void
+    {
+        $disk = Storage::disk('local');
+
+        if (!$disk->exists($from)) {
+            return;
+        }
+
+        if (!$disk->move($from, $to)) {
+            throw ValidationException::withMessages([
+                'name' => 'The name has already been taken.',
+            ]);
+        }
     }
 
     /** @return array<mixed> */
