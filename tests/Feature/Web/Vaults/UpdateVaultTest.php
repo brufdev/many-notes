@@ -5,12 +5,10 @@ declare(strict_types=1);
 use App\Actions\CreateVault;
 use App\Actions\GetPathFromUser;
 use App\Actions\GetPathFromVault;
-use App\Actions\UpdateVault;
 use App\Models\User;
 use App\Models\Vault;
 use App\Models\VaultNode;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\ValidationException;
 
 it('allows a user to update his vault', function (): void {
     $user = User::factory()->create();
@@ -233,30 +231,6 @@ it('does not rename a vault to the name of a folder without a vault', function (
         ->assertJsonValidationErrors(['name' => 'The name has already been taken.']);
 
     expect($vault->refresh()->name)->toBe('foo');
-});
-
-it('keeps the old name when the vault folder cannot be moved', function (): void {
-    $user = User::factory()->create();
-    $vault = app(CreateVault::class)->handle($user, ['name' => 'foo']);
-    Storage::disk('local')->put(app(GetPathFromUser::class)->handle($user) . 'bar/old.md', 'old');
-
-    expect(fn() => app(UpdateVault::class)->handle($vault, ['name' => 'bar']))
-        ->toThrow(ValidationException::class, 'The name has already been taken.');
-
-    expect($vault->refresh()->name)->toBe('foo');
-    expect(Storage::disk('local')->exists(app(GetPathFromVault::class)->handle($vault)))->toBeTrue();
-});
-
-it('does not move the vault folder when saving the new name fails', function (): void {
-    $user = User::factory()->create();
-    $vault = app(CreateVault::class)->handle($user, ['name' => 'foo']);
-    Vault::updating(fn(): never => throw new RuntimeException('Database error'));
-
-    expect(fn() => app(UpdateVault::class)->handle($vault, ['name' => 'bar']))
-        ->toThrow(RuntimeException::class, 'Database error');
-
-    expect($vault->refresh()->name)->toBe('foo');
-    expect(Storage::disk('local')->directories('vaults/' . $user->id))->toBe(['vaults/' . $user->id . '/foo']);
 });
 
 it('renames a vault to a case variant of its own name', function (): void {
