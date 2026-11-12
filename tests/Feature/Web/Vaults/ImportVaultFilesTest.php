@@ -299,6 +299,21 @@ it('imports a file that is exactly at the upload limit', function (): void {
     expect($vault->nodes()->count())->toBe(1);
 });
 
+it('imports a file to the vault root when no parent is sent', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => 'Notes']);
+
+    $this->actingAs($user)
+        ->postJson(route('vaults.nodes.import', ['vault' => $vault->id]), [
+            'files' => [UploadedFile::fake()->createWithContent('Plan.md', 'plan')->mimeType('text/plain')],
+        ])
+        ->assertOk();
+
+    $node = $vault->nodes()->sole();
+    expect($node->parent_id)->toBeNull();
+    expect(Storage::disk('local')->get(app(GetPathFromVaultNode::class)->handle($node)))->toBe('plan');
+});
+
 it('skips hidden files and files whose names cannot be stored', function (string $fileName): void {
     $user = User::factory()->create();
     $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);

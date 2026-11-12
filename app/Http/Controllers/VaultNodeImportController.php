@@ -29,13 +29,14 @@ final readonly class VaultNodeImportController
             abort(403);
         }
 
-        /** @var array{parent_id: int|null, files: array<UploadedFile>} $data */
+        /** @var array{parent_id?: int|null, files: array<UploadedFile>} $data */
         $data = $request->validated();
+        $parentId = $data['parent_id'] ?? null;
         $parent = null;
 
-        if ($data['parent_id'] !== null) {
+        if ($parentId !== null) {
             $parent = $vault->nodes()
-                ->where('id', $data['parent_id'])
+                ->where('id', $parentId)
                 ->where('is_file', false)
                 ->first();
 
