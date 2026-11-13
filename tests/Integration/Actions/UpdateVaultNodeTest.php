@@ -11,6 +11,17 @@ use App\Models\VaultNode;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
+it('updates the search index after renaming a note', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => 'Notes']);
+    $note = app(CreateVaultNode::class)->handle($vault, ['is_file' => true, 'name' => 'Plan', 'extension' => 'md']);
+    $engine = spySearchEngine();
+
+    app(UpdateVaultNode::class)->handle($note, ['name' => 'Renamed']);
+
+    $engine->shouldHaveReceived('update')->once();
+});
+
 it('does not rename a node when renaming it on disk fails', function (): void {
     $user = User::factory()->create();
     $vault = app(CreateVault::class)->handle($user, ['name' => 'Notes']);
@@ -38,3 +49,16 @@ it('does not rename the node on disk when saving the new name fails', function (
     expect(Storage::disk('local')->files(app(GetPathFromVault::class)->handle($vault)))
         ->toBe(['vaults/' . $user->id . '/Notes/Plan.md']);
 });
+
+it('does not update the search index when renaming a note on disk fails', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => 'Notes']);
+    $note = app(CreateVaultNode::class)->handle($vault, ['is_file' => true, 'name' => 'Plan', 'extension' => 'md']);
+    makeDirectoryReadOnly(app(GetPathFromVault::class)->handle($vault));
+    $engine = spySearchEngine();
+
+    expect(fn() => app(UpdateVaultNode::class)->handle($note, ['name' => 'Renamed']))
+        ->toThrow(ValidationException::class, 'The name has already been taken.');
+
+    $engine->shouldNotHaveReceived('update');
+})->after(fn() => makeDirectoriesWritable());

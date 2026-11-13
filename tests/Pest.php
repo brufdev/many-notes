@@ -11,6 +11,9 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
+use Laravel\Scout\EngineManager;
+use Laravel\Scout\Engines\NullEngine;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 /*
@@ -145,4 +148,13 @@ function makeDirectoriesWritable(): void
     foreach (Storage::disk('local')->allDirectories() as $directory) {
         chmod(Storage::disk('local')->path($directory), 0755);
     }
+}
+
+function spySearchEngine(): MockInterface
+{
+    $engine = Mockery::spy(NullEngine::class);
+    app(EngineManager::class)->extend('spy', fn(): MockInterface => $engine);
+    config()->set('scout.driver', 'spy');
+
+    return $engine;
 }

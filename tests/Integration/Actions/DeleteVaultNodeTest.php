@@ -43,3 +43,16 @@ it('does not delete a folder when deleting it on disk fails', function (): void 
     expect($vault->nodes()->find($note->id))->not->toBeNull();
     expect(Storage::disk('local')->exists($vaultPath . 'Ideas/Plan.md'))->toBeTrue();
 })->after(fn() => makeDirectoriesWritable());
+
+it('does not remove the note from the search index when deleting it on disk fails', function (): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => 'Notes']);
+    $note = app(CreateVaultNode::class)->handle($vault, ['is_file' => true, 'name' => 'Plan', 'extension' => 'md']);
+    makeDirectoryReadOnly(app(GetPathFromVault::class)->handle($vault));
+    $engine = spySearchEngine();
+
+    expect(fn() => app(DeleteVaultNode::class)->handle($note))
+        ->toThrow(Exception::class, 'Something went wrong');
+
+    $engine->shouldNotHaveReceived('delete');
+})->after(fn() => makeDirectoriesWritable());
