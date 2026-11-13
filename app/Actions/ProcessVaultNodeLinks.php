@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Models\VaultNode;
-use App\Services\VaultFile;
 use Illuminate\Support\Facades\DB;
 
 final readonly class ProcessVaultNodeLinks
@@ -27,14 +26,13 @@ final readonly class ProcessVaultNodeLinks
             return [];
         }
 
-        $extensions = implode('|', VaultFile::extensions());
-        $pattern = <<<REGEX
+        $pattern = <<<'REGEX'
             /
             !?                                 # Optional: Match "!" at the beginning of the link to process images too
             \[.*?\]                            # Match a markdown-style link text [any text]
             \(                                 # Match opening parenthesis "("
-                (.*?(?:\.(?:{$extensions}))?)  # Capture group 1: Match a file name with an optional valid extension
-                (?:\s".*?")?                   # Optional: Match a title in quotes after the filename
+                ((?:[^()\n]|\([^()\n]*\))*?)   # Capture group 1: Match the path, allowing balanced parentheses
+                (?:\s".*?")?                   # Optional: Match a title in quotes after the path
             \)                                 # Match closing parenthesis ")"
             /xi
         REGEX;

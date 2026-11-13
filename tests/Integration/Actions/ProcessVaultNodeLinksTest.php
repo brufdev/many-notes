@@ -52,6 +52,28 @@ it('links to a note with plus signs in its name', function (): void {
     expect($note->links()->pluck('vault_nodes.id')->all())->toBe([$target->id]);
 });
 
+it('links to a note with parentheses in its name', function (string $link): void {
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => 'Notes']);
+    $target = app(CreateVaultNode::class)->handle($vault, [
+        'is_file' => true,
+        'name' => 'Meeting (2024)',
+        'extension' => 'md',
+    ]);
+    $note = app(CreateVaultNode::class)->handle($vault, [
+        'is_file' => true,
+        'name' => 'note',
+        'extension' => 'md',
+        'content' => "[Meeting]({$link}) (see above)",
+    ]);
+
+    expect($note->links()->pluck('vault_nodes.id')->all())->toBe([$target->id]);
+})->with([
+    'encoded spaces' => 'Meeting%20(2024).md',
+    'spaces' => 'Meeting (2024).md',
+    'title' => 'Meeting%20(2024).md "Minutes"',
+]);
+
 it('does not link to a node of another vault', function (): void {
     $user = User::factory()->create();
     $vault = app(CreateVault::class)->handle($user, ['name' => 'Notes']);
