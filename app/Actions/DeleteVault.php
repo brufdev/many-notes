@@ -16,6 +16,7 @@ use Exception;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use RuntimeException;
 use Throwable;
 
 final readonly class DeleteVault
@@ -48,15 +49,15 @@ final readonly class DeleteVault
             // Delete vault from database
             $this->deleteFromDatabase($vault);
 
+            // Delete vault from disk before committing
+            $this->deleteFromDisk($vault);
+
             DB::commit();
         } catch (Throwable) {
             DB::rollBack();
 
             throw new Exception(__('Something went wrong'));
         }
-
-        // Delete vault from disk
-        $this->deleteFromDisk($vault);
 
         // Broadcast events
         broadcast(new VaultListUpdatedEvent($vault->user))->toOthers();
@@ -96,6 +97,8 @@ final readonly class DeleteVault
             return;
         }
 
-        Storage::disk('local')->deleteDirectory($vaultPath);
+        if (!Storage::disk('local')->deleteDirectory($vaultPath)) {
+            throw new RuntimeException('Unable to delete the vault folder');
+        }
     }
 }

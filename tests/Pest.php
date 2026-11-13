@@ -134,3 +134,15 @@ function expectFilesKept(array $paths): void
         expect(Storage::disk('local')->get($path))->toBe('outside');
     }
 }
+
+function makeDirectoryReadOnly(string $path): void
+{
+    chmod(Storage::disk('local')->path($path), 0555);
+}
+
+function makeDirectoriesWritable(): void
+{
+    foreach (Storage::disk('local')->allDirectories() as $directory) {
+        chmod(Storage::disk('local')->path($directory), 0755);
+    }
+}

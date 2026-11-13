@@ -9,6 +9,7 @@ use App\Events\VaultTemplateListUpdatedEvent;
 use App\Exceptions\InvalidVaultPath;
 use App\Models\Scopes\SupportedVaultNodeScope;
 use App\Models\VaultNode;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -18,11 +19,16 @@ final readonly class DeleteVaultNode
     public function handle(VaultNode $node, bool $deleteFromDisk = true): array
     {
         $wasInTemplatesFolder = $node->isInTemplatesFolder();
-        $deletedNodeIds = DB::transaction(fn(): array => $this->deleteFromDatabase($node));
+        $deletedNodeIds = DB::transaction(function () use ($node, $deleteFromDisk): array {
+            $deletedNodeIds = $this->deleteFromDatabase($node);
 
-        if ($deleteFromDisk) {
-            $this->deleteFromDisk($node);
-        }
+            // Delete node from disk before committing
+            if ($deleteFromDisk) {
+                $this->deleteFromDisk($node);
+            }
+
+            return $deletedNodeIds;
+        });
 
         // Broadcast events
         broadcast(new VaultNodeDeletedEvent($node, $deletedNodeIds))->toOthers();
@@ -68,10 +74,12 @@ final readonly class DeleteVaultNode
             return;
         }
 
-        if ($node->is_file) {
-            Storage::disk('local')->delete($nodePath);
-        } else {
-            Storage::disk('local')->deleteDirectory($nodePath);
+        $deleted = $node->is_file
+            ? Storage::disk('local')->delete($nodePath)
+            : Storage::disk('local')->deleteDirectory($nodePath);
+
+        if (!$deleted) {
+            throw new Exception(__('Something went wrong'));
         }
     }
 }
