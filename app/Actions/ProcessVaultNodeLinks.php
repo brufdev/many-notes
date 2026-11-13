@@ -6,15 +6,25 @@ namespace App\Actions;
 
 use App\Models\VaultNode;
 use App\Services\VaultFile;
+use Illuminate\Support\Facades\DB;
 
 final readonly class ProcessVaultNodeLinks
 {
     public function handle(VaultNode $node): void
     {
-        $node->links()->detach();
+        $rows = $this->buildLinkRows($node);
 
+        DB::transaction(function () use ($node, $rows): void {
+            $node->links()->detach();
+            $node->links()->newPivotStatement()->insert($rows);
+        });
+    }
+
+    /** @return list<array{source_id: int, destination_id: int, position: int}> */
+    private function buildLinkRows(VaultNode $node): array
+    {
         if ($node->content === null || $node->content === '') {
-            return;
+            return [];
         }
 
         $extensions = implode('|', VaultFile::extensions());
@@ -31,7 +41,7 @@ final readonly class ProcessVaultNodeLinks
         preg_match_all($pattern, (string) $node->content, $matches, PREG_OFFSET_CAPTURE);
 
         if ($matches[1] === []) {
-            return;
+            return [];
         }
 
         $linkPaths = array_column($matches[1], 0);
@@ -43,22 +53,28 @@ final readonly class ProcessVaultNodeLinks
         );
 
         $vault = $node->loadMissing('vault')->vault;
+        $resolveTwoPaths = app(ResolveTwoPaths::class);
+        $getVaultNodeFromPath = app(GetVaultNodeFromPath::class);
+
+        /** @phpstan-ignore-next-line larastan.noUnnecessaryCollectionCall */
+        $fullPath = $node->ancestorsAndSelf()->get()->last()->full_path;
+        $rows = [];
 
         foreach ($links as $link) {
-            /**
-             * @var string $fullPath
-             *
-             * @phpstan-ignore-next-line larastan.noUnnecessaryCollectionCall
-             */
-            $fullPath = $node->ancestorsAndSelf()->get()->last()->full_path;
-            $path = new ResolveTwoPaths()->handle($fullPath, $link['path']);
-            $destinationNode = new GetVaultNodeFromPath()->handle($vault, $path);
+            $path = $resolveTwoPaths->handle($fullPath, $link['path']);
+            $destinationNode = $getVaultNodeFromPath->handle($vault, $path);
 
             if (is_null($destinationNode)) {
                 continue;
             }
 
-            $node->links()->attach($destinationNode->id, ['position' => $link['position']]);
+            $rows[] = [
+                'source_id' => $node->id,
+                'destination_id' => $destinationNode->id,
+                'position' => $link['position'],
+            ];
         }
+
+        return $rows;
     }
 }
