@@ -80,7 +80,7 @@ final readonly class VaultController
 
             if (is_string($path)) {
                 $resolvedPath = app(ResolveTwoPaths::class)->handle($file->fullPath(), $path);
-                $file = app(GetVaultNodeFromPath::class)->handle($vault->id, $resolvedPath);
+                $file = app(GetVaultNodeFromPath::class)->handle($vault, $resolvedPath);
 
                 abort_unless($file !== null, 404);
             }

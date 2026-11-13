@@ -15,8 +15,7 @@ final readonly class SearchVaultFilesForEditor
     /** @return Collection<int, VaultNode> */
     public function handle(Vault $vault, string $search, string $searchType): Collection
     {
-        return VaultNode::query()
-            ->where('vault_id', $vault->id)
+        return $vault->nodes()
             ->where('is_file', true)
             ->when($searchType === 'image', function (Builder $query): void {
                 $query->whereIn('extension', Image::extensions());

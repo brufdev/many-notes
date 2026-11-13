@@ -55,7 +55,7 @@ final readonly class SearchVaultFilesByText
             ->pluck('document.id')
             ->all();
 
-        $nodes = VaultNode::query()
+        $nodes = $vault->nodes()
             ->whereIn('id', $ids)
             ->get()
             ->keyBy('id');

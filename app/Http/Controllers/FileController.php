@@ -48,7 +48,7 @@ final readonly class FileController
             $path = $resolveTwoPaths->handle($currentPath, $path);
         }
 
-        $node = $getVaultNodeFromPath->handle($vault->id, $path);
+        $node = $getVaultNodeFromPath->handle($vault, $path);
 
         abort_unless($node instanceof VaultNode, 404);
 

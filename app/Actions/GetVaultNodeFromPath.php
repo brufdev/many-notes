@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
+use App\Models\Vault;
 use App\Models\VaultNode;
 
 final readonly class GetVaultNodeFromPath
 {
-    public function handle(int $vaultId, string $path): ?VaultNode
+    public function handle(Vault $vault, string $path): ?VaultNode
     {
         $segments = explode('/', str_replace('%20', ' ', $path));
         $fileName = array_pop($segments);
@@ -20,8 +21,7 @@ final readonly class GetVaultNodeFromPath
         $parentId = null;
 
         foreach ($this->folderNames($segments) as $folderName) {
-            $folder = VaultNode::query()
-                ->where('vault_id', $vaultId)
+            $folder = $vault->nodes()
                 ->where('parent_id', $parentId)
                 ->where('is_file', false)
                 ->whereRaw('LOWER(name) = LOWER(?)', [$folderName])
@@ -36,8 +36,7 @@ final readonly class GetVaultNodeFromPath
 
         $pathParts = pathinfo($fileName);
 
-        return VaultNode::query()
-            ->where('vault_id', $vaultId)
+        return $vault->nodes()
             ->where('parent_id', $parentId)
             ->where('is_file', true)
             ->whereRaw('LOWER(name) = LOWER(?)', [$pathParts['filename']])

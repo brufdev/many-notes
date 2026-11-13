@@ -42,6 +42,8 @@ final readonly class ProcessVaultNodeLinks
             $linkPositions,
         );
 
+        $vault = $node->loadMissing('vault')->vault;
+
         foreach ($links as $link) {
             /**
              * @var string $fullPath
@@ -50,7 +52,7 @@ final readonly class ProcessVaultNodeLinks
              */
             $fullPath = $node->ancestorsAndSelf()->get()->last()->full_path;
             $path = new ResolveTwoPaths()->handle($fullPath, $link['path']);
-            $destinationNode = new GetVaultNodeFromPath()->handle($node->vault_id, $path);
+            $destinationNode = new GetVaultNodeFromPath()->handle($vault, $path);
 
             if (is_null($destinationNode)) {
                 continue;
