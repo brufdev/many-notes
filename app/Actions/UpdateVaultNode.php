@@ -65,6 +65,9 @@ final readonly class UpdateVaultNode
         if ($node->wasChanged(['name', 'parent_id'])) {
             // Update all backlinks
             app(UpdateVaultNodeBacklinks::class)->handle($node);
+
+            // Reload content rewritten by the backlinks update
+            $node->refresh();
         }
 
         // Broadcast events

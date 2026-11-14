@@ -36,12 +36,12 @@ it('updates a backlink however its path is written', function (string $link): vo
         'name' => 'source',
         'extension' => 'md',
         'parent_id' => $folder->id,
-        'content' => "See [x]({$link}) here.",
+        'content' => "See [target]({$link}) here.",
     ]);
 
     app(UpdateVaultNode::class)->handle($target, ['name' => 'renamed']);
 
-    expect($source->fresh()->content)->toBe('See [x](/renamed.md) here.');
+    expect($source->fresh()->content)->toBe('See [target](/renamed.md) here.');
 })->with([
     'relative' => '../my target.md',
     'encoded' => '../my%20target.md',
@@ -74,7 +74,12 @@ it('updates backlinks to every note of a moved folder', function (?string $desti
     $oldParent = $createVaultNode->handle($vault, ['is_file' => false, 'name' => 'Old']);
     $folder = $createVaultNode->handle($vault, ['is_file' => false, 'name' => 'Folder', 'parent_id' => $oldParent->id]);
     foreach (['one', 'two'] as $name) {
-        $createVaultNode->handle($vault, ['is_file' => true, 'name' => $name, 'extension' => 'md', 'parent_id' => $folder->id]);
+        $createVaultNode->handle($vault, [
+            'is_file' => true,
+            'name' => $name,
+            'extension' => 'md',
+            'parent_id' => $folder->id,
+        ]);
     }
     $newParent = $createVaultNode->handle($vault, ['is_file' => false, 'name' => 'New']);
     $nestedParent = $createVaultNode->handle($vault, [
@@ -87,32 +92,81 @@ it('updates backlinks to every note of a moved folder', function (?string $desti
         'is_file' => true,
         'name' => 'source',
         'extension' => 'md',
-        'content' => '[1](/Old/Folder/one.md) [2](/Old/Folder/two.md)',
+        'content' => '[one](/Old/Folder/one.md) [two](/Old/Folder/two.md)',
     ]);
 
     app(UpdateVaultNode::class)->handle($folder, [
         'parent_id' => $destination === null ? null : $destinations[$destination]->id,
     ]);
 
-    expect($source->fresh()->content)->toBe("[1]({$path}/one.md) [2]({$path}/two.md)");
+    expect($source->fresh()->content)->toBe("[one]({$path}/one.md) [two]({$path}/two.md)");
 })->with([
     'same depth' => ['New', '/New/Folder'],
     'deeper' => ['Nested', '/New/Nested/Folder'],
     'to the root' => [null, '/Folder'],
 ]);
 
-it('keeps a dollar sign of the new name in backlinks', function (): void {
+it('updates the links of a moved note that no longer resolve', function (): void {
+    $createVaultNode = app(CreateVaultNode::class);
+
     $user = User::factory()->create();
     $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
-    $target = app(CreateVaultNode::class)->handle($vault, ['is_file' => true, 'name' => 'target', 'extension' => 'md']);
-    $source = app(CreateVaultNode::class)->handle($vault, [
+    $newParent = $createVaultNode->handle($vault, ['is_file' => false, 'name' => 'New']);
+    $createVaultNode->handle($vault, ['is_file' => true, 'name' => 'other', 'extension' => 'md']);
+    $note = $createVaultNode->handle($vault, [
+        'is_file' => true,
+        'name' => 'note',
+        'extension' => 'md',
+        'content' => '[relative](other.md) [absolute](/other.md)',
+    ]);
+
+    $note = app(UpdateVaultNode::class)->handle($note, ['parent_id' => $newParent->id]);
+
+    expect($note->content)->toBe('[relative](/other.md) [absolute](/other.md)');
+});
+
+it('keeps the links between notes of a moved folder', function (): void {
+    $createVaultNode = app(CreateVaultNode::class);
+
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $folder = $createVaultNode->handle($vault, ['is_file' => false, 'name' => 'Folder']);
+    $newParent = $createVaultNode->handle($vault, ['is_file' => false, 'name' => 'New']);
+    $createVaultNode->handle($vault, ['is_file' => true, 'name' => 'other', 'extension' => 'md']);
+    $createVaultNode->handle($vault, [
+        'is_file' => true,
+        'name' => 'two',
+        'extension' => 'md',
+        'parent_id' => $folder->id,
+    ]);
+    $one = $createVaultNode->handle($vault, [
+        'is_file' => true,
+        'name' => 'one',
+        'extension' => 'md',
+        'parent_id' => $folder->id,
+        'content' => '[two](two.md) [other](../other.md)',
+    ]);
+
+    app(UpdateVaultNode::class)->handle($folder, ['parent_id' => $newParent->id]);
+
+    expect($one->fresh()->content)->toBe('[two](two.md) [other](/other.md)');
+    expect($one->links()->pluck('name')->sort()->values()->all())->toBe(['other', 'two']);
+});
+
+it('keeps a dollar sign of the new name in backlinks', function (): void {
+    $createVaultNode = app(CreateVaultNode::class);
+
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $target = $createVaultNode->handle($vault, ['is_file' => true, 'name' => 'target', 'extension' => 'md']);
+    $source = $createVaultNode->handle($vault, [
         'is_file' => true,
         'name' => 'source',
         'extension' => 'md',
-        'content' => '[x](/target.md "Title")',
+        'content' => '[target](/target.md "Title")',
     ]);
 
     app(UpdateVaultNode::class)->handle($target, ['name' => 'Budget $2026']);
 
-    expect($source->fresh()->content)->toBe('[x](/Budget $2026.md "Title")');
+    expect($source->fresh()->content)->toBe('[target](/Budget $2026.md "Title")');
 });
