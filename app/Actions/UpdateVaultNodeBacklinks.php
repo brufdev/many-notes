@@ -44,12 +44,12 @@ final readonly class UpdateVaultNodeBacklinks
             \)                        # Match closing parenthesis ")"
             /xi
         REGEX;
-        $replacement = "[$1](/$replacementLinkPath.$node->extension$2)";
+        $linkPath = "/{$replacementLinkPath}.{$node->extension}";
 
         foreach ($backlinks as $backlink) {
-            $content = preg_replace(
+            $content = preg_replace_callback(
                 $pattern,
-                $replacement,
+                fn(array $matches): string => "[{$matches[1]}]({$linkPath}" . ($matches[2] ?? '') . ')',
                 (string) $backlink->content,
             );
 
@@ -59,10 +59,10 @@ final readonly class UpdateVaultNodeBacklinks
 
     private function processFolder(VaultNode $node, string $originalLinkPath): void
     {
+        $folderPath = $node->fullPath();
         $descendants = $node->descendants()->where('is_file', true)->get();
 
         foreach ($descendants as $descendant) {
-            $oldLinkPath = '';
             /**
              * @var string $newLinkPath
              *
@@ -70,18 +70,8 @@ final readonly class UpdateVaultNodeBacklinks
              */
             $newLinkPath = $descendant->ancestorsAndSelf()->get()->last()->full_path;
 
-            $newLinkPathParts = explode('/', $newLinkPath);
-            $originalLinkPathParts = explode('/', $originalLinkPath);
-
-            foreach ($newLinkPathParts as $index => $newLinkPathPart) {
-                if ($oldLinkPath !== '') {
-                    $oldLinkPath .= '/';
-                }
-
-                $oldLinkPath .= array_key_exists($index, $originalLinkPathParts)
-                    ? $originalLinkPathParts[$index]
-                    : $newLinkPathPart;
-            }
+            // Swap the new folder path for the old one
+            $oldLinkPath = $originalLinkPath . mb_substr($newLinkPath, mb_strlen($folderPath));
 
             $this->handle($descendant, $oldLinkPath, $newLinkPath);
         }
