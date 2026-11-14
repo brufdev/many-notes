@@ -7,7 +7,7 @@ namespace App\Actions;
 use App\Models\VaultNode;
 use Illuminate\Support\Facades\DB;
 
-final readonly class UpdateVaultNodeBacklinks
+final readonly class UpdateVaultNodeLinks
 {
     public function handle(VaultNode $node): void
     {

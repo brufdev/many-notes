@@ -63,10 +63,10 @@ final readonly class UpdateVaultNode
         }
 
         if ($node->wasChanged(['name', 'parent_id'])) {
-            // Update all backlinks
-            app(UpdateVaultNodeBacklinks::class)->handle($node);
+            // Update links to and from the moved notes
+            app(UpdateVaultNodeLinks::class)->handle($node);
 
-            // Reload content rewritten by the backlinks update
+            // Reload content rewritten by the links update
             $node->refresh();
         }
 
