@@ -9,71 +9,54 @@ use Illuminate\Support\Facades\DB;
 
 final readonly class UpdateVaultNodeBacklinks
 {
-    public function handle(VaultNode $node, string $originalLinkPath, ?string $replacementLinkPath = null): void
+    public function handle(VaultNode $node): void
     {
-        if (!$node->is_file) {
-            $this->processFolder($node, $originalLinkPath);
+        $targets = $node->is_file
+            ? collect([$node])
+            : $node->descendants()->where('is_file', true)->get();
 
+        /** @var array<int, string> $linkPaths */
+        $linkPaths = $targets
+            ->mapWithKeys(fn(VaultNode $target): array => [
+                $target->id => "/{$target->fullPath()}.{$target->extension}",
+            ])
+            ->all();
+
+        $linksBySource = DB::table('vault_node_vault_node')
+            ->whereIn('destination_id', array_keys($linkPaths))
+            ->get(['source_id', 'destination_id', 'position'])
+            ->groupBy('source_id');
+
+        if ($linksBySource->isEmpty()) {
             return;
         }
 
-        $destinationNodes = DB::table('vault_node_vault_node')
-            ->select('source_id')
-            ->where('destination_id', $node->id);
+        $sources = $node->vault->nodes()->whereIn('id', $linksBySource->keys())->get();
+        $getLinksFromContent = app(GetLinksFromContent::class);
+        $updateVaultNode = app(UpdateVaultNode::class);
 
-        $backlinks = VaultNode::query()
-            ->whereIn('id', $destinationNodes)
-            ->get();
+        foreach ($sources as $source) {
+            /** @var array<int, int> $destinations */
+            $destinations = $linksBySource->get($source->id, collect())->pluck('destination_id', 'position')->all();
+            $content = (string) $source->content;
 
-        if ($backlinks->isEmpty()) {
-            return;
-        }
+            // Replace from the end so earlier positions stay valid
+            foreach (array_reverse($getLinksFromContent->handle($content)) as $link) {
+                $destinationId = $destinations[$link['position']] ?? null;
 
-        /** @phpstan-ignore-next-line larastan.noUnnecessaryCollectionCall */
-        $replacementLinkPath ??= $node->ancestorsAndSelf()->get()->last()->full_path;
+                if ($destinationId === null) {
+                    continue;
+                }
 
-        $originalLinkPattern = '\/?'
-            . str_replace(' ', '\s', preg_quote($originalLinkPath, '/'))
-            . ($node->extension === 'md' ? "(?:\.$node->extension)?" : "\.$node->extension");
-        $pattern = <<<REGEX
-            /
-            \[(.*?)\]                 # Match a markdown-style link text [any text]
-            \(                        # Match opening parenthesis "("
-                $originalLinkPattern  # Match the original link path
-                (\s\".*?\")?          # Optional: Match a title in quotes after the filename
-            \)                        # Match closing parenthesis ")"
-            /xi
-        REGEX;
-        $linkPath = "/{$replacementLinkPath}.{$node->extension}";
+                $content = substr_replace(
+                    $content,
+                    $linkPaths[$destinationId],
+                    $link['path_position'],
+                    mb_strlen($link['path'], '8bit'),
+                );
+            }
 
-        foreach ($backlinks as $backlink) {
-            $content = preg_replace_callback(
-                $pattern,
-                fn(array $matches): string => "[{$matches[1]}]({$linkPath}" . ($matches[2] ?? '') . ')',
-                (string) $backlink->content,
-            );
-
-            app(UpdateVaultNode::class)->handle($backlink, ['content' => $content], true);
-        }
-    }
-
-    private function processFolder(VaultNode $node, string $originalLinkPath): void
-    {
-        $folderPath = $node->fullPath();
-        $descendants = $node->descendants()->where('is_file', true)->get();
-
-        foreach ($descendants as $descendant) {
-            /**
-             * @var string $newLinkPath
-             *
-             * @phpstan-ignore-next-line larastan.noUnnecessaryCollectionCall
-             */
-            $newLinkPath = $descendant->ancestorsAndSelf()->get()->last()->full_path;
-
-            // Swap the new folder path for the old one
-            $oldLinkPath = $originalLinkPath . mb_substr($newLinkPath, mb_strlen($folderPath));
-
-            $this->handle($descendant, $oldLinkPath, $newLinkPath);
+            $updateVaultNode->handle($source, ['content' => $content], true);
         }
     }
 }

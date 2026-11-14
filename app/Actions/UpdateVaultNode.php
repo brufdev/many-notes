@@ -28,7 +28,6 @@ final readonly class UpdateVaultNode
         bool $broadcastToCurrentUser = false,
     ): VaultNode {
         $originalPath = app(GetPathFromVaultNode::class)->handle($node);
-        $originalLinkPath = '';
 
         if (!$node->is_supported) {
             unset($attributes['content']);
@@ -40,10 +39,6 @@ final readonly class UpdateVaultNode
             && $attributes['parent_id'] !== $node->parent_id;
         $wasInTemplatesFolder = ($isNameAttributeChanged || $isParentIdAttributeChanged)
             && $node->isInTemplatesFolder();
-
-        if ($isNameAttributeChanged || $isParentIdAttributeChanged) {
-            $originalLinkPath = $node->fullPath();
-        }
 
         DB::transaction(fn() => $this->save($node, $attributes, $originalPath));
 
@@ -69,7 +64,7 @@ final readonly class UpdateVaultNode
 
         if ($node->wasChanged(['name', 'parent_id'])) {
             // Update all backlinks
-            app(UpdateVaultNodeBacklinks::class)->handle($node, $originalLinkPath);
+            app(UpdateVaultNodeBacklinks::class)->handle($node);
         }
 
         // Broadcast events

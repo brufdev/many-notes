@@ -26,29 +26,11 @@ final readonly class ProcessVaultNodeLinks
             return [];
         }
 
-        $pattern = <<<'REGEX'
-            /
-            !?                                 # Optional: Match "!" at the beginning of the link to process images too
-            \[.*?\]                            # Match a markdown-style link text [any text]
-            \(                                 # Match opening parenthesis "("
-                ((?:[^()\n]|\([^()\n]*\))*?)   # Capture group 1: Match the path, allowing balanced parentheses
-                (?:\s".*?")?                   # Optional: Match a title in quotes after the path
-            \)                                 # Match closing parenthesis ")"
-            /xi
-        REGEX;
-        preg_match_all($pattern, (string) $node->content, $matches, PREG_OFFSET_CAPTURE);
+        $links = app(GetLinksFromContent::class)->handle($node->content);
 
-        if ($matches[1] === []) {
+        if ($links === []) {
             return [];
         }
-
-        $linkPaths = array_column($matches[1], 0);
-        $linkPositions = array_column($matches[0], 1);
-        $links = array_map(
-            fn(string $path, int $position): array => ['path' => $path, 'position' => $position],
-            $linkPaths,
-            $linkPositions,
-        );
 
         $vault = $node->loadMissing('vault')->vault;
         $resolveTwoPaths = app(ResolveTwoPaths::class);
