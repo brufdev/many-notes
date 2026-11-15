@@ -16,6 +16,7 @@ export const CustomCodeBlockLowlight = CodeBlockLowlight.extend({
             const pre = document.createElement('pre');
 
             const header = document.createElement('div');
+            header.contentEditable = 'false';
             header.classList.add(
                 'flex',
                 'justify-between',
