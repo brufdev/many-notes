@@ -21,10 +21,29 @@ final readonly class GetLinksFromContent
         REGEX;
         preg_match_all($pattern, $content, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 
-        return array_map(fn(array $match): array => [
-            'position' => $match[0][1],
-            'path' => $match[1][0],
-            'path_position' => $match[1][1],
-        ], $matches);
+        $codeRanges = app(GetCodeRangesFromContent::class)->handle($content);
+        $links = [];
+
+        foreach ($matches as $match) {
+            $position = $match[0][1];
+
+            // Skip links inside code
+            $isInCode = array_any(
+                $codeRanges,
+                fn(array $range): bool => $position >= $range['start'] && $position < $range['end'],
+            );
+
+            if ($isInCode) {
+                continue;
+            }
+
+            $links[] = [
+                'position' => $position,
+                'path' => $match[1][0],
+                'path_position' => $match[1][1],
+            ];
+        }
+
+        return $links;
     }
 }

@@ -8,10 +8,12 @@ use App\Actions\UpdateVaultNode;
 use App\Models\User;
 
 it('updates every backlink in a note', function (): void {
+    $createVaultNode = app(CreateVaultNode::class);
+
     $user = User::factory()->create();
     $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
-    $target = app(CreateVaultNode::class)->handle($vault, ['is_file' => true, 'name' => 'target', 'extension' => 'md']);
-    $source = app(CreateVaultNode::class)->handle($vault, [
+    $target = $createVaultNode->handle($vault, ['is_file' => true, 'name' => 'target', 'extension' => 'md']);
+    $source = $createVaultNode->handle($vault, [
         'is_file' => true,
         'name' => 'source',
         'extension' => 'md',
@@ -51,10 +53,12 @@ it('updates a backlink however its path is written', function (string $link): vo
 ]);
 
 it('updates an image backlink when the image is renamed', function (): void {
+    $createVaultNode = app(CreateVaultNode::class);
+
     $user = User::factory()->create();
     $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
-    $image = app(CreateVaultNode::class)->handle($vault, ['is_file' => true, 'name' => 'img', 'extension' => 'png']);
-    $source = app(CreateVaultNode::class)->handle($vault, [
+    $image = $createVaultNode->handle($vault, ['is_file' => true, 'name' => 'img', 'extension' => 'png']);
+    $source = $createVaultNode->handle($vault, [
         'is_file' => true,
         'name' => 'source',
         'extension' => 'md',
@@ -151,6 +155,25 @@ it('keeps the links between notes of a moved folder', function (): void {
 
     expect($one->fresh()->content)->toBe('[two](two.md) [other](/other.md)');
     expect($one->links()->pluck('name')->sort()->values()->all())->toBe(['other', 'two']);
+});
+
+it('does not update links inside code', function (): void {
+    $createVaultNode = app(CreateVaultNode::class);
+
+    $user = User::factory()->create();
+    $vault = app(CreateVault::class)->handle($user, ['name' => fake()->words(3, true)]);
+    $target = $createVaultNode->handle($vault, ['is_file' => true, 'name' => 'target', 'extension' => 'md']);
+    $source = $createVaultNode->handle($vault, [
+        'is_file' => true,
+        'name' => 'source',
+        'extension' => 'md',
+        'content' => "`[code](target.md)` [target](target.md)\n\n```\n[code](target.md)\n```",
+    ]);
+
+    app(UpdateVaultNode::class)->handle($target, ['name' => 'renamed']);
+
+    expect($source->fresh()->content)
+        ->toBe("`[code](target.md)` [target](/renamed.md)\n\n```\n[code](target.md)\n```");
 });
 
 it('keeps a dollar sign of the new name in backlinks', function (): void {

@@ -28,23 +28,14 @@ final readonly class ProcessVaultNodeTags
         }
 
         $allTags = $matches[1];
+        $codeRanges = app(GetCodeRangesFromContent::class)->handle($content);
 
-        // Find inline codes and codeblocks start and end positions
-        preg_match_all('/`[^`\n]+`|```[^(?:```)]+```/u', $content, $matches, PREG_OFFSET_CAPTURE);
-        $codePositions = array_map(
-            fn(array $match): array => [
-                'start' => $match[1],
-                'end' => $match[1] + mb_strlen($match[0]),
-            ],
-            $matches[0],
-        );
-
-        // Filter out tags that are inside code blocks
+        // Filter out tags that are inside code
         $filteredTags = array_filter(
             $allTags,
-            fn(array $tag): bool => array_all(
-                $codePositions,
-                fn(array $position): bool => $tag[1] < $position['start'] || $tag[1] > $position['end'],
+            fn(array $tag): bool => !array_any(
+                $codeRanges,
+                fn(array $range): bool => $tag[1] >= $range['start'] && $tag[1] < $range['end'],
             ),
         );
 
