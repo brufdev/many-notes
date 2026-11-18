@@ -32,7 +32,7 @@ Finally, create a `compose.yaml` file with:
 
 ```yaml
 services:
-  php:
+  app:
     build:
       context: .
       args:

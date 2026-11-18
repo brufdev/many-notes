@@ -11,13 +11,13 @@ Application errors are written to `storage/logs/laravel.log` inside the containe
 To watch for errors while you reproduce a problem, run:
 
 ```shell
-docker compose exec php tail -f storage/logs/laravel.log
+docker compose exec app tail -f storage/logs/laravel.log
 ```
 
 To see the last few errors instead:
 
 ```shell
-docker compose exec php grep -a "\.ERROR" storage/logs/laravel.log | tail -5
+docker compose exec app grep -a "\.ERROR" storage/logs/laravel.log | tail -5
 ```
 
 ### Debug mode
@@ -52,8 +52,8 @@ The build phase may seem unnecessary when using bind mounts, but since the Docke
 
 First, make sure to mount the Typesense directory to `/var/www/html/typesense`, like is described in the [installation guide](../../README.md#installation).
 
-After that, you need to reimport the existing data into Typesense by simply running the following command on a container shell:
+After that, reimport the existing data into Typesense by running:
 
 ```shell
-php artisan upgrade:reimport-data-into-typesense
+docker compose exec app php artisan upgrade:reimport-data-into-typesense
 ```

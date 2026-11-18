@@ -1,0 +1,16 @@
+name: many-notes
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: development
+      args:
+        USER_ID: ${UID:-1000}
+        GROUP_ID: ${GID:-1000}
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/html
+    ports:
+      - ${APP_PORT:-8100}:8080

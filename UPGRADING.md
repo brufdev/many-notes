@@ -2,6 +2,10 @@
 
 This guide will walk you through the necessary changes to upgrade from a previous version of Many Notes. Be sure to back up your data, especially before updates. If you need further help, consult the [FAQs](./docs/support/faqs.md), or if your question isn't answered there, please open an issue on GitHub.
 
+## Upgrading from any version below 0.19
+
+The service in the documented `compose.yaml` files is now called `app` instead of `php`. Renaming it in your own file is optional. If you keep `php`, use it instead of `app` in the commands from the [FAQs](./docs/support/faqs.md).
+
 ## Upgrading from any version below 0.11
 
 Enabling or disabling registration has been moved from the compose.yaml file to the admin settings on the frontend. If registration was previously disabled, you will need to disable it again after the update.

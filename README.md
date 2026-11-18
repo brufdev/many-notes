@@ -69,7 +69,7 @@ Create a `compose.yaml` file with:
 
 ```yaml
 services:
-  php:
+  app:
     image: brufdev/many-notes:latest
     restart: unless-stopped
     environment:
