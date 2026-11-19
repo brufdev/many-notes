@@ -20,7 +20,6 @@ bootstrap/cache/*.php
 database/sqlite/*
 storage/app/private/*
 storage/app/public/*
-storage/debugbar/*
 storage/framework/cache/data/*
 storage/framework/sessions/*
 storage/framework/testing/*

@@ -6,9 +6,7 @@
 /resources/js/actions
 /resources/js/routes
 /resources/js/wayfinder
-/storage/debugbar
 /storage/*.key
-/tests/Browser/Screenshots
 /vendor
 .env
 .env.backup
