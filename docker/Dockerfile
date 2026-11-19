@@ -2,7 +2,6 @@ FROM typesense/typesense:30.2 AS typesense
 
 FROM serversideup/php:8.4-fpm-nginx-trixie-v5.0.2 AS base
 USER root
-RUN install-php-extensions intl
 # Copy Typesense executable
 COPY --from=typesense --chmod=755 /opt/typesense-server /opt/typesense-server
 # Copy custom Nginx configuration

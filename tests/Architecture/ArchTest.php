@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Number;
 
 arch()->preset()->php();
 arch()->preset()->laravel();
@@ -58,6 +59,10 @@ arch('avoid abstraction')
     ->ignoring([
         'App\Services\VaultFiles',
     ]);
+
+arch('avoid the intl extension')
+    ->expect('App')
+    ->not->toUse(Number::class);
 
 arch('factories')
     ->expect('Database\Factories')

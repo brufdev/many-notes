@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Rules;
 
+use App\Services\UploadLimit;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Number;
 use ZipArchive;
 
 final readonly class ValidZipSizes implements ValidationRule
@@ -39,7 +39,7 @@ final readonly class ValidZipSizes implements ValidationRule
         }
 
         if ($size > $this->bytes) {
-            $fail('The unzipped vault must be smaller than ' . Number::fileSize($this->bytes) . '.');
+            $fail('The unzipped vault must be smaller than ' . UploadLimit::format($this->bytes) . '.');
         } elseif (!$this->hasDeclaredSizes($zip)) {
             $fail('The zip file is damaged.');
         }
