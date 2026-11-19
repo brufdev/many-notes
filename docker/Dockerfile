@@ -28,11 +28,14 @@ STOPSIGNAL SIGTERM
 USER www-data
 
 FROM base AS production
-ENV GLOG_minloglevel=3 \
+ENV APP_ENV=production \
+    APP_DEBUG=false \
+    GLOG_minloglevel=3 \
     PHP_OPCACHE_ENABLE=1 \
     PHP_POST_MAX_SIZE="500M" \
     PHP_UPLOAD_MAX_FILE_SIZE="500M" \
     AUTORUN_ENABLED=true
 COPY --chown=www-data:www-data . /var/www/html
+COPY --chown=www-data:www-data --chmod=600 .env.example /var/www/html/.env
 STOPSIGNAL SIGTERM
 USER www-data

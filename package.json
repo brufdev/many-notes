@@ -1,4 +1,5 @@
 {
+    "name": "many-notes",
     "private": true,
     "type": "module",
     "scripts": {

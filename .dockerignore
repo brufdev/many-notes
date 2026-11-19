@@ -3,6 +3,9 @@
 .idea
 .vscode
 .phpunit.cache
+.env
+.env.*
+!.env.example
 .dockerignore
 .editorconfig
 .gitattributes

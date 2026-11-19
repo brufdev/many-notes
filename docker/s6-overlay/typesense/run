@@ -1,3 +1,4 @@
 #!/command/execlineb -P
 with-contenv
-/opt/typesense-server --data-dir=/var/www/html/typesense --api-key=xyz
+envfile /var/www/html/storage/app/private/.keys.env
+/opt/typesense-server --data-dir=/var/www/html/typesense --api-address=127.0.0.1 --peering-address=127.0.0.1

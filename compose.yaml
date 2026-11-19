@@ -13,4 +13,4 @@ services:
     volumes:
       - .:/var/www/html
     ports:
-      - ${APP_PORT:-8100}:8080
+      - ${APP_PORT:-6683}:8080

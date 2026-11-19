@@ -6,6 +6,8 @@ This guide will walk you through the necessary changes to upgrade from a previou
 
 The service in the documented `compose.yaml` files is now called `app` instead of `php`. Renaming it in your own file is optional. If you keep `php`, use it instead of `app` in the commands from the [FAQs](./docs/support/faqs.md).
 
+Each install now generates its own keys on the first start, so everyone is logged out once after the update.
+
 ## Upgrading from any version below 0.11
 
 Enabling or disabling registration has been moved from the compose.yaml file to the admin settings on the frontend. If registration was previously disabled, you will need to disable it again after the update.

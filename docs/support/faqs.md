@@ -57,3 +57,7 @@ After that, reimport the existing data into Typesense by running:
 ```shell
 docker compose exec app php artisan upgrade:reimport-data-into-typesense
 ```
+
+## What is the .keys.env file
+
+Many Notes generates its keys on the first start and saves them in `.keys.env`, inside the `private` directory. Keep it with your backups. If you delete it, new keys are generated on the next start, and everyone is logged out.
