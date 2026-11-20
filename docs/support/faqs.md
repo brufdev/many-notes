@@ -33,10 +33,6 @@ environment:
 
 Turn it off again afterwards, because the error page exposes details about your installation.
 
-## Why is the build phase required when using bind mounts
-
-The build phase may seem unnecessary when using bind mounts, but since the Docker image runs with an unprivileged user, updating permissions for files and services can only be done during the build stage. I have created a [discussion](https://github.com/brufdev/many-notes/discussions/40) to share my perspective on this topic. Feel free to join and share your thoughts.
-
 ## The search feature is not returning any results
 
 First, make sure to mount the Typesense directory to `/var/www/html/typesense`, like is described in the [installation guide](../../README.md#installation).
@@ -44,7 +40,7 @@ First, make sure to mount the Typesense directory to `/var/www/html/typesense`, 
 After that, reimport the existing data into Typesense by running:
 
 ```shell
-docker compose exec app php artisan upgrade:reimport-data-into-typesense
+docker compose exec -u www-data app php artisan upgrade:reimport-data-into-typesense
 ```
 
 ## What is the .keys.env file

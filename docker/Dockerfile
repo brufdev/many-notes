@@ -24,14 +24,14 @@ RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
 
 # Development: source is bind-mounted, www-data matches the host user
 FROM base-node AS development
-ARG USER_ID=1000
-ARG GROUP_ID=1000
+ARG PUID=1000
+ARG PGID=1000
 ENV PHP_MEMORY_LIMIT=1G \
     XDEBUG_MODE=off
 COPY --chmod=755 ./docker/s6-overlay-dev/queue/run /etc/s6-overlay/s6-rc.d/queue/run
 RUN install-php-extensions xdebug \
-    && docker-php-serversideup-set-id www-data "$USER_ID":"$GROUP_ID" \
-    && docker-php-serversideup-set-file-permissions --owner "$USER_ID":"$GROUP_ID" --service nginx
+    && docker-php-serversideup-set-id www-data "$PUID":"$PGID" \
+    && docker-php-serversideup-set-file-permissions --owner "$PUID":"$PGID" --service nginx
 USER www-data
 
 # Build: install dependencies, compile assets, drop build-only files
@@ -67,4 +67,6 @@ RUN cd /var/www/html \
     && chown root:root . \
     && chown -R www-data:www-data storage bootstrap/cache database/sqlite typesense .env \
     && chmod 600 .env
-USER www-data
+COPY --chmod=755 ./docker/bin/many-notes-entrypoint /usr/local/bin/many-notes-entrypoint
+ENTRYPOINT ["many-notes-entrypoint"]
+CMD ["/init"]

@@ -1,0 +1,64 @@
+#!/bin/sh
+# Runs as root: sets www-data to PUID/PGID, fixes the owner of writable paths, then drops to www-data
+script_name="many-notes-entrypoint"
+entrypoint="docker-php-serversideup-entrypoint"
+
+fail() {
+    echo "🛑 ERROR ($script_name): $1" >&2
+    exit 1
+}
+
+is_id() {
+    case "$1" in
+        '' | *[!0-9]* | 0?*) return 1 ;;
+    esac
+}
+
+current_uid=$(id -u www-data)
+current_gid=$(id -g www-data)
+
+# Started unprivileged, such as with compose user:
+if [ "$(id -u)" != "0" ]; then
+    [ "$(id -u)" = "$current_uid" ] || fail "Start as root and set PUID and PGID instead of user"
+    exec "$entrypoint" "$@"
+fi
+
+uid=${PUID:-$current_uid}
+gid=${PGID:-$current_gid}
+
+is_id "$uid" && is_id "$gid" || fail "PUID and PGID must be numbers"
+[ "$uid" != "0" ] && [ "$gid" != "0" ] || fail "PUID and PGID can't be 0"
+
+# Remap the paths nginx and PHP-FPM write to, then www-data
+if [ "$uid" != "$current_uid" ] || [ "$gid" != "$current_gid" ]; then
+    chown -R "$uid:$gid" \
+        /composer \
+        /etc/nginx \
+        /etc/ssl/private \
+        /run \
+        /usr/local/etc/php-fpm.conf \
+        /usr/local/etc/php-fpm.d/zzz-docker-php-serversideup-fpm-debug.conf \
+        /var/cache/nginx \
+        /var/log/nginx \
+        "$PHP_INI_DIR/conf.d/zzz-serversideup-docker-php-debug.ini" \
+        || fail "Can't change the owner of the web server paths"
+    chown "$uid:$gid" /var/www || fail "Can't change the owner of /var/www"
+    docker-php-serversideup-set-id www-data "$uid:$gid" > /dev/null \
+        || fail "Can't set www-data to $uid:$gid"
+    echo "ℹ️ NOTICE ($script_name): Set www-data to $uid:$gid"
+fi
+
+# Fix files with another owner, such as ones created by docker exec as root
+for path in storage bootstrap/cache database/sqlite typesense .env; do
+    find "$APP_BASE_DIR/$path" \( ! -user "$uid" -o ! -group "$gid" \) -exec chown -h "$uid:$gid" {} + \
+        || echo "⚠️ WARNING ($script_name): Can't change the owner of every file in $path" >&2
+done
+
+# PHP-FPM reopens the container log by path
+chown --dereference "$uid:$gid" /proc/self/fd/1 /proc/self/fd/2 \
+    || echo "⚠️ WARNING ($script_name): Can't change the owner of the container log" >&2
+
+HOME=$(getent passwd www-data | cut -d: -f6)
+export HOME
+
+exec setpriv --reuid=www-data --regid=www-data --init-groups "$entrypoint" "$@"

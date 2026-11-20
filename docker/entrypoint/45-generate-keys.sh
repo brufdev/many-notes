@@ -1,4 +1,7 @@
 #!/bin/sh
+# Keep the keys out of debug logs
+set +x
+
 script_name="generate-keys"
 
 keys_file="$APP_BASE_DIR/storage/app/private/.keys.env"
@@ -6,7 +9,7 @@ env_file="$APP_BASE_DIR/.env"
 generated=""
 
 fail() {
-    echo "❌ ERROR ($script_name): $1" >&2
+    echo "🛑 ERROR ($script_name): $1" >&2
     exit 1
 }
 
@@ -16,9 +19,11 @@ add_key() {
     prefix=$2
     shift 2
 
-    grep -q "^$name=" "$keys_file" && return
+    grep -q "^$name=." "$keys_file" && return
 
     value=$(openssl rand "$@") || fail "Can't generate $name"
+    # Start a new line when the file doesn't end with one
+    [ -z "$(tail -c 1 "$keys_file")" ] || echo >> "$keys_file"
     echo "$name=$prefix$value" >> "$keys_file" || fail "Can't write $keys_file"
     generated="$generated $name"
 }
@@ -36,7 +41,7 @@ add_key TYPESENSE_API_KEY '' -hex 16
 # Copy the keys into .env, replacing existing lines
 if [ -f "$env_file" ]; then
     merged=$(awk -F= '
-        NR == FNR { if ($1 != "") { order[++count] = $1; keys[$1] = $0 }; next }
+        NR == FNR { if (/^[A-Za-z_][A-Za-z0-9_]*=/) { order[++count] = $1; keys[$1] = $0 }; next }
         { name = $1; gsub(/[ \t]/, "", name) }
         name in keys { if (!(name in done)) print keys[name]; done[name] = 1; next }
         { print }

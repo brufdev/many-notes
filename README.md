@@ -55,14 +55,6 @@ If you find this project useful, consider supporting its development:
 
 ## Installation
 
-Choose your preferred method to install Many Notes:
-
-- Docker with volumes, for a simpler installation (read below)
-- Docker with bind mounts, for easy access to shared paths from the host ([read here](./docs/installation/docker-bind-mounts.md))
-- Docker with a different database, if you prefer not to use SQLite ([read here](./docs/installation/docker-different-database.md))
-
-### Docker with volumes
-
 **Read the [upgrading guide](./UPGRADING.md) if you are upgrading from a previous version.**
 
 Create a `compose.yaml` file with:
@@ -74,26 +66,26 @@ services:
     restart: unless-stopped
     environment:
       - APP_URL=http://localhost # address used to access the application
+      - PUID=1000 # host user id
+      - PGID=1000 # host group id
     volumes:
-      - database:/var/www/html/database/sqlite
-      - logs:/var/www/html/storage/logs
-      - private:/var/www/html/storage/app/private
-      - typesense:/var/www/html/typesense
+      - ./database:/var/www/html/database/sqlite
+      - ./logs:/var/www/html/storage/logs
+      - ./private:/var/www/html/storage/app/private
+      - ./typesense:/var/www/html/typesense
     ports:
       - 80:8080
-
-volumes:
-  database:
-  logs:
-  private:
-  typesense:
 ```
 
-Make sure to change the address used to access the application. Feel free to change anything else if you know what you're doing, and read the customization section below before continue. Then run:
+Many Notes runs as the user and group set by `PUID` and `PGID`, so the shared folders belong to your host user. Run `id -u` and `id -g` on the host to find your IDs. The folders are created next to `compose.yaml` on the first start.
+
+Make sure to change the IDs and the address used to access the application. Feel free to change anything else if you know what you're doing, and read the customization section below before continuing. Then run:
 
 ```shell
 docker compose up -d
 ```
+
+To use PostgreSQL, MySQL, or MariaDB instead of SQLite, read the [different database guide](./docs/installation/docker-different-database.md).
 
 ## Customization
 
