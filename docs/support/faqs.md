@@ -33,17 +33,6 @@ environment:
 
 Turn it off again afterwards, because the error page exposes details about your installation.
 
-### Typesense debug mode
-
-You can enable Typesense debug mode in your `compose.yaml` file by adding:
-
-```yaml
-environment:
-  - GLOG_minloglevel=2
-```
-
-The numbers of severity levels `INFO`, `WARNING`, `ERROR`, and `FATAL` are 0, 1, 2, and 3, respectively.
-
 ## Why is the build phase required when using bind mounts
 
 The build phase may seem unnecessary when using bind mounts, but since the Docker image runs with an unprivileged user, updating permissions for files and services can only be done during the build stage. I have created a [discussion](https://github.com/brufdev/many-notes/discussions/40) to share my perspective on this topic. Feel free to join and share your thoughts.

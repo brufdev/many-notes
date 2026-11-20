@@ -1,0 +1,3 @@
+#!/command/execlineb -P
+with-contenv
+php /var/www/html/artisan queue:listen --tries=3

@@ -71,9 +71,17 @@
         "phpstan": "phpstan",
         "fix:rector": "rector",
         "fix:pint": "pint --parallel",
-        "test": "pest --parallel",
+        "test": [
+            "@php artisan config:clear --ansi @no_additional_args",
+            "pest --parallel"
+        ],
         "test:type-coverage": "pest --type-coverage --min=100",
-        "test:coverage": "pest --parallel --coverage",
+        "test:coverage": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php artisan config:clear --ansi @no_additional_args",
+            "@putenv XDEBUG_MODE=coverage",
+            "pest --parallel --coverage"
+        ],
         "analyse": [
             "@rector",
             "@pint",
