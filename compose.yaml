@@ -1,16 +1,37 @@
 name: many-notes
 
+x-dev-image: &dev-image
+  build:
+    context: .
+    dockerfile: docker/Dockerfile
+    target: development
+    args:
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+  image: many-notes-dev
+  restart: unless-stopped
+  volumes:
+    - .:/var/www/html
+
 services:
   app:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-      target: development
-      args:
-        PUID: ${PUID:-1000}
-        PGID: ${PGID:-1000}
-    restart: unless-stopped
-    volumes:
-      - .:/var/www/html
+    <<: *dev-image
     ports:
       - ${APP_PORT:-6683}:8080
+    healthcheck:
+      start_period: 5m
+
+  vite:
+    <<: *dev-image
+    entrypoint: ["npm", "run", "dev"]
+    init: true
+    healthcheck:
+      disable: true
+    environment:
+      LARAVEL_SAIL: 1
+      VITE_PORT: ${VITE_PORT:-6684}
+    ports:
+      - ${VITE_PORT:-6684}:${VITE_PORT:-6684}
+    depends_on:
+      app:
+        condition: service_healthy

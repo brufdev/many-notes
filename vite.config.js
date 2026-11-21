@@ -65,5 +65,12 @@ export default defineConfig({
         fs: {
             allow: ['..'],
         },
+        watch: {
+            ignored: [
+                `${import.meta.dirname}/vendor/**`,
+                `${import.meta.dirname}/storage/**`,
+                `${import.meta.dirname}/typesense/**`,
+            ],
+        },
     },
 });

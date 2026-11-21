@@ -29,6 +29,7 @@ ARG PGID=1000
 ENV PHP_MEMORY_LIMIT=1G \
     XDEBUG_MODE=off
 COPY --chmod=755 ./docker/s6-overlay-dev/queue/run /etc/s6-overlay/s6-rc.d/queue/run
+COPY --chmod=755 ./docker/entrypoint-dev/ /etc/entrypoint.d/
 RUN install-php-extensions xdebug \
     && docker-php-serversideup-set-id www-data "$PUID":"$PGID" \
     && docker-php-serversideup-set-file-permissions --owner "$PUID":"$PGID" --service nginx
