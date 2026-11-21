@@ -1,0 +1,166 @@
+name: Docker
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-26.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Check shell scripts
+        run: |
+          shellcheck --shell=sh --severity=warning docker/bin/many-notes-entrypoint docker/entrypoint/*.sh docker/entrypoint-dev/*.sh
+          shellcheck --severity=warning .github/scripts/check-image.sh
+
+  development:
+    name: Build development image
+    runs-on: ubuntu-26.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: docker/Dockerfile
+          target: development
+          cache-from: type=gha,scope=development
+          cache-to: type=gha,scope=development,mode=max
+
+  check:
+    name: Check production image (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-26.04
+          - arch: arm64
+            runner: ubuntu-26.04-arm
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: docker/Dockerfile
+          target: production
+          platforms: linux/${{ matrix.arch }}
+          load: true
+          tags: many-notes:check
+          cache-from: type=gha,scope=production-${{ matrix.arch }}
+          cache-to: type=gha,scope=production-${{ matrix.arch }},mode=max
+
+      - name: Check
+        run: .github/scripts/check-image.sh many-notes:check
+
+  publish:
+    name: Publish to Docker Hub
+    needs: [lint, development, check]
+    if: github.event_name == 'release' && vars.DOCKERHUB_USERNAME != ''
+    runs-on: ubuntu-26.04
+
+    env:
+      IMAGE: ${{ vars.DOCKERHUB_USERNAME }}/many-notes
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Prepare labels
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.IMAGE }}
+          flavor: latest=false
+          tags: type=semver,pattern={{version}}
+
+      # v0.19.0 pushes 0.19, then 0.19.0, then latest (0.x only), so Docker Hub lists latest, 0.19.0, 0.19
+      # Pre-releases push only their version
+      - name: Prepare tags
+        id: tags
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
+          PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          if [ -z "$VERSION" ]; then
+              echo "::error::The release tag must be a version such as v0.19.0"
+              exit 1
+          fi
+          if [ "$PRERELEASE" = true ] || [ "${VERSION#*-}" != "$VERSION" ]; then
+              first=$VERSION
+              rest=""
+          else
+              first=${VERSION%.*}
+              rest=$VERSION
+              case "$VERSION" in
+                  0.*) rest="$rest latest" ;;
+              esac
+          fi
+          echo "first=$first" >> "$GITHUB_OUTPUT"
+          echo "rest=$rest" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: docker/Dockerfile
+          target: production
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ env.IMAGE }}:${{ steps.tags.outputs.first }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: |
+            type=gha,scope=production-amd64
+            type=gha,scope=production-arm64
+
+      - name: Add the other tags
+        if: steps.tags.outputs.rest != ''
+        env:
+          FIRST: ${{ steps.tags.outputs.first }}
+          REST: ${{ steps.tags.outputs.rest }}
+        run: |
+          for tag in $REST; do
+              docker buildx imagetools create -t "$IMAGE:$tag" "$IMAGE:$FIRST"
+          done
