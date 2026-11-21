@@ -28,6 +28,7 @@ use App\Http\Controllers\VaultNodeImportController;
 use App\Http\Controllers\VaultNodeMoveController;
 use App\Http\Controllers\VaultSearchController;
 use App\Http\Middleware\EnsureEmailIsConfigured;
+use App\Http\Middleware\EnsureLocalAuthIsEnabled;
 use App\Http\Middleware\EnsureRegistrationIsEnabled;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use Illuminate\Support\Facades\Route;
@@ -94,19 +95,26 @@ Route::middleware('auth')->group(function (): void {
 
 Route::middleware(['guest', 'throttle'])->group(function (): void {
     Route::get('login', [LoginController::class, 'create'])->name('login');
-    Route::post('login', [LoginController::class, 'store'])->name('login.store');
 
-    Route::middleware([EnsureRegistrationIsEnabled::class])->group(function (): void {
-        Route::get('register', [RegisterController::class, 'create'])->name('register');
-        Route::post('register', [RegisterController::class, 'store'])->name('register.store');
-    });
+    Route::middleware([EnsureLocalAuthIsEnabled::class])->group(function (): void {
+        Route::post('login', [LoginController::class, 'store'])->name('login.store');
 
-    Route::middleware([EnsureEmailIsConfigured::class])->group(function (): void {
-        Route::get('forgot-password', [ForgotPasswordController::class, 'create'])->name('forgot.password');
-        Route::post('forgot-password', [ForgotPasswordController::class, 'store'])->name('forgot.password.store');
+        Route::middleware([EnsureRegistrationIsEnabled::class])->group(function (): void {
+            Route::get('register', [RegisterController::class, 'create'])->name('register');
+            Route::post('register', [RegisterController::class, 'store'])->name('register.store');
+        });
 
-        Route::get('reset-password/{token}', [ResetPasswordController::class, 'create'])->name('password.reset');
-        Route::post('reset-password/{token}', [ResetPasswordController::class, 'store'])->name('password.reset.store');
+        Route::middleware([EnsureEmailIsConfigured::class])->group(function (): void {
+            Route::get('forgot-password', [ForgotPasswordController::class, 'create'])
+                ->name('forgot.password');
+            Route::post('forgot-password', [ForgotPasswordController::class, 'store'])
+                ->name('forgot.password.store');
+
+            Route::get('reset-password/{token}', [ResetPasswordController::class, 'create'])
+                ->name('password.reset');
+            Route::post('reset-password/{token}', [ResetPasswordController::class, 'store'])
+                ->name('password.reset.store');
+        });
     });
 
     Route::prefix('oauth')->group(function (): void {
