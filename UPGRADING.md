@@ -10,6 +10,8 @@ Each install now generates its own keys on the first start, so everyone is logge
 
 With bind mounts, the `Dockerfile` is no longer needed. Update your `compose.yaml` as in the [installation guide](./README.md#installation).
 
+Styles and scripts now load from the address you use to open Many Notes, not always from `APP_URL`. If pages load without styles behind a reverse proxy, read the [FAQs](./docs/support/faqs.md#the-page-loads-without-styles-behind-a-reverse-proxy).
+
 ## Upgrading from any version below 0.11
 
 Enabling or disabling registration has been moved from the compose.yaml file to the admin settings on the frontend. If registration was previously disabled, you will need to disable it again after the update.

@@ -48,7 +48,6 @@ final class AppServiceProvider extends ServiceProvider
         $this->configureModels();
         $this->configureResources();
         $this->configureVite();
-        $this->configureAssetURL();
         $this->configureSocialite();
         $this->configureInertiaExceptions();
         $this->checkForUpdates();
@@ -108,12 +107,6 @@ final class AppServiceProvider extends ServiceProvider
     private function configureVite(): void
     {
         Vite::useAggressivePrefetching();
-    }
-
-    /** Configure the application's asset URL. */
-    private function configureAssetURL(): void
-    {
-        config(['app.asset_url' => config('app.url')]);
     }
 
     /** Configure Laravel Socialite extra providers. */

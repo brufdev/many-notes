@@ -16,6 +16,31 @@ To watch for new errors while you reproduce a problem, add `-f`:
 docker compose logs -f app
 ```
 
+## The page loads without styles behind a reverse proxy
+
+Many Notes builds the address of its styles and scripts from the address you used to open it. Behind a reverse proxy serving HTTPS, the proxy must tell Many Notes that the original request used HTTPS. Otherwise, the styles are requested over HTTP and the browser blocks them.
+
+Most reverse proxies, such as Traefik and Caddy, do this by default. With nginx, add the `X-Forwarded-Proto` header to your configuration:
+
+```nginx
+location / {
+    proxy_pass http://127.0.0.1:6683;
+    proxy_http_version 1.1;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+}
+```
+
+The last two headers keep live updates working. If you can't change the proxy configuration, set the address of the styles and scripts in your `compose.yaml` instead:
+
+```yaml
+environment:
+  - ASSET_URL=https://notes.example.com
+```
+
 ## The search feature is not returning any results
 
 First, make sure to mount the Typesense directory to `/var/www/html/typesense`, like is described in the [installation guide](../../README.md#installation).
