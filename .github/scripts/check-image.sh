@@ -86,6 +86,14 @@ else
     fail "production settings: expected $expected, got $settings"
 fi
 
+built=$(docker image inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "$image" | sed -n 's/^APP_VERSION=//p')
+version=$(in_app php artisan tinker --execute='echo config("app.version");')
+if [ -n "$built" ] && [ "$version" = "$built" ]; then
+    pass "app version matches the image: $version"
+else
+    fail "app version matches the image: expected ${built:-a version}, got $version"
+fi
+
 key=$(in_app php artisan tinker --execute='echo config("broadcasting.connections.reverb.key");')
 handshake=$(in_app curl -s -o /dev/null -w '%{http_code}' -m 5 --http1.1 \
     -H 'Connection: Upgrade' -H 'Upgrade: websocket' -H 'Sec-WebSocket-Version: 13' \

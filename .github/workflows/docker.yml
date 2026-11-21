@@ -151,6 +151,7 @@ jobs:
           push: true
           tags: ${{ env.IMAGE }}:${{ steps.tags.outputs.first }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: APP_VERSION=${{ steps.meta.outputs.version }}
           cache-from: |
             type=gha,scope=production-amd64
             type=gha,scope=production-arm64

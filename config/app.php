@@ -130,10 +130,11 @@ return [
     | Application Version
     |--------------------------------------------------------------------------
     |
-    | This value is the version of your application.
+    | This value is the version of your application. Release images set it
+    | from the release tag, and other builds report "dev".
     |
     */
 
-    'version' => json_decode(file_get_contents(base_path('composer.json')), true)['version'] ?? '0.0.0',
+    'version' => env('APP_VERSION', 'dev'),
 
 ];

@@ -33,8 +33,14 @@ final readonly class AppMetadata
         ];
     }
 
+    public function isRelease(): bool
+    {
+        return preg_match('/^\d+\.\d+\.\d+/', $this->appVersion()) === 1;
+    }
+
     public function updateAvailable(): bool
     {
-        return version_compare($this->latestVersion(), $this->appVersion(), '>');
+        return $this->isRelease()
+            && version_compare($this->latestVersion(), $this->appVersion(), '>');
     }
 }

@@ -9,6 +9,12 @@ import ExternalLinkButton from '../ui/ExternalLinkButton.vue';
 const page = usePage();
 
 const metadata = computed(() => page.props.app?.metadata);
+
+const appVersion = computed(() => {
+    const version = metadata.value?.app_version ?? '';
+
+    return /^\d/.test(version) ? `v${version}` : version;
+});
 </script>
 
 <template>
@@ -22,7 +28,7 @@ const metadata = computed(() => page.props.app?.metadata);
                     </span>
                 </span>
                 <span class="text-light-base-700 dark:text-base-200 inline-flex gap-2 text-xs">
-                    v{{ metadata?.app_version }}
+                    {{ appVersion }}
                     <span
                         v-if="metadata?.update_available"
                         class="text-success-600 dark:text-success-500 flex items-center gap-1.5"

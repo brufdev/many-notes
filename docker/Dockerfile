@@ -71,5 +71,7 @@ RUN cd /var/www/html \
     && chown -R www-data:www-data storage bootstrap/cache database/sqlite typesense .env \
     && chmod 600 .env
 COPY --chmod=755 ./docker/bin/many-notes-entrypoint /usr/local/bin/many-notes-entrypoint
+ARG APP_VERSION=dev
+ENV APP_VERSION=$APP_VERSION
 ENTRYPOINT ["many-notes-entrypoint"]
 CMD ["/init"]
