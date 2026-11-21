@@ -1,12 +1,20 @@
-FROM node:26.13.0-trixie-slim AS node
+FROM node:26.13.1-trixie-slim AS node
 
 FROM typesense/typesense:30.2 AS typesense
 
+FROM serversideup/php:8.4-fpm-nginx-trixie-v5.2.1 AS php
+
+# Typesense-stripped: Typesense without debug symbols
+FROM php AS typesense-stripped
+USER root
+COPY --from=typesense /opt/typesense-server /opt/typesense-server
+RUN strip /opt/typesense-server
+
 # Base: PHP runtime shared by every target
-FROM serversideup/php:8.4-fpm-nginx-trixie-v5.0.2 AS base
+FROM php AS base
 USER root
 ENV GLOG_minloglevel=1
-COPY --from=typesense --chmod=755 /opt/typesense-server /opt/typesense-server
+COPY --from=typesense-stripped --chmod=755 /opt/typesense-server /opt/typesense-server
 COPY --chmod=755 ./docker/nginx/reverb.conf /etc/nginx/server-opts.d/reverb.conf
 COPY --chmod=755 ./docker/s6-overlay/queue/ /etc/s6-overlay/s6-rc.d/queue
 COPY --chmod=755 ./docker/s6-overlay/reverb/ /etc/s6-overlay/s6-rc.d/reverb
