@@ -34,6 +34,26 @@ it('successfully authenticates a registered user', function (): void {
     $response->assertRedirect(route('vaults.show', ['vault' => 1]));
 });
 
+it('successfully authenticates a registered user whose email has a different case', function (): void {
+    $user = User::factory()->create(['email' => 'alice@example.com']);
+    $abstractUser = Mockery::mock(SocialiteUser::class);
+    $abstractUser->shouldReceive('getId')
+        ->andReturn(1234567890)
+        ->shouldReceive('getName')
+        ->andReturn($user->name)
+        ->shouldReceive('getEmail')
+        ->andReturn('Alice@Example.COM');
+    $provider = Mockery::mock(Provider::class);
+    $provider->shouldReceive('user')->andReturn($abstractUser);
+    Socialite::shouldReceive('driver')->with('github')->andReturn($provider);
+
+    $response = $this->get(route('oauth.store', ['provider' => 'github']));
+
+    $this->assertAuthenticatedAs($user);
+    $this->assertDatabaseCount('users', 1);
+    $response->assertRedirect(route('vaults.index'));
+});
+
 it('successfully authenticates an Azure user with mail instead of email', function (): void {
     config()->set('services.azure.client_id', str()->random(20));
     config()->set('services.azure.client_secret', str()->random(40));
@@ -114,6 +134,27 @@ it('successfully authenticates a non-registered user', function (): void {
 
     $response = $this->get(route('oauth.store', ['provider' => 'github']));
 
+    $response->assertRedirect(route('vaults.index'));
+});
+
+it('successfully authenticates a non-registered user with a lowercase email', function (): void {
+    $settings = Setting::create();
+    app()->bind(Setting::class, fn(): Setting => $settings->refresh());
+
+    $abstractUser = Mockery::mock(SocialiteUser::class);
+    $abstractUser->shouldReceive('getId')
+        ->andReturn(1234567890)
+        ->shouldReceive('getName')
+        ->andReturn(fake()->name())
+        ->shouldReceive('getEmail')
+        ->andReturn('Alice@Example.COM');
+    $provider = Mockery::mock(Provider::class);
+    $provider->shouldReceive('user')->andReturn($abstractUser);
+    Socialite::shouldReceive('driver')->with('github')->andReturn($provider);
+
+    $response = $this->get(route('oauth.store', ['provider' => 'github']));
+
+    $this->assertAuthenticatedAs(User::query()->where('email', 'alice@example.com')->sole());
     $response->assertRedirect(route('vaults.index'));
 });
 

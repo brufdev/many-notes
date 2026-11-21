@@ -89,13 +89,15 @@ final readonly class OAuthController
             return redirect(route('login', absolute: false));
         }
 
+        $userEmail = mb_strtolower((string) $userEmail);
+
         $socialAccount = SocialAccount::firstOrNew([
             'provider_name' => $provider,
             'provider_user_id' => $socialUser->getId(),
         ]);
 
         if (!$socialAccount->exists) {
-            $user = User::query()->where('email', $userEmail)->first();
+            $user = User::query()->whereRaw('LOWER(email) = LOWER(?)', [$userEmail])->first();
 
             if (!$user) {
                 if (!app(Setting::class)->registration) {
