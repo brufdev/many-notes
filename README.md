@@ -163,7 +163,7 @@ environment:
   - MAIL_PASSWORD=null
   - MAIL_ENCRYPTION=null
   - MAIL_FROM_ADDRESS=hello@example.com
-  - MAIL_FROM_NAME="Many Notes"
+  - MAIL_FROM_NAME=Many Notes
 ```
 
 ## Frequently Asked Questions
