@@ -7,14 +7,53 @@ When suggesting or submitting new features, consider whether they’re likely to
 ## Basics
 
 - Pull requests should target the `dev` branch
-- Changes must pass the full test suite before being reviewed
+- Changes must pass the Tests and Docker workflows before being reviewed
 - One pull request per feature or fix
 - Update documentation if your change affects how the project is used
 - Add tests for any new features
 - Use clear, focused commits with meaningful messages
 - Follow the existing coding style
 
+## Development environment
+
+The only requirement is Docker with Compose. Clone your fork and start it:
+
+```shell
+docker compose up -d
+```
+
+The first start takes a minute or two. It creates `.env`, generates the keys, installs the PHP and Node dependencies, and runs the migrations. Then open http://localhost:6683. The Vite dev server runs on port 6684, so changes to Vue and CSS files show up right away.
+
+If your user and group IDs aren't 1000 (check with `id -u` and `id -g`), create `.env` from `.env.example` before the first start and add your IDs:
+
+```
+PUID=1001
+PGID=1001
+```
+
+The IDs are set when the image is built, so run `docker compose up -d --build` after changing them. The ports can be changed the same way with `APP_PORT` and `VITE_PORT`. Update `APP_URL` to match.
+
+Run commands inside the `app` container:
+
+```shell
+docker compose exec app composer ci
+docker compose exec app php artisan migrate
+docker compose exec app npm run lint
+```
+
+After pulling changes to `composer.lock` or `package-lock.json`, run `docker compose restart` to install them. To see errors, run `docker compose logs -f app`.
+
+### Personal settings
+
+`compose.override.yaml` is ignored by git, so you can use it for your own additions, like a reverse proxy network or labels. Compose merges it with `compose.yaml` automatically. Keep application settings in `.env`, because values in the override's `environment` also apply to the tests and take precedence over `phpunit.xml`.
+
+### Without Docker
+
+You can also run Many Notes directly with PHP 8.4, Node 26, and Typesense. Start the web server, Reverb, the queue worker, Vite, and Typesense yourself, and fill in the keys in `.env`: run `php artisan key:generate` for `APP_KEY`, and use any random string for `REVERB_APP_SECRET` and `TYPESENSE_API_KEY`.
+
 ## Code style
+
+The commands below run inside the `app` container. Prefix them with `docker compose exec app`, for example `docker compose exec app composer ci`.
 
 ### PHP
 
@@ -40,7 +79,7 @@ CI runs all three of these, so please run them before you open a pull request:
 
 The first two have a matching fix command: `npm run lint:fix` and `npm run format:fix`.
 
-If typecheck says it cannot find `@/actions/...` or `@/routes/...`, run `npm run build` to generate them.
+If typecheck says it cannot find `@/actions/...` or `@/routes/...`, the Vite dev server isn't running. Start it with `docker compose up -d`, or run `npm run build` to generate them.
 
 ### Vue components
 
@@ -66,7 +105,7 @@ Steps 2 to 10 are a convention rather than a lint rule, so it is something to wa
 1. Fork the repository
 2. Create a new branch from `dev`
 3. Make your changes with focused commits
-4. Add tests, run `composer test`, and make sure it passes
+4. Add tests, run `docker compose exec app composer ci`, and make sure it passes
 5. Submit a pull request to the `dev` branch
 
 ## Code of Conduct
