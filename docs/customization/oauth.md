@@ -15,7 +15,7 @@ environment:
   - OIDC_NAME=Your provider # name shown on the login button
   - OIDC_CLIENT_ID=CLIENT_ID # change id
   - OIDC_CLIENT_SECRET=CLIENT_SECRET # change secret
-  - OIDC_REDIRECT_URI=http://localhost/oauth/oidc/callback # change domain
+  - OIDC_REDIRECT_URI=http://localhost:6683/oauth/oidc/callback # change domain
   - OIDC_BASE_URL=https://your-provider-url # change url
 ```
 
@@ -50,13 +50,13 @@ environment:
   - OIDC_POCKETID_NAME=Pocket ID # name shown on the login button
   - OIDC_POCKETID_CLIENT_ID=CLIENT_ID # change id
   - OIDC_POCKETID_CLIENT_SECRET=CLIENT_SECRET # change secret
-  - OIDC_POCKETID_REDIRECT_URI=http://localhost/oauth/oidc_pocketid/callback # change domain
+  - OIDC_POCKETID_REDIRECT_URI=http://localhost:6683/oauth/oidc_pocketid/callback # change domain
   - OIDC_POCKETID_BASE_URL=https://your-pocketid-url # change url
   # second provider:
   - OIDC_CORP_NAME=Corp SSO # name shown on the login button
   - OIDC_CORP_CLIENT_ID=CLIENT_ID # change id
   - OIDC_CORP_CLIENT_SECRET=CLIENT_SECRET # change secret
-  - OIDC_CORP_REDIRECT_URI=http://localhost/oauth/oidc_corp/callback # change domain
+  - OIDC_CORP_REDIRECT_URI=http://localhost:6683/oauth/oidc_corp/callback # change domain
   - OIDC_CORP_BASE_URL=https://your-corp-url # change url
 ```
 
@@ -76,7 +76,7 @@ Bitbucket, Facebook, GitHub, GitLab, Google, LinkedIn, Slack, and Twitter need o
 environment:
   - GITHUB_CLIENT_ID=CLIENT_ID # change id
   - GITHUB_CLIENT_SECRET=CLIENT_SECRET # change secret
-  - GITHUB_REDIRECT_URI=http://localhost/oauth/github/callback # change domain
+  - GITHUB_REDIRECT_URI=http://localhost:6683/oauth/github/callback # change domain
 ```
 
 The providers below need extra variables.
@@ -87,7 +87,7 @@ The providers below need extra variables.
 environment:
   - AUTH0_CLIENT_ID=CLIENT_ID # change id
   - AUTH0_CLIENT_SECRET=CLIENT_SECRET # change secret
-  - AUTH0_REDIRECT_URI=http://localhost/oauth/auth0/callback # change domain
+  - AUTH0_REDIRECT_URI=http://localhost:6683/oauth/auth0/callback # change domain
   - AUTH0_BASE_URL=https://your-auth0-url # change url
 ```
 
@@ -97,7 +97,7 @@ environment:
 environment:
   - AUTHELIA_CLIENT_ID=CLIENT_ID # change id
   - AUTHELIA_CLIENT_SECRET=CLIENT_SECRET # change secret
-  - AUTHELIA_REDIRECT_URI=http://localhost/oauth/authelia/callback # change domain
+  - AUTHELIA_REDIRECT_URI=http://localhost:6683/oauth/authelia/callback # change domain
   - AUTHELIA_BASE_URL=https://your-authelia-url # change url
 ```
 
@@ -107,7 +107,7 @@ environment:
 environment:
   - AUTHENTIK_CLIENT_ID=CLIENT_ID # change id
   - AUTHENTIK_CLIENT_SECRET=CLIENT_SECRET # change secret
-  - AUTHENTIK_REDIRECT_URI=http://localhost/oauth/authentik/callback # change domain
+  - AUTHENTIK_REDIRECT_URI=http://localhost:6683/oauth/authentik/callback # change domain
   - AUTHENTIK_BASE_URL=https://your-authentik-url # change url
 ```
 
@@ -117,7 +117,7 @@ environment:
 environment:
   - AZURE_CLIENT_ID=CLIENT_ID # change id
   - AZURE_CLIENT_SECRET=CLIENT_SECRET # change secret
-  - AZURE_REDIRECT_URI=http://localhost/oauth/azure/callback # change domain
+  - AZURE_REDIRECT_URI=http://localhost:6683/oauth/azure/callback # change domain
   - AZURE_TENANT_ID=TENANT_ID # change id
   - AZURE_PROXY=http://your-proxy-url # change url (optional configuration)
 ```
@@ -128,7 +128,7 @@ environment:
 environment:
   - KEYCLOAK_CLIENT_ID=CLIENT_ID # change id
   - KEYCLOAK_CLIENT_SECRET=CLIENT_SECRET # change secret
-  - KEYCLOAK_REDIRECT_URI=http://localhost/oauth/keycloak/callback # change domain
+  - KEYCLOAK_REDIRECT_URI=http://localhost:6683/oauth/keycloak/callback # change domain
   - KEYCLOAK_BASE_URL=https://your-keycloak-url # change url
   - KEYCLOAK_REALM=YOUR_REALM # change realm
 ```
@@ -139,7 +139,7 @@ environment:
 environment:
   - POCKETID_CLIENT_ID=CLIENT_ID # change id
   - POCKETID_CLIENT_SECRET=CLIENT_SECRET # change secret
-  - POCKETID_REDIRECT_URI=http://localhost/oauth/pocketid/callback # change domain
+  - POCKETID_REDIRECT_URI=http://localhost:6683/oauth/pocketid/callback # change domain
   - POCKETID_BASE_URL=https://your-pocketid-url # change url
   - POCKETID_USE_PKCE=false # set to true if you want to use PKCE (optional configuration)
 ```
@@ -150,7 +150,7 @@ environment:
 environment:
   - ZITADEL_CLIENT_ID=CLIENT_ID # change id
   - ZITADEL_CLIENT_SECRET=CLIENT_SECRET # change secret
-  - ZITADEL_REDIRECT_URI=http://localhost/oauth/zitadel/callback # change domain
+  - ZITADEL_REDIRECT_URI=http://localhost:6683/oauth/zitadel/callback # change domain
   - ZITADEL_BASE_URL=https://your-zitadel-url # change url
   - ZITADEL_ORGANIZATION_ID=ORGANIZATION_ID # change id (optional configuration)
   - ZITADEL_PROJECT_ID=PROJECT_ID # change id (optional configuration)

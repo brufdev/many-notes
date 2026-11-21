@@ -57,6 +57,8 @@ RUN cp .env.example .env \
 FROM base AS production
 ENV APP_ENV=production \
     APP_DEBUG=false \
+    LOG_STACK=stderr,daily \
+    MAIL_LOG_CHANNEL=daily \
     PHP_OPCACHE_ENABLE=1 \
     PHP_POST_MAX_SIZE="500M" \
     PHP_UPLOAD_MAX_FILE_SIZE="500M" \

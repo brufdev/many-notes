@@ -4,34 +4,17 @@ This guide will help you find the answers to the most common questions about Man
 
 ## How to debug the application
 
-### Application logs
-
-Application errors are written to `storage/logs/laravel.log` inside the container. They are not shown in the container log, which only records web requests.
-
-To watch for errors while you reproduce a problem, run:
+Application errors are written to the container log, and also saved in the `logs` folder, one file per day for the last 14 days. To see them, run:
 
 ```shell
-docker compose exec app tail -f storage/logs/laravel.log
+docker compose logs app
 ```
 
-To see the last few errors instead:
+To watch for new errors while you reproduce a problem, add `-f`:
 
 ```shell
-docker compose exec app grep -a "\.ERROR" storage/logs/laravel.log | tail -5
+docker compose logs -f app
 ```
-
-### Debug mode
-
-Debug mode shows the full error in the browser when a page crashes. It has no effect on errors the application handles itself, such as a failed login, which are only written to the log.
-
-You can enable debug mode in your `compose.yaml` file by adding:
-
-```yaml
-environment:
-  - APP_DEBUG=true
-```
-
-Turn it off again afterwards, because the error page exposes details about your installation.
 
 ## The search feature is not returning any results
 

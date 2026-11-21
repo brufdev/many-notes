@@ -57,7 +57,13 @@ If you find this project useful, consider supporting its development:
 
 **Read the [upgrading guide](./UPGRADING.md) if you are upgrading from a previous version.**
 
-Create a `compose.yaml` file with:
+Download the [`compose.yaml`](./docker/compose.yaml) file:
+
+```shell
+curl -O https://raw.githubusercontent.com/brufdev/many-notes/main/docker/compose.yaml
+```
+
+Or create it with:
 
 ```yaml
 services:
@@ -65,7 +71,7 @@ services:
     image: brufdev/many-notes:latest
     restart: unless-stopped
     environment:
-      - APP_URL=http://localhost # address used to access the application
+      - APP_URL=http://localhost:6683 # address used to access the application
       - PUID=1000 # host user id
       - PGID=1000 # host group id
     volumes:
@@ -74,7 +80,7 @@ services:
       - ./private:/var/www/html/storage/app/private
       - ./typesense:/var/www/html/typesense
     ports:
-      - 80:8080
+      - 6683:8080
 ```
 
 Many Notes runs as the user and group set by `PUID` and `PGID`, so the shared folders belong to your host user. Run `id -u` and `id -g` on the host to find your IDs. The folders are created next to `compose.yaml` on the first start.
@@ -91,22 +97,13 @@ To use PostgreSQL, MySQL, or MariaDB instead of SQLite, read the [different data
 
 You can customize Many Notes by adding environment variables to the `compose.yaml` file.
 
-### Custom URL (default: http://localhost)
+### Custom URL (default: http://localhost:6683)
 
-If you change the default port from 80 or use a reverse proxy with a custom URL, make sure to configure the application URL accordingly. For example, if you change the port to 8080, add:
-
-```yaml
-environment:
-  - APP_URL=http://localhost:8080
-```
-
-### Custom timezone (default: UTC)
-
-Check all available timezones [here](https://www.php.net/manual/en/timezones.php). For example, if you want to set the timezone to Amsterdam, add:
+If you use a reverse proxy or change the port, set the application URL to the address you open in the browser. For example, if a reverse proxy serves Many Notes at `https://notes.example.com`, add:
 
 ```yaml
 environment:
-  - APP_TIMEZONE=Europe/Amsterdam
+  - APP_URL=https://notes.example.com
 ```
 
 ### Custom upload size limit (default: 500M)
@@ -130,7 +127,7 @@ environment:
   - OIDC_NAME=Pocket ID # name shown on the login button
   - OIDC_CLIENT_ID=CLIENT_ID # change id
   - OIDC_CLIENT_SECRET=CLIENT_SECRET # change secret
-  - OIDC_REDIRECT_URI=http://localhost/oauth/oidc/callback # change domain
+  - OIDC_REDIRECT_URI=http://localhost:6683/oauth/oidc/callback # change domain
   - OIDC_BASE_URL=https://your-pocketid-url # change url
 ```
 
@@ -146,7 +143,7 @@ environment:
   - OIDC_NAME=Pocket ID # name shown on the login button
   - OIDC_CLIENT_ID=CLIENT_ID # change id
   - OIDC_CLIENT_SECRET=CLIENT_SECRET # change secret
-  - OIDC_REDIRECT_URI=http://localhost/oauth/oidc/callback # change domain
+  - OIDC_REDIRECT_URI=http://localhost:6683/oauth/oidc/callback # change domain
   - OIDC_BASE_URL=https://your-pocketid-url # change url
   # disabling local authentication:
   - OIDC_POST_LOGOUT_REDIRECT_URI=https://your-pocketid-url/logout # change URL
@@ -155,7 +152,7 @@ environment:
 
 ### Custom email service
 
-Configure an email service to send registration and password reset emails by adding:
+Configure an email service to send password reset emails by adding:
 
 ```yaml
 environment:

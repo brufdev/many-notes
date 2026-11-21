@@ -1,0 +1,15 @@
+services:
+  app:
+    image: brufdev/many-notes:latest
+    restart: unless-stopped
+    environment:
+      - APP_URL=http://localhost:6683 # address used to access the application
+      - PUID=1000 # host user id
+      - PGID=1000 # host group id
+    volumes:
+      - ./database:/var/www/html/database/sqlite
+      - ./logs:/var/www/html/storage/logs
+      - ./private:/var/www/html/storage/app/private
+      - ./typesense:/var/www/html/typesense
+    ports:
+      - 6683:8080
