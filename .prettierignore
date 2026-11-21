@@ -11,3 +11,4 @@ vendor/**
 **/*.yml
 **/*.json
 **/*.md
+**/*.yaml
