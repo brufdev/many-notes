@@ -49,7 +49,7 @@ After pulling changes to `composer.lock` or `package-lock.json`, run `docker com
 
 ### Without Docker
 
-You can also run Many Notes directly with PHP 8.4, Node 26, and Typesense. Start the web server, Reverb, the queue worker, Vite, and Typesense yourself, and fill in the keys in `.env`: run `php artisan key:generate` for `APP_KEY`, and use any random string for `REVERB_APP_SECRET` and `TYPESENSE_API_KEY`.
+You can also run Many Notes directly with PHP 8.5, Node 26, and Typesense. Start the web server, Reverb, the queue worker, Vite, and Typesense yourself, and fill in the keys in `.env`: run `php artisan key:generate` for `APP_KEY`, and use any random string for `REVERB_APP_SECRET` and `TYPESENSE_API_KEY`.
 
 ## Code style
 

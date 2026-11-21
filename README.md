@@ -4,7 +4,7 @@
 
 <p align="center">
     <img alt="Latest version" src="https://img.shields.io/github/v/release/brufdev/many-notes?label=version" />
-    <img alt="PHP version" src="https://img.shields.io/badge/PHP-8.4-777BB4?logo=php" />
+    <img alt="PHP version" src="https://img.shields.io/badge/PHP-8.5-777BB4?logo=php" />
     <img alt="Tests" src="https://img.shields.io/github/check-runs/brufdev/many-notes/main?label=tests" />
     <img alt="License" src="https://img.shields.io/github/license/brufdev/many-notes" />
 </p>

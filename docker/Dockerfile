@@ -2,7 +2,7 @@ FROM node:26.13.1-trixie-slim AS node
 
 FROM typesense/typesense:30.2 AS typesense
 
-FROM serversideup/php:8.4-fpm-nginx-trixie-v5.2.1 AS php
+FROM serversideup/php:8.5-fpm-nginx-trixie-v5.2.1 AS php
 
 # Typesense-stripped: Typesense without debug symbols
 FROM php AS typesense-stripped
