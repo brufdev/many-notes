@@ -55,6 +55,35 @@ it('updates the user name and email on OAuth login', function (): void {
     $response->assertRedirect(route('vaults.index'));
 });
 
+it('keeps the user email on OAuth login if another user has it', function (): void {
+    $user = User::factory()->create();
+    $otherUser = User::factory()->create();
+    $providerUserId = fake()->randomNumber(9, true);
+    $newName = fake()->name();
+    $user->socialAccounts()->create([
+        'provider_name' => 'github',
+        'provider_user_id' => $providerUserId,
+    ]);
+    $abstractUser = Mockery::mock(SocialiteUser::class);
+    $abstractUser->shouldReceive('getId')
+        ->andReturn($providerUserId)
+        ->shouldReceive('getName')
+        ->andReturn($newName)
+        ->shouldReceive('getEmail')
+        ->andReturn(mb_strtoupper($otherUser->email));
+    $provider = Mockery::mock(Provider::class);
+    $provider->shouldReceive('user')->andReturn($abstractUser);
+    Socialite::shouldReceive('driver')->with('github')->andReturn($provider);
+
+    $response = $this->get(route('oauth.store', ['provider' => 'github']));
+
+    $freshUser = $user->fresh();
+    $this->assertAuthenticatedAs($user);
+    expect($freshUser->name)->toBe($newName);
+    expect($freshUser->email)->toBe($user->email);
+    $response->assertRedirect(route('vaults.index'));
+});
+
 it('logs out the user and redirects to the post_logout_redirect_uri', function (): void {
     $user = User::factory()->create();
 

@@ -126,12 +126,14 @@ final readonly class OAuthController
         $user = $socialAccount->user;
 
         if (!$isLocalAuthEnabled->handle()) {
-            $user->update([
-                'name' => $userName,
-                'email' => $userEmail,
-            ]);
+            $isEmailTaken = User::query()
+                ->whereKeyNot($user->id)
+                ->whereRaw('LOWER(email) = LOWER(?)', [$userEmail])
+                ->exists();
 
-            $user->save();
+            $user->update($isEmailTaken
+                ? ['name' => $userName]
+                : ['name' => $userName, 'email' => $userEmail]);
         }
 
         Auth::login($user, true);
